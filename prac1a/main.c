@@ -34,11 +34,11 @@ int setup(void)
 	//que configurar los pines 6 y 7 del puerto G como pines de entrada y
 	//activar las correspondientes resistencias de pull-up
 	
-	portG_conf_pup(6, ENABLE);
 	portG_conf(6, INPUT);
+	portG_conf_pup(6, ENABLE);
 
-	portG_conf_pup(7, ENABLE);
 	portG_conf(7, INPUT);
+	portG_conf_pup(7, ENABLE);
 
 	/*******************************************/
 

@@ -1147,23 +1147,23 @@ int setup(void)
 	//que configurar los pines 6 y 7 del puerto G como pines de entrada y
 	//activar las correspondientes resistencias de pull-up
 	
-	portG_conf_pup(6, ENABLE);
- c100b58:	e3a00006 	mov	r0, #6
- c100b5c:	e3a01001 	mov	r1, #1
- c100b60:	ebfffee7 	bl	c100704 <portG_conf_pup>
 	portG_conf(6, INPUT);
+ c100b58:	e3a00006 	mov	r0, #6
+ c100b5c:	e3a01000 	mov	r1, #0
+ c100b60:	ebfffdfc 	bl	c100358 <portG_conf>
+	portG_conf_pup(6, ENABLE);
  c100b64:	e3a00006 	mov	r0, #6
- c100b68:	e3a01000 	mov	r1, #0
- c100b6c:	ebfffdf9 	bl	c100358 <portG_conf>
+ c100b68:	e3a01001 	mov	r1, #1
+ c100b6c:	ebfffee4 	bl	c100704 <portG_conf_pup>
 
-	portG_conf_pup(7, ENABLE);
- c100b70:	e3a00007 	mov	r0, #7
- c100b74:	e3a01001 	mov	r1, #1
- c100b78:	ebfffee1 	bl	c100704 <portG_conf_pup>
 	portG_conf(7, INPUT);
+ c100b70:	e3a00007 	mov	r0, #7
+ c100b74:	e3a01000 	mov	r1, #0
+ c100b78:	ebfffdf6 	bl	c100358 <portG_conf>
+	portG_conf_pup(7, ENABLE);
  c100b7c:	e3a00007 	mov	r0, #7
- c100b80:	e3a01000 	mov	r1, #0
- c100b84:	ebfffdf3 	bl	c100358 <portG_conf>
+ c100b80:	e3a01001 	mov	r1, #1
+ c100b84:	ebfffede 	bl	c100704 <portG_conf_pup>
 
 	/*******************************************/
 

@@ -83,27 +83,27 @@
   34:../main.c     **** 	//que configurar los pines 6 y 7 del puerto G como pines de entrada y
   35:../main.c     **** 	//activar las correspondientes resistencias de pull-up
   36:../main.c     **** 	
-  37:../main.c     **** 	portG_conf_pup(6, ENABLE);
+  37:../main.c     **** 	portG_conf(6, INPUT);
  2772              		.loc 1 37 0
  2773 0024 0600A0E3 		mov	r0, #6
- 2774 0028 0110A0E3 		mov	r1, #1
- 2775 002c FEFFFFEB 		bl	portG_conf_pup
-  38:../main.c     **** 	portG_conf(6, INPUT);
+ 2774 0028 0010A0E3 		mov	r1, #0
+ 2775 002c FEFFFFEB 		bl	portG_conf
+  38:../main.c     **** 	portG_conf_pup(6, ENABLE);
  2776              		.loc 1 38 0
  2777 0030 0600A0E3 		mov	r0, #6
- 2778 0034 0010A0E3 		mov	r1, #0
- 2779 0038 FEFFFFEB 		bl	portG_conf
+ 2778 0034 0110A0E3 		mov	r1, #1
+ 2779 0038 FEFFFFEB 		bl	portG_conf_pup
   39:../main.c     **** 
-  40:../main.c     **** 	portG_conf_pup(7, ENABLE);
+  40:../main.c     **** 	portG_conf(7, INPUT);
  2780              		.loc 1 40 0
  2781 003c 0700A0E3 		mov	r0, #7
- 2782 0040 0110A0E3 		mov	r1, #1
- 2783 0044 FEFFFFEB 		bl	portG_conf_pup
-  41:../main.c     **** 	portG_conf(7, INPUT);
+ 2782 0040 0010A0E3 		mov	r1, #0
+ 2783 0044 FEFFFFEB 		bl	portG_conf
+  41:../main.c     **** 	portG_conf_pup(7, ENABLE);
  2784              		.loc 1 41 0
  2785 0048 0700A0E3 		mov	r0, #7
- 2786 004c 0010A0E3 		mov	r1, #0
- 2787 0050 FEFFFFEB 		bl	portG_conf
+ 2786 004c 0110A0E3 		mov	r1, #1
+ 2787 0050 FEFFFFEB 		bl	portG_conf_pup
   42:../main.c     **** 
   43:../main.c     **** 	/*******************************************/
   44:../main.c     **** 
@@ -416,24 +416,24 @@
  3004              	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2733   .data:00000000 $d
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2736   .data:00000000 RL
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2743   .text:00000000 $a
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2746   .text:00000000 setup
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2801   .text:00000070 $d
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2805   .text:00000074 $a
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2808   .text:00000074 loop
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2970   .text:00000228 $d
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2974   .text:0000022c $a
-C:\Users\Pedro\AppData\Local\Temp\ccsOSkEX.s:2977   .text:0000022c main
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2733   .data:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2736   .data:00000000 RL
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2743   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2746   .text:00000000 setup
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2801   .text:00000070 $d
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2805   .text:00000074 $a
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2808   .text:00000074 loop
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2970   .text:00000228 $d
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2974   .text:0000022c $a
+C:\Users\Pedro\AppData\Local\Temp\ccaW9bGP.s:2977   .text:0000022c main
                      .debug_frame:00000010 $d
 
 UNDEFINED SYMBOLS
 leds_init
 D8Led_init
 D8Led_segment
-portG_conf_pup
 portG_conf
+portG_conf_pup
 Delay
 read_button
 led1_off
