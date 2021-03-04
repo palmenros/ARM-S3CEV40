@@ -160,7 +160,7 @@ OUTPUT(prac2a.elf elf32-littlearm)
  .debug_abbrev  0x000004b2       0xa5 ./timer.o
  .debug_abbrev  0x00000557       0x65 ./utils.o
 
-.debug_info     0x00000000     0x1019
+.debug_info     0x00000000     0x1032
  .debug_info    0x00000000       0xdf ./D8Led.o
  .debug_info    0x000000df       0x84 ./button.o
  .debug_info    0x00000163      0x291 ./gpio.o
@@ -168,9 +168,9 @@ OUTPUT(prac2a.elf elf32-littlearm)
  .debug_info    0x00000448      0x29e ./intcontroller.o
  .debug_info    0x000006e6       0xeb ./keyboard.o
  .debug_info    0x000007d1      0x151 ./leds.o
- .debug_info    0x00000922      0x34f ./main.o
- .debug_info    0x00000c71      0x324 ./timer.o
- .debug_info    0x00000f95       0x84 ./utils.o
+ .debug_info    0x00000922      0x368 ./main.o
+ .debug_info    0x00000c8a      0x324 ./timer.o
+ .debug_info    0x00000fae       0x84 ./utils.o
 
 .debug_line     0x00000000      0x902
  .debug_line    0x00000000       0x6d ./D8Led.o
@@ -237,7 +237,7 @@ OUTPUT(prac2a.elf elf32-littlearm)
                 0x00000310       0x1c ./utils.o
 
 .debug_pubtypes
-                0x00000000      0x1c0
+                0x00000000      0x1cd
  .debug_pubtypes
                 0x00000000       0x12 ./D8Led.o
  .debug_pubtypes
@@ -251,11 +251,11 @@ OUTPUT(prac2a.elf elf32-littlearm)
  .debug_pubtypes
                 0x000000c8       0x2b ./leds.o
  .debug_pubtypes
-                0x000000f3       0x82 ./main.o
+                0x000000f3       0x8f ./main.o
  .debug_pubtypes
-                0x00000175       0x39 ./timer.o
+                0x00000182       0x39 ./timer.o
  .debug_pubtypes
-                0x000001ae       0x12 ./utils.o
+                0x000001bb       0x12 ./utils.o
 
 .debug_aranges  0x00000000      0x140
  .debug_aranges
@@ -293,7 +293,7 @@ OUTPUT(prac2a.elf elf32-littlearm)
  .debug_str     0x00000323       0x73 ./leds.o
                                  0xed (size before relaxing)
  .debug_str     0x00000396      0x111 ./main.o
-                                0x341 (size before relaxing)
+                                0x34a (size before relaxing)
  .debug_str     0x000004a7       0x89 ./timer.o
                                 0x143 (size before relaxing)
  .debug_str     0x00000530       0x2c ./utils.o

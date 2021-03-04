@@ -11,27 +11,27 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
   3 .debug_abbrev 000005bc  00000000  00000000  0000a02c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_info   00001019  00000000  00000000  0000a5e8  2**0
+  4 .debug_info   00001032  00000000  00000000  0000a5e8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_line   00000902  00000000  00000000  0000b601  2**0
+  5 .debug_line   00000902  00000000  00000000  0000b61a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_macinfo 0002daa2  00000000  00000000  0000bf03  2**0
+  6 .debug_macinfo 0002daa2  00000000  00000000  0000bf1c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_loc    00000764  00000000  00000000  000399a5  2**0
+  7 .debug_loc    00000764  00000000  00000000  000399be  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_pubnames 0000032c  00000000  00000000  0003a109  2**0
+  8 .debug_pubnames 0000032c  00000000  00000000  0003a122  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_pubtypes 000001c0  00000000  00000000  0003a435  2**0
+  9 .debug_pubtypes 000001cd  00000000  00000000  0003a44e  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_aranges 00000140  00000000  00000000  0003a5f8  2**3
+ 10 .debug_aranges 00000140  00000000  00000000  0003a620  2**3
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    0000055c  00000000  00000000  0003a738  2**0
+ 11 .debug_str    0000055c  00000000  00000000  0003a760  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .comment      0000002a  00000000  00000000  0003ac94  2**0
+ 12 .comment      0000002a  00000000  00000000  0003acbc  2**0
                   CONTENTS, READONLY
- 13 .ARM.attributes 00000030  00000000  00000000  0003acbe  2**0
+ 13 .ARM.attributes 00000030  00000000  00000000  0003ace6  2**0
                   CONTENTS, READONLY
- 14 .debug_frame  00000638  00000000  00000000  0003acf0  2**2
+ 14 .debug_frame  00000638  00000000  00000000  0003ad18  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -2122,31 +2122,31 @@ int setup(void)
 	//externas por flanco de bajada por ellos y activar las correspondientes
 	//resistencias de pull-up.
 
-	portG_conf_pup(6, ENABLE);
- c10158c:	e3a00006 	mov	r0, #6
- c101590:	e3a01001 	mov	r1, #1
- c101594:	ebfffd17 	bl	c1009f8 <portG_conf_pup>
 	portG_conf(6, EINT);
- c101598:	e3a00006 	mov	r0, #6
- c10159c:	e3a01003 	mov	r1, #3
- c1015a0:	ebfffb81 	bl	c1003ac <portG_conf>
+ c10158c:	e3a00006 	mov	r0, #6
+ c101590:	e3a01003 	mov	r1, #3
+ c101594:	ebfffb84 	bl	c1003ac <portG_conf>
 	portG_eint_trig(6, FALLING);
+ c101598:	e3a00006 	mov	r0, #6
+ c10159c:	e3a01002 	mov	r1, #2
+ c1015a0:	ebfffbef 	bl	c100564 <portG_eint_trig>
+	portG_conf_pup(6, ENABLE);
  c1015a4:	e3a00006 	mov	r0, #6
- c1015a8:	e3a01002 	mov	r1, #2
- c1015ac:	ebfffbec 	bl	c100564 <portG_eint_trig>
+ c1015a8:	e3a01001 	mov	r1, #1
+ c1015ac:	ebfffd11 	bl	c1009f8 <portG_conf_pup>
 
-	portG_conf_pup(7, ENABLE);
- c1015b0:	e3a00007 	mov	r0, #7
- c1015b4:	e3a01001 	mov	r1, #1
- c1015b8:	ebfffd0e 	bl	c1009f8 <portG_conf_pup>
 	portG_conf(7, EINT);
- c1015bc:	e3a00007 	mov	r0, #7
- c1015c0:	e3a01003 	mov	r1, #3
- c1015c4:	ebfffb78 	bl	c1003ac <portG_conf>
+ c1015b0:	e3a00007 	mov	r0, #7
+ c1015b4:	e3a01003 	mov	r1, #3
+ c1015b8:	ebfffb7b 	bl	c1003ac <portG_conf>
 	portG_eint_trig(7, FALLING);
+ c1015bc:	e3a00007 	mov	r0, #7
+ c1015c0:	e3a01002 	mov	r1, #2
+ c1015c4:	ebfffbe6 	bl	c100564 <portG_eint_trig>
+	portG_conf_pup(7, ENABLE);
  c1015c8:	e3a00007 	mov	r0, #7
- c1015cc:	e3a01002 	mov	r1, #2
- c1015d0:	ebfffbe3 	bl	c100564 <portG_eint_trig>
+ c1015cc:	e3a01001 	mov	r1, #1
+ c1015d0:	ebfffd08 	bl	c1009f8 <portG_conf_pup>
 
 	/* Configuración del timer */
 
@@ -2214,13 +2214,13 @@ int setup(void)
 	ic_conf_fiq(DISABLE);
  c101650:	e3a00000 	mov	r0, #0
  c101654:	ebfffd99 	bl	c100cc0 <ic_conf_fiq>
-	ic_conf_line(INT_TIMER0, ENABLE);
+	ic_conf_line(INT_TIMER0, IRQ);
  c101658:	e3a0000d 	mov	r0, #13
- c10165c:	e3a01001 	mov	r1, #1
+ c10165c:	e3a01000 	mov	r1, #0
  c101660:	ebfffdb7 	bl	c100d44 <ic_conf_line>
-	ic_conf_line(INT_EINT4567, ENABLE);
+	ic_conf_line(INT_EINT4567, IRQ);
  c101664:	e3a00015 	mov	r0, #21
- c101668:	e3a01001 	mov	r1, #1
+ c101668:	e3a01000 	mov	r1, #0
  c10166c:	ebfffdb4 	bl	c100d44 <ic_conf_line>
 	ic_enable(INT_TIMER0);
  c101670:	e3a0000d 	mov	r0, #13

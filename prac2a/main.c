@@ -184,13 +184,13 @@ int setup(void)
 	//externas por flanco de bajada por ellos y activar las correspondientes
 	//resistencias de pull-up.
 
-	portG_conf_pup(6, ENABLE);
 	portG_conf(6, EINT);
 	portG_eint_trig(6, FALLING);
+	portG_conf_pup(6, ENABLE);
 
-	portG_conf_pup(7, ENABLE);
 	portG_conf(7, EINT);
 	portG_eint_trig(7, FALLING);
+	portG_conf_pup(7, ENABLE);
 
 	/********************************************************************/
 
@@ -238,8 +238,8 @@ int setup(void)
 
 	ic_conf_irq(ENABLE, VEC);
 	ic_conf_fiq(DISABLE);
-	ic_conf_line(INT_TIMER0, ENABLE);
-	ic_conf_line(INT_EINT4567, ENABLE);
+	ic_conf_line(INT_TIMER0, IRQ);
+	ic_conf_line(INT_EINT4567, IRQ);
 	ic_enable(INT_TIMER0);
 	ic_enable(INT_EINT4567);
 	ic_enable(INT_GLOBAL);

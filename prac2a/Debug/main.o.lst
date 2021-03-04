@@ -521,37 +521,37 @@
  184:../main.c     **** 	//externas por flanco de bajada por ellos y activar las correspondientes
  185:../main.c     **** 	//resistencias de pull-up.
  186:../main.c     **** 
- 187:../main.c     **** 	portG_conf_pup(6, ENABLE);
+ 187:../main.c     **** 	portG_conf(6, EINT);
  3093              		.loc 1 187 0
  3094 02a8 0600A0E3 		mov	r0, #6
- 3095 02ac 0110A0E3 		mov	r1, #1
- 3096 02b0 FEFFFFEB 		bl	portG_conf_pup
- 188:../main.c     **** 	portG_conf(6, EINT);
+ 3095 02ac 0310A0E3 		mov	r1, #3
+ 3096 02b0 FEFFFFEB 		bl	portG_conf
+ 188:../main.c     **** 	portG_eint_trig(6, FALLING);
  3097              		.loc 1 188 0
  3098 02b4 0600A0E3 		mov	r0, #6
- 3099 02b8 0310A0E3 		mov	r1, #3
- 3100 02bc FEFFFFEB 		bl	portG_conf
- 189:../main.c     **** 	portG_eint_trig(6, FALLING);
+ 3099 02b8 0210A0E3 		mov	r1, #2
+ 3100 02bc FEFFFFEB 		bl	portG_eint_trig
+ 189:../main.c     **** 	portG_conf_pup(6, ENABLE);
  3101              		.loc 1 189 0
  3102 02c0 0600A0E3 		mov	r0, #6
- 3103 02c4 0210A0E3 		mov	r1, #2
- 3104 02c8 FEFFFFEB 		bl	portG_eint_trig
+ 3103 02c4 0110A0E3 		mov	r1, #1
+ 3104 02c8 FEFFFFEB 		bl	portG_conf_pup
  190:../main.c     **** 
- 191:../main.c     **** 	portG_conf_pup(7, ENABLE);
+ 191:../main.c     **** 	portG_conf(7, EINT);
  3105              		.loc 1 191 0
  3106 02cc 0700A0E3 		mov	r0, #7
- 3107 02d0 0110A0E3 		mov	r1, #1
- 3108 02d4 FEFFFFEB 		bl	portG_conf_pup
- 192:../main.c     **** 	portG_conf(7, EINT);
+ 3107 02d0 0310A0E3 		mov	r1, #3
+ 3108 02d4 FEFFFFEB 		bl	portG_conf
+ 192:../main.c     **** 	portG_eint_trig(7, FALLING);
  3109              		.loc 1 192 0
  3110 02d8 0700A0E3 		mov	r0, #7
- 3111 02dc 0310A0E3 		mov	r1, #3
- 3112 02e0 FEFFFFEB 		bl	portG_conf
- 193:../main.c     **** 	portG_eint_trig(7, FALLING);
+ 3111 02dc 0210A0E3 		mov	r1, #2
+ 3112 02e0 FEFFFFEB 		bl	portG_eint_trig
+ 193:../main.c     **** 	portG_conf_pup(7, ENABLE);
  3113              		.loc 1 193 0
  3114 02e4 0700A0E3 		mov	r0, #7
- 3115 02e8 0210A0E3 		mov	r1, #2
- 3116 02ec FEFFFFEB 		bl	portG_eint_trig
+ 3115 02e8 0110A0E3 		mov	r1, #1
+ 3116 02ec FEFFFFEB 		bl	portG_conf_pup
  194:../main.c     **** 
  195:../main.c     **** 	/********************************************************************/
  196:../main.c     **** 
@@ -645,15 +645,15 @@
  3160              		.loc 1 240 0
  3161 036c 0000A0E3 		mov	r0, #0
  3162 0370 FEFFFFEB 		bl	ic_conf_fiq
- 241:../main.c     **** 	ic_conf_line(INT_TIMER0, ENABLE);
+ 241:../main.c     **** 	ic_conf_line(INT_TIMER0, IRQ);
  3163              		.loc 1 241 0
  3164 0374 0D00A0E3 		mov	r0, #13
- 3165 0378 0110A0E3 		mov	r1, #1
+ 3165 0378 0010A0E3 		mov	r1, #0
  3166 037c FEFFFFEB 		bl	ic_conf_line
- 242:../main.c     **** 	ic_conf_line(INT_EINT4567, ENABLE);
+ 242:../main.c     **** 	ic_conf_line(INT_EINT4567, IRQ);
  3167              		.loc 1 242 0
  3168 0380 1500A0E3 		mov	r0, #21
- 3169 0384 0110A0E3 		mov	r1, #1
+ 3169 0384 0010A0E3 		mov	r1, #0
  3170 0388 FEFFFFEB 		bl	ic_conf_line
  243:../main.c     **** 	ic_enable(INT_TIMER0);
  3171              		.loc 1 243 0
@@ -765,25 +765,25 @@
  3262              	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2760   .data:00000000 $d
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2763   .data:00000000 RL
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2769   .bss:00000000 $d
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2770   .bss:00000000 contador_pulsaciones
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2773   .text:00000000 $a
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2776   .text:00000000 timer_ISR
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2852   .text:000000ac $d
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2856   .text:000000b0 $a
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2859   .text:000000b0 button_ISR
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:2997   .text:0000020c $d
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:3003   .text:00000218 $a
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:3006   .text:00000218 keyboard_ISR
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:3045   .text:00000258 $d
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:3051   .text:00000268 $a
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:3067   .text:00000284 setup
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:3193   .text:000003c0 $d
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:3202   .text:000003d8 $a
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:3205   .text:000003d8 loop
-C:\Users\Pedro\AppData\Local\Temp\ccwkTUv7.s:3235   .text:000003f8 main
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2760   .data:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2763   .data:00000000 RL
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2769   .bss:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2770   .bss:00000000 contador_pulsaciones
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2773   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2776   .text:00000000 timer_ISR
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2852   .text:000000ac $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2856   .text:000000b0 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2859   .text:000000b0 button_ISR
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2997   .text:0000020c $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3003   .text:00000218 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3006   .text:00000218 keyboard_ISR
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3045   .text:00000258 $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3051   .text:00000268 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3067   .text:00000284 setup
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3193   .text:000003c0 $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3202   .text:000003d8 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3205   .text:000003d8 loop
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3235   .text:000003f8 main
                      .debug_frame:00000010 $d
 
 UNDEFINED SYMBOLS
@@ -799,9 +799,9 @@ Delay
 kb_scan
 leds_init
 D8Led_init
-portG_conf_pup
 portG_conf
 portG_eint_trig
+portG_conf_pup
 tmr_set_mode
 tmr_set_prescaler
 tmr_set_divider
