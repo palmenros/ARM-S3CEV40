@@ -39,62 +39,62 @@ END GROUP
  *(.rodata*)
                 0x0c100078                Image_ZI_Base = .
 
-.bss            0x0c100078        0x4
+.bss            0x0c100078        0x8
  *(.bss*)
  .bss           0x0c100078        0x0 ./D8Led.o
  .bss           0x0c100078        0x0 ./button.o
  .bss           0x0c100078        0x0 ./gpio.o
  .bss           0x0c100078        0x0 ./init.o
  .bss           0x0c100078        0x4 ./leds.o
- .bss           0x0c10007c        0x0 ./main.o
- .bss           0x0c10007c        0x0 ./utils.o
- .bss           0x0c10007c        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
- .bss           0x0c10007c        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+ .bss           0x0c10007c        0x4 ./main.o
+ .bss           0x0c100080        0x0 ./utils.o
+ .bss           0x0c100080        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+ .bss           0x0c100080        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
  *(COMMON)
-                0x0c10007c                Image_ZI_Limit = .
+                0x0c100080                Image_ZI_Limit = .
 
-.text           0x0c10007c      0xf80
+.text           0x0c100080      0xf88
  *(.text*)
- .text          0x0c10007c       0xdc ./D8Led.o
-                0x0c10007c                D8Led_init
-                0x0c1000a0                D8Led_segment
-                0x0c1000fc                D8Led_digit
- .text          0x0c100158       0x7c ./button.o
-                0x0c100158                read_button
- .text          0x0c1001d4      0x5f8 ./gpio.o
-                0x0c1001d4                portB_conf
-                0x0c10029c                portB_write
-                0x0c100358                portG_conf
-                0x0c100510                portG_eint_trig
-                0x0c100540                portG_write
-                0x0c100640                portG_read
-                0x0c100704                portG_conf_pup
- .text          0x0c1007cc       0xd0 ./init.o
-                0x0c1007cc                start
- .text          0x0c10089c      0x298 ./leds.o
-                0x0c10089c                leds_init
-                0x0c1008e0                led1_on
-                0x0c100920                led1_off
-                0x0c100960                led2_on
-                0x0c1009a0                led2_off
-                0x0c1009e0                led1_switch
-                0x0c100a20                led2_switch
-                0x0c100a60                leds_switch
-                0x0c100aa0                leds_display
- .text          0x0c100b34      0x244 ./main.o
-                0x0c100b34                setup
-                0x0c100ba8                loop
-                0x0c100d60                main
- .text          0x0c100d78      0x138 ./utils.o
-                0x0c100d78                Delay
- .text          0x0c100eb0      0x148 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
-                0x0c100eb0                __divsi3
-                0x0c100eb0                __aeabi_idiv
-                0x0c100fd8                __aeabi_idivmod
- .text          0x0c100ff8        0x4 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
-                0x0c100ff8                __aeabi_idiv0
-                0x0c100ff8                __aeabi_ldiv0
-                0x0c100ffc                PROVIDE (end, .)
+ .text          0x0c100080       0xdc ./D8Led.o
+                0x0c100080                D8Led_init
+                0x0c1000a4                D8Led_segment
+                0x0c100100                D8Led_digit
+ .text          0x0c10015c       0x7c ./button.o
+                0x0c10015c                read_button
+ .text          0x0c1001d8      0x5f8 ./gpio.o
+                0x0c1001d8                portB_conf
+                0x0c1002a0                portB_write
+                0x0c10035c                portG_conf
+                0x0c100514                portG_eint_trig
+                0x0c100544                portG_write
+                0x0c100644                portG_read
+                0x0c100708                portG_conf_pup
+ .text          0x0c1007d0       0xd0 ./init.o
+                0x0c1007d0                start
+ .text          0x0c1008a0      0x298 ./leds.o
+                0x0c1008a0                leds_init
+                0x0c1008e4                led1_on
+                0x0c100924                led1_off
+                0x0c100964                led2_on
+                0x0c1009a4                led2_off
+                0x0c1009e4                led1_switch
+                0x0c100a24                led2_switch
+                0x0c100a64                leds_switch
+                0x0c100aa4                leds_display
+ .text          0x0c100b38      0x24c ./main.o
+                0x0c100b38                setup
+                0x0c100bac                loop
+                0x0c100d6c                main
+ .text          0x0c100d84      0x138 ./utils.o
+                0x0c100d84                Delay
+ .text          0x0c100ebc      0x148 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+                0x0c100ebc                __divsi3
+                0x0c100ebc                __aeabi_idiv
+                0x0c100fe4                __aeabi_idivmod
+ .text          0x0c101004        0x4 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+                0x0c101004                __aeabi_idiv0
+                0x0c101004                __aeabi_ldiv0
+                0x0c101008                PROVIDE (end, .)
 START GROUP
 LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a
 LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libg.a
@@ -104,16 +104,16 @@ LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.
 END GROUP
 OUTPUT(prac1a.elf elf32-littlearm)
 
-.glue_7         0x0c100ffc        0x0
+.glue_7         0x0c101008        0x0
  .glue_7        0x00000000        0x0 linker stubs
 
-.glue_7t        0x0c100ffc        0x0
+.glue_7t        0x0c101008        0x0
  .glue_7t       0x00000000        0x0 linker stubs
 
-.vfp11_veneer   0x0c100ffc        0x0
+.vfp11_veneer   0x0c101008        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x0c100ffc        0x0
+.v4_bx          0x0c101008        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
 .debug_abbrev   0x00000000      0x382
@@ -125,23 +125,23 @@ OUTPUT(prac1a.elf elf32-littlearm)
  .debug_abbrev  0x0000025e       0xbf ./main.o
  .debug_abbrev  0x0000031d       0x65 ./utils.o
 
-.debug_info     0x00000000      0x794
+.debug_info     0x00000000      0x797
  .debug_info    0x00000000       0xdf ./D8Led.o
  .debug_info    0x000000df       0x84 ./button.o
  .debug_info    0x00000163      0x283 ./gpio.o
  .debug_info    0x000003e6       0x54 ./init.o
  .debug_info    0x0000043a      0x151 ./leds.o
- .debug_info    0x0000058b      0x185 ./main.o
- .debug_info    0x00000710       0x84 ./utils.o
+ .debug_info    0x0000058b      0x188 ./main.o
+ .debug_info    0x00000713       0x84 ./utils.o
 
-.debug_line     0x00000000      0x660
+.debug_line     0x00000000      0x65f
  .debug_line    0x00000000       0x6d ./D8Led.o
  .debug_line    0x0000006d       0x89 ./button.o
  .debug_line    0x000000f6       0xdc ./gpio.o
  .debug_line    0x000001d2       0x63 ./init.o
  .debug_line    0x00000235       0x88 ./leds.o
- .debug_line    0x000002bd      0x338 ./main.o
- .debug_line    0x000005f5       0x6b ./utils.o
+ .debug_line    0x000002bd      0x337 ./main.o
+ .debug_line    0x000005f4       0x6b ./utils.o
 
 .debug_macinfo  0x00000000    0x1f6b0
  .debug_macinfo

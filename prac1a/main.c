@@ -14,6 +14,8 @@ struct RLstat {
 	int position;
 };
 
+static unsigned int contador_pulsaciones = 0;
+
 static struct RLstat RL = {
 	.moving = 0,
 	.speed = 5,
@@ -49,7 +51,6 @@ int setup(void)
 int loop(void)
 {
 	unsigned int buttons = read_button();
-	unsigned int contador_pulsaciones = 0;
 
 	if (buttons & BUT1) {
 		// COMPLETAR: utilizando la interfaz para los leds definida en leds.h
