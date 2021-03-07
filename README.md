@@ -6,4 +6,4 @@ Projects using ARM-S3CEV40 Embest Protiping Board with an ARM7TDMI processor.
 - `prac2a`: Interrupts, timers.
 - `prac3a`: Matrix keypad.
 - `prac4a`: UART.
-- `prac5a`: Real Time Clock (RTC) date time & ticks interrupts.
+- `prac5a`: Real Time Clock (RTC) date time, tick interrupts, programmable alarm interrupts (wake up from low-power mode).
