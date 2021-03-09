@@ -1,0 +1,1918 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"test_sound_effects.c"
+  21              	.Ltext0:
+  22              		.file 1 "../tests/test_sound_effects.c"
+ 1845              		.align	2
+ 1848              	triangle:
+ 1849 0000 0000     		.short	0
+ 1850 0002 6400     		.short	100
+ 1851 0004 C800     		.short	200
+ 1852 0006 2C01     		.short	300
+ 1853 0008 9001     		.short	400
+ 1854 000a F401     		.short	500
+ 1855 000c 5802     		.short	600
+ 1856 000e BC02     		.short	700
+ 1857 0010 2003     		.short	800
+ 1858 0012 8403     		.short	900
+ 1859 0014 2003     		.short	800
+ 1860 0016 BC02     		.short	700
+ 1861 0018 5802     		.short	600
+ 1862 001a F401     		.short	500
+ 1863 001c 9001     		.short	400
+ 1864 001e 2C01     		.short	300
+ 1865 0020 C800     		.short	200
+ 1866 0022 6400     		.short	100
+ 1867 0024 0000     		.short	0
+ 1868 0026 9CFF     		.short	-100
+ 1869 0028 38FF     		.short	-200
+ 1870 002a D4FE     		.short	-300
+ 1871 002c 70FE     		.short	-400
+ 1872 002e 0CFE     		.short	-500
+ 1873 0030 A8FD     		.short	-600
+ 1874 0032 44FD     		.short	-700
+ 1875 0034 E0FC     		.short	-800
+ 1876 0036 7CFC     		.short	-900
+ 1877 0038 E0FC     		.short	-800
+ 1878 003a 44FD     		.short	-700
+ 1879 003c A8FD     		.short	-600
+ 1880 003e 0CFE     		.short	-500
+ 1881 0040 70FE     		.short	-400
+ 1882 0042 D4FE     		.short	-300
+ 1883 0044 38FF     		.short	-200
+ 1884 0046 9CFF     		.short	-100
+ 1885              		.global	square
+ 1886              		.align	2
+ 1889              	square:
+ 1890 0048 8403     		.short	900
+ 1891 004a 8403     		.short	900
+ 1892 004c 8403     		.short	900
+ 1893 004e 8403     		.short	900
+ 1894 0050 8403     		.short	900
+ 1895 0052 8403     		.short	900
+ 1896 0054 8403     		.short	900
+ 1897 0056 8403     		.short	900
+ 1898 0058 8403     		.short	900
+ 1899 005a 8403     		.short	900
+ 1900 005c 8403     		.short	900
+ 1901 005e 8403     		.short	900
+ 1902 0060 8403     		.short	900
+ 1903 0062 8403     		.short	900
+ 1904 0064 8403     		.short	900
+ 1905 0066 8403     		.short	900
+ 1906 0068 8403     		.short	900
+ 1907 006a 8403     		.short	900
+ 1908 006c 7CFC     		.short	-900
+ 1909 006e 7CFC     		.short	-900
+ 1910 0070 7CFC     		.short	-900
+ 1911 0072 7CFC     		.short	-900
+ 1912 0074 7CFC     		.short	-900
+ 1913 0076 7CFC     		.short	-900
+ 1914 0078 7CFC     		.short	-900
+ 1915 007a 7CFC     		.short	-900
+ 1916 007c 7CFC     		.short	-900
+ 1917 007e 7CFC     		.short	-900
+ 1918 0080 7CFC     		.short	-900
+ 1919 0082 7CFC     		.short	-900
+ 1920 0084 7CFC     		.short	-900
+ 1921 0086 7CFC     		.short	-900
+ 1922 0088 7CFC     		.short	-900
+ 1923 008a 7CFC     		.short	-900
+ 1924 008c 7CFC     		.short	-900
+ 1925 008e 7CFC     		.short	-900
+ 1926              		.global	sine
+ 1927              		.align	2
+ 1930              	sine:
+ 1931 0090 0000     		.short	0
+ 1932 0092 9C00     		.short	156
+ 1933 0094 3401     		.short	308
+ 1934 0096 C201     		.short	450
+ 1935 0098 4302     		.short	579
+ 1936 009a B102     		.short	689
+ 1937 009c 0B03     		.short	779
+ 1938 009e 4E03     		.short	846
+ 1939 00a0 7603     		.short	886
+ 1940 00a2 8403     		.short	900
+ 1941 00a4 7603     		.short	886
+ 1942 00a6 4E03     		.short	846
+ 1943 00a8 0B03     		.short	779
+ 1944 00aa B102     		.short	689
+ 1945 00ac 4302     		.short	579
+ 1946 00ae C201     		.short	450
+ 1947 00b0 3401     		.short	308
+ 1948 00b2 9C00     		.short	156
+ 1949 00b4 0000     		.short	0
+ 1950 00b6 64FF     		.short	-156
+ 1951 00b8 CCFE     		.short	-308
+ 1952 00ba 3EFE     		.short	-450
+ 1953 00bc BDFD     		.short	-579
+ 1954 00be 4FFD     		.short	-689
+ 1955 00c0 F5FC     		.short	-779
+ 1956 00c2 B2FC     		.short	-846
+ 1957 00c4 8AFC     		.short	-886
+ 1958 00c6 7CFC     		.short	-900
+ 1959 00c8 8AFC     		.short	-886
+ 1960 00ca B2FC     		.short	-846
+ 1961 00cc F5FC     		.short	-779
+ 1962 00ce 4FFD     		.short	-689
+ 1963 00d0 BDFD     		.short	-579
+ 1964 00d2 3EFE     		.short	-450
+ 1965 00d4 CCFE     		.short	-308
+ 1966 00d6 64FF     		.short	-156
+ 1967              		.section	.rodata
+ 1968              		.align	2
+ 1969              	.LC0:
+ 1970 0000 0A0A5265 		.ascii	"\012\012Reproducci\363n de sonido tabulado (LA cent"
+ 1970      70726F64 
+ 1970      75636369 
+ 1970      F36E2064 
+ 1970      6520736F 
+ 1971 002a 72616C20 		.ascii	"ral 440 Hz)\012\000"
+ 1971      34343020 
+ 1971      487A290A 
+ 1971      00
+ 1972 0037 00       		.align	2
+ 1973              	.LC1:
+ 1974 0038 28706172 		.ascii	"(para finalizar presione cualquier tecla)\012\000"
+ 1974      61206669 
+ 1974      6E616C69 
+ 1974      7A617220 
+ 1974      70726573 
+ 1975 0063 00       		.align	2
+ 1976              	.LC2:
+ 1977 0064 20202D20 		.ascii	"  - Sinusoide: escuche... \000"
+ 1977      53696E75 
+ 1977      736F6964 
+ 1977      653A2065 
+ 1977      73637563 
+ 1978 007f 00       		.align	2
+ 1979              	.LC3:
+ 1980 0080 0A4F4B0A 		.ascii	"\012OK\012\000"
+ 1980      00
+ 1981 0085 000000   		.align	2
+ 1982              	.LC4:
+ 1983 0088 20202D20 		.ascii	"  - Onda cuadrada: escuche... \000"
+ 1983      4F6E6461 
+ 1983      20637561 
+ 1983      64726164 
+ 1983      613A2065 
+ 1984 00a7 00       		.align	2
+ 1985              	.LC5:
+ 1986 00a8 4F4B0A00 		.ascii	"OK\012\000"
+ 1987              		.align	2
+ 1988              	.LC6:
+ 1989 00ac 20202D20 		.ascii	"  - Onda triangular: escuche... \000"
+ 1989      4F6E6461 
+ 1989      20747269 
+ 1989      616E6775 
+ 1989      6C61723A 
+ 1990 00cd 000000   		.align	2
+ 1991              	.LC7:
+ 1992 00d0 0A456665 		.ascii	"\012Efectos de audio (dominio temporal)\012\000"
+ 1992      63746F73 
+ 1992      20646520 
+ 1992      61756469 
+ 1992      6F202864 
+ 1993 00f6 0000     		.align	2
+ 1994              	.LC8:
+ 1995 00f8 20202D20 		.ascii	"  - Grabacion: hable mientras los 7 segmentos est\351"
+ 1995      47726162 
+ 1995      6163696F 
+ 1995      6E3A2068 
+ 1995      61626C65 
+ 1996 012a 6E20656E 		.ascii	"n encendidos... \000"
+ 1996      63656E64 
+ 1996      69646F73 
+ 1996      2E2E2E20 
+ 1996      00
+ 1997 013b 00       		.align	2
+ 1998              	.LC9:
+ 1999 013c 20202D20 		.ascii	"  - Reproducci\363n a velocidad normal: escuche... "
+ 1999      52657072 
+ 1999      6F647563 
+ 1999      6369F36E 
+ 1999      20612076 
+ 2000 016c 00       		.ascii	"\000"
+ 2001 016d 000000   		.align	2
+ 2002              	.LC10:
+ 2003 0170 20202D20 		.ascii	"  - Reproducci\363n a media velocidad: escuche... \000"
+ 2003      52657072 
+ 2003      6F647563 
+ 2003      6369F36E 
+ 2003      2061206D 
+ 2004              		.align	2
+ 2005              	.LC11:
+ 2006 01a0 20202D20 		.ascii	"  - Reproducci\363n a doble velocidad: escuche... \000"
+ 2006      52657072 
+ 2006      6F647563 
+ 2006      6369F36E 
+ 2006      20612064 
+ 2007              		.align	2
+ 2008              	.LC12:
+ 2009 01d0 20202D20 		.ascii	"  - Reproducci\363n inversa: escuche... \000"
+ 2009      52657072 
+ 2009      6F647563 
+ 2009      6369F36E 
+ 2009      20696E76 
+ 2010 01f6 0000     		.align	2
+ 2011              	.LC13:
+ 2012 01f8 20202D20 		.ascii	"  - Loopback: hable y escuche... \000"
+ 2012      4C6F6F70 
+ 2012      6261636B 
+ 2012      3A206861 
+ 2012      626C6520 
+ 2013 021a 0000     		.align	2
+ 2014              	.LC14:
+ 2015 021c 20202D20 		.ascii	"  - Echo (8 ms): hable y escuche... \000"
+ 2015      4563686F 
+ 2015      20283820 
+ 2015      6D73293A 
+ 2015      20686162 
+ 2016 0241 000000   		.align	2
+ 2017              	.LC15:
+ 2018 0244 20202D20 		.ascii	"  - Echo (45 ms): hable y escuche... \000"
+ 2018      4563686F 
+ 2018      20283435 
+ 2018      206D7329 
+ 2018      3A206861 
+ 2019 026a 0000     		.align	2
+ 2020              	.LC16:
+ 2021 026c 20202D20 		.ascii	"  - Echo (85 ms): hable y escuche... \000"
+ 2021      4563686F 
+ 2021      20283835 
+ 2021      206D7329 
+ 2021      3A206861 
+ 2022 0292 0000     		.align	2
+ 2023              	.LC17:
+ 2024 0294 20202D20 		.ascii	"  - Echo (150 ms): hable y escuche... \000"
+ 2024      4563686F 
+ 2024      20283135 
+ 2024      30206D73 
+ 2024      293A2068 
+ 2025 02bb 00       		.align	2
+ 2026              	.LC18:
+ 2027 02bc 20202D20 		.ascii	"  - Echo & fade (1 s): hable y escuche... \000"
+ 2027      4563686F 
+ 2027      20262066 
+ 2027      61646520 
+ 2027      28312073 
+ 2028 02e7 00       		.align	2
+ 2029              	.LC19:
+ 2030 02e8 20202D20 		.ascii	"  - Reverberaci\363n (echo & fade 100 ms): hable y "
+ 2030      52657665 
+ 2030      72626572 
+ 2030      616369F3 
+ 2030      6E202865 
+ 2031 0318 65736375 		.ascii	"escuche... \000"
+ 2031      6368652E 
+ 2031      2E2E2000 
+ 2032              		.align	2
+ 2033              	.LC20:
+ 2034 0324 476F696E 		.ascii	"Going into infinite loop...\012\000"
+ 2034      6720696E 
+ 2034      746F2069 
+ 2034      6E66696E 
+ 2034      69746520 
+ 2035 0341 000000   		.text
+ 2036              		.align	2
+ 2037              		.global	test_sound_effects
+ 2039              	test_sound_effects:
+ 2040              	.LFB0:
+   1:../tests/test_sound_effects.c **** /*-------------------------------------------------------------------
+   2:../tests/test_sound_effects.c **** **
+   3:../tests/test_sound_effects.c **** **  Fichero:
+   4:../tests/test_sound_effects.c **** **    lab9-efectos.c  11/5/2014
+   5:../tests/test_sound_effects.c **** **
+   6:../tests/test_sound_effects.c **** **    (c) J.M. Mendias
+   7:../tests/test_sound_effects.c **** **    Programación de Sistemas y Dispositivos
+   8:../tests/test_sound_effects.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../tests/test_sound_effects.c **** **
+  10:../tests/test_sound_effects.c **** **  Propósito:
+  11:../tests/test_sound_effects.c **** **    Test del laboratorio 9 (1a. parte)
+  12:../tests/test_sound_effects.c **** **
+  13:../tests/test_sound_effects.c **** **  Notas de diseño:
+  14:../tests/test_sound_effects.c **** **
+  15:../tests/test_sound_effects.c **** **-----------------------------------------------------------------*/
+  16:../tests/test_sound_effects.c **** 
+  17:../tests/test_sound_effects.c **** #include "../44b.h"
+  18:../tests/test_sound_effects.c **** #include "../common_types.h"
+  19:../tests/test_sound_effects.c **** #include "../D8Led.h"
+  20:../tests/test_sound_effects.c **** #include "../keyboard.h"
+  21:../tests/test_sound_effects.c **** #include "../uart.h"
+  22:../tests/test_sound_effects.c **** #include "../uda1341ts.h"
+  23:../tests/test_sound_effects.c **** #include "../utils.h"
+  24:../tests/test_sound_effects.c **** #include "../iis.h"
+  25:../tests/test_sound_effects.c **** 
+  26:../tests/test_sound_effects.c **** #define AUDIOBUFFER_SIZE   (16000*10) // 16000sps * 10s = 160000 samples
+  27:../tests/test_sound_effects.c **** #define AUDIODELAY_MAXSIZE (16000*2)  // 16000sps * 2s  = 32000 samples
+  28:../tests/test_sound_effects.c **** #define WAVETABLE_SIZE     (36)       // 16000sps / 440wps (LA) = 36 samples/wave
+  29:../tests/test_sound_effects.c **** 
+  30:../tests/test_sound_effects.c **** typedef struct {
+  31:../tests/test_sound_effects.c **** 	int16 ch0[AUDIOBUFFER_SIZE];
+  32:../tests/test_sound_effects.c **** 	int16 ch1[AUDIOBUFFER_SIZE];
+  33:../tests/test_sound_effects.c **** } audiobuffer_t;
+  34:../tests/test_sound_effects.c **** 
+  35:../tests/test_sound_effects.c **** typedef struct {
+  36:../tests/test_sound_effects.c **** 	int16 ch0[AUDIODELAY_MAXSIZE];
+  37:../tests/test_sound_effects.c **** 	int16 ch1[AUDIODELAY_MAXSIZE];
+  38:../tests/test_sound_effects.c **** 	uint16 size;
+  39:../tests/test_sound_effects.c **** 	uint16 head;
+  40:../tests/test_sound_effects.c **** 	uint16 tail;
+  41:../tests/test_sound_effects.c **** } audiodelay_t;
+  42:../tests/test_sound_effects.c **** 
+  43:../tests/test_sound_effects.c **** audiobuffer_t buffer;
+  44:../tests/test_sound_effects.c **** audiodelay_t delay_buffer;
+  45:../tests/test_sound_effects.c **** 
+  46:../tests/test_sound_effects.c **** /*
+  47:../tests/test_sound_effects.c ****  * Tablas correspondientes a una onda de frecuencia 440 Hz (LA central) muestreada a 16000sps,
+  48:../tests/test_sound_effects.c ****  * el patron de valores se repite cada 36 = 16000/440 muestras.
+  49:../tests/test_sound_effects.c ****  *
+  50:../tests/test_sound_effects.c ****  * Las muestras del audio codec son de 16 bits y los valores de la tabla requieren solo 11 bits,
+  51:../tests/test_sound_effects.c ****  * por lo que la onda almacenada tiene un volumen bajo.
+  52:../tests/test_sound_effects.c ****  */
+  53:../tests/test_sound_effects.c **** 
+  54:../tests/test_sound_effects.c **** int16 triangle[WAVETABLE_SIZE] =
+  55:../tests/test_sound_effects.c **** {
+  56:../tests/test_sound_effects.c ****       0,  100,  200,  300,  400,  500,  600,  700,  800,  900,  800,  700,  600,  500,  400,  300, 
+  57:../tests/test_sound_effects.c ****       0, -100, -200, -300, -400, -500, -600, -700, -800, -900, -800, -700, -600, -500, -400, -300, 
+  58:../tests/test_sound_effects.c **** };
+  59:../tests/test_sound_effects.c **** 
+  60:../tests/test_sound_effects.c **** 
+  61:../tests/test_sound_effects.c **** int16 square[WAVETABLE_SIZE] =
+  62:../tests/test_sound_effects.c **** {
+  63:../tests/test_sound_effects.c **** 	900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  900,  90
+  64:../tests/test_sound_effects.c ****    -900, -900, -900, -900, -900, -900, -900, -900, -900, -900, -900, -900, -900, -900, -900, -900, 
+  65:../tests/test_sound_effects.c **** };
+  66:../tests/test_sound_effects.c **** 
+  67:../tests/test_sound_effects.c **** int16 sine[WAVETABLE_SIZE] =   // Calculado como sine[i] = 900 * sin(2*PI*i/36)
+  68:../tests/test_sound_effects.c **** {
+  69:../tests/test_sound_effects.c **** 	  0,  156,  308,  450,  579,  689,  779,  846,  886,  900,  886,  846,  779,  689,  579,  450,  30
+  70:../tests/test_sound_effects.c **** 	  0, -156, -308, -450, -579, -689, -779, -846, -886, -900, -886, -846, -779, -689, -579, -450, -30
+  71:../tests/test_sound_effects.c **** };
+  72:../tests/test_sound_effects.c **** 
+  73:../tests/test_sound_effects.c **** void audiodelay_init( audiodelay_t *buffer, uint16 size );
+  74:../tests/test_sound_effects.c **** void audiodelay_put( audiodelay_t *buffer, int16 ch0, int16 ch1 );
+  75:../tests/test_sound_effects.c **** void audiodelay_get( audiodelay_t *buffer, int16 *ch0, int16 *ch1 );
+  76:../tests/test_sound_effects.c **** 
+  77:../tests/test_sound_effects.c **** 
+  78:../tests/test_sound_effects.c **** void test_sound_effects( void )
+  79:../tests/test_sound_effects.c **** {
+ 2041              		.loc 1 79 0
+ 2042              		.cfi_startproc
+ 2043              		@ Function supports interworking.
+ 2044              		@ args = 0, pretend = 0, frame = 16
+ 2045              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2046 0000 0DC0A0E1 		mov	ip, sp
+ 2047              	.LCFI0:
+ 2048              		.cfi_def_cfa_register 12
+ 2049 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2050 0008 04B04CE2 		sub	fp, ip, #4
+ 2051              		.cfi_offset 14, -8
+ 2052              		.cfi_offset 13, -12
+ 2053              		.cfi_offset 11, -16
+ 2054              	.LCFI1:
+ 2055              		.cfi_def_cfa 11, 4
+ 2056 000c 10D04DE2 		sub	sp, sp, #16
+  80:../tests/test_sound_effects.c **** 	uint32 i, vol;
+  81:../tests/test_sound_effects.c **** 	int16 ch0, ch1;
+  82:../tests/test_sound_effects.c **** 	int16 ch0_aux, ch1_aux;
+  83:../tests/test_sound_effects.c **** 
+  84:../tests/test_sound_effects.c ****     uda1341ts_init();
+ 2057              		.loc 1 84 0
+ 2058 0010 FEFFFFEB 		bl	uda1341ts_init
+  85:../tests/test_sound_effects.c ****     iis_init( IIS_POLLING );
+ 2059              		.loc 1 85 0
+ 2060 0014 0200A0E3 		mov	r0, #2
+ 2061 0018 FEFFFFEB 		bl	iis_init
+  86:../tests/test_sound_effects.c **** 
+  87:../tests/test_sound_effects.c ****     /************************************/
+  88:../tests/test_sound_effects.c **** 
+  89:../tests/test_sound_effects.c ****     uart0_puts( "\n\nReproducción de sonido tabulado (LA central 440 Hz)\n" );
+ 2062              		.loc 1 89 0
+ 2063 001c 540C9FE5 		ldr	r0, .L33
+ 2064 0020 FEFFFFEB 		bl	uart0_puts
+  90:../tests/test_sound_effects.c ****     uart0_puts( "(para finalizar presione cualquier tecla)\n" );
+ 2065              		.loc 1 90 0
+ 2066 0024 500C9FE5 		ldr	r0, .L33+4
+ 2067 0028 FEFFFFEB 		bl	uart0_puts
+  91:../tests/test_sound_effects.c **** 
+  92:../tests/test_sound_effects.c ****     /************************************/
+  93:../tests/test_sound_effects.c **** 
+  94:../tests/test_sound_effects.c **** 	uart0_puts( "  - Sinusoide: escuche... " );
+ 2068              		.loc 1 94 0
+ 2069 002c 4C0C9FE5 		ldr	r0, .L33+8
+ 2070 0030 FEFFFFEB 		bl	uart0_puts
+  95:../tests/test_sound_effects.c **** 	i = 0;
+ 2071              		.loc 1 95 0
+ 2072 0034 0030A0E3 		mov	r3, #0
+ 2073 0038 10300BE5 		str	r3, [fp, #-16]
+  96:../tests/test_sound_effects.c **** 	while( kb_scan() < 0 )
+ 2074              		.loc 1 96 0
+ 2075 003c 180000EA 		b	.L2
+ 2076              	.L3:
+  97:../tests/test_sound_effects.c **** 	{
+  98:../tests/test_sound_effects.c **** 		iis_putSample( sine[i], sine[i] );
+ 2077              		.loc 1 98 0
+ 2078 0040 3C2C9FE5 		ldr	r2, .L33+12
+ 2079 0044 10301BE5 		ldr	r3, [fp, #-16]
+ 2080 0048 8330A0E1 		mov	r3, r3, asl #1
+ 2081 004c 033082E0 		add	r3, r2, r3
+ 2082 0050 B020D3E1 		ldrh	r2, [r3, #0]
+ 2083 0054 281C9FE5 		ldr	r1, .L33+12
+ 2084 0058 10301BE5 		ldr	r3, [fp, #-16]
+ 2085 005c 8330A0E1 		mov	r3, r3, asl #1
+ 2086 0060 033081E0 		add	r3, r1, r3
+ 2087 0064 B030D3E1 		ldrh	r3, [r3, #0]
+ 2088 0068 0228A0E1 		mov	r2, r2, asl #16
+ 2089 006c 4228A0E1 		mov	r2, r2, asr #16
+ 2090 0070 0338A0E1 		mov	r3, r3, asl #16
+ 2091 0074 4338A0E1 		mov	r3, r3, asr #16
+ 2092 0078 0200A0E1 		mov	r0, r2
+ 2093 007c 0310A0E1 		mov	r1, r3
+ 2094 0080 FEFFFFEB 		bl	iis_putSample
+  99:../tests/test_sound_effects.c **** 		if( ++i > WAVETABLE_SIZE )
+ 2095              		.loc 1 99 0
+ 2096 0084 10301BE5 		ldr	r3, [fp, #-16]
+ 2097 0088 013083E2 		add	r3, r3, #1
+ 2098 008c 10300BE5 		str	r3, [fp, #-16]
+ 2099 0090 10301BE5 		ldr	r3, [fp, #-16]
+ 2100 0094 240053E3 		cmp	r3, #36
+ 2101 0098 0100009A 		bls	.L2
+ 100:../tests/test_sound_effects.c **** 			i = 0;
+ 2102              		.loc 1 100 0
+ 2103 009c 0030A0E3 		mov	r3, #0
+ 2104 00a0 10300BE5 		str	r3, [fp, #-16]
+ 2105              	.L2:
+  96:../tests/test_sound_effects.c **** 	while( kb_scan() < 0 )
+ 2106              		.loc 1 96 0 discriminator 1
+ 2107 00a4 FEFFFFEB 		bl	kb_scan
+ 2108 00a8 0030A0E1 		mov	r3, r0
+ 2109 00ac 000053E3 		cmp	r3, #0
+ 2110 00b0 E2FFFFBA 		blt	.L3
+ 101:../tests/test_sound_effects.c **** 	}
+ 102:../tests/test_sound_effects.c **** 
+ 103:../tests/test_sound_effects.c **** 	uart0_getint();
+ 2111              		.loc 1 103 0
+ 2112 00b4 FEFFFFEB 		bl	uart0_getint
+ 104:../tests/test_sound_effects.c **** 	uart0_puts( "\nOK\n" );
+ 2113              		.loc 1 104 0
+ 2114 00b8 C80B9FE5 		ldr	r0, .L33+16
+ 2115 00bc FEFFFFEB 		bl	uart0_puts
+ 105:../tests/test_sound_effects.c **** 
+ 106:../tests/test_sound_effects.c ****     /************************************/
+ 107:../tests/test_sound_effects.c **** 
+ 108:../tests/test_sound_effects.c ****     uart0_puts( "  - Onda cuadrada: escuche... " );
+ 2116              		.loc 1 108 0
+ 2117 00c0 C40B9FE5 		ldr	r0, .L33+20
+ 2118 00c4 FEFFFFEB 		bl	uart0_puts
+ 109:../tests/test_sound_effects.c **** 	i = 0;
+ 2119              		.loc 1 109 0
+ 2120 00c8 0030A0E3 		mov	r3, #0
+ 2121 00cc 10300BE5 		str	r3, [fp, #-16]
+ 110:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2122              		.loc 1 110 0
+ 2123 00d0 180000EA 		b	.L4
+ 2124              	.L5:
+ 111:../tests/test_sound_effects.c ****     {
+ 112:../tests/test_sound_effects.c ****      	iis_putSample( square[i], square[i] );
+ 2125              		.loc 1 112 0
+ 2126 00d4 B42B9FE5 		ldr	r2, .L33+24
+ 2127 00d8 10301BE5 		ldr	r3, [fp, #-16]
+ 2128 00dc 8330A0E1 		mov	r3, r3, asl #1
+ 2129 00e0 033082E0 		add	r3, r2, r3
+ 2130 00e4 B020D3E1 		ldrh	r2, [r3, #0]
+ 2131 00e8 A01B9FE5 		ldr	r1, .L33+24
+ 2132 00ec 10301BE5 		ldr	r3, [fp, #-16]
+ 2133 00f0 8330A0E1 		mov	r3, r3, asl #1
+ 2134 00f4 033081E0 		add	r3, r1, r3
+ 2135 00f8 B030D3E1 		ldrh	r3, [r3, #0]
+ 2136 00fc 0228A0E1 		mov	r2, r2, asl #16
+ 2137 0100 4228A0E1 		mov	r2, r2, asr #16
+ 2138 0104 0338A0E1 		mov	r3, r3, asl #16
+ 2139 0108 4338A0E1 		mov	r3, r3, asr #16
+ 2140 010c 0200A0E1 		mov	r0, r2
+ 2141 0110 0310A0E1 		mov	r1, r3
+ 2142 0114 FEFFFFEB 		bl	iis_putSample
+ 113:../tests/test_sound_effects.c ****      	if( ++i > WAVETABLE_SIZE )
+ 2143              		.loc 1 113 0
+ 2144 0118 10301BE5 		ldr	r3, [fp, #-16]
+ 2145 011c 013083E2 		add	r3, r3, #1
+ 2146 0120 10300BE5 		str	r3, [fp, #-16]
+ 2147 0124 10301BE5 		ldr	r3, [fp, #-16]
+ 2148 0128 240053E3 		cmp	r3, #36
+ 2149 012c 0100009A 		bls	.L4
+ 114:../tests/test_sound_effects.c ****      		i = 0;
+ 2150              		.loc 1 114 0
+ 2151 0130 0030A0E3 		mov	r3, #0
+ 2152 0134 10300BE5 		str	r3, [fp, #-16]
+ 2153              	.L4:
+ 110:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2154              		.loc 1 110 0 discriminator 1
+ 2155 0138 FEFFFFEB 		bl	kb_scan
+ 2156 013c 0030A0E1 		mov	r3, r0
+ 2157 0140 000053E3 		cmp	r3, #0
+ 2158 0144 E2FFFFBA 		blt	.L5
+ 115:../tests/test_sound_effects.c ****     }
+ 116:../tests/test_sound_effects.c ****     uart0_getint();
+ 2159              		.loc 1 116 0
+ 2160 0148 FEFFFFEB 		bl	uart0_getint
+ 117:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2161              		.loc 1 117 0
+ 2162 014c 400B9FE5 		ldr	r0, .L33+28
+ 2163 0150 FEFFFFEB 		bl	uart0_puts
+ 118:../tests/test_sound_effects.c **** 
+ 119:../tests/test_sound_effects.c ****     /************************************/
+ 120:../tests/test_sound_effects.c **** 
+ 121:../tests/test_sound_effects.c ****     uart0_puts( "  - Onda triangular: escuche... " );
+ 2164              		.loc 1 121 0
+ 2165 0154 3C0B9FE5 		ldr	r0, .L33+32
+ 2166 0158 FEFFFFEB 		bl	uart0_puts
+ 122:../tests/test_sound_effects.c ****     i = 0;
+ 2167              		.loc 1 122 0
+ 2168 015c 0030A0E3 		mov	r3, #0
+ 2169 0160 10300BE5 		str	r3, [fp, #-16]
+ 123:../tests/test_sound_effects.c **** 	while( kb_scan() < 0 )
+ 2170              		.loc 1 123 0
+ 2171 0164 180000EA 		b	.L6
+ 2172              	.L7:
+ 124:../tests/test_sound_effects.c ****     {
+ 125:../tests/test_sound_effects.c ****      	iis_putSample( triangle[i], triangle[i] );
+ 2173              		.loc 1 125 0
+ 2174 0168 2C2B9FE5 		ldr	r2, .L33+36
+ 2175 016c 10301BE5 		ldr	r3, [fp, #-16]
+ 2176 0170 8330A0E1 		mov	r3, r3, asl #1
+ 2177 0174 033082E0 		add	r3, r2, r3
+ 2178 0178 B020D3E1 		ldrh	r2, [r3, #0]
+ 2179 017c 181B9FE5 		ldr	r1, .L33+36
+ 2180 0180 10301BE5 		ldr	r3, [fp, #-16]
+ 2181 0184 8330A0E1 		mov	r3, r3, asl #1
+ 2182 0188 033081E0 		add	r3, r1, r3
+ 2183 018c B030D3E1 		ldrh	r3, [r3, #0]
+ 2184 0190 0228A0E1 		mov	r2, r2, asl #16
+ 2185 0194 4228A0E1 		mov	r2, r2, asr #16
+ 2186 0198 0338A0E1 		mov	r3, r3, asl #16
+ 2187 019c 4338A0E1 		mov	r3, r3, asr #16
+ 2188 01a0 0200A0E1 		mov	r0, r2
+ 2189 01a4 0310A0E1 		mov	r1, r3
+ 2190 01a8 FEFFFFEB 		bl	iis_putSample
+ 126:../tests/test_sound_effects.c ****      	if( ++i > WAVETABLE_SIZE )
+ 2191              		.loc 1 126 0
+ 2192 01ac 10301BE5 		ldr	r3, [fp, #-16]
+ 2193 01b0 013083E2 		add	r3, r3, #1
+ 2194 01b4 10300BE5 		str	r3, [fp, #-16]
+ 2195 01b8 10301BE5 		ldr	r3, [fp, #-16]
+ 2196 01bc 240053E3 		cmp	r3, #36
+ 2197 01c0 0100009A 		bls	.L6
+ 127:../tests/test_sound_effects.c ****      		i = 0;
+ 2198              		.loc 1 127 0
+ 2199 01c4 0030A0E3 		mov	r3, #0
+ 2200 01c8 10300BE5 		str	r3, [fp, #-16]
+ 2201              	.L6:
+ 123:../tests/test_sound_effects.c **** 	while( kb_scan() < 0 )
+ 2202              		.loc 1 123 0 discriminator 1
+ 2203 01cc FEFFFFEB 		bl	kb_scan
+ 2204 01d0 0030A0E1 		mov	r3, r0
+ 2205 01d4 000053E3 		cmp	r3, #0
+ 2206 01d8 E2FFFFBA 		blt	.L7
+ 128:../tests/test_sound_effects.c ****     }
+ 129:../tests/test_sound_effects.c **** 	uart0_getint();
+ 2207              		.loc 1 129 0
+ 2208 01dc FEFFFFEB 		bl	uart0_getint
+ 130:../tests/test_sound_effects.c **** 	uart0_puts( "OK\n" );
+ 2209              		.loc 1 130 0
+ 2210 01e0 AC0A9FE5 		ldr	r0, .L33+28
+ 2211 01e4 FEFFFFEB 		bl	uart0_puts
+ 131:../tests/test_sound_effects.c **** 
+ 132:../tests/test_sound_effects.c ****     /************************************/
+ 133:../tests/test_sound_effects.c **** 
+ 134:../tests/test_sound_effects.c ****     uart0_puts( "\nEfectos de audio (dominio temporal)\n" );
+ 2212              		.loc 1 134 0
+ 2213 01e8 B00A9FE5 		ldr	r0, .L33+40
+ 2214 01ec FEFFFFEB 		bl	uart0_puts
+ 135:../tests/test_sound_effects.c **** 
+ 136:../tests/test_sound_effects.c ****     /************************************/
+ 137:../tests/test_sound_effects.c **** 
+ 138:../tests/test_sound_effects.c ****     uart0_puts( "  - Grabacion: hable mientras los 7 segmentos estén encendidos... " );
+ 2215              		.loc 1 138 0
+ 2216 01f0 AC0A9FE5 		ldr	r0, .L33+44
+ 2217 01f4 FEFFFFEB 		bl	uart0_puts
+ 139:../tests/test_sound_effects.c ****     D8Led_digit( 8 );
+ 2218              		.loc 1 139 0
+ 2219 01f8 0800A0E3 		mov	r0, #8
+ 2220 01fc FEFFFFEB 		bl	D8Led_digit
+ 140:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2221              		.loc 1 140 0
+ 2222 0200 0030A0E3 		mov	r3, #0
+ 2223 0204 10300BE5 		str	r3, [fp, #-16]
+ 2224 0208 0D0000EA 		b	.L8
+ 2225              	.L9:
+ 141:../tests/test_sound_effects.c ****      	iis_getSample( &(buffer.ch0[i]), &(buffer.ch1[i]) );
+ 2226              		.loc 1 141 0 discriminator 2
+ 2227 020c 10301BE5 		ldr	r3, [fp, #-16]
+ 2228 0210 8320A0E1 		mov	r2, r3, asl #1
+ 2229 0214 8C3A9FE5 		ldr	r3, .L33+48
+ 2230 0218 032082E0 		add	r2, r2, r3
+ 2231 021c 10301BE5 		ldr	r3, [fp, #-16]
+ 2232 0220 8310A0E1 		mov	r1, r3, asl #1
+ 2233 0224 803A9FE5 		ldr	r3, .L33+52
+ 2234 0228 033081E0 		add	r3, r1, r3
+ 2235 022c 0200A0E1 		mov	r0, r2
+ 2236 0230 0310A0E1 		mov	r1, r3
+ 2237 0234 FEFFFFEB 		bl	iis_getSample
+ 140:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2238              		.loc 1 140 0 discriminator 2
+ 2239 0238 10301BE5 		ldr	r3, [fp, #-16]
+ 2240 023c 013083E2 		add	r3, r3, #1
+ 2241 0240 10300BE5 		str	r3, [fp, #-16]
+ 2242              	.L8:
+ 140:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2243              		.loc 1 140 0 is_stmt 0 discriminator 1
+ 2244 0244 10201BE5 		ldr	r2, [fp, #-16]
+ 2245 0248 603A9FE5 		ldr	r3, .L33+56
+ 2246 024c 030052E1 		cmp	r2, r3
+ 2247 0250 EDFFFF9A 		bls	.L9
+ 142:../tests/test_sound_effects.c ****     D8Led_off();
+ 2248              		.loc 1 142 0 is_stmt 1
+ 2249 0254 FEFFFFEB 		bl	D8Led_off
+ 143:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2250              		.loc 1 143 0
+ 2251 0258 340A9FE5 		ldr	r0, .L33+28
+ 2252 025c FEFFFFEB 		bl	uart0_puts
+ 144:../tests/test_sound_effects.c **** 
+ 145:../tests/test_sound_effects.c ****     /************************************/
+ 146:../tests/test_sound_effects.c **** 
+ 147:../tests/test_sound_effects.c ****     uart0_puts( "  - Reproducción a velocidad normal: escuche... " );
+ 2253              		.loc 1 147 0
+ 2254 0260 4C0A9FE5 		ldr	r0, .L33+60
+ 2255 0264 FEFFFFEB 		bl	uart0_puts
+ 148:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2256              		.loc 1 148 0
+ 2257 0268 0030A0E3 		mov	r3, #0
+ 2258 026c 10300BE5 		str	r3, [fp, #-16]
+ 2259 0270 150000EA 		b	.L10
+ 2260              	.L11:
+ 149:../tests/test_sound_effects.c ****      	iis_putSample( buffer.ch0[i], buffer.ch1[i] );
+ 2261              		.loc 1 149 0 discriminator 2
+ 2262 0274 2C2A9FE5 		ldr	r2, .L33+48
+ 2263 0278 10301BE5 		ldr	r3, [fp, #-16]
+ 2264 027c 8330A0E1 		mov	r3, r3, asl #1
+ 2265 0280 033082E0 		add	r3, r2, r3
+ 2266 0284 B020D3E1 		ldrh	r2, [r3, #0]
+ 2267 0288 181A9FE5 		ldr	r1, .L33+48
+ 2268 028c 10301BE5 		ldr	r3, [fp, #-16]
+ 2269 0290 273A83E2 		add	r3, r3, #159744
+ 2270 0294 013C83E2 		add	r3, r3, #256
+ 2271 0298 8330A0E1 		mov	r3, r3, asl #1
+ 2272 029c 033081E0 		add	r3, r1, r3
+ 2273 02a0 B030D3E1 		ldrh	r3, [r3, #0]
+ 2274 02a4 0228A0E1 		mov	r2, r2, asl #16
+ 2275 02a8 4228A0E1 		mov	r2, r2, asr #16
+ 2276 02ac 0338A0E1 		mov	r3, r3, asl #16
+ 2277 02b0 4338A0E1 		mov	r3, r3, asr #16
+ 2278 02b4 0200A0E1 		mov	r0, r2
+ 2279 02b8 0310A0E1 		mov	r1, r3
+ 2280 02bc FEFFFFEB 		bl	iis_putSample
+ 148:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2281              		.loc 1 148 0 discriminator 2
+ 2282 02c0 10301BE5 		ldr	r3, [fp, #-16]
+ 2283 02c4 013083E2 		add	r3, r3, #1
+ 2284 02c8 10300BE5 		str	r3, [fp, #-16]
+ 2285              	.L10:
+ 148:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2286              		.loc 1 148 0 is_stmt 0 discriminator 1
+ 2287 02cc 10201BE5 		ldr	r2, [fp, #-16]
+ 2288 02d0 D8399FE5 		ldr	r3, .L33+56
+ 2289 02d4 030052E1 		cmp	r2, r3
+ 2290 02d8 E5FFFF9A 		bls	.L11
+ 150:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2291              		.loc 1 150 0 is_stmt 1
+ 2292 02dc B0099FE5 		ldr	r0, .L33+28
+ 2293 02e0 FEFFFFEB 		bl	uart0_puts
+ 151:../tests/test_sound_effects.c **** 
+ 152:../tests/test_sound_effects.c ****     uart0_puts( "  - Reproducción a media velocidad: escuche... " );
+ 2294              		.loc 1 152 0
+ 2295 02e4 CC099FE5 		ldr	r0, .L33+64
+ 2296 02e8 FEFFFFEB 		bl	uart0_puts
+ 153:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2297              		.loc 1 153 0
+ 2298 02ec 0030A0E3 		mov	r3, #0
+ 2299 02f0 10300BE5 		str	r3, [fp, #-16]
+ 2300 02f4 280000EA 		b	.L12
+ 2301              	.L13:
+ 154:../tests/test_sound_effects.c ****     {
+ 155:../tests/test_sound_effects.c ****      	iis_putSample( buffer.ch0[i], buffer.ch1[i] );	    // cada muestra almacenada se reproduce 2 
+ 2302              		.loc 1 155 0 discriminator 2
+ 2303 02f8 A8299FE5 		ldr	r2, .L33+48
+ 2304 02fc 10301BE5 		ldr	r3, [fp, #-16]
+ 2305 0300 8330A0E1 		mov	r3, r3, asl #1
+ 2306 0304 033082E0 		add	r3, r2, r3
+ 2307 0308 B020D3E1 		ldrh	r2, [r3, #0]
+ 2308 030c 94199FE5 		ldr	r1, .L33+48
+ 2309 0310 10301BE5 		ldr	r3, [fp, #-16]
+ 2310 0314 273A83E2 		add	r3, r3, #159744
+ 2311 0318 013C83E2 		add	r3, r3, #256
+ 2312 031c 8330A0E1 		mov	r3, r3, asl #1
+ 2313 0320 033081E0 		add	r3, r1, r3
+ 2314 0324 B030D3E1 		ldrh	r3, [r3, #0]
+ 2315 0328 0228A0E1 		mov	r2, r2, asl #16
+ 2316 032c 4228A0E1 		mov	r2, r2, asr #16
+ 2317 0330 0338A0E1 		mov	r3, r3, asl #16
+ 2318 0334 4338A0E1 		mov	r3, r3, asr #16
+ 2319 0338 0200A0E1 		mov	r0, r2
+ 2320 033c 0310A0E1 		mov	r1, r3
+ 2321 0340 FEFFFFEB 		bl	iis_putSample
+ 156:../tests/test_sound_effects.c ****      	iis_putSample( buffer.ch0[i], buffer.ch1[i] );
+ 2322              		.loc 1 156 0 discriminator 2
+ 2323 0344 5C299FE5 		ldr	r2, .L33+48
+ 2324 0348 10301BE5 		ldr	r3, [fp, #-16]
+ 2325 034c 8330A0E1 		mov	r3, r3, asl #1
+ 2326 0350 033082E0 		add	r3, r2, r3
+ 2327 0354 B020D3E1 		ldrh	r2, [r3, #0]
+ 2328 0358 48199FE5 		ldr	r1, .L33+48
+ 2329 035c 10301BE5 		ldr	r3, [fp, #-16]
+ 2330 0360 273A83E2 		add	r3, r3, #159744
+ 2331 0364 013C83E2 		add	r3, r3, #256
+ 2332 0368 8330A0E1 		mov	r3, r3, asl #1
+ 2333 036c 033081E0 		add	r3, r1, r3
+ 2334 0370 B030D3E1 		ldrh	r3, [r3, #0]
+ 2335 0374 0228A0E1 		mov	r2, r2, asl #16
+ 2336 0378 4228A0E1 		mov	r2, r2, asr #16
+ 2337 037c 0338A0E1 		mov	r3, r3, asl #16
+ 2338 0380 4338A0E1 		mov	r3, r3, asr #16
+ 2339 0384 0200A0E1 		mov	r0, r2
+ 2340 0388 0310A0E1 		mov	r1, r3
+ 2341 038c FEFFFFEB 		bl	iis_putSample
+ 153:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2342              		.loc 1 153 0 discriminator 2
+ 2343 0390 10301BE5 		ldr	r3, [fp, #-16]
+ 2344 0394 013083E2 		add	r3, r3, #1
+ 2345 0398 10300BE5 		str	r3, [fp, #-16]
+ 2346              	.L12:
+ 153:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2347              		.loc 1 153 0 is_stmt 0 discriminator 1
+ 2348 039c 10201BE5 		ldr	r2, [fp, #-16]
+ 2349 03a0 08399FE5 		ldr	r3, .L33+56
+ 2350 03a4 030052E1 		cmp	r2, r3
+ 2351 03a8 D2FFFF9A 		bls	.L13
+ 157:../tests/test_sound_effects.c ****      }
+ 158:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2352              		.loc 1 158 0 is_stmt 1
+ 2353 03ac E0089FE5 		ldr	r0, .L33+28
+ 2354 03b0 FEFFFFEB 		bl	uart0_puts
+ 159:../tests/test_sound_effects.c **** 
+ 160:../tests/test_sound_effects.c ****     /************************************/
+ 161:../tests/test_sound_effects.c **** 
+ 162:../tests/test_sound_effects.c ****     uart0_puts( "  - Reproducción a doble velocidad: escuche... " );
+ 2355              		.loc 1 162 0
+ 2356 03b4 00099FE5 		ldr	r0, .L33+68
+ 2357 03b8 FEFFFFEB 		bl	uart0_puts
+ 163:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i+=2 )		 	// se reproduce 1 de cada 2 muestras almacenadas
+ 2358              		.loc 1 163 0
+ 2359 03bc 0030A0E3 		mov	r3, #0
+ 2360 03c0 10300BE5 		str	r3, [fp, #-16]
+ 2361 03c4 150000EA 		b	.L14
+ 2362              	.L15:
+ 164:../tests/test_sound_effects.c ****      	iis_putSample( buffer.ch0[i], buffer.ch1[i] );
+ 2363              		.loc 1 164 0 discriminator 2
+ 2364 03c8 D8289FE5 		ldr	r2, .L33+48
+ 2365 03cc 10301BE5 		ldr	r3, [fp, #-16]
+ 2366 03d0 8330A0E1 		mov	r3, r3, asl #1
+ 2367 03d4 033082E0 		add	r3, r2, r3
+ 2368 03d8 B020D3E1 		ldrh	r2, [r3, #0]
+ 2369 03dc C4189FE5 		ldr	r1, .L33+48
+ 2370 03e0 10301BE5 		ldr	r3, [fp, #-16]
+ 2371 03e4 273A83E2 		add	r3, r3, #159744
+ 2372 03e8 013C83E2 		add	r3, r3, #256
+ 2373 03ec 8330A0E1 		mov	r3, r3, asl #1
+ 2374 03f0 033081E0 		add	r3, r1, r3
+ 2375 03f4 B030D3E1 		ldrh	r3, [r3, #0]
+ 2376 03f8 0228A0E1 		mov	r2, r2, asl #16
+ 2377 03fc 4228A0E1 		mov	r2, r2, asr #16
+ 2378 0400 0338A0E1 		mov	r3, r3, asl #16
+ 2379 0404 4338A0E1 		mov	r3, r3, asr #16
+ 2380 0408 0200A0E1 		mov	r0, r2
+ 2381 040c 0310A0E1 		mov	r1, r3
+ 2382 0410 FEFFFFEB 		bl	iis_putSample
+ 163:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i+=2 )		 	// se reproduce 1 de cada 2 muestras almacenadas
+ 2383              		.loc 1 163 0 discriminator 2
+ 2384 0414 10301BE5 		ldr	r3, [fp, #-16]
+ 2385 0418 023083E2 		add	r3, r3, #2
+ 2386 041c 10300BE5 		str	r3, [fp, #-16]
+ 2387              	.L14:
+ 163:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i+=2 )		 	// se reproduce 1 de cada 2 muestras almacenadas
+ 2388              		.loc 1 163 0 is_stmt 0 discriminator 1
+ 2389 0420 10201BE5 		ldr	r2, [fp, #-16]
+ 2390 0424 84389FE5 		ldr	r3, .L33+56
+ 2391 0428 030052E1 		cmp	r2, r3
+ 2392 042c E5FFFF9A 		bls	.L15
+ 165:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2393              		.loc 1 165 0 is_stmt 1
+ 2394 0430 5C089FE5 		ldr	r0, .L33+28
+ 2395 0434 FEFFFFEB 		bl	uart0_puts
+ 166:../tests/test_sound_effects.c **** 
+ 167:../tests/test_sound_effects.c ****     /************************************/
+ 168:../tests/test_sound_effects.c **** 
+ 169:../tests/test_sound_effects.c ****     uart0_puts( "  - Reproducción inversa: escuche... " );
+ 2396              		.loc 1 169 0
+ 2397 0438 80089FE5 		ldr	r0, .L33+72
+ 2398 043c FEFFFFEB 		bl	uart0_puts
+ 170:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2399              		.loc 1 170 0
+ 2400 0440 0030A0E3 		mov	r3, #0
+ 2401 0444 10300BE5 		str	r3, [fp, #-16]
+ 2402 0448 190000EA 		b	.L16
+ 2403              	.L17:
+ 171:../tests/test_sound_effects.c ****      	iis_putSample( buffer.ch0[AUDIOBUFFER_SIZE-i], buffer.ch1[AUDIOBUFFER_SIZE-i] );
+ 2404              		.loc 1 171 0 discriminator 2
+ 2405 044c 10301BE5 		ldr	r3, [fp, #-16]
+ 2406 0450 273A63E2 		rsb	r3, r3, #159744
+ 2407 0454 013C83E2 		add	r3, r3, #256
+ 2408 0458 48289FE5 		ldr	r2, .L33+48
+ 2409 045c 8330A0E1 		mov	r3, r3, asl #1
+ 2410 0460 033082E0 		add	r3, r2, r3
+ 2411 0464 B020D3E1 		ldrh	r2, [r3, #0]
+ 2412 0468 10301BE5 		ldr	r3, [fp, #-16]
+ 2413 046c 273A63E2 		rsb	r3, r3, #159744
+ 2414 0470 013C83E2 		add	r3, r3, #256
+ 2415 0474 2C189FE5 		ldr	r1, .L33+48
+ 2416 0478 273A83E2 		add	r3, r3, #159744
+ 2417 047c 013C83E2 		add	r3, r3, #256
+ 2418 0480 8330A0E1 		mov	r3, r3, asl #1
+ 2419 0484 033081E0 		add	r3, r1, r3
+ 2420 0488 B030D3E1 		ldrh	r3, [r3, #0]
+ 2421 048c 0228A0E1 		mov	r2, r2, asl #16
+ 2422 0490 4228A0E1 		mov	r2, r2, asr #16
+ 2423 0494 0338A0E1 		mov	r3, r3, asl #16
+ 2424 0498 4338A0E1 		mov	r3, r3, asr #16
+ 2425 049c 0200A0E1 		mov	r0, r2
+ 2426 04a0 0310A0E1 		mov	r1, r3
+ 2427 04a4 FEFFFFEB 		bl	iis_putSample
+ 170:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2428              		.loc 1 170 0 discriminator 2
+ 2429 04a8 10301BE5 		ldr	r3, [fp, #-16]
+ 2430 04ac 013083E2 		add	r3, r3, #1
+ 2431 04b0 10300BE5 		str	r3, [fp, #-16]
+ 2432              	.L16:
+ 170:../tests/test_sound_effects.c ****     for( i=0; i<AUDIOBUFFER_SIZE; i++ )
+ 2433              		.loc 1 170 0 is_stmt 0 discriminator 1
+ 2434 04b4 10201BE5 		ldr	r2, [fp, #-16]
+ 2435 04b8 F0379FE5 		ldr	r3, .L33+56
+ 2436 04bc 030052E1 		cmp	r2, r3
+ 2437 04c0 E1FFFF9A 		bls	.L17
+ 172:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2438              		.loc 1 172 0 is_stmt 1
+ 2439 04c4 C8079FE5 		ldr	r0, .L33+28
+ 2440 04c8 FEFFFFEB 		bl	uart0_puts
+ 173:../tests/test_sound_effects.c **** 
+ 174:../tests/test_sound_effects.c ****     /************************************/
+ 175:../tests/test_sound_effects.c **** 
+ 176:../tests/test_sound_effects.c ****     uart0_puts( "(para finalizar presione cualquier tecla)\n" );
+ 2441              		.loc 1 176 0
+ 2442 04cc A8079FE5 		ldr	r0, .L33+4
+ 2443 04d0 FEFFFFEB 		bl	uart0_puts
+ 177:../tests/test_sound_effects.c ****     uart0_puts( "  - Loopback: hable y escuche... " );
+ 2444              		.loc 1 177 0
+ 2445 04d4 E8079FE5 		ldr	r0, .L33+76
+ 2446 04d8 FEFFFFEB 		bl	uart0_puts
+ 178:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2447              		.loc 1 178 0
+ 2448 04dc 0D0000EA 		b	.L18
+ 2449              	.L19:
+ 179:../tests/test_sound_effects.c ****     {
+ 180:../tests/test_sound_effects.c ****      	iis_getSample( &ch0, &ch1 );
+ 2450              		.loc 1 180 0
+ 2451 04e0 12204BE2 		sub	r2, fp, #18
+ 2452 04e4 14304BE2 		sub	r3, fp, #20
+ 2453 04e8 0200A0E1 		mov	r0, r2
+ 2454 04ec 0310A0E1 		mov	r1, r3
+ 2455 04f0 FEFFFFEB 		bl	iis_getSample
+ 181:../tests/test_sound_effects.c ****      	iis_putSample( ch0, ch1 );
+ 2456              		.loc 1 181 0
+ 2457 04f4 B2215BE1 		ldrh	r2, [fp, #-18]
+ 2458 04f8 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2459 04fc 0228A0E1 		mov	r2, r2, asl #16
+ 2460 0500 4228A0E1 		mov	r2, r2, asr #16
+ 2461 0504 0338A0E1 		mov	r3, r3, asl #16
+ 2462 0508 4338A0E1 		mov	r3, r3, asr #16
+ 2463 050c 0200A0E1 		mov	r0, r2
+ 2464 0510 0310A0E1 		mov	r1, r3
+ 2465 0514 FEFFFFEB 		bl	iis_putSample
+ 2466              	.L18:
+ 178:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2467              		.loc 1 178 0 discriminator 1
+ 2468 0518 FEFFFFEB 		bl	kb_scan
+ 2469 051c 0030A0E1 		mov	r3, r0
+ 2470 0520 000053E3 		cmp	r3, #0
+ 2471 0524 EDFFFFBA 		blt	.L19
+ 182:../tests/test_sound_effects.c ****     }
+ 183:../tests/test_sound_effects.c ****     uart0_getint();
+ 2472              		.loc 1 183 0
+ 2473 0528 FEFFFFEB 		bl	uart0_getint
+ 184:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2474              		.loc 1 184 0
+ 2475 052c 60079FE5 		ldr	r0, .L33+28
+ 2476 0530 FEFFFFEB 		bl	uart0_puts
+ 185:../tests/test_sound_effects.c **** 
+ 186:../tests/test_sound_effects.c ****     /************************************/
+ 187:../tests/test_sound_effects.c **** 
+ 188:../tests/test_sound_effects.c ****     uart0_puts( "  - Echo (8 ms): hable y escuche... " );
+ 2477              		.loc 1 188 0
+ 2478 0534 8C079FE5 		ldr	r0, .L33+80
+ 2479 0538 FEFFFFEB 		bl	uart0_puts
+ 189:../tests/test_sound_effects.c ****     audiodelay_init( &delay_buffer, 128 );
+ 2480              		.loc 1 189 0
+ 2481 053c 88079FE5 		ldr	r0, .L33+84
+ 2482 0540 8010A0E3 		mov	r1, #128
+ 2483 0544 FEFFFFEB 		bl	audiodelay_init
+ 190:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2484              		.loc 1 190 0
+ 2485 0548 3F0000EA 		b	.L20
+ 2486              	.L21:
+ 191:../tests/test_sound_effects.c ****     {
+ 192:../tests/test_sound_effects.c ****      	iis_getSample( &ch0, &ch1 );
+ 2487              		.loc 1 192 0
+ 2488 054c 12204BE2 		sub	r2, fp, #18
+ 2489 0550 14304BE2 		sub	r3, fp, #20
+ 2490 0554 0200A0E1 		mov	r0, r2
+ 2491 0558 0310A0E1 		mov	r1, r3
+ 2492 055c FEFFFFEB 		bl	iis_getSample
+ 193:../tests/test_sound_effects.c ****     	audiodelay_get( &delay_buffer, &ch0_aux, &ch1_aux );
+ 2493              		.loc 1 193 0
+ 2494 0560 16204BE2 		sub	r2, fp, #22
+ 2495 0564 18304BE2 		sub	r3, fp, #24
+ 2496 0568 5C079FE5 		ldr	r0, .L33+84
+ 2497 056c 0210A0E1 		mov	r1, r2
+ 2498 0570 0320A0E1 		mov	r2, r3
+ 2499 0574 FEFFFFEB 		bl	audiodelay_get
+ 194:../tests/test_sound_effects.c ****      	ch0_aux = ch0 + (ch0_aux >> 1);
+ 2500              		.loc 1 194 0
+ 2501 0578 B6315BE1 		ldrh	r3, [fp, #-22]
+ 2502 057c 0338A0E1 		mov	r3, r3, asl #16
+ 2503 0580 4338A0E1 		mov	r3, r3, asr #16
+ 2504 0584 C330A0E1 		mov	r3, r3, asr #1
+ 2505 0588 0338A0E1 		mov	r3, r3, asl #16
+ 2506 058c 2338A0E1 		mov	r3, r3, lsr #16
+ 2507 0590 0338A0E1 		mov	r3, r3, asl #16
+ 2508 0594 2328A0E1 		mov	r2, r3, lsr #16
+ 2509 0598 B2315BE1 		ldrh	r3, [fp, #-18]
+ 2510 059c 0338A0E1 		mov	r3, r3, asl #16
+ 2511 05a0 2338A0E1 		mov	r3, r3, lsr #16
+ 2512 05a4 033082E0 		add	r3, r2, r3
+ 2513 05a8 0338A0E1 		mov	r3, r3, asl #16
+ 2514 05ac 2338A0E1 		mov	r3, r3, lsr #16
+ 2515 05b0 0338A0E1 		mov	r3, r3, asl #16
+ 2516 05b4 2338A0E1 		mov	r3, r3, lsr #16
+ 2517 05b8 B6314BE1 		strh	r3, [fp, #-22]	@ movhi
+ 195:../tests/test_sound_effects.c ****      	ch1_aux = ch1 + (ch1_aux >> 1);
+ 2518              		.loc 1 195 0
+ 2519 05bc B8315BE1 		ldrh	r3, [fp, #-24]
+ 2520 05c0 0338A0E1 		mov	r3, r3, asl #16
+ 2521 05c4 4338A0E1 		mov	r3, r3, asr #16
+ 2522 05c8 C330A0E1 		mov	r3, r3, asr #1
+ 2523 05cc 0338A0E1 		mov	r3, r3, asl #16
+ 2524 05d0 2338A0E1 		mov	r3, r3, lsr #16
+ 2525 05d4 0338A0E1 		mov	r3, r3, asl #16
+ 2526 05d8 2328A0E1 		mov	r2, r3, lsr #16
+ 2527 05dc B4315BE1 		ldrh	r3, [fp, #-20]
+ 2528 05e0 0338A0E1 		mov	r3, r3, asl #16
+ 2529 05e4 2338A0E1 		mov	r3, r3, lsr #16
+ 2530 05e8 033082E0 		add	r3, r2, r3
+ 2531 05ec 0338A0E1 		mov	r3, r3, asl #16
+ 2532 05f0 2338A0E1 		mov	r3, r3, lsr #16
+ 2533 05f4 0338A0E1 		mov	r3, r3, asl #16
+ 2534 05f8 2338A0E1 		mov	r3, r3, lsr #16
+ 2535 05fc B8314BE1 		strh	r3, [fp, #-24]	@ movhi
+ 196:../tests/test_sound_effects.c ****      	iis_putSample( ch0_aux, ch1_aux );
+ 2536              		.loc 1 196 0
+ 2537 0600 B6215BE1 		ldrh	r2, [fp, #-22]
+ 2538 0604 B8315BE1 		ldrh	r3, [fp, #-24]
+ 2539 0608 0228A0E1 		mov	r2, r2, asl #16
+ 2540 060c 4228A0E1 		mov	r2, r2, asr #16
+ 2541 0610 0338A0E1 		mov	r3, r3, asl #16
+ 2542 0614 4338A0E1 		mov	r3, r3, asr #16
+ 2543 0618 0200A0E1 		mov	r0, r2
+ 2544 061c 0310A0E1 		mov	r1, r3
+ 2545 0620 FEFFFFEB 		bl	iis_putSample
+ 197:../tests/test_sound_effects.c ****     	audiodelay_put( &delay_buffer, ch0, ch1 );
+ 2546              		.loc 1 197 0
+ 2547 0624 B2215BE1 		ldrh	r2, [fp, #-18]
+ 2548 0628 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2549 062c 0228A0E1 		mov	r2, r2, asl #16
+ 2550 0630 4228A0E1 		mov	r2, r2, asr #16
+ 2551 0634 0338A0E1 		mov	r3, r3, asl #16
+ 2552 0638 4338A0E1 		mov	r3, r3, asr #16
+ 2553 063c 88069FE5 		ldr	r0, .L33+84
+ 2554 0640 0210A0E1 		mov	r1, r2
+ 2555 0644 0320A0E1 		mov	r2, r3
+ 2556 0648 FEFFFFEB 		bl	audiodelay_put
+ 2557              	.L20:
+ 190:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2558              		.loc 1 190 0 discriminator 1
+ 2559 064c FEFFFFEB 		bl	kb_scan
+ 2560 0650 0030A0E1 		mov	r3, r0
+ 2561 0654 000053E3 		cmp	r3, #0
+ 2562 0658 BBFFFFBA 		blt	.L21
+ 198:../tests/test_sound_effects.c ****     }
+ 199:../tests/test_sound_effects.c ****     uart0_getint();
+ 2563              		.loc 1 199 0
+ 2564 065c FEFFFFEB 		bl	uart0_getint
+ 200:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2565              		.loc 1 200 0
+ 2566 0660 2C069FE5 		ldr	r0, .L33+28
+ 2567 0664 FEFFFFEB 		bl	uart0_puts
+ 201:../tests/test_sound_effects.c **** 
+ 202:../tests/test_sound_effects.c ****     /************************************/
+ 203:../tests/test_sound_effects.c **** 
+ 204:../tests/test_sound_effects.c ****     uart0_puts( "  - Echo (45 ms): hable y escuche... " );
+ 2568              		.loc 1 204 0
+ 2569 0668 60069FE5 		ldr	r0, .L33+88
+ 2570 066c FEFFFFEB 		bl	uart0_puts
+ 205:../tests/test_sound_effects.c ****     audiodelay_init( &delay_buffer, 720 );
+ 2571              		.loc 1 205 0
+ 2572 0670 54069FE5 		ldr	r0, .L33+84
+ 2573 0674 2D1EA0E3 		mov	r1, #720
+ 2574 0678 FEFFFFEB 		bl	audiodelay_init
+ 206:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2575              		.loc 1 206 0
+ 2576 067c 3F0000EA 		b	.L22
+ 2577              	.L23:
+ 207:../tests/test_sound_effects.c ****     {
+ 208:../tests/test_sound_effects.c ****      	iis_getSample( &ch0, &ch1 );
+ 2578              		.loc 1 208 0
+ 2579 0680 12204BE2 		sub	r2, fp, #18
+ 2580 0684 14304BE2 		sub	r3, fp, #20
+ 2581 0688 0200A0E1 		mov	r0, r2
+ 2582 068c 0310A0E1 		mov	r1, r3
+ 2583 0690 FEFFFFEB 		bl	iis_getSample
+ 209:../tests/test_sound_effects.c ****     	audiodelay_get( &delay_buffer, &ch0_aux, &ch1_aux );
+ 2584              		.loc 1 209 0
+ 2585 0694 16204BE2 		sub	r2, fp, #22
+ 2586 0698 18304BE2 		sub	r3, fp, #24
+ 2587 069c 28069FE5 		ldr	r0, .L33+84
+ 2588 06a0 0210A0E1 		mov	r1, r2
+ 2589 06a4 0320A0E1 		mov	r2, r3
+ 2590 06a8 FEFFFFEB 		bl	audiodelay_get
+ 210:../tests/test_sound_effects.c ****      	ch0_aux = ch0 + (ch0_aux >> 1);
+ 2591              		.loc 1 210 0
+ 2592 06ac B6315BE1 		ldrh	r3, [fp, #-22]
+ 2593 06b0 0338A0E1 		mov	r3, r3, asl #16
+ 2594 06b4 4338A0E1 		mov	r3, r3, asr #16
+ 2595 06b8 C330A0E1 		mov	r3, r3, asr #1
+ 2596 06bc 0338A0E1 		mov	r3, r3, asl #16
+ 2597 06c0 2338A0E1 		mov	r3, r3, lsr #16
+ 2598 06c4 0338A0E1 		mov	r3, r3, asl #16
+ 2599 06c8 2328A0E1 		mov	r2, r3, lsr #16
+ 2600 06cc B2315BE1 		ldrh	r3, [fp, #-18]
+ 2601 06d0 0338A0E1 		mov	r3, r3, asl #16
+ 2602 06d4 2338A0E1 		mov	r3, r3, lsr #16
+ 2603 06d8 033082E0 		add	r3, r2, r3
+ 2604 06dc 0338A0E1 		mov	r3, r3, asl #16
+ 2605 06e0 2338A0E1 		mov	r3, r3, lsr #16
+ 2606 06e4 0338A0E1 		mov	r3, r3, asl #16
+ 2607 06e8 2338A0E1 		mov	r3, r3, lsr #16
+ 2608 06ec B6314BE1 		strh	r3, [fp, #-22]	@ movhi
+ 211:../tests/test_sound_effects.c ****      	ch1_aux = ch1 + (ch1_aux >> 1);
+ 2609              		.loc 1 211 0
+ 2610 06f0 B8315BE1 		ldrh	r3, [fp, #-24]
+ 2611 06f4 0338A0E1 		mov	r3, r3, asl #16
+ 2612 06f8 4338A0E1 		mov	r3, r3, asr #16
+ 2613 06fc C330A0E1 		mov	r3, r3, asr #1
+ 2614 0700 0338A0E1 		mov	r3, r3, asl #16
+ 2615 0704 2338A0E1 		mov	r3, r3, lsr #16
+ 2616 0708 0338A0E1 		mov	r3, r3, asl #16
+ 2617 070c 2328A0E1 		mov	r2, r3, lsr #16
+ 2618 0710 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2619 0714 0338A0E1 		mov	r3, r3, asl #16
+ 2620 0718 2338A0E1 		mov	r3, r3, lsr #16
+ 2621 071c 033082E0 		add	r3, r2, r3
+ 2622 0720 0338A0E1 		mov	r3, r3, asl #16
+ 2623 0724 2338A0E1 		mov	r3, r3, lsr #16
+ 2624 0728 0338A0E1 		mov	r3, r3, asl #16
+ 2625 072c 2338A0E1 		mov	r3, r3, lsr #16
+ 2626 0730 B8314BE1 		strh	r3, [fp, #-24]	@ movhi
+ 212:../tests/test_sound_effects.c ****      	iis_putSample( ch0_aux, ch1_aux );
+ 2627              		.loc 1 212 0
+ 2628 0734 B6215BE1 		ldrh	r2, [fp, #-22]
+ 2629 0738 B8315BE1 		ldrh	r3, [fp, #-24]
+ 2630 073c 0228A0E1 		mov	r2, r2, asl #16
+ 2631 0740 4228A0E1 		mov	r2, r2, asr #16
+ 2632 0744 0338A0E1 		mov	r3, r3, asl #16
+ 2633 0748 4338A0E1 		mov	r3, r3, asr #16
+ 2634 074c 0200A0E1 		mov	r0, r2
+ 2635 0750 0310A0E1 		mov	r1, r3
+ 2636 0754 FEFFFFEB 		bl	iis_putSample
+ 213:../tests/test_sound_effects.c ****     	audiodelay_put( &delay_buffer, ch0, ch1 );
+ 2637              		.loc 1 213 0
+ 2638 0758 B2215BE1 		ldrh	r2, [fp, #-18]
+ 2639 075c B4315BE1 		ldrh	r3, [fp, #-20]
+ 2640 0760 0228A0E1 		mov	r2, r2, asl #16
+ 2641 0764 4228A0E1 		mov	r2, r2, asr #16
+ 2642 0768 0338A0E1 		mov	r3, r3, asl #16
+ 2643 076c 4338A0E1 		mov	r3, r3, asr #16
+ 2644 0770 54059FE5 		ldr	r0, .L33+84
+ 2645 0774 0210A0E1 		mov	r1, r2
+ 2646 0778 0320A0E1 		mov	r2, r3
+ 2647 077c FEFFFFEB 		bl	audiodelay_put
+ 2648              	.L22:
+ 206:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2649              		.loc 1 206 0 discriminator 1
+ 2650 0780 FEFFFFEB 		bl	kb_scan
+ 2651 0784 0030A0E1 		mov	r3, r0
+ 2652 0788 000053E3 		cmp	r3, #0
+ 2653 078c BBFFFFBA 		blt	.L23
+ 214:../tests/test_sound_effects.c ****     }
+ 215:../tests/test_sound_effects.c ****     uart0_getint();
+ 2654              		.loc 1 215 0
+ 2655 0790 FEFFFFEB 		bl	uart0_getint
+ 216:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2656              		.loc 1 216 0
+ 2657 0794 F8049FE5 		ldr	r0, .L33+28
+ 2658 0798 FEFFFFEB 		bl	uart0_puts
+ 217:../tests/test_sound_effects.c **** 
+ 218:../tests/test_sound_effects.c ****     /************************************/
+ 219:../tests/test_sound_effects.c **** 
+ 220:../tests/test_sound_effects.c ****     uart0_puts( "  - Echo (85 ms): hable y escuche... " );
+ 2659              		.loc 1 220 0
+ 2660 079c 30059FE5 		ldr	r0, .L33+92
+ 2661 07a0 FEFFFFEB 		bl	uart0_puts
+ 221:../tests/test_sound_effects.c ****     audiodelay_init( &delay_buffer, 1280 );
+ 2662              		.loc 1 221 0
+ 2663 07a4 20059FE5 		ldr	r0, .L33+84
+ 2664 07a8 051CA0E3 		mov	r1, #1280
+ 2665 07ac FEFFFFEB 		bl	audiodelay_init
+ 222:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2666              		.loc 1 222 0
+ 2667 07b0 3F0000EA 		b	.L24
+ 2668              	.L25:
+ 223:../tests/test_sound_effects.c ****     {
+ 224:../tests/test_sound_effects.c ****      	iis_getSample( &ch0, &ch1 );
+ 2669              		.loc 1 224 0
+ 2670 07b4 12204BE2 		sub	r2, fp, #18
+ 2671 07b8 14304BE2 		sub	r3, fp, #20
+ 2672 07bc 0200A0E1 		mov	r0, r2
+ 2673 07c0 0310A0E1 		mov	r1, r3
+ 2674 07c4 FEFFFFEB 		bl	iis_getSample
+ 225:../tests/test_sound_effects.c ****     	audiodelay_get( &delay_buffer, &ch0_aux, &ch1_aux );
+ 2675              		.loc 1 225 0
+ 2676 07c8 16204BE2 		sub	r2, fp, #22
+ 2677 07cc 18304BE2 		sub	r3, fp, #24
+ 2678 07d0 F4049FE5 		ldr	r0, .L33+84
+ 2679 07d4 0210A0E1 		mov	r1, r2
+ 2680 07d8 0320A0E1 		mov	r2, r3
+ 2681 07dc FEFFFFEB 		bl	audiodelay_get
+ 226:../tests/test_sound_effects.c ****      	ch0_aux = ch0 + (ch0_aux >> 1);
+ 2682              		.loc 1 226 0
+ 2683 07e0 B6315BE1 		ldrh	r3, [fp, #-22]
+ 2684 07e4 0338A0E1 		mov	r3, r3, asl #16
+ 2685 07e8 4338A0E1 		mov	r3, r3, asr #16
+ 2686 07ec C330A0E1 		mov	r3, r3, asr #1
+ 2687 07f0 0338A0E1 		mov	r3, r3, asl #16
+ 2688 07f4 2338A0E1 		mov	r3, r3, lsr #16
+ 2689 07f8 0338A0E1 		mov	r3, r3, asl #16
+ 2690 07fc 2328A0E1 		mov	r2, r3, lsr #16
+ 2691 0800 B2315BE1 		ldrh	r3, [fp, #-18]
+ 2692 0804 0338A0E1 		mov	r3, r3, asl #16
+ 2693 0808 2338A0E1 		mov	r3, r3, lsr #16
+ 2694 080c 033082E0 		add	r3, r2, r3
+ 2695 0810 0338A0E1 		mov	r3, r3, asl #16
+ 2696 0814 2338A0E1 		mov	r3, r3, lsr #16
+ 2697 0818 0338A0E1 		mov	r3, r3, asl #16
+ 2698 081c 2338A0E1 		mov	r3, r3, lsr #16
+ 2699 0820 B6314BE1 		strh	r3, [fp, #-22]	@ movhi
+ 227:../tests/test_sound_effects.c ****      	ch1_aux = ch1 + (ch1_aux >> 1);
+ 2700              		.loc 1 227 0
+ 2701 0824 B8315BE1 		ldrh	r3, [fp, #-24]
+ 2702 0828 0338A0E1 		mov	r3, r3, asl #16
+ 2703 082c 4338A0E1 		mov	r3, r3, asr #16
+ 2704 0830 C330A0E1 		mov	r3, r3, asr #1
+ 2705 0834 0338A0E1 		mov	r3, r3, asl #16
+ 2706 0838 2338A0E1 		mov	r3, r3, lsr #16
+ 2707 083c 0338A0E1 		mov	r3, r3, asl #16
+ 2708 0840 2328A0E1 		mov	r2, r3, lsr #16
+ 2709 0844 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2710 0848 0338A0E1 		mov	r3, r3, asl #16
+ 2711 084c 2338A0E1 		mov	r3, r3, lsr #16
+ 2712 0850 033082E0 		add	r3, r2, r3
+ 2713 0854 0338A0E1 		mov	r3, r3, asl #16
+ 2714 0858 2338A0E1 		mov	r3, r3, lsr #16
+ 2715 085c 0338A0E1 		mov	r3, r3, asl #16
+ 2716 0860 2338A0E1 		mov	r3, r3, lsr #16
+ 2717 0864 B8314BE1 		strh	r3, [fp, #-24]	@ movhi
+ 228:../tests/test_sound_effects.c ****      	iis_putSample( ch0_aux, ch1_aux );
+ 2718              		.loc 1 228 0
+ 2719 0868 B6215BE1 		ldrh	r2, [fp, #-22]
+ 2720 086c B8315BE1 		ldrh	r3, [fp, #-24]
+ 2721 0870 0228A0E1 		mov	r2, r2, asl #16
+ 2722 0874 4228A0E1 		mov	r2, r2, asr #16
+ 2723 0878 0338A0E1 		mov	r3, r3, asl #16
+ 2724 087c 4338A0E1 		mov	r3, r3, asr #16
+ 2725 0880 0200A0E1 		mov	r0, r2
+ 2726 0884 0310A0E1 		mov	r1, r3
+ 2727 0888 FEFFFFEB 		bl	iis_putSample
+ 229:../tests/test_sound_effects.c ****     	audiodelay_put( &delay_buffer, ch0, ch1 );
+ 2728              		.loc 1 229 0
+ 2729 088c B2215BE1 		ldrh	r2, [fp, #-18]
+ 2730 0890 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2731 0894 0228A0E1 		mov	r2, r2, asl #16
+ 2732 0898 4228A0E1 		mov	r2, r2, asr #16
+ 2733 089c 0338A0E1 		mov	r3, r3, asl #16
+ 2734 08a0 4338A0E1 		mov	r3, r3, asr #16
+ 2735 08a4 20049FE5 		ldr	r0, .L33+84
+ 2736 08a8 0210A0E1 		mov	r1, r2
+ 2737 08ac 0320A0E1 		mov	r2, r3
+ 2738 08b0 FEFFFFEB 		bl	audiodelay_put
+ 2739              	.L24:
+ 222:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2740              		.loc 1 222 0 discriminator 1
+ 2741 08b4 FEFFFFEB 		bl	kb_scan
+ 2742 08b8 0030A0E1 		mov	r3, r0
+ 2743 08bc 000053E3 		cmp	r3, #0
+ 2744 08c0 BBFFFFBA 		blt	.L25
+ 230:../tests/test_sound_effects.c ****     }
+ 231:../tests/test_sound_effects.c ****     uart0_getint();
+ 2745              		.loc 1 231 0
+ 2746 08c4 FEFFFFEB 		bl	uart0_getint
+ 232:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2747              		.loc 1 232 0
+ 2748 08c8 C4039FE5 		ldr	r0, .L33+28
+ 2749 08cc FEFFFFEB 		bl	uart0_puts
+ 233:../tests/test_sound_effects.c **** 
+ 234:../tests/test_sound_effects.c ****     /************************************/
+ 235:../tests/test_sound_effects.c **** 
+ 236:../tests/test_sound_effects.c ****     uart0_puts( "  - Echo (150 ms): hable y escuche... " );
+ 2750              		.loc 1 236 0
+ 2751 08d0 00049FE5 		ldr	r0, .L33+96
+ 2752 08d4 FEFFFFEB 		bl	uart0_puts
+ 237:../tests/test_sound_effects.c ****     audiodelay_init( &delay_buffer, 2400 );
+ 2753              		.loc 1 237 0
+ 2754 08d8 EC039FE5 		ldr	r0, .L33+84
+ 2755 08dc 961EA0E3 		mov	r1, #2400
+ 2756 08e0 FEFFFFEB 		bl	audiodelay_init
+ 238:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2757              		.loc 1 238 0
+ 2758 08e4 3F0000EA 		b	.L26
+ 2759              	.L27:
+ 239:../tests/test_sound_effects.c ****     {
+ 240:../tests/test_sound_effects.c ****      	iis_getSample( &ch0, &ch1 );
+ 2760              		.loc 1 240 0
+ 2761 08e8 12204BE2 		sub	r2, fp, #18
+ 2762 08ec 14304BE2 		sub	r3, fp, #20
+ 2763 08f0 0200A0E1 		mov	r0, r2
+ 2764 08f4 0310A0E1 		mov	r1, r3
+ 2765 08f8 FEFFFFEB 		bl	iis_getSample
+ 241:../tests/test_sound_effects.c ****     	audiodelay_get( &delay_buffer, &ch0_aux, &ch1_aux );
+ 2766              		.loc 1 241 0
+ 2767 08fc 16204BE2 		sub	r2, fp, #22
+ 2768 0900 18304BE2 		sub	r3, fp, #24
+ 2769 0904 C0039FE5 		ldr	r0, .L33+84
+ 2770 0908 0210A0E1 		mov	r1, r2
+ 2771 090c 0320A0E1 		mov	r2, r3
+ 2772 0910 FEFFFFEB 		bl	audiodelay_get
+ 242:../tests/test_sound_effects.c ****      	ch0_aux = ch0 + (ch0_aux >> 1);
+ 2773              		.loc 1 242 0
+ 2774 0914 B6315BE1 		ldrh	r3, [fp, #-22]
+ 2775 0918 0338A0E1 		mov	r3, r3, asl #16
+ 2776 091c 4338A0E1 		mov	r3, r3, asr #16
+ 2777 0920 C330A0E1 		mov	r3, r3, asr #1
+ 2778 0924 0338A0E1 		mov	r3, r3, asl #16
+ 2779 0928 2338A0E1 		mov	r3, r3, lsr #16
+ 2780 092c 0338A0E1 		mov	r3, r3, asl #16
+ 2781 0930 2328A0E1 		mov	r2, r3, lsr #16
+ 2782 0934 B2315BE1 		ldrh	r3, [fp, #-18]
+ 2783 0938 0338A0E1 		mov	r3, r3, asl #16
+ 2784 093c 2338A0E1 		mov	r3, r3, lsr #16
+ 2785 0940 033082E0 		add	r3, r2, r3
+ 2786 0944 0338A0E1 		mov	r3, r3, asl #16
+ 2787 0948 2338A0E1 		mov	r3, r3, lsr #16
+ 2788 094c 0338A0E1 		mov	r3, r3, asl #16
+ 2789 0950 2338A0E1 		mov	r3, r3, lsr #16
+ 2790 0954 B6314BE1 		strh	r3, [fp, #-22]	@ movhi
+ 243:../tests/test_sound_effects.c ****      	ch1_aux = ch1 + (ch1_aux >> 1);
+ 2791              		.loc 1 243 0
+ 2792 0958 B8315BE1 		ldrh	r3, [fp, #-24]
+ 2793 095c 0338A0E1 		mov	r3, r3, asl #16
+ 2794 0960 4338A0E1 		mov	r3, r3, asr #16
+ 2795 0964 C330A0E1 		mov	r3, r3, asr #1
+ 2796 0968 0338A0E1 		mov	r3, r3, asl #16
+ 2797 096c 2338A0E1 		mov	r3, r3, lsr #16
+ 2798 0970 0338A0E1 		mov	r3, r3, asl #16
+ 2799 0974 2328A0E1 		mov	r2, r3, lsr #16
+ 2800 0978 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2801 097c 0338A0E1 		mov	r3, r3, asl #16
+ 2802 0980 2338A0E1 		mov	r3, r3, lsr #16
+ 2803 0984 033082E0 		add	r3, r2, r3
+ 2804 0988 0338A0E1 		mov	r3, r3, asl #16
+ 2805 098c 2338A0E1 		mov	r3, r3, lsr #16
+ 2806 0990 0338A0E1 		mov	r3, r3, asl #16
+ 2807 0994 2338A0E1 		mov	r3, r3, lsr #16
+ 2808 0998 B8314BE1 		strh	r3, [fp, #-24]	@ movhi
+ 244:../tests/test_sound_effects.c ****      	iis_putSample( ch0_aux, ch1_aux );
+ 2809              		.loc 1 244 0
+ 2810 099c B6215BE1 		ldrh	r2, [fp, #-22]
+ 2811 09a0 B8315BE1 		ldrh	r3, [fp, #-24]
+ 2812 09a4 0228A0E1 		mov	r2, r2, asl #16
+ 2813 09a8 4228A0E1 		mov	r2, r2, asr #16
+ 2814 09ac 0338A0E1 		mov	r3, r3, asl #16
+ 2815 09b0 4338A0E1 		mov	r3, r3, asr #16
+ 2816 09b4 0200A0E1 		mov	r0, r2
+ 2817 09b8 0310A0E1 		mov	r1, r3
+ 2818 09bc FEFFFFEB 		bl	iis_putSample
+ 245:../tests/test_sound_effects.c ****     	audiodelay_put( &delay_buffer, ch0, ch1 );
+ 2819              		.loc 1 245 0
+ 2820 09c0 B2215BE1 		ldrh	r2, [fp, #-18]
+ 2821 09c4 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2822 09c8 0228A0E1 		mov	r2, r2, asl #16
+ 2823 09cc 4228A0E1 		mov	r2, r2, asr #16
+ 2824 09d0 0338A0E1 		mov	r3, r3, asl #16
+ 2825 09d4 4338A0E1 		mov	r3, r3, asr #16
+ 2826 09d8 EC029FE5 		ldr	r0, .L33+84
+ 2827 09dc 0210A0E1 		mov	r1, r2
+ 2828 09e0 0320A0E1 		mov	r2, r3
+ 2829 09e4 FEFFFFEB 		bl	audiodelay_put
+ 2830              	.L26:
+ 238:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2831              		.loc 1 238 0 discriminator 1
+ 2832 09e8 FEFFFFEB 		bl	kb_scan
+ 2833 09ec 0030A0E1 		mov	r3, r0
+ 2834 09f0 000053E3 		cmp	r3, #0
+ 2835 09f4 BBFFFFBA 		blt	.L27
+ 246:../tests/test_sound_effects.c ****     }
+ 247:../tests/test_sound_effects.c ****     uart0_getint();
+ 2836              		.loc 1 247 0
+ 2837 09f8 FEFFFFEB 		bl	uart0_getint
+ 248:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2838              		.loc 1 248 0
+ 2839 09fc 90029FE5 		ldr	r0, .L33+28
+ 2840 0a00 FEFFFFEB 		bl	uart0_puts
+ 249:../tests/test_sound_effects.c **** 
+ 250:../tests/test_sound_effects.c ****     /************************************/
+ 251:../tests/test_sound_effects.c **** 
+ 252:../tests/test_sound_effects.c ****     uart0_puts( "  - Echo & fade (1 s): hable y escuche... " );
+ 2841              		.loc 1 252 0
+ 2842 0a04 D0029FE5 		ldr	r0, .L33+100
+ 2843 0a08 FEFFFFEB 		bl	uart0_puts
+ 253:../tests/test_sound_effects.c ****     audiodelay_init( &delay_buffer, 16000 );
+ 2844              		.loc 1 253 0
+ 2845 0a0c B8029FE5 		ldr	r0, .L33+84
+ 2846 0a10 FA1DA0E3 		mov	r1, #16000
+ 2847 0a14 FEFFFFEB 		bl	audiodelay_init
+ 254:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2848              		.loc 1 254 0
+ 2849 0a18 3F0000EA 		b	.L28
+ 2850              	.L29:
+ 255:../tests/test_sound_effects.c ****     {
+ 256:../tests/test_sound_effects.c ****      	iis_getSample( &ch0, &ch1 );
+ 2851              		.loc 1 256 0
+ 2852 0a1c 12204BE2 		sub	r2, fp, #18
+ 2853 0a20 14304BE2 		sub	r3, fp, #20
+ 2854 0a24 0200A0E1 		mov	r0, r2
+ 2855 0a28 0310A0E1 		mov	r1, r3
+ 2856 0a2c FEFFFFEB 		bl	iis_getSample
+ 257:../tests/test_sound_effects.c ****     	audiodelay_get( &delay_buffer, &ch0_aux, &ch1_aux );
+ 2857              		.loc 1 257 0
+ 2858 0a30 16204BE2 		sub	r2, fp, #22
+ 2859 0a34 18304BE2 		sub	r3, fp, #24
+ 2860 0a38 8C029FE5 		ldr	r0, .L33+84
+ 2861 0a3c 0210A0E1 		mov	r1, r2
+ 2862 0a40 0320A0E1 		mov	r2, r3
+ 2863 0a44 FEFFFFEB 		bl	audiodelay_get
+ 258:../tests/test_sound_effects.c ****       	ch0 = ch0 + (ch0_aux >> 1);
+ 2864              		.loc 1 258 0
+ 2865 0a48 B6315BE1 		ldrh	r3, [fp, #-22]
+ 2866 0a4c 0338A0E1 		mov	r3, r3, asl #16
+ 2867 0a50 4338A0E1 		mov	r3, r3, asr #16
+ 2868 0a54 C330A0E1 		mov	r3, r3, asr #1
+ 2869 0a58 0338A0E1 		mov	r3, r3, asl #16
+ 2870 0a5c 2338A0E1 		mov	r3, r3, lsr #16
+ 2871 0a60 0338A0E1 		mov	r3, r3, asl #16
+ 2872 0a64 2328A0E1 		mov	r2, r3, lsr #16
+ 2873 0a68 B2315BE1 		ldrh	r3, [fp, #-18]
+ 2874 0a6c 0338A0E1 		mov	r3, r3, asl #16
+ 2875 0a70 2338A0E1 		mov	r3, r3, lsr #16
+ 2876 0a74 033082E0 		add	r3, r2, r3
+ 2877 0a78 0338A0E1 		mov	r3, r3, asl #16
+ 2878 0a7c 2338A0E1 		mov	r3, r3, lsr #16
+ 2879 0a80 0338A0E1 		mov	r3, r3, asl #16
+ 2880 0a84 2338A0E1 		mov	r3, r3, lsr #16
+ 2881 0a88 B2314BE1 		strh	r3, [fp, #-18]	@ movhi
+ 259:../tests/test_sound_effects.c ****       	ch1 = ch1 + (ch1_aux >> 1);
+ 2882              		.loc 1 259 0
+ 2883 0a8c B8315BE1 		ldrh	r3, [fp, #-24]
+ 2884 0a90 0338A0E1 		mov	r3, r3, asl #16
+ 2885 0a94 4338A0E1 		mov	r3, r3, asr #16
+ 2886 0a98 C330A0E1 		mov	r3, r3, asr #1
+ 2887 0a9c 0338A0E1 		mov	r3, r3, asl #16
+ 2888 0aa0 2338A0E1 		mov	r3, r3, lsr #16
+ 2889 0aa4 0338A0E1 		mov	r3, r3, asl #16
+ 2890 0aa8 2328A0E1 		mov	r2, r3, lsr #16
+ 2891 0aac B4315BE1 		ldrh	r3, [fp, #-20]
+ 2892 0ab0 0338A0E1 		mov	r3, r3, asl #16
+ 2893 0ab4 2338A0E1 		mov	r3, r3, lsr #16
+ 2894 0ab8 033082E0 		add	r3, r2, r3
+ 2895 0abc 0338A0E1 		mov	r3, r3, asl #16
+ 2896 0ac0 2338A0E1 		mov	r3, r3, lsr #16
+ 2897 0ac4 0338A0E1 		mov	r3, r3, asl #16
+ 2898 0ac8 2338A0E1 		mov	r3, r3, lsr #16
+ 2899 0acc B4314BE1 		strh	r3, [fp, #-20]	@ movhi
+ 260:../tests/test_sound_effects.c ****      	iis_putSample( ch0, ch1 );
+ 2900              		.loc 1 260 0
+ 2901 0ad0 B2215BE1 		ldrh	r2, [fp, #-18]
+ 2902 0ad4 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2903 0ad8 0228A0E1 		mov	r2, r2, asl #16
+ 2904 0adc 4228A0E1 		mov	r2, r2, asr #16
+ 2905 0ae0 0338A0E1 		mov	r3, r3, asl #16
+ 2906 0ae4 4338A0E1 		mov	r3, r3, asr #16
+ 2907 0ae8 0200A0E1 		mov	r0, r2
+ 2908 0aec 0310A0E1 		mov	r1, r3
+ 2909 0af0 FEFFFFEB 		bl	iis_putSample
+ 261:../tests/test_sound_effects.c ****     	audiodelay_put( &delay_buffer, ch0, ch1 );
+ 2910              		.loc 1 261 0
+ 2911 0af4 B2215BE1 		ldrh	r2, [fp, #-18]
+ 2912 0af8 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2913 0afc 0228A0E1 		mov	r2, r2, asl #16
+ 2914 0b00 4228A0E1 		mov	r2, r2, asr #16
+ 2915 0b04 0338A0E1 		mov	r3, r3, asl #16
+ 2916 0b08 4338A0E1 		mov	r3, r3, asr #16
+ 2917 0b0c B8019FE5 		ldr	r0, .L33+84
+ 2918 0b10 0210A0E1 		mov	r1, r2
+ 2919 0b14 0320A0E1 		mov	r2, r3
+ 2920 0b18 FEFFFFEB 		bl	audiodelay_put
+ 2921              	.L28:
+ 254:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2922              		.loc 1 254 0 discriminator 1
+ 2923 0b1c FEFFFFEB 		bl	kb_scan
+ 2924 0b20 0030A0E1 		mov	r3, r0
+ 2925 0b24 000053E3 		cmp	r3, #0
+ 2926 0b28 BBFFFFBA 		blt	.L29
+ 262:../tests/test_sound_effects.c ****     }
+ 263:../tests/test_sound_effects.c ****     uart0_getint();
+ 2927              		.loc 1 263 0
+ 2928 0b2c FEFFFFEB 		bl	uart0_getint
+ 264:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 2929              		.loc 1 264 0
+ 2930 0b30 5C019FE5 		ldr	r0, .L33+28
+ 2931 0b34 FEFFFFEB 		bl	uart0_puts
+ 265:../tests/test_sound_effects.c **** 
+ 266:../tests/test_sound_effects.c ****     /************************************/
+ 267:../tests/test_sound_effects.c **** 
+ 268:../tests/test_sound_effects.c ****     uart0_puts( "  - Reverberación (echo & fade 100 ms): hable y escuche... " );
+ 2932              		.loc 1 268 0
+ 2933 0b38 A0019FE5 		ldr	r0, .L33+104
+ 2934 0b3c FEFFFFEB 		bl	uart0_puts
+ 269:../tests/test_sound_effects.c ****     audiodelay_init( &delay_buffer, 1600 );
+ 2935              		.loc 1 269 0
+ 2936 0b40 84019FE5 		ldr	r0, .L33+84
+ 2937 0b44 191DA0E3 		mov	r1, #1600
+ 2938 0b48 FEFFFFEB 		bl	audiodelay_init
+ 270:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 2939              		.loc 1 270 0
+ 2940 0b4c 3F0000EA 		b	.L30
+ 2941              	.L31:
+ 271:../tests/test_sound_effects.c ****     {
+ 272:../tests/test_sound_effects.c ****      	iis_getSample( &ch0, &ch1 );
+ 2942              		.loc 1 272 0
+ 2943 0b50 12204BE2 		sub	r2, fp, #18
+ 2944 0b54 14304BE2 		sub	r3, fp, #20
+ 2945 0b58 0200A0E1 		mov	r0, r2
+ 2946 0b5c 0310A0E1 		mov	r1, r3
+ 2947 0b60 FEFFFFEB 		bl	iis_getSample
+ 273:../tests/test_sound_effects.c ****     	audiodelay_get( &delay_buffer, &ch0_aux, &ch1_aux );
+ 2948              		.loc 1 273 0
+ 2949 0b64 16204BE2 		sub	r2, fp, #22
+ 2950 0b68 18304BE2 		sub	r3, fp, #24
+ 2951 0b6c 58019FE5 		ldr	r0, .L33+84
+ 2952 0b70 0210A0E1 		mov	r1, r2
+ 2953 0b74 0320A0E1 		mov	r2, r3
+ 2954 0b78 FEFFFFEB 		bl	audiodelay_get
+ 274:../tests/test_sound_effects.c ****       	ch0 = ch0 + (ch0_aux >> 1);
+ 2955              		.loc 1 274 0
+ 2956 0b7c B6315BE1 		ldrh	r3, [fp, #-22]
+ 2957 0b80 0338A0E1 		mov	r3, r3, asl #16
+ 2958 0b84 4338A0E1 		mov	r3, r3, asr #16
+ 2959 0b88 C330A0E1 		mov	r3, r3, asr #1
+ 2960 0b8c 0338A0E1 		mov	r3, r3, asl #16
+ 2961 0b90 2338A0E1 		mov	r3, r3, lsr #16
+ 2962 0b94 0338A0E1 		mov	r3, r3, asl #16
+ 2963 0b98 2328A0E1 		mov	r2, r3, lsr #16
+ 2964 0b9c B2315BE1 		ldrh	r3, [fp, #-18]
+ 2965 0ba0 0338A0E1 		mov	r3, r3, asl #16
+ 2966 0ba4 2338A0E1 		mov	r3, r3, lsr #16
+ 2967 0ba8 033082E0 		add	r3, r2, r3
+ 2968 0bac 0338A0E1 		mov	r3, r3, asl #16
+ 2969 0bb0 2338A0E1 		mov	r3, r3, lsr #16
+ 2970 0bb4 0338A0E1 		mov	r3, r3, asl #16
+ 2971 0bb8 2338A0E1 		mov	r3, r3, lsr #16
+ 2972 0bbc B2314BE1 		strh	r3, [fp, #-18]	@ movhi
+ 275:../tests/test_sound_effects.c ****       	ch1 = ch1 + (ch1_aux >> 1);
+ 2973              		.loc 1 275 0
+ 2974 0bc0 B8315BE1 		ldrh	r3, [fp, #-24]
+ 2975 0bc4 0338A0E1 		mov	r3, r3, asl #16
+ 2976 0bc8 4338A0E1 		mov	r3, r3, asr #16
+ 2977 0bcc C330A0E1 		mov	r3, r3, asr #1
+ 2978 0bd0 0338A0E1 		mov	r3, r3, asl #16
+ 2979 0bd4 2338A0E1 		mov	r3, r3, lsr #16
+ 2980 0bd8 0338A0E1 		mov	r3, r3, asl #16
+ 2981 0bdc 2328A0E1 		mov	r2, r3, lsr #16
+ 2982 0be0 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2983 0be4 0338A0E1 		mov	r3, r3, asl #16
+ 2984 0be8 2338A0E1 		mov	r3, r3, lsr #16
+ 2985 0bec 033082E0 		add	r3, r2, r3
+ 2986 0bf0 0338A0E1 		mov	r3, r3, asl #16
+ 2987 0bf4 2338A0E1 		mov	r3, r3, lsr #16
+ 2988 0bf8 0338A0E1 		mov	r3, r3, asl #16
+ 2989 0bfc 2338A0E1 		mov	r3, r3, lsr #16
+ 2990 0c00 B4314BE1 		strh	r3, [fp, #-20]	@ movhi
+ 276:../tests/test_sound_effects.c ****      	iis_putSample( ch0, ch1 );
+ 2991              		.loc 1 276 0
+ 2992 0c04 B2215BE1 		ldrh	r2, [fp, #-18]
+ 2993 0c08 B4315BE1 		ldrh	r3, [fp, #-20]
+ 2994 0c0c 0228A0E1 		mov	r2, r2, asl #16
+ 2995 0c10 4228A0E1 		mov	r2, r2, asr #16
+ 2996 0c14 0338A0E1 		mov	r3, r3, asl #16
+ 2997 0c18 4338A0E1 		mov	r3, r3, asr #16
+ 2998 0c1c 0200A0E1 		mov	r0, r2
+ 2999 0c20 0310A0E1 		mov	r1, r3
+ 3000 0c24 FEFFFFEB 		bl	iis_putSample
+ 277:../tests/test_sound_effects.c ****     	audiodelay_put( &delay_buffer, ch0, ch1 );
+ 3001              		.loc 1 277 0
+ 3002 0c28 B2215BE1 		ldrh	r2, [fp, #-18]
+ 3003 0c2c B4315BE1 		ldrh	r3, [fp, #-20]
+ 3004 0c30 0228A0E1 		mov	r2, r2, asl #16
+ 3005 0c34 4228A0E1 		mov	r2, r2, asr #16
+ 3006 0c38 0338A0E1 		mov	r3, r3, asl #16
+ 3007 0c3c 4338A0E1 		mov	r3, r3, asr #16
+ 3008 0c40 84009FE5 		ldr	r0, .L33+84
+ 3009 0c44 0210A0E1 		mov	r1, r2
+ 3010 0c48 0320A0E1 		mov	r2, r3
+ 3011 0c4c FEFFFFEB 		bl	audiodelay_put
+ 3012              	.L30:
+ 270:../tests/test_sound_effects.c ****     while( kb_scan() < 0 )
+ 3013              		.loc 1 270 0 discriminator 1
+ 3014 0c50 FEFFFFEB 		bl	kb_scan
+ 3015 0c54 0030A0E1 		mov	r3, r0
+ 3016 0c58 000053E3 		cmp	r3, #0
+ 3017 0c5c BBFFFFBA 		blt	.L31
+ 278:../tests/test_sound_effects.c ****      }
+ 279:../tests/test_sound_effects.c ****     uart0_getint();
+ 3018              		.loc 1 279 0
+ 3019 0c60 FEFFFFEB 		bl	uart0_getint
+ 280:../tests/test_sound_effects.c ****     uart0_puts( "OK\n" );
+ 3020              		.loc 1 280 0
+ 3021 0c64 28009FE5 		ldr	r0, .L33+28
+ 3022 0c68 FEFFFFEB 		bl	uart0_puts
+ 281:../tests/test_sound_effects.c **** 
+ 282:../tests/test_sound_effects.c ****     uart0_puts( "Going into infinite loop...\n" );
+ 3023              		.loc 1 282 0
+ 3024 0c6c 70009FE5 		ldr	r0, .L33+108
+ 3025 0c70 FEFFFFEB 		bl	uart0_puts
+ 3026              	.L32:
+ 283:../tests/test_sound_effects.c **** 
+ 284:../tests/test_sound_effects.c **** 
+ 285:../tests/test_sound_effects.c ****     /************************************/
+ 286:../tests/test_sound_effects.c **** 
+ 287:../tests/test_sound_effects.c ****     while(1);
+ 3027              		.loc 1 287 0 discriminator 1
+ 3028 0c74 FEFFFFEA 		b	.L32
+ 3029              	.L34:
+ 3030              		.align	2
+ 3031              	.L33:
+ 3032 0c78 00000000 		.word	.LC0
+ 3033 0c7c 38000000 		.word	.LC1
+ 3034 0c80 64000000 		.word	.LC2
+ 3035 0c84 00000000 		.word	sine
+ 3036 0c88 80000000 		.word	.LC3
+ 3037 0c8c 88000000 		.word	.LC4
+ 3038 0c90 00000000 		.word	square
+ 3039 0c94 A8000000 		.word	.LC5
+ 3040 0c98 AC000000 		.word	.LC6
+ 3041 0c9c 00000000 		.word	triangle
+ 3042 0ca0 D0000000 		.word	.LC7
+ 3043 0ca4 F8000000 		.word	.LC8
+ 3044 0ca8 00000000 		.word	buffer
+ 3045 0cac 00E20400 		.word	buffer+320000
+ 3046 0cb0 FF700200 		.word	159999
+ 3047 0cb4 3C010000 		.word	.LC9
+ 3048 0cb8 70010000 		.word	.LC10
+ 3049 0cbc A0010000 		.word	.LC11
+ 3050 0cc0 D0010000 		.word	.LC12
+ 3051 0cc4 F8010000 		.word	.LC13
+ 3052 0cc8 1C020000 		.word	.LC14
+ 3053 0ccc 00000000 		.word	delay_buffer
+ 3054 0cd0 44020000 		.word	.LC15
+ 3055 0cd4 6C020000 		.word	.LC16
+ 3056 0cd8 94020000 		.word	.LC17
+ 3057 0cdc BC020000 		.word	.LC18
+ 3058 0ce0 E8020000 		.word	.LC19
+ 3059 0ce4 24030000 		.word	.LC20
+ 3060              		.cfi_endproc
+ 3061              	.LFE0:
+ 3063              		.align	2
+ 3064              		.global	audiodelay_init
+ 3066              	audiodelay_init:
+ 3067              	.LFB1:
+ 288:../tests/test_sound_effects.c **** 
+ 289:../tests/test_sound_effects.c **** }
+ 290:../tests/test_sound_effects.c **** 
+ 291:../tests/test_sound_effects.c **** void audiodelay_init( audiodelay_t *buffer, uint16 size )
+ 292:../tests/test_sound_effects.c **** {
+ 3068              		.loc 1 292 0
+ 3069              		.cfi_startproc
+ 3070              		@ Function supports interworking.
+ 3071              		@ args = 0, pretend = 0, frame = 16
+ 3072              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3073 0ce8 0DC0A0E1 		mov	ip, sp
+ 3074              	.LCFI2:
+ 3075              		.cfi_def_cfa_register 12
+ 3076 0cec 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3077 0cf0 04B04CE2 		sub	fp, ip, #4
+ 3078              		.cfi_offset 14, -8
+ 3079              		.cfi_offset 13, -12
+ 3080              		.cfi_offset 11, -16
+ 3081              	.LCFI3:
+ 3082              		.cfi_def_cfa 11, 4
+ 3083 0cf4 10D04DE2 		sub	sp, sp, #16
+ 3084 0cf8 18000BE5 		str	r0, [fp, #-24]
+ 3085 0cfc 0130A0E1 		mov	r3, r1
+ 3086 0d00 BA314BE1 		strh	r3, [fp, #-26]	@ movhi
+ 293:../tests/test_sound_effects.c **** 	uint16 i;
+ 294:../tests/test_sound_effects.c **** 
+ 295:../tests/test_sound_effects.c **** 	for( i=0; i<size; i++ )
+ 3087              		.loc 1 295 0
+ 3088 0d04 0030A0E3 		mov	r3, #0
+ 3089 0d08 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 3090 0d0c 0F0000EA 		b	.L36
+ 3091              	.L37:
+ 296:../tests/test_sound_effects.c **** 	{
+ 297:../tests/test_sound_effects.c **** 		buffer->ch0[i] = 0;
+ 3092              		.loc 1 297 0 discriminator 2
+ 3093 0d10 BE305BE1 		ldrh	r3, [fp, #-14]
+ 3094 0d14 18201BE5 		ldr	r2, [fp, #-24]
+ 3095 0d18 8330A0E1 		mov	r3, r3, asl #1
+ 3096 0d1c 033082E0 		add	r3, r2, r3
+ 3097 0d20 0020A0E3 		mov	r2, #0
+ 3098 0d24 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 298:../tests/test_sound_effects.c **** 		buffer->ch1[i] = 0;
+ 3099              		.loc 1 298 0 discriminator 2
+ 3100 0d28 BE305BE1 		ldrh	r3, [fp, #-14]
+ 3101 0d2c 18201BE5 		ldr	r2, [fp, #-24]
+ 3102 0d30 7D3C83E2 		add	r3, r3, #32000
+ 3103 0d34 8330A0E1 		mov	r3, r3, asl #1
+ 3104 0d38 033082E0 		add	r3, r2, r3
+ 3105 0d3c 0020A0E3 		mov	r2, #0
+ 3106 0d40 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 295:../tests/test_sound_effects.c **** 	for( i=0; i<size; i++ )
+ 3107              		.loc 1 295 0 discriminator 2
+ 3108 0d44 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3109 0d48 013083E2 		add	r3, r3, #1
+ 3110 0d4c BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 3111              	.L36:
+ 295:../tests/test_sound_effects.c **** 	for( i=0; i<size; i++ )
+ 3112              		.loc 1 295 0 is_stmt 0 discriminator 1
+ 3113 0d50 BE205BE1 		ldrh	r2, [fp, #-14]
+ 3114 0d54 BA315BE1 		ldrh	r3, [fp, #-26]
+ 3115 0d58 030052E1 		cmp	r2, r3
+ 3116 0d5c EBFFFF3A 		bcc	.L37
+ 299:../tests/test_sound_effects.c **** 	}
+ 300:../tests/test_sound_effects.c **** 	buffer->head = 0;
+ 3117              		.loc 1 300 0 is_stmt 1
+ 3118 0d60 18201BE5 		ldr	r2, [fp, #-24]
+ 3119 0d64 30309FE5 		ldr	r3, .L38
+ 3120 0d68 0010A0E3 		mov	r1, #0
+ 3121 0d6c B31082E1 		strh	r1, [r2, r3]	@ movhi
+ 301:../tests/test_sound_effects.c **** 	buffer->tail = 0;
+ 3122              		.loc 1 301 0
+ 3123 0d70 18201BE5 		ldr	r2, [fp, #-24]
+ 3124 0d74 24309FE5 		ldr	r3, .L38+4
+ 3125 0d78 0010A0E3 		mov	r1, #0
+ 3126 0d7c B31082E1 		strh	r1, [r2, r3]	@ movhi
+ 302:../tests/test_sound_effects.c **** 	buffer->size = size;
+ 3127              		.loc 1 302 0
+ 3128 0d80 18201BE5 		ldr	r2, [fp, #-24]
+ 3129 0d84 7D3BA0E3 		mov	r3, #128000
+ 3130 0d88 BA115BE1 		ldrh	r1, [fp, #-26]	@ movhi
+ 3131 0d8c B31082E1 		strh	r1, [r2, r3]	@ movhi
+ 303:../tests/test_sound_effects.c **** }
+ 3132              		.loc 1 303 0
+ 3133 0d90 0CD04BE2 		sub	sp, fp, #12
+ 3134 0d94 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3135 0d98 1EFF2FE1 		bx	lr
+ 3136              	.L39:
+ 3137              		.align	2
+ 3138              	.L38:
+ 3139 0d9c 02F40100 		.word	128002
+ 3140 0da0 04F40100 		.word	128004
+ 3141              		.cfi_endproc
+ 3142              	.LFE1:
+ 3144              		.align	2
+ 3145              		.global	audiodelay_put
+ 3147              	audiodelay_put:
+ 3148              	.LFB2:
+ 304:../tests/test_sound_effects.c **** 
+ 305:../tests/test_sound_effects.c **** void audiodelay_put( audiodelay_t *buffer, int16 ch0, int16 ch1 )
+ 306:../tests/test_sound_effects.c **** {
+ 3149              		.loc 1 306 0
+ 3150              		.cfi_startproc
+ 3151              		@ Function supports interworking.
+ 3152              		@ args = 0, pretend = 0, frame = 8
+ 3153              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3154 0da4 0DC0A0E1 		mov	ip, sp
+ 3155              	.LCFI4:
+ 3156              		.cfi_def_cfa_register 12
+ 3157 0da8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3158 0dac 04B04CE2 		sub	fp, ip, #4
+ 3159              		.cfi_offset 14, -8
+ 3160              		.cfi_offset 13, -12
+ 3161              		.cfi_offset 11, -16
+ 3162              	.LCFI5:
+ 3163              		.cfi_def_cfa 11, 4
+ 3164 0db0 08D04DE2 		sub	sp, sp, #8
+ 3165 0db4 10000BE5 		str	r0, [fp, #-16]
+ 3166 0db8 0230A0E1 		mov	r3, r2
+ 3167 0dbc B2114BE1 		strh	r1, [fp, #-18]	@ movhi
+ 3168 0dc0 B4314BE1 		strh	r3, [fp, #-20]	@ movhi
+ 307:../tests/test_sound_effects.c **** 	buffer->ch0[buffer->head] = ch0;
+ 3169              		.loc 1 307 0
+ 3170 0dc4 10201BE5 		ldr	r2, [fp, #-16]
+ 3171 0dc8 98309FE5 		ldr	r3, .L42
+ 3172 0dcc B33092E1 		ldrh	r3, [r2, r3]
+ 3173 0dd0 10201BE5 		ldr	r2, [fp, #-16]
+ 3174 0dd4 8330A0E1 		mov	r3, r3, asl #1
+ 3175 0dd8 033082E0 		add	r3, r2, r3
+ 3176 0ddc B2215BE1 		ldrh	r2, [fp, #-18]	@ movhi
+ 3177 0de0 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 308:../tests/test_sound_effects.c **** 	buffer->ch1[buffer->head] = ch1;
+ 3178              		.loc 1 308 0
+ 3179 0de4 10201BE5 		ldr	r2, [fp, #-16]
+ 3180 0de8 78309FE5 		ldr	r3, .L42
+ 3181 0dec B33092E1 		ldrh	r3, [r2, r3]
+ 3182 0df0 10201BE5 		ldr	r2, [fp, #-16]
+ 3183 0df4 7D3C83E2 		add	r3, r3, #32000
+ 3184 0df8 8330A0E1 		mov	r3, r3, asl #1
+ 3185 0dfc 033082E0 		add	r3, r2, r3
+ 3186 0e00 B4215BE1 		ldrh	r2, [fp, #-20]	@ movhi
+ 3187 0e04 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 309:../tests/test_sound_effects.c **** 	if( ++(buffer->head) == buffer->size )
+ 3188              		.loc 1 309 0
+ 3189 0e08 10201BE5 		ldr	r2, [fp, #-16]
+ 3190 0e0c 54309FE5 		ldr	r3, .L42
+ 3191 0e10 B33092E1 		ldrh	r3, [r2, r3]
+ 3192 0e14 013083E2 		add	r3, r3, #1
+ 3193 0e18 0338A0E1 		mov	r3, r3, asl #16
+ 3194 0e1c 2318A0E1 		mov	r1, r3, lsr #16
+ 3195 0e20 10201BE5 		ldr	r2, [fp, #-16]
+ 3196 0e24 3C309FE5 		ldr	r3, .L42
+ 3197 0e28 B31082E1 		strh	r1, [r2, r3]	@ movhi
+ 3198 0e2c 10201BE5 		ldr	r2, [fp, #-16]
+ 3199 0e30 30309FE5 		ldr	r3, .L42
+ 3200 0e34 B32092E1 		ldrh	r2, [r2, r3]
+ 3201 0e38 10101BE5 		ldr	r1, [fp, #-16]
+ 3202 0e3c 7D3BA0E3 		mov	r3, #128000
+ 3203 0e40 B33091E1 		ldrh	r3, [r1, r3]
+ 3204 0e44 030052E1 		cmp	r2, r3
+ 3205 0e48 0300001A 		bne	.L40
+ 310:../tests/test_sound_effects.c **** 		buffer->head = 0;
+ 3206              		.loc 1 310 0
+ 3207 0e4c 10201BE5 		ldr	r2, [fp, #-16]
+ 3208 0e50 10309FE5 		ldr	r3, .L42
+ 3209 0e54 0010A0E3 		mov	r1, #0
+ 3210 0e58 B31082E1 		strh	r1, [r2, r3]	@ movhi
+ 3211              	.L40:
+ 311:../tests/test_sound_effects.c **** }
+ 3212              		.loc 1 311 0
+ 3213 0e5c 0CD04BE2 		sub	sp, fp, #12
+ 3214 0e60 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3215 0e64 1EFF2FE1 		bx	lr
+ 3216              	.L43:
+ 3217              		.align	2
+ 3218              	.L42:
+ 3219 0e68 02F40100 		.word	128002
+ 3220              		.cfi_endproc
+ 3221              	.LFE2:
+ 3223              		.align	2
+ 3224              		.global	audiodelay_get
+ 3226              	audiodelay_get:
+ 3227              	.LFB3:
+ 312:../tests/test_sound_effects.c **** 
+ 313:../tests/test_sound_effects.c **** void audiodelay_get( audiodelay_t *buffer, int16 *ch0, int16 *ch1 )
+ 314:../tests/test_sound_effects.c **** {
+ 3228              		.loc 1 314 0
+ 3229              		.cfi_startproc
+ 3230              		@ Function supports interworking.
+ 3231              		@ args = 0, pretend = 0, frame = 16
+ 3232              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3233 0e6c 0DC0A0E1 		mov	ip, sp
+ 3234              	.LCFI6:
+ 3235              		.cfi_def_cfa_register 12
+ 3236 0e70 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3237 0e74 04B04CE2 		sub	fp, ip, #4
+ 3238              		.cfi_offset 14, -8
+ 3239              		.cfi_offset 13, -12
+ 3240              		.cfi_offset 11, -16
+ 3241              	.LCFI7:
+ 3242              		.cfi_def_cfa 11, 4
+ 3243 0e78 10D04DE2 		sub	sp, sp, #16
+ 3244 0e7c 10000BE5 		str	r0, [fp, #-16]
+ 3245 0e80 14100BE5 		str	r1, [fp, #-20]
+ 3246 0e84 18200BE5 		str	r2, [fp, #-24]
+ 315:../tests/test_sound_effects.c **** 	*ch0 = buffer->ch0[buffer->tail];
+ 3247              		.loc 1 315 0
+ 3248 0e88 10201BE5 		ldr	r2, [fp, #-16]
+ 3249 0e8c A0309FE5 		ldr	r3, .L46
+ 3250 0e90 B33092E1 		ldrh	r3, [r2, r3]
+ 3251 0e94 10201BE5 		ldr	r2, [fp, #-16]
+ 3252 0e98 8330A0E1 		mov	r3, r3, asl #1
+ 3253 0e9c 033082E0 		add	r3, r2, r3
+ 3254 0ea0 B020D3E1 		ldrh	r2, [r3, #0]
+ 3255 0ea4 14301BE5 		ldr	r3, [fp, #-20]
+ 3256 0ea8 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 316:../tests/test_sound_effects.c **** 	*ch1 = buffer->ch1[buffer->tail];
+ 3257              		.loc 1 316 0
+ 3258 0eac 10201BE5 		ldr	r2, [fp, #-16]
+ 3259 0eb0 7C309FE5 		ldr	r3, .L46
+ 3260 0eb4 B33092E1 		ldrh	r3, [r2, r3]
+ 3261 0eb8 10201BE5 		ldr	r2, [fp, #-16]
+ 3262 0ebc 7D3C83E2 		add	r3, r3, #32000
+ 3263 0ec0 8330A0E1 		mov	r3, r3, asl #1
+ 3264 0ec4 033082E0 		add	r3, r2, r3
+ 3265 0ec8 B020D3E1 		ldrh	r2, [r3, #0]
+ 3266 0ecc 18301BE5 		ldr	r3, [fp, #-24]
+ 3267 0ed0 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 317:../tests/test_sound_effects.c **** 	if( ++(buffer->tail) == buffer->size )
+ 3268              		.loc 1 317 0
+ 3269 0ed4 10201BE5 		ldr	r2, [fp, #-16]
+ 3270 0ed8 54309FE5 		ldr	r3, .L46
+ 3271 0edc B33092E1 		ldrh	r3, [r2, r3]
+ 3272 0ee0 013083E2 		add	r3, r3, #1
+ 3273 0ee4 0338A0E1 		mov	r3, r3, asl #16
+ 3274 0ee8 2318A0E1 		mov	r1, r3, lsr #16
+ 3275 0eec 10201BE5 		ldr	r2, [fp, #-16]
+ 3276 0ef0 3C309FE5 		ldr	r3, .L46
+ 3277 0ef4 B31082E1 		strh	r1, [r2, r3]	@ movhi
+ 3278 0ef8 10201BE5 		ldr	r2, [fp, #-16]
+ 3279 0efc 30309FE5 		ldr	r3, .L46
+ 3280 0f00 B32092E1 		ldrh	r2, [r2, r3]
+ 3281 0f04 10101BE5 		ldr	r1, [fp, #-16]
+ 3282 0f08 7D3BA0E3 		mov	r3, #128000
+ 3283 0f0c B33091E1 		ldrh	r3, [r1, r3]
+ 3284 0f10 030052E1 		cmp	r2, r3
+ 3285 0f14 0300001A 		bne	.L44
+ 318:../tests/test_sound_effects.c **** 		buffer->tail = 0;
+ 3286              		.loc 1 318 0
+ 3287 0f18 10201BE5 		ldr	r2, [fp, #-16]
+ 3288 0f1c 10309FE5 		ldr	r3, .L46
+ 3289 0f20 0010A0E3 		mov	r1, #0
+ 3290 0f24 B31082E1 		strh	r1, [r2, r3]	@ movhi
+ 3291              	.L44:
+ 319:../tests/test_sound_effects.c **** }
+ 3292              		.loc 1 319 0
+ 3293 0f28 0CD04BE2 		sub	sp, fp, #12
+ 3294 0f2c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3295 0f30 1EFF2FE1 		bx	lr
+ 3296              	.L47:
+ 3297              		.align	2
+ 3298              	.L46:
+ 3299 0f34 04F40100 		.word	128004
+ 3300              		.cfi_endproc
+ 3301              	.LFE3:
+ 3303              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 test_sound_effects.c
+                            *COM*:0009c400 buffer
+                            *COM*:0001f406 delay_buffer
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:1848   .data:00000000 triangle
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:1845   .data:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:1889   .data:00000048 square
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:1930   .data:00000090 sine
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:1968   .rodata:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:2036   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:2039   .text:00000000 test_sound_effects
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3066   .text:00000ce8 audiodelay_init
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3226   .text:00000e6c audiodelay_get
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3147   .text:00000da4 audiodelay_put
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3032   .text:00000c78 $d
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3063   .text:00000ce8 $a
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3139   .text:00000d9c $d
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3144   .text:00000da4 $a
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3219   .text:00000e68 $d
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3223   .text:00000e6c $a
+C:\Users\Pedro\AppData\Local\Temp\ccruVBtv.s:3299   .text:00000f34 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+uda1341ts_init
+iis_init
+uart0_puts
+iis_putSample
+kb_scan
+uart0_getint
+D8Led_digit
+iis_getSample
+D8Led_off

@@ -1,0 +1,1145 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"test_WAV.c"
+  21              	.Ltext0:
+  22              		.file 1 "../tests/test_WAV.c"
+ 1908              		.align	2
+ 1909              	.LC0:
+ 1910 0000 0A0A5265 		.ascii	"\012\012Reproducci\363n de audio no comprimido (est"
+ 1910      70726F64 
+ 1910      75636369 
+ 1910      F36E2064 
+ 1910      65206175 
+ 1911 002a E972656F 		.ascii	"\351reo, 16b, 16KHz) por pooling:\012\000"
+ 1911      2C203136 
+ 1911      622C2031 
+ 1911      364B487A 
+ 1911      2920706F 
+ 1912 004a 0000     		.align	2
+ 1913              	.LC1:
+ 1914 004c 20202D20 		.ascii	"  - Reproducci\363n a volumen medio: escuche... \000"
+ 1914      52657072 
+ 1914      6F647563 
+ 1914      6369F36E 
+ 1914      20612076 
+ 1915 007a 0000     		.align	2
+ 1916              	.LC2:
+ 1917 007c 4F4B0A00 		.ascii	"OK\012\000"
+ 1918              		.align	2
+ 1919              	.LC3:
+ 1920 0080 20202D20 		.ascii	"  - Reproducci\363n a volumen variable: escuche... "
+ 1920      52657072 
+ 1920      6F647563 
+ 1920      6369F36E 
+ 1920      20612076 
+ 1921 00b0 00       		.ascii	"\000"
+ 1922 00b1 000000   		.align	2
+ 1923              	.LC4:
+ 1924 00b4 0A526570 		.ascii	"\012Reproducci\363n de audio no comprimido (est\351"
+ 1924      726F6475 
+ 1924      636369F3 
+ 1924      6E206465 
+ 1924      20617564 
+ 1925 00de 72656F2C 		.ascii	"reo, 16b, 16KHz) por DMA:\012\000"
+ 1925      20313662 
+ 1925      2C203136 
+ 1925      4B487A29 
+ 1925      20706F72 
+ 1926 00f9 000000   		.align	2
+ 1927              	.LC5:
+ 1928 00fc 20202D20 		.ascii	"  - Reproducci\363n a volumen medio: escuche...\000"
+ 1928      52657072 
+ 1928      6F647563 
+ 1928      6369F36E 
+ 1928      20612076 
+ 1929 0129 000000   		.align	2
+ 1930              	.LC6:
+ 1931 012c 204F4B0A 		.ascii	" OK\012\000"
+ 1931      00
+ 1932 0131 000000   		.align	2
+ 1933              	.LC7:
+ 1934 0134 20202D20 		.ascii	"  - Reproducci\363n a volumen variable: escuche...\000"
+ 1934      52657072 
+ 1934      6F647563 
+ 1934      6369F36E 
+ 1934      20612076 
+ 1935              		.align	2
+ 1936              	.LC8:
+ 1937 0164 20202D20 		.ascii	"  - Grabacion: hable mientras los 7 segmentos est\351"
+ 1937      47726162 
+ 1937      6163696F 
+ 1937      6E3A2068 
+ 1937      61626C65 
+ 1938 0196 6E20656E 		.ascii	"n encendidos...\000"
+ 1938      63656E64 
+ 1938      69646F73 
+ 1938      2E2E2E00 
+ 1939 01a6 0000     		.align	2
+ 1940              	.LC9:
+ 1941 01a8 20202D20 		.ascii	"  - Reproducci\363n de grabaci\363n: escuche...\000"
+ 1941      52657072 
+ 1941      6F647563 
+ 1941      6369F36E 
+ 1941      20646520 
+ 1942 01d2 0000     		.align	2
+ 1943              	.LC10:
+ 1944 01d4 20202D20 		.ascii	"  - Reproducci\363n continua: escuche...\012\000"
+ 1944      52657072 
+ 1944      6F647563 
+ 1944      6369F36E 
+ 1944      20636F6E 
+ 1945 01fb 00       		.align	2
+ 1946              	.LC11:
+ 1947 01fc 20202020 		.ascii	"    (para finalizar presione cualquier tecla)\012  "
+ 1947      28706172 
+ 1947      61206669 
+ 1947      6E616C69 
+ 1947      7A617220 
+ 1948 022c 202000   		.ascii	"  \000"
+ 1949 022f 00       		.align	2
+ 1950              	.LC12:
+ 1951 0230 496E7472 		.ascii	"Introduce un entero:\000"
+ 1951      6F647563 
+ 1951      6520756E 
+ 1951      20656E74 
+ 1951      65726F3A 
+ 1952 0245 000000   		.align	2
+ 1953              	.LC13:
+ 1954 0248 20202D20 		.ascii	"  - Reproducci\363n continua con pause: escuche...\012"
+ 1954      52657072 
+ 1954      6F647563 
+ 1954      6369F36E 
+ 1954      20636F6E 
+ 1955 0278 00       		.ascii	"\000"
+ 1956 0279 000000   		.align	2
+ 1957              	.LC14:
+ 1958 027c 20202020 		.ascii	"    (para finalizar presione la tecla 0)\012\000"
+ 1958      28706172 
+ 1958      61206669 
+ 1958      6E616C69 
+ 1958      7A617220 
+ 1959 02a6 0000     		.align	2
+ 1960              	.LC15:
+ 1961 02a8 20202020 		.ascii	"    (para parar/continuar presione cualquier otra t"
+ 1961      28706172 
+ 1961      61207061 
+ 1961      7261722F 
+ 1961      636F6E74 
+ 1962 02db 65636C61 		.ascii	"ecla)\012\000"
+ 1962      290A00
+ 1963 02e2 0000     		.align	2
+ 1964              	.LC16:
+ 1965 02e4 20202020 		.ascii	"    PLAY\012\000"
+ 1965      504C4159 
+ 1965      0A00
+ 1966 02ee 0000     		.align	2
+ 1967              	.LC17:
+ 1968 02f0 20202020 		.ascii	"    PAUSE\012\000"
+ 1968      50415553 
+ 1968      450A00
+ 1969 02fb 00       		.align	2
+ 1970              	.LC18:
+ 1971 02fc 20202020 		.ascii	"    ... OK\012\000"
+ 1971      2E2E2E20 
+ 1971      4F4B0A00 
+ 1972              		.align	2
+ 1973              	.LC19:
+ 1974 0308 20202D20 		.ascii	"  - Reproducci\363n continua con mute: escuche...\012"
+ 1974      52657072 
+ 1974      6F647563 
+ 1974      6369F36E 
+ 1974      20636F6E 
+ 1975 0337 00       		.ascii	"\000"
+ 1976              		.align	2
+ 1977              	.LC20:
+ 1978 0338 20202020 		.ascii	"    MUTE OFF\012\000"
+ 1978      4D555445 
+ 1978      204F4646 
+ 1978      0A00
+ 1979 0346 0000     		.align	2
+ 1980              	.LC21:
+ 1981 0348 20202020 		.ascii	"    MUTE ON\012\000"
+ 1981      4D555445 
+ 1981      204F4E0A 
+ 1981      00
+ 1982 0355 000000   		.align	2
+ 1983              	.LC22:
+ 1984 0358 20202D20 		.ascii	"  - Reproduccion libre de sonido: pulse el teclado "
+ 1984      52657072 
+ 1984      6F647563 
+ 1984      63696F6E 
+ 1984      206C6962 
+ 1985 038b 79206573 		.ascii	"y escuche...\012\000"
+ 1985      63756368 
+ 1985      652E2E2E 
+ 1985      0A00
+ 1986 0399 000000   		.text
+ 1987              		.align	2
+ 1988              		.global	test_WAV
+ 1990              	test_WAV:
+ 1991              	.LFB0:
+   1:../tests/test_WAV.c **** /*
+   2:../tests/test_WAV.c ****  * test_WAV.c
+   3:../tests/test_WAV.c ****  *
+   4:../tests/test_WAV.c ****  *  Created on: 09/03/2021
+   5:../tests/test_WAV.c ****  *      Author: Pedro
+   6:../tests/test_WAV.c ****  */
+   7:../tests/test_WAV.c **** 
+   8:../tests/test_WAV.c **** 
+   9:../tests/test_WAV.c **** /*-------------------------------------------------------------------
+  10:../tests/test_WAV.c **** **
+  11:../tests/test_WAV.c **** **  Fichero:
+  12:../tests/test_WAV.c **** **    lab9-wav.c  12/5/2015
+  13:../tests/test_WAV.c **** **
+  14:../tests/test_WAV.c **** **    (c) J.M. Mendias
+  15:../tests/test_WAV.c **** **    Programación de Sistemas y Dispositivos
+  16:../tests/test_WAV.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+  17:../tests/test_WAV.c **** **
+  18:../tests/test_WAV.c **** **  Propósito:
+  19:../tests/test_WAV.c **** **    Test del laboratorio 9 (2a. parte)
+  20:../tests/test_WAV.c **** **
+  21:../tests/test_WAV.c **** **  Notas de diseño:
+  22:../tests/test_WAV.c **** **    - Requiere que los ficheros de sonido (stéreo, 16b, 16KHz)
+  23:../tests/test_WAV.c **** **      estén cargados en memoria en las posiciones indicadas.
+  24:../tests/test_WAV.c **** **    - Para ello ejecutar en el depurador el comando:
+  25:../tests/test_WAV.c **** **      "script load_wavs.script"  el cual presupone que los
+  26:../tests/test_WAV.c **** **      ficheros *.wav están en la carpeta "..\common\wav16b16"
+  27:../tests/test_WAV.c **** **
+  28:../tests/test_WAV.c **** **-----------------------------------------------------------------*/
+  29:../tests/test_WAV.c **** 
+  30:../tests/test_WAV.c **** #include "../utils.h"
+  31:../tests/test_WAV.c **** #include "../44b.h"
+  32:../tests/test_WAV.c **** #include "../common_types.h"
+  33:../tests/test_WAV.c **** #include "../uart.h"
+  34:../tests/test_WAV.c **** #include "../uda1341ts.h"
+  35:../tests/test_WAV.c **** #include "../iis.h"
+  36:../tests/test_WAV.c **** #include "../keyboard.h"
+  37:../tests/test_WAV.c **** #include "../D8Led.h"
+  38:../tests/test_WAV.c **** 
+  39:../tests/test_WAV.c **** /* Direcciones en donde se encuentran cargados los sonidos tras la ejecucion del comando "script lo
+  40:../tests/test_WAV.c **** 
+  41:../tests/test_WAV.c **** #define DTMF0      ((int16 *)0x0c400000)
+  42:../tests/test_WAV.c **** #define DTMF1      ((int16 *)0x0c402000)
+  43:../tests/test_WAV.c **** #define DTMF2      ((int16 *)0x0c404000)
+  44:../tests/test_WAV.c **** #define DTMF3      ((int16 *)0x0c406000)
+  45:../tests/test_WAV.c **** #define DTMF4      ((int16 *)0x0c408000)
+  46:../tests/test_WAV.c **** #define DTMF5      ((int16 *)0x0c40a000)
+  47:../tests/test_WAV.c **** #define DTMF6      ((int16 *)0x0c40c000)
+  48:../tests/test_WAV.c **** #define DTMF7      ((int16 *)0x0c40e000)
+  49:../tests/test_WAV.c **** #define DTMF8      ((int16 *)0x0c410000)
+  50:../tests/test_WAV.c **** #define DTMF9      ((int16 *)0x0c412000)
+  51:../tests/test_WAV.c **** #define DTMFSTAR   ((int16 *)0x0c414000)
+  52:../tests/test_WAV.c **** #define DTMFSHARP  ((int16 *)0x0c418000)
+  53:../tests/test_WAV.c **** #define NOKIATUNE  ((int16 *)0x0c41a000)
+  54:../tests/test_WAV.c **** #define INVITACION ((int16 *)0x0c47a000)
+  55:../tests/test_WAV.c **** #define LLAMADA    ((int16 *)0x0c4fa000)
+  56:../tests/test_WAV.c **** #define CONGESTION ((int16 *)0x0c54a000)
+  57:../tests/test_WAV.c **** #define OCUPADO    ((int16 *)0x0c56a000)
+  58:../tests/test_WAV.c **** 
+  59:../tests/test_WAV.c **** /* Tamaños en bytes de los sonidos cargados */
+  60:../tests/test_WAV.c **** 
+  61:../tests/test_WAV.c **** #define DTMF_SIZE       (6400)    /* (0,1 s) * (2 canales) * (2 B/canal) * (16000 muestras/s) = 640
+  62:../tests/test_WAV.c **** #define NOKIATUNE_SIZE  (352000)  /* (5,5 s) * (2 canales) * (2 B/canal) * (16000 muestras/s) = 352
+  63:../tests/test_WAV.c **** #define INVITACION_SIZE (512000)  /* (8,0 s) * (2 canales) * (2 B/canal) * (16000 muestras/s) = 512
+  64:../tests/test_WAV.c **** #define LLAMADA_SIZE    (288000)  /* (4,5 s) * (2 canales) * (2 B/canal) * (16000 muestras/s) = 288
+  65:../tests/test_WAV.c **** #define CONGESTION_SIZE (102400)  /* (1,6 s) * (2 canales) * (2 B/canal) * (16000 muestras/s) = 102
+  66:../tests/test_WAV.c **** #define OCUPADO_SIZE    (25600)   /* (0,4 s) * (2 canales) * (2 B/canal) * (16000 muestras/s) = 256
+  67:../tests/test_WAV.c **** 
+  68:../tests/test_WAV.c **** /* Direccion y tamaños del buffer de grabación */
+  69:../tests/test_WAV.c **** 
+  70:../tests/test_WAV.c **** #define REC_BUFFER      ((int16 *)0x0c700000)
+  71:../tests/test_WAV.c **** #define REC_SIZE        (320000)  /* (5,0 s) * (2 canales) * (2 B/canal) * (16000 muestras/s) = 320
+  72:../tests/test_WAV.c **** 
+  73:../tests/test_WAV.c **** void test_WAV( void )
+  74:../tests/test_WAV.c **** {
+ 1992              		.loc 1 74 0
+ 1993              		.cfi_startproc
+ 1994              		@ Function supports interworking.
+ 1995              		@ args = 0, pretend = 0, frame = 8
+ 1996              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1997 0000 0DC0A0E1 		mov	ip, sp
+ 1998              	.LCFI0:
+ 1999              		.cfi_def_cfa_register 12
+ 2000 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2001 0008 04B04CE2 		sub	fp, ip, #4
+ 2002              		.cfi_offset 14, -8
+ 2003              		.cfi_offset 13, -12
+ 2004              		.cfi_offset 11, -16
+ 2005              	.LCFI1:
+ 2006              		.cfi_def_cfa 11, 4
+ 2007 000c 08D04DE2 		sub	sp, sp, #8
+  75:../tests/test_WAV.c ****     uint8 vol;
+  76:../tests/test_WAV.c ****     boolean flag;
+  77:../tests/test_WAV.c **** 
+  78:../tests/test_WAV.c ****     uda1341ts_init();
+ 2008              		.loc 1 78 0
+ 2009 0010 FEFFFFEB 		bl	uda1341ts_init
+  79:../tests/test_WAV.c **** 
+  80:../tests/test_WAV.c ****     /************************************/
+  81:../tests/test_WAV.c **** 
+  82:../tests/test_WAV.c ****     uart0_puts( "\n\nReproducción de audio no comprimido (estéreo, 16b, 16KHz) por pooling:\n" );
+ 2010              		.loc 1 82 0
+ 2011 0014 98059FE5 		ldr	r0, .L44
+ 2012 0018 FEFFFFEB 		bl	uart0_puts
+  83:../tests/test_WAV.c **** 
+  84:../tests/test_WAV.c ****     iis_init( IIS_POLLING );
+ 2013              		.loc 1 84 0
+ 2014 001c 0200A0E3 		mov	r0, #2
+ 2015 0020 FEFFFFEB 		bl	iis_init
+  85:../tests/test_WAV.c **** 
+  86:../tests/test_WAV.c ****     /************************************/
+  87:../tests/test_WAV.c **** 
+  88:../tests/test_WAV.c ****     uart0_puts( "  - Reproducción a volumen medio: escuche... " );
+ 2016              		.loc 1 88 0
+ 2017 0024 8C059FE5 		ldr	r0, .L44+4
+ 2018 0028 FEFFFFEB 		bl	uart0_puts
+  89:../tests/test_WAV.c ****     uda1341ts_setvol( VOL_MED );
+ 2019              		.loc 1 89 0
+ 2020 002c 2000A0E3 		mov	r0, #32
+ 2021 0030 FEFFFFEB 		bl	uda1341ts_setvol
+  90:../tests/test_WAV.c ****     iis_play( NOKIATUNE, NOKIATUNE_SIZE, FALSE );
+ 2022              		.loc 1 90 0
+ 2023 0034 80059FE5 		ldr	r0, .L44+8
+ 2024 0038 80159FE5 		ldr	r1, .L44+12
+ 2025 003c 0020A0E3 		mov	r2, #0
+ 2026 0040 FEFFFFEB 		bl	iis_play
+  91:../tests/test_WAV.c ****     uart0_puts( "OK\n" );
+ 2027              		.loc 1 91 0
+ 2028 0044 78059FE5 		ldr	r0, .L44+16
+ 2029 0048 FEFFFFEB 		bl	uart0_puts
+  92:../tests/test_WAV.c **** 
+  93:../tests/test_WAV.c ****     /************************************/
+  94:../tests/test_WAV.c **** 
+  95:../tests/test_WAV.c ****     uart0_puts( "  - Reproducción a volumen variable: escuche... " );
+ 2030              		.loc 1 95 0
+ 2031 004c 74059FE5 		ldr	r0, .L44+20
+ 2032 0050 FEFFFFEB 		bl	uart0_puts
+  96:../tests/test_WAV.c ****     for( vol=0; vol<63; vol++ )
+ 2033              		.loc 1 96 0
+ 2034 0054 0030A0E3 		mov	r3, #0
+ 2035 0058 0D304BE5 		strb	r3, [fp, #-13]
+ 2036 005c 090000EA 		b	.L2
+ 2037              	.L3:
+  97:../tests/test_WAV.c ****     {
+  98:../tests/test_WAV.c ****         uda1341ts_setvol( vol );
+ 2038              		.loc 1 98 0 discriminator 2
+ 2039 0060 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2040 0064 0300A0E1 		mov	r0, r3
+ 2041 0068 FEFFFFEB 		bl	uda1341ts_setvol
+  99:../tests/test_WAV.c ****         iis_play( DTMF1, DTMF_SIZE, FALSE );
+ 2042              		.loc 1 99 0 discriminator 2
+ 2043 006c 58059FE5 		ldr	r0, .L44+24
+ 2044 0070 191CA0E3 		mov	r1, #6400
+ 2045 0074 0020A0E3 		mov	r2, #0
+ 2046 0078 FEFFFFEB 		bl	iis_play
+  96:../tests/test_WAV.c ****     for( vol=0; vol<63; vol++ )
+ 2047              		.loc 1 96 0 discriminator 2
+ 2048 007c 0D305BE5 		ldrb	r3, [fp, #-13]
+ 2049 0080 013083E2 		add	r3, r3, #1
+ 2050 0084 0D304BE5 		strb	r3, [fp, #-13]
+ 2051              	.L2:
+  96:../tests/test_WAV.c ****     for( vol=0; vol<63; vol++ )
+ 2052              		.loc 1 96 0 is_stmt 0 discriminator 1
+ 2053 0088 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2054 008c 3E0053E3 		cmp	r3, #62
+ 2055 0090 F2FFFF9A 		bls	.L3
+ 100:../tests/test_WAV.c ****     }
+ 101:../tests/test_WAV.c ****     uart0_puts( "OK\n" );
+ 2056              		.loc 1 101 0 is_stmt 1
+ 2057 0094 28059FE5 		ldr	r0, .L44+16
+ 2058 0098 FEFFFFEB 		bl	uart0_puts
+ 102:../tests/test_WAV.c ****     uda1341ts_setvol( VOL_MAX );
+ 2059              		.loc 1 102 0
+ 2060 009c 3F00A0E3 		mov	r0, #63
+ 2061 00a0 FEFFFFEB 		bl	uda1341ts_setvol
+ 103:../tests/test_WAV.c **** 
+ 104:../tests/test_WAV.c ****     /************************************/
+ 105:../tests/test_WAV.c ****     /*
+ 106:../tests/test_WAV.c ****     uart0_puts( "  - Grabacion: hable mientras los 7 segmentos estén encendidos... " );
+ 107:../tests/test_WAV.c ****     D8Led_digit( 8 );
+ 108:../tests/test_WAV.c ****     iis_rec( REC_BUFFER, REC_SIZE );
+ 109:../tests/test_WAV.c ****     D8Led_off();
+ 110:../tests/test_WAV.c ****     uart0_puts( "OK\n" );
+ 111:../tests/test_WAV.c ****     uart0_puts( "  - Reproducción de grabación: escuche... " );
+ 112:../tests/test_WAV.c ****     iis_play( REC_BUFFER, REC_SIZE, FALSE );
+ 113:../tests/test_WAV.c ****     uart0_puts( "OK\n" );
+ 114:../tests/test_WAV.c **** 	*/
+ 115:../tests/test_WAV.c ****     /************************************/
+ 116:../tests/test_WAV.c **** 
+ 117:../tests/test_WAV.c ****     uart0_puts( "\nReproducción de audio no comprimido (estéreo, 16b, 16KHz) por DMA:\n" );
+ 2062              		.loc 1 117 0
+ 2063 00a4 24059FE5 		ldr	r0, .L44+28
+ 2064 00a8 FEFFFFEB 		bl	uart0_puts
+ 118:../tests/test_WAV.c **** 
+ 119:../tests/test_WAV.c ****     iis_init( IIS_DMA );
+ 2065              		.loc 1 119 0
+ 2066 00ac 0100A0E3 		mov	r0, #1
+ 2067 00b0 FEFFFFEB 		bl	iis_init
+ 120:../tests/test_WAV.c **** 
+ 121:../tests/test_WAV.c ****     /************************************/
+ 122:../tests/test_WAV.c **** 
+ 123:../tests/test_WAV.c ****     uart0_puts( "  - Reproducción a volumen medio: escuche..." );
+ 2068              		.loc 1 123 0
+ 2069 00b4 18059FE5 		ldr	r0, .L44+32
+ 2070 00b8 FEFFFFEB 		bl	uart0_puts
+ 124:../tests/test_WAV.c ****     uda1341ts_setvol( VOL_MED );
+ 2071              		.loc 1 124 0
+ 2072 00bc 2000A0E3 		mov	r0, #32
+ 2073 00c0 FEFFFFEB 		bl	uda1341ts_setvol
+ 125:../tests/test_WAV.c ****     iis_play( NOKIATUNE, NOKIATUNE_SIZE, FALSE );
+ 2074              		.loc 1 125 0
+ 2075 00c4 F0049FE5 		ldr	r0, .L44+8
+ 2076 00c8 F0149FE5 		ldr	r1, .L44+12
+ 2077 00cc 0020A0E3 		mov	r2, #0
+ 2078 00d0 FEFFFFEB 		bl	iis_play
+ 126:../tests/test_WAV.c ****     while( iis_status() )
+ 2079              		.loc 1 126 0
+ 2080 00d4 030000EA 		b	.L4
+ 2081              	.L5:
+ 127:../tests/test_WAV.c ****     {
+ 128:../tests/test_WAV.c ****         Delay(500);
+ 2082              		.loc 1 128 0
+ 2083 00d8 7D0FA0E3 		mov	r0, #500
+ 2084 00dc FEFFFFEB 		bl	Delay
+ 129:../tests/test_WAV.c ****         uart0_putchar( '.' );
+ 2085              		.loc 1 129 0
+ 2086 00e0 2E00A0E3 		mov	r0, #46
+ 2087 00e4 FEFFFFEB 		bl	uart0_putchar
+ 2088              	.L4:
+ 126:../tests/test_WAV.c ****     while( iis_status() )
+ 2089              		.loc 1 126 0 discriminator 1
+ 2090 00e8 FEFFFFEB 		bl	iis_status
+ 2091 00ec 0030A0E1 		mov	r3, r0
+ 2092 00f0 000053E3 		cmp	r3, #0
+ 2093 00f4 F7FFFF1A 		bne	.L5
+ 130:../tests/test_WAV.c ****     }
+ 131:../tests/test_WAV.c ****     uart0_puts( " OK\n" );
+ 2094              		.loc 1 131 0
+ 2095 00f8 D8049FE5 		ldr	r0, .L44+36
+ 2096 00fc FEFFFFEB 		bl	uart0_puts
+ 132:../tests/test_WAV.c **** 
+ 133:../tests/test_WAV.c ****     /************************************/
+ 134:../tests/test_WAV.c **** 
+ 135:../tests/test_WAV.c ****     uart0_puts( "  - Reproducción a volumen variable: escuche..." );
+ 2097              		.loc 1 135 0
+ 2098 0100 D4049FE5 		ldr	r0, .L44+40
+ 2099 0104 FEFFFFEB 		bl	uart0_puts
+ 136:../tests/test_WAV.c ****     iis_play( NOKIATUNE, NOKIATUNE_SIZE, FALSE );
+ 2100              		.loc 1 136 0
+ 2101 0108 AC049FE5 		ldr	r0, .L44+8
+ 2102 010c AC149FE5 		ldr	r1, .L44+12
+ 2103 0110 0020A0E3 		mov	r2, #0
+ 2104 0114 FEFFFFEB 		bl	iis_play
+ 137:../tests/test_WAV.c ****     vol = 0;
+ 2105              		.loc 1 137 0
+ 2106 0118 0030A0E3 		mov	r3, #0
+ 2107 011c 0D304BE5 		strb	r3, [fp, #-13]
+ 138:../tests/test_WAV.c ****     while( iis_status() )
+ 2108              		.loc 1 138 0
+ 2109 0120 0D0000EA 		b	.L6
+ 2110              	.L9:
+ 139:../tests/test_WAV.c ****     {
+ 140:../tests/test_WAV.c ****         uda1341ts_setvol( vol );
+ 2111              		.loc 1 140 0
+ 2112 0124 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2113 0128 0300A0E1 		mov	r0, r3
+ 2114 012c FEFFFFEB 		bl	uda1341ts_setvol
+ 141:../tests/test_WAV.c ****         vol = ( vol != 63 ? vol+1 : 0 );
+ 2115              		.loc 1 141 0
+ 2116 0130 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2117 0134 3F0053E3 		cmp	r3, #63
+ 2118 0138 0300000A 		beq	.L7
+ 2119              		.loc 1 141 0 is_stmt 0 discriminator 1
+ 2120 013c 0D305BE5 		ldrb	r3, [fp, #-13]
+ 2121 0140 013083E2 		add	r3, r3, #1
+ 2122 0144 FF3003E2 		and	r3, r3, #255
+ 2123 0148 000000EA 		b	.L8
+ 2124              	.L7:
+ 2125              		.loc 1 141 0 discriminator 2
+ 2126 014c 0030A0E3 		mov	r3, #0
+ 2127              	.L8:
+ 2128              		.loc 1 141 0 discriminator 3
+ 2129 0150 0D304BE5 		strb	r3, [fp, #-13]
+ 142:../tests/test_WAV.c ****         Delay( 20 );
+ 2130              		.loc 1 142 0 is_stmt 1 discriminator 3
+ 2131 0154 1400A0E3 		mov	r0, #20
+ 2132 0158 FEFFFFEB 		bl	Delay
+ 2133              	.L6:
+ 138:../tests/test_WAV.c ****     while( iis_status() )
+ 2134              		.loc 1 138 0 discriminator 1
+ 2135 015c FEFFFFEB 		bl	iis_status
+ 2136 0160 0030A0E1 		mov	r3, r0
+ 2137 0164 000053E3 		cmp	r3, #0
+ 2138 0168 EDFFFF1A 		bne	.L9
+ 143:../tests/test_WAV.c ****     }
+ 144:../tests/test_WAV.c ****     uart0_puts( " OK\n" );
+ 2139              		.loc 1 144 0
+ 2140 016c 64049FE5 		ldr	r0, .L44+36
+ 2141 0170 FEFFFFEB 		bl	uart0_puts
+ 145:../tests/test_WAV.c ****     uda1341ts_setvol( VOL_MAX );
+ 2142              		.loc 1 145 0
+ 2143 0174 3F00A0E3 		mov	r0, #63
+ 2144 0178 FEFFFFEB 		bl	uda1341ts_setvol
+ 146:../tests/test_WAV.c **** 
+ 147:../tests/test_WAV.c ****     /************************************/
+ 148:../tests/test_WAV.c **** 
+ 149:../tests/test_WAV.c ****     uart0_puts( "  - Grabacion: hable mientras los 7 segmentos estén encendidos..." );
+ 2145              		.loc 1 149 0
+ 2146 017c 5C049FE5 		ldr	r0, .L44+44
+ 2147 0180 FEFFFFEB 		bl	uart0_puts
+ 150:../tests/test_WAV.c ****     D8Led_digit( 8 );
+ 2148              		.loc 1 150 0
+ 2149 0184 0800A0E3 		mov	r0, #8
+ 2150 0188 FEFFFFEB 		bl	D8Led_digit
+ 151:../tests/test_WAV.c ****     iis_rec( REC_BUFFER, REC_SIZE );
+ 2151              		.loc 1 151 0
+ 2152 018c C706A0E3 		mov	r0, #208666624
+ 2153 0190 4C149FE5 		ldr	r1, .L44+48
+ 2154 0194 FEFFFFEB 		bl	iis_rec
+ 152:../tests/test_WAV.c ****     while( iis_status() )
+ 2155              		.loc 1 152 0
+ 2156 0198 030000EA 		b	.L10
+ 2157              	.L11:
+ 153:../tests/test_WAV.c ****     {
+ 154:../tests/test_WAV.c ****         Delay( 500 );
+ 2158              		.loc 1 154 0
+ 2159 019c 7D0FA0E3 		mov	r0, #500
+ 2160 01a0 FEFFFFEB 		bl	Delay
+ 155:../tests/test_WAV.c ****         uart0_putchar( '.' );
+ 2161              		.loc 1 155 0
+ 2162 01a4 2E00A0E3 		mov	r0, #46
+ 2163 01a8 FEFFFFEB 		bl	uart0_putchar
+ 2164              	.L10:
+ 152:../tests/test_WAV.c ****     while( iis_status() )
+ 2165              		.loc 1 152 0 discriminator 1
+ 2166 01ac FEFFFFEB 		bl	iis_status
+ 2167 01b0 0030A0E1 		mov	r3, r0
+ 2168 01b4 000053E3 		cmp	r3, #0
+ 2169 01b8 F7FFFF1A 		bne	.L11
+ 156:../tests/test_WAV.c ****     }
+ 157:../tests/test_WAV.c ****     D8Led_off();
+ 2170              		.loc 1 157 0
+ 2171 01bc FEFFFFEB 		bl	D8Led_off
+ 158:../tests/test_WAV.c ****     uart0_puts( " OK\n" );
+ 2172              		.loc 1 158 0
+ 2173 01c0 10049FE5 		ldr	r0, .L44+36
+ 2174 01c4 FEFFFFEB 		bl	uart0_puts
+ 159:../tests/test_WAV.c ****     uart0_puts( "  - Reproducción de grabación: escuche..." );
+ 2175              		.loc 1 159 0
+ 2176 01c8 18049FE5 		ldr	r0, .L44+52
+ 2177 01cc FEFFFFEB 		bl	uart0_puts
+ 160:../tests/test_WAV.c ****     iis_play( REC_BUFFER, REC_SIZE, FALSE );
+ 2178              		.loc 1 160 0
+ 2179 01d0 C706A0E3 		mov	r0, #208666624
+ 2180 01d4 08149FE5 		ldr	r1, .L44+48
+ 2181 01d8 0020A0E3 		mov	r2, #0
+ 2182 01dc FEFFFFEB 		bl	iis_play
+ 161:../tests/test_WAV.c ****     while( iis_status() )
+ 2183              		.loc 1 161 0
+ 2184 01e0 030000EA 		b	.L12
+ 2185              	.L13:
+ 162:../tests/test_WAV.c ****     {
+ 163:../tests/test_WAV.c ****         Delay( 500 );
+ 2186              		.loc 1 163 0
+ 2187 01e4 7D0FA0E3 		mov	r0, #500
+ 2188 01e8 FEFFFFEB 		bl	Delay
+ 164:../tests/test_WAV.c ****         uart0_putchar( '.' );
+ 2189              		.loc 1 164 0
+ 2190 01ec 2E00A0E3 		mov	r0, #46
+ 2191 01f0 FEFFFFEB 		bl	uart0_putchar
+ 2192              	.L12:
+ 161:../tests/test_WAV.c ****     while( iis_status() )
+ 2193              		.loc 1 161 0 discriminator 1
+ 2194 01f4 FEFFFFEB 		bl	iis_status
+ 2195 01f8 0030A0E1 		mov	r3, r0
+ 2196 01fc 000053E3 		cmp	r3, #0
+ 2197 0200 F7FFFF1A 		bne	.L13
+ 165:../tests/test_WAV.c ****     }
+ 166:../tests/test_WAV.c ****     uart0_puts( " OK\n" );
+ 2198              		.loc 1 166 0
+ 2199 0204 CC039FE5 		ldr	r0, .L44+36
+ 2200 0208 FEFFFFEB 		bl	uart0_puts
+ 167:../tests/test_WAV.c **** 
+ 168:../tests/test_WAV.c ****     /************************************/
+ 169:../tests/test_WAV.c **** 
+ 170:../tests/test_WAV.c ****     uart0_puts( "  - Reproducción continua: escuche...\n" );
+ 2201              		.loc 1 170 0
+ 2202 020c D8039FE5 		ldr	r0, .L44+56
+ 2203 0210 FEFFFFEB 		bl	uart0_puts
+ 171:../tests/test_WAV.c ****     uart0_puts( "    (para finalizar presione cualquier tecla)\n    " );
+ 2204              		.loc 1 171 0
+ 2205 0214 D4039FE5 		ldr	r0, .L44+60
+ 2206 0218 FEFFFFEB 		bl	uart0_puts
+ 172:../tests/test_WAV.c ****     uda1341ts_setvol( VOL_MED );
+ 2207              		.loc 1 172 0
+ 2208 021c 2000A0E3 		mov	r0, #32
+ 2209 0220 FEFFFFEB 		bl	uda1341ts_setvol
+ 173:../tests/test_WAV.c ****     iis_playWawFile( NOKIATUNE, TRUE );
+ 2210              		.loc 1 173 0
+ 2211 0224 90039FE5 		ldr	r0, .L44+8
+ 2212 0228 0110A0E3 		mov	r1, #1
+ 2213 022c FEFFFFEB 		bl	iis_playWawFile
+ 174:../tests/test_WAV.c ****     while( kb_scan() < 0 )
+ 2214              		.loc 1 174 0
+ 2215 0230 030000EA 		b	.L14
+ 2216              	.L15:
+ 175:../tests/test_WAV.c ****     {
+ 176:../tests/test_WAV.c ****         Delay( 500 );
+ 2217              		.loc 1 176 0
+ 2218 0234 7D0FA0E3 		mov	r0, #500
+ 2219 0238 FEFFFFEB 		bl	Delay
+ 177:../tests/test_WAV.c ****         uart0_putchar( '.' );
+ 2220              		.loc 1 177 0
+ 2221 023c 2E00A0E3 		mov	r0, #46
+ 2222 0240 FEFFFFEB 		bl	uart0_putchar
+ 2223              	.L14:
+ 174:../tests/test_WAV.c ****     while( kb_scan() < 0 )
+ 2224              		.loc 1 174 0 discriminator 1
+ 2225 0244 FEFFFFEB 		bl	kb_scan
+ 2226 0248 0030A0E1 		mov	r3, r0
+ 2227 024c 000053E3 		cmp	r3, #0
+ 2228 0250 F7FFFFBA 		blt	.L15
+ 178:../tests/test_WAV.c ****     }
+ 179:../tests/test_WAV.c ****     uart0_puts("Introduce un entero:");
+ 2229              		.loc 1 179 0
+ 2230 0254 98039FE5 		ldr	r0, .L44+64
+ 2231 0258 FEFFFFEB 		bl	uart0_puts
+ 180:../tests/test_WAV.c ****     uart0_getint();
+ 2232              		.loc 1 180 0
+ 2233 025c FEFFFFEB 		bl	uart0_getint
+ 181:../tests/test_WAV.c ****     iis_pause();
+ 2234              		.loc 1 181 0
+ 2235 0260 FEFFFFEB 		bl	iis_pause
+ 182:../tests/test_WAV.c ****     uart0_puts( " OK\n" );
+ 2236              		.loc 1 182 0
+ 2237 0264 6C039FE5 		ldr	r0, .L44+36
+ 2238 0268 FEFFFFEB 		bl	uart0_puts
+ 183:../tests/test_WAV.c **** 
+ 184:../tests/test_WAV.c ****     /************************************/
+ 185:../tests/test_WAV.c **** 
+ 186:../tests/test_WAV.c ****     uart0_puts( "  - Reproducción continua con pause: escuche...\n" );
+ 2239              		.loc 1 186 0
+ 2240 026c 84039FE5 		ldr	r0, .L44+68
+ 2241 0270 FEFFFFEB 		bl	uart0_puts
+ 187:../tests/test_WAV.c ****     uart0_puts( "    (para finalizar presione la tecla 0)\n" );
+ 2242              		.loc 1 187 0
+ 2243 0274 80039FE5 		ldr	r0, .L44+72
+ 2244 0278 FEFFFFEB 		bl	uart0_puts
+ 188:../tests/test_WAV.c ****     uart0_puts( "    (para parar/continuar presione cualquier otra tecla)\n" );
+ 2245              		.loc 1 188 0
+ 2246 027c 7C039FE5 		ldr	r0, .L44+76
+ 2247 0280 FEFFFFEB 		bl	uart0_puts
+ 189:../tests/test_WAV.c ****     iis_playWawFile( NOKIATUNE, TRUE );
+ 2248              		.loc 1 189 0
+ 2249 0284 30039FE5 		ldr	r0, .L44+8
+ 2250 0288 0110A0E3 		mov	r1, #1
+ 2251 028c FEFFFFEB 		bl	iis_playWawFile
+ 190:../tests/test_WAV.c ****     flag = FALSE;
+ 2252              		.loc 1 190 0
+ 2253 0290 0030A0E3 		mov	r3, #0
+ 2254 0294 0E304BE5 		strb	r3, [fp, #-14]
+ 191:../tests/test_WAV.c ****     while( kb_scan() < 0 )
+ 2255              		.loc 1 191 0
+ 2256 0298 0E0000EA 		b	.L16
+ 2257              	.L19:
+ 192:../tests/test_WAV.c ****     {
+ 193:../tests/test_WAV.c ****         if( flag )
+ 2258              		.loc 1 193 0
+ 2259 029c 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 2260 02a0 000053E3 		cmp	r3, #0
+ 2261 02a4 0300000A 		beq	.L17
+ 194:../tests/test_WAV.c ****         {
+ 195:../tests/test_WAV.c ****             iis_continue();
+ 2262              		.loc 1 195 0
+ 2263 02a8 FEFFFFEB 		bl	iis_continue
+ 196:../tests/test_WAV.c ****             uart0_puts( "    PLAY\n" );
+ 2264              		.loc 1 196 0
+ 2265 02ac 50039FE5 		ldr	r0, .L44+80
+ 2266 02b0 FEFFFFEB 		bl	uart0_puts
+ 2267 02b4 020000EA 		b	.L18
+ 2268              	.L17:
+ 197:../tests/test_WAV.c ****         }
+ 198:../tests/test_WAV.c ****         else
+ 199:../tests/test_WAV.c ****         {
+ 200:../tests/test_WAV.c ****            iis_pause();
+ 2269              		.loc 1 200 0
+ 2270 02b8 FEFFFFEB 		bl	iis_pause
+ 201:../tests/test_WAV.c ****            uart0_puts( "    PAUSE\n" );
+ 2271              		.loc 1 201 0
+ 2272 02bc 44039FE5 		ldr	r0, .L44+84
+ 2273 02c0 FEFFFFEB 		bl	uart0_puts
+ 2274              	.L18:
+ 202:../tests/test_WAV.c ****         }
+ 203:../tests/test_WAV.c ****         flag = !flag;
+ 2275              		.loc 1 203 0
+ 2276 02c4 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 2277 02c8 000053E3 		cmp	r3, #0
+ 2278 02cc 0030A013 		movne	r3, #0
+ 2279 02d0 0130A003 		moveq	r3, #1
+ 2280 02d4 0E304BE5 		strb	r3, [fp, #-14]
+ 2281              	.L16:
+ 191:../tests/test_WAV.c ****     while( kb_scan() < 0 )
+ 2282              		.loc 1 191 0 discriminator 1
+ 2283 02d8 FEFFFFEB 		bl	kb_scan
+ 2284 02dc 0030A0E1 		mov	r3, r0
+ 2285 02e0 000053E3 		cmp	r3, #0
+ 2286 02e4 ECFFFFBA 		blt	.L19
+ 204:../tests/test_WAV.c ****     };
+ 205:../tests/test_WAV.c ****     iis_pause();
+ 2287              		.loc 1 205 0
+ 2288 02e8 FEFFFFEB 		bl	iis_pause
+ 206:../tests/test_WAV.c ****     uart0_puts( "    ... OK\n" );
+ 2289              		.loc 1 206 0
+ 2290 02ec 18039FE5 		ldr	r0, .L44+88
+ 2291 02f0 FEFFFFEB 		bl	uart0_puts
+ 207:../tests/test_WAV.c **** 
+ 208:../tests/test_WAV.c ****     /************************************/
+ 209:../tests/test_WAV.c **** 
+ 210:../tests/test_WAV.c ****     uart0_puts( "  - Reproducción continua con mute: escuche...\n" );
+ 2292              		.loc 1 210 0
+ 2293 02f4 14039FE5 		ldr	r0, .L44+92
+ 2294 02f8 FEFFFFEB 		bl	uart0_puts
+ 211:../tests/test_WAV.c ****     uart0_puts( "    (para finalizar presione la tecla 0)\n" );
+ 2295              		.loc 1 211 0
+ 2296 02fc F8029FE5 		ldr	r0, .L44+72
+ 2297 0300 FEFFFFEB 		bl	uart0_puts
+ 212:../tests/test_WAV.c ****     uart0_puts( "    (para parar/continuar presione cualquier otra tecla)\n" );
+ 2298              		.loc 1 212 0
+ 2299 0304 F4029FE5 		ldr	r0, .L44+76
+ 2300 0308 FEFFFFEB 		bl	uart0_puts
+ 213:../tests/test_WAV.c ****     iis_playWawFile( NOKIATUNE, TRUE );
+ 2301              		.loc 1 213 0
+ 2302 030c A8029FE5 		ldr	r0, .L44+8
+ 2303 0310 0110A0E3 		mov	r1, #1
+ 2304 0314 FEFFFFEB 		bl	iis_playWawFile
+ 214:../tests/test_WAV.c ****     flag = FALSE;
+ 2305              		.loc 1 214 0
+ 2306 0318 0030A0E3 		mov	r3, #0
+ 2307 031c 0E304BE5 		strb	r3, [fp, #-14]
+ 215:../tests/test_WAV.c ****     while( kb_scan() < 0 )
+ 2308              		.loc 1 215 0
+ 2309 0320 100000EA 		b	.L20
+ 2310              	.L23:
+ 216:../tests/test_WAV.c ****     {
+ 217:../tests/test_WAV.c ****         if( flag )
+ 2311              		.loc 1 217 0
+ 2312 0324 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 2313 0328 000053E3 		cmp	r3, #0
+ 2314 032c 0400000A 		beq	.L21
+ 218:../tests/test_WAV.c ****         {
+ 219:../tests/test_WAV.c ****             uda1341ts_mute( MUTE_OFF );
+ 2315              		.loc 1 219 0
+ 2316 0330 0000A0E3 		mov	r0, #0
+ 2317 0334 FEFFFFEB 		bl	uda1341ts_mute
+ 220:../tests/test_WAV.c ****             uart0_puts( "    MUTE OFF\n" );
+ 2318              		.loc 1 220 0
+ 2319 0338 D4029FE5 		ldr	r0, .L44+96
+ 2320 033c FEFFFFEB 		bl	uart0_puts
+ 2321 0340 030000EA 		b	.L22
+ 2322              	.L21:
+ 221:../tests/test_WAV.c ****         }
+ 222:../tests/test_WAV.c ****         else
+ 223:../tests/test_WAV.c ****         {
+ 224:../tests/test_WAV.c ****             uda1341ts_mute( MUTE_ON );
+ 2323              		.loc 1 224 0
+ 2324 0344 0100A0E3 		mov	r0, #1
+ 2325 0348 FEFFFFEB 		bl	uda1341ts_mute
+ 225:../tests/test_WAV.c ****             uart0_puts( "    MUTE ON\n" );
+ 2326              		.loc 1 225 0
+ 2327 034c C4029FE5 		ldr	r0, .L44+100
+ 2328 0350 FEFFFFEB 		bl	uart0_puts
+ 2329              	.L22:
+ 226:../tests/test_WAV.c ****         }
+ 227:../tests/test_WAV.c ****         flag = !flag;
+ 2330              		.loc 1 227 0
+ 2331 0354 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 2332 0358 000053E3 		cmp	r3, #0
+ 2333 035c 0030A013 		movne	r3, #0
+ 2334 0360 0130A003 		moveq	r3, #1
+ 2335 0364 0E304BE5 		strb	r3, [fp, #-14]
+ 2336              	.L20:
+ 215:../tests/test_WAV.c ****     while( kb_scan() < 0 )
+ 2337              		.loc 1 215 0 discriminator 1
+ 2338 0368 FEFFFFEB 		bl	kb_scan
+ 2339 036c 0030A0E1 		mov	r3, r0
+ 2340 0370 000053E3 		cmp	r3, #0
+ 2341 0374 EAFFFFBA 		blt	.L23
+ 228:../tests/test_WAV.c ****     };
+ 229:../tests/test_WAV.c ****     iis_pause();
+ 2342              		.loc 1 229 0
+ 2343 0378 FEFFFFEB 		bl	iis_pause
+ 230:../tests/test_WAV.c ****     uart0_puts( "    ... OK\n" );
+ 2344              		.loc 1 230 0
+ 2345 037c 88029FE5 		ldr	r0, .L44+88
+ 2346 0380 FEFFFFEB 		bl	uart0_puts
+ 231:../tests/test_WAV.c **** 
+ 232:../tests/test_WAV.c ****     /************************************/
+ 233:../tests/test_WAV.c **** 
+ 234:../tests/test_WAV.c ****     uart0_puts( "  - Reproduccion libre de sonido: pulse el teclado y escuche...\n" );
+ 2347              		.loc 1 234 0
+ 2348 0384 90029FE5 		ldr	r0, .L44+104
+ 2349 0388 FEFFFFEB 		bl	uart0_puts
+ 2350              	.L43:
+ 235:../tests/test_WAV.c ****     while( 1 )
+ 236:../tests/test_WAV.c ****         switch( kb_scan() )
+ 2351              		.loc 1 236 0
+ 2352 038c FEFFFFEB 		bl	kb_scan
+ 2353 0390 0030A0E1 		mov	r3, r0
+ 2354 0394 0F0053E3 		cmp	r3, #15
+ 2355 0398 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 2356 039c 820000EA 		b	.L24
+ 2357              	.L41:
+ 2358 03a0 E0030000 		.word	.L25
+ 2359 03a4 F0030000 		.word	.L26
+ 2360 03a8 00040000 		.word	.L27
+ 2361 03ac 10040000 		.word	.L28
+ 2362 03b0 20040000 		.word	.L29
+ 2363 03b4 30040000 		.word	.L30
+ 2364 03b8 40040000 		.word	.L31
+ 2365 03bc 50040000 		.word	.L32
+ 2366 03c0 84040000 		.word	.L33
+ 2367 03c4 94040000 		.word	.L34
+ 2368 03c8 A4040000 		.word	.L35
+ 2369 03cc B4040000 		.word	.L36
+ 2370 03d0 E8040000 		.word	.L37
+ 2371 03d4 F8040000 		.word	.L38
+ 2372 03d8 08050000 		.word	.L39
+ 2373 03dc 18050000 		.word	.L40
+ 2374              	.L25:
+ 237:../tests/test_WAV.c ****         {
+ 238:../tests/test_WAV.c ****             case 0:
+ 239:../tests/test_WAV.c ****                 iis_playWawFile( DTMF1, FALSE );
+ 2375              		.loc 1 239 0
+ 2376 03e0 E4019FE5 		ldr	r0, .L44+24
+ 2377 03e4 0010A0E3 		mov	r1, #0
+ 2378 03e8 FEFFFFEB 		bl	iis_playWawFile
+ 240:../tests/test_WAV.c ****                 break;
+ 2379              		.loc 1 240 0
+ 2380 03ec 6F0000EA 		b	.L42
+ 2381              	.L26:
+ 241:../tests/test_WAV.c ****             case 1:
+ 242:../tests/test_WAV.c ****                 iis_playWawFile( DTMF2, FALSE );
+ 2382              		.loc 1 242 0
+ 2383 03f0 28029FE5 		ldr	r0, .L44+108
+ 2384 03f4 0010A0E3 		mov	r1, #0
+ 2385 03f8 FEFFFFEB 		bl	iis_playWawFile
+ 243:../tests/test_WAV.c ****                 break;
+ 2386              		.loc 1 243 0
+ 2387 03fc 6B0000EA 		b	.L42
+ 2388              	.L27:
+ 244:../tests/test_WAV.c ****             case 2:
+ 245:../tests/test_WAV.c ****                 iis_playWawFile( DTMF3, FALSE );
+ 2389              		.loc 1 245 0
+ 2390 0400 1C029FE5 		ldr	r0, .L44+112
+ 2391 0404 0010A0E3 		mov	r1, #0
+ 2392 0408 FEFFFFEB 		bl	iis_playWawFile
+ 246:../tests/test_WAV.c ****                 break;
+ 2393              		.loc 1 246 0
+ 2394 040c 670000EA 		b	.L42
+ 2395              	.L28:
+ 247:../tests/test_WAV.c ****             case 3:
+ 248:../tests/test_WAV.c ****                 iis_playWawFile( INVITACION, FALSE );
+ 2396              		.loc 1 248 0
+ 2397 0410 10029FE5 		ldr	r0, .L44+116
+ 2398 0414 0010A0E3 		mov	r1, #0
+ 2399 0418 FEFFFFEB 		bl	iis_playWawFile
+ 249:../tests/test_WAV.c ****                 break;
+ 2400              		.loc 1 249 0
+ 2401 041c 630000EA 		b	.L42
+ 2402              	.L29:
+ 250:../tests/test_WAV.c ****             case 4:
+ 251:../tests/test_WAV.c ****                 iis_playWawFile( DTMF4, FALSE );
+ 2403              		.loc 1 251 0
+ 2404 0420 04029FE5 		ldr	r0, .L44+120
+ 2405 0424 0010A0E3 		mov	r1, #0
+ 2406 0428 FEFFFFEB 		bl	iis_playWawFile
+ 252:../tests/test_WAV.c ****                 break;
+ 2407              		.loc 1 252 0
+ 2408 042c 5F0000EA 		b	.L42
+ 2409              	.L30:
+ 253:../tests/test_WAV.c ****             case 5:
+ 254:../tests/test_WAV.c ****                 iis_playWawFile( DTMF5, FALSE );
+ 2410              		.loc 1 254 0
+ 2411 0430 F8019FE5 		ldr	r0, .L44+124
+ 2412 0434 0010A0E3 		mov	r1, #0
+ 2413 0438 FEFFFFEB 		bl	iis_playWawFile
+ 255:../tests/test_WAV.c ****                 break;
+ 2414              		.loc 1 255 0
+ 2415 043c 5B0000EA 		b	.L42
+ 2416              	.L31:
+ 256:../tests/test_WAV.c ****             case 6:
+ 257:../tests/test_WAV.c ****                 iis_playWawFile( DTMF6, FALSE );
+ 2417              		.loc 1 257 0
+ 2418 0440 EC019FE5 		ldr	r0, .L44+128
+ 2419 0444 0010A0E3 		mov	r1, #0
+ 2420 0448 FEFFFFEB 		bl	iis_playWawFile
+ 258:../tests/test_WAV.c ****                 break;
+ 2421              		.loc 1 258 0
+ 2422 044c 570000EA 		b	.L42
+ 2423              	.L32:
+ 259:../tests/test_WAV.c ****             case 7:
+ 260:../tests/test_WAV.c ****                 iis_playWawFile( LLAMADA, FALSE );
+ 2424              		.loc 1 260 0
+ 2425 0450 E0019FE5 		ldr	r0, .L44+132
+ 2426 0454 0010A0E3 		mov	r1, #0
+ 2427 0458 FEFFFFEB 		bl	iis_playWawFile
+ 261:../tests/test_WAV.c ****                 iis_playWawFile( LLAMADA, FALSE );
+ 2428              		.loc 1 261 0
+ 2429 045c D4019FE5 		ldr	r0, .L44+132
+ 2430 0460 0010A0E3 		mov	r1, #0
+ 2431 0464 FEFFFFEB 		bl	iis_playWawFile
+ 262:../tests/test_WAV.c ****                 iis_playWawFile( LLAMADA, FALSE );
+ 2432              		.loc 1 262 0
+ 2433 0468 C8019FE5 		ldr	r0, .L44+132
+ 2434 046c 0010A0E3 		mov	r1, #0
+ 2435 0470 FEFFFFEB 		bl	iis_playWawFile
+ 263:../tests/test_WAV.c ****                 iis_playWawFile( LLAMADA, FALSE );
+ 2436              		.loc 1 263 0
+ 2437 0474 BC019FE5 		ldr	r0, .L44+132
+ 2438 0478 0010A0E3 		mov	r1, #0
+ 2439 047c FEFFFFEB 		bl	iis_playWawFile
+ 264:../tests/test_WAV.c ****                 break;
+ 2440              		.loc 1 264 0
+ 2441 0480 4A0000EA 		b	.L42
+ 2442              	.L33:
+ 265:../tests/test_WAV.c ****             case 8:
+ 266:../tests/test_WAV.c ****                 iis_playWawFile( DTMF7, FALSE );
+ 2443              		.loc 1 266 0
+ 2444 0484 B0019FE5 		ldr	r0, .L44+136
+ 2445 0488 0010A0E3 		mov	r1, #0
+ 2446 048c FEFFFFEB 		bl	iis_playWawFile
+ 267:../tests/test_WAV.c ****                 break;
+ 2447              		.loc 1 267 0
+ 2448 0490 460000EA 		b	.L42
+ 2449              	.L34:
+ 268:../tests/test_WAV.c ****             case 9:
+ 269:../tests/test_WAV.c ****                 iis_playWawFile( DTMF8, FALSE );
+ 2450              		.loc 1 269 0
+ 2451 0494 A4019FE5 		ldr	r0, .L44+140
+ 2452 0498 0010A0E3 		mov	r1, #0
+ 2453 049c FEFFFFEB 		bl	iis_playWawFile
+ 270:../tests/test_WAV.c ****                 break;
+ 2454              		.loc 1 270 0
+ 2455 04a0 420000EA 		b	.L42
+ 2456              	.L35:
+ 271:../tests/test_WAV.c ****             case 0xa:
+ 272:../tests/test_WAV.c ****                 iis_playWawFile( DTMF9, FALSE );
+ 2457              		.loc 1 272 0
+ 2458 04a4 98019FE5 		ldr	r0, .L44+144
+ 2459 04a8 0010A0E3 		mov	r1, #0
+ 2460 04ac FEFFFFEB 		bl	iis_playWawFile
+ 273:../tests/test_WAV.c ****                 break;
+ 2461              		.loc 1 273 0
+ 2462 04b0 3E0000EA 		b	.L42
+ 2463              	.L36:
+ 274:../tests/test_WAV.c ****             case 0xb:
+ 275:../tests/test_WAV.c ****                 iis_playWawFile( CONGESTION, FALSE );
+ 2464              		.loc 1 275 0
+ 2465 04b4 8C019FE5 		ldr	r0, .L44+148
+ 2466 04b8 0010A0E3 		mov	r1, #0
+ 2467 04bc FEFFFFEB 		bl	iis_playWawFile
+ 276:../tests/test_WAV.c ****                 iis_playWawFile( CONGESTION, FALSE );
+ 2468              		.loc 1 276 0
+ 2469 04c0 80019FE5 		ldr	r0, .L44+148
+ 2470 04c4 0010A0E3 		mov	r1, #0
+ 2471 04c8 FEFFFFEB 		bl	iis_playWawFile
+ 277:../tests/test_WAV.c ****                 iis_playWawFile( CONGESTION, FALSE );
+ 2472              		.loc 1 277 0
+ 2473 04cc 74019FE5 		ldr	r0, .L44+148
+ 2474 04d0 0010A0E3 		mov	r1, #0
+ 2475 04d4 FEFFFFEB 		bl	iis_playWawFile
+ 278:../tests/test_WAV.c ****                 iis_playWawFile( CONGESTION, FALSE );
+ 2476              		.loc 1 278 0
+ 2477 04d8 68019FE5 		ldr	r0, .L44+148
+ 2478 04dc 0010A0E3 		mov	r1, #0
+ 2479 04e0 FEFFFFEB 		bl	iis_playWawFile
+ 279:../tests/test_WAV.c ****                 break;
+ 2480              		.loc 1 279 0
+ 2481 04e4 310000EA 		b	.L42
+ 2482              	.L37:
+ 280:../tests/test_WAV.c ****             case 0xc:
+ 281:../tests/test_WAV.c ****                 iis_playWawFile( DTMFSTAR, FALSE );
+ 2483              		.loc 1 281 0
+ 2484 04e8 5C019FE5 		ldr	r0, .L44+152
+ 2485 04ec 0010A0E3 		mov	r1, #0
+ 2486 04f0 FEFFFFEB 		bl	iis_playWawFile
+ 282:../tests/test_WAV.c ****                 break;
+ 2487              		.loc 1 282 0
+ 2488 04f4 2D0000EA 		b	.L42
+ 2489              	.L38:
+ 283:../tests/test_WAV.c ****             case 0xd:
+ 284:../tests/test_WAV.c ****                 iis_playWawFile( DTMF0, FALSE );
+ 2490              		.loc 1 284 0
+ 2491 04f8 3105A0E3 		mov	r0, #205520896
+ 2492 04fc 0010A0E3 		mov	r1, #0
+ 2493 0500 FEFFFFEB 		bl	iis_playWawFile
+ 285:../tests/test_WAV.c ****                 break;
+ 2494              		.loc 1 285 0
+ 2495 0504 290000EA 		b	.L42
+ 2496              	.L39:
+ 286:../tests/test_WAV.c ****             case 0xe:
+ 287:../tests/test_WAV.c ****                 iis_playWawFile( DTMFSHARP, FALSE );
+ 2497              		.loc 1 287 0
+ 2498 0508 40019FE5 		ldr	r0, .L44+156
+ 2499 050c 0010A0E3 		mov	r1, #0
+ 2500 0510 FEFFFFEB 		bl	iis_playWawFile
+ 288:../tests/test_WAV.c ****                 break;
+ 2501              		.loc 1 288 0
+ 2502 0514 250000EA 		b	.L42
+ 2503              	.L40:
+ 289:../tests/test_WAV.c ****             case 0xf:
+ 290:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2504              		.loc 1 290 0
+ 2505 0518 34019FE5 		ldr	r0, .L44+160
+ 2506 051c 0010A0E3 		mov	r1, #0
+ 2507 0520 FEFFFFEB 		bl	iis_playWawFile
+ 291:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2508              		.loc 1 291 0
+ 2509 0524 28019FE5 		ldr	r0, .L44+160
+ 2510 0528 0010A0E3 		mov	r1, #0
+ 2511 052c FEFFFFEB 		bl	iis_playWawFile
+ 292:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2512              		.loc 1 292 0
+ 2513 0530 1C019FE5 		ldr	r0, .L44+160
+ 2514 0534 0010A0E3 		mov	r1, #0
+ 2515 0538 FEFFFFEB 		bl	iis_playWawFile
+ 293:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2516              		.loc 1 293 0
+ 2517 053c 10019FE5 		ldr	r0, .L44+160
+ 2518 0540 0010A0E3 		mov	r1, #0
+ 2519 0544 FEFFFFEB 		bl	iis_playWawFile
+ 294:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2520              		.loc 1 294 0
+ 2521 0548 04019FE5 		ldr	r0, .L44+160
+ 2522 054c 0010A0E3 		mov	r1, #0
+ 2523 0550 FEFFFFEB 		bl	iis_playWawFile
+ 295:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2524              		.loc 1 295 0
+ 2525 0554 F8009FE5 		ldr	r0, .L44+160
+ 2526 0558 0010A0E3 		mov	r1, #0
+ 2527 055c FEFFFFEB 		bl	iis_playWawFile
+ 296:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2528              		.loc 1 296 0
+ 2529 0560 EC009FE5 		ldr	r0, .L44+160
+ 2530 0564 0010A0E3 		mov	r1, #0
+ 2531 0568 FEFFFFEB 		bl	iis_playWawFile
+ 297:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2532              		.loc 1 297 0
+ 2533 056c E0009FE5 		ldr	r0, .L44+160
+ 2534 0570 0010A0E3 		mov	r1, #0
+ 2535 0574 FEFFFFEB 		bl	iis_playWawFile
+ 298:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2536              		.loc 1 298 0
+ 2537 0578 D4009FE5 		ldr	r0, .L44+160
+ 2538 057c 0010A0E3 		mov	r1, #0
+ 2539 0580 FEFFFFEB 		bl	iis_playWawFile
+ 299:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2540              		.loc 1 299 0
+ 2541 0584 C8009FE5 		ldr	r0, .L44+160
+ 2542 0588 0010A0E3 		mov	r1, #0
+ 2543 058c FEFFFFEB 		bl	iis_playWawFile
+ 300:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2544              		.loc 1 300 0
+ 2545 0590 BC009FE5 		ldr	r0, .L44+160
+ 2546 0594 0010A0E3 		mov	r1, #0
+ 2547 0598 FEFFFFEB 		bl	iis_playWawFile
+ 301:../tests/test_WAV.c ****                 iis_playWawFile( OCUPADO, FALSE );
+ 2548              		.loc 1 301 0
+ 2549 059c B0009FE5 		ldr	r0, .L44+160
+ 2550 05a0 0010A0E3 		mov	r1, #0
+ 2551 05a4 FEFFFFEB 		bl	iis_playWawFile
+ 302:../tests/test_WAV.c ****                 break;
+ 2552              		.loc 1 302 0
+ 2553 05a8 000000EA 		b	.L42
+ 2554              	.L24:
+ 303:../tests/test_WAV.c ****             default:
+ 304:../tests/test_WAV.c ****             	continue;
+ 2555              		.loc 1 304 0
+ 2556 05ac 0000A0E1 		mov	r0, r0	@ nop
+ 2557              	.L42:
+ 305:../tests/test_WAV.c ****         };
+ 2558              		.loc 1 305 0
+ 2559 05b0 75FFFFEA 		b	.L43
+ 2560              	.L45:
+ 2561              		.align	2
+ 2562              	.L44:
+ 2563 05b4 00000000 		.word	.LC0
+ 2564 05b8 4C000000 		.word	.LC1
+ 2565 05bc 00A0410C 		.word	205627392
+ 2566 05c0 005F0500 		.word	352000
+ 2567 05c4 7C000000 		.word	.LC2
+ 2568 05c8 80000000 		.word	.LC3
+ 2569 05cc 0020400C 		.word	205529088
+ 2570 05d0 B4000000 		.word	.LC4
+ 2571 05d4 FC000000 		.word	.LC5
+ 2572 05d8 2C010000 		.word	.LC6
+ 2573 05dc 34010000 		.word	.LC7
+ 2574 05e0 64010000 		.word	.LC8
+ 2575 05e4 00E20400 		.word	320000
+ 2576 05e8 A8010000 		.word	.LC9
+ 2577 05ec D4010000 		.word	.LC10
+ 2578 05f0 FC010000 		.word	.LC11
+ 2579 05f4 30020000 		.word	.LC12
+ 2580 05f8 48020000 		.word	.LC13
+ 2581 05fc 7C020000 		.word	.LC14
+ 2582 0600 A8020000 		.word	.LC15
+ 2583 0604 E4020000 		.word	.LC16
+ 2584 0608 F0020000 		.word	.LC17
+ 2585 060c FC020000 		.word	.LC18
+ 2586 0610 08030000 		.word	.LC19
+ 2587 0614 38030000 		.word	.LC20
+ 2588 0618 48030000 		.word	.LC21
+ 2589 061c 58030000 		.word	.LC22
+ 2590 0620 0040400C 		.word	205537280
+ 2591 0624 0060400C 		.word	205545472
+ 2592 0628 00A0470C 		.word	206020608
+ 2593 062c 0080400C 		.word	205553664
+ 2594 0630 00A0400C 		.word	205561856
+ 2595 0634 00C0400C 		.word	205570048
+ 2596 0638 00A04F0C 		.word	206544896
+ 2597 063c 00E0400C 		.word	205578240
+ 2598 0640 0000410C 		.word	205586432
+ 2599 0644 0020410C 		.word	205594624
+ 2600 0648 00A0540C 		.word	206872576
+ 2601 064c 0040410C 		.word	205602816
+ 2602 0650 0080410C 		.word	205619200
+ 2603 0654 00A0560C 		.word	207003648
+ 2604              		.cfi_endproc
+ 2605              	.LFE0:
+ 2607              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 test_WAV.c
+C:\Users\Pedro\AppData\Local\Temp\cc6jJUdk.s:1908   .rodata:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\cc6jJUdk.s:1987   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\cc6jJUdk.s:1990   .text:00000000 test_WAV
+C:\Users\Pedro\AppData\Local\Temp\cc6jJUdk.s:2358   .text:000003a0 $d
+C:\Users\Pedro\AppData\Local\Temp\cc6jJUdk.s:2376   .text:000003e0 $a
+C:\Users\Pedro\AppData\Local\Temp\cc6jJUdk.s:2563   .text:000005b4 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+uda1341ts_init
+uart0_puts
+iis_init
+uda1341ts_setvol
+iis_play
+Delay
+uart0_putchar
+iis_status
+D8Led_digit
+iis_rec
+D8Led_off
+iis_playWawFile
+kb_scan
+uart0_getint
+iis_pause
+iis_continue
+uda1341ts_mute
