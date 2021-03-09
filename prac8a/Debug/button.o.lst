@@ -1,0 +1,126 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"button.c"
+  21              	.Ltext0:
+  22              		.file 1 "../button.c"
+ 1796              		.align	2
+ 1797              		.global	read_button
+ 1799              	read_button:
+ 1800              	.LFB0:
+   1:../button.c   **** /*-------------------------------------------------------------------
+   2:../button.c   **** **
+   3:../button.c   **** **  Fichero:
+   4:../button.c   **** **    button.c  10/6/2014
+   5:../button.c   **** **
+   6:../button.c   **** **    Estructura de Computadores
+   7:../button.c   **** **    Dpto. de Arquitectura de Computadores y Autom�tica
+   8:../button.c   **** **    Facultad de Inform�tica. Universidad Complutense de Madrid
+   9:../button.c   **** **
+  10:../button.c   **** **  Prop�sito:
+  11:../button.c   **** **    Contiene las implementaciones de las funciones
+  12:../button.c   **** **    para la gesti�n de los pulsadores de la placa de prototipado
+  13:../button.c   **** **
+  14:../button.c   **** **  Notas de dise�o:
+  15:../button.c   **** **
+  16:../button.c   **** **-----------------------------------------------------------------*/
+  17:../button.c   **** 
+  18:../button.c   **** #include "44b.h"
+  19:../button.c   **** #include "utils.h"
+  20:../button.c   **** #include "button.h"
+  21:../button.c   **** #include "leds.h"
+  22:../button.c   **** #include "gpio.h"
+  23:../button.c   **** 
+  24:../button.c   **** unsigned int read_button(void)
+  25:../button.c   **** {
+ 1801              		.loc 1 25 0
+ 1802              		.cfi_startproc
+ 1803              		@ Function supports interworking.
+ 1804              		@ args = 0, pretend = 0, frame = 8
+ 1805              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1806 0000 0DC0A0E1 		mov	ip, sp
+ 1807              	.LCFI0:
+ 1808              		.cfi_def_cfa_register 12
+ 1809 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1810 0008 04B04CE2 		sub	fp, ip, #4
+ 1811              		.cfi_offset 14, -8
+ 1812              		.cfi_offset 13, -12
+ 1813              		.cfi_offset 11, -16
+ 1814              	.LCFI1:
+ 1815              		.cfi_def_cfa 11, 4
+ 1816 000c 08D04DE2 		sub	sp, sp, #8
+  26:../button.c   **** 	unsigned int buttons = 0;
+ 1817              		.loc 1 26 0
+ 1818 0010 0030A0E3 		mov	r3, #0
+ 1819 0014 10300BE5 		str	r3, [fp, #-16]
+  27:../button.c   **** 	enum digital val;
+  28:../button.c   **** 
+  29:../button.c   **** 	//COMPLETAR utilizando el interfaz del puerto G de gpio.h debemos leer los
+  30:../button.c   **** 	//pines 6 y 7 del puerto G (portG_read) debemos devolver un valor (buttons)
+  31:../button.c   **** 	//en el que el bit 0 (el menos significativo) representa el estado del botón
+  32:../button.c   **** 	//del pin 6 y el bit 1 representa el estado del botón del pin 7 (a 1 si
+  33:../button.c   **** 	//están pulsados a 0 si no lo están).
+  34:../button.c   **** 
+  35:../button.c   **** 	portG_read(6, &val);
+ 1820              		.loc 1 35 0
+ 1821 0018 11304BE2 		sub	r3, fp, #17
+ 1822 001c 0600A0E3 		mov	r0, #6
+ 1823 0020 0310A0E1 		mov	r1, r3
+ 1824 0024 FEFFFFEB 		bl	portG_read
+  36:../button.c   **** 	if(!val)
+ 1825              		.loc 1 36 0
+ 1826 0028 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 1827 002c 000053E3 		cmp	r3, #0
+ 1828 0030 0200001A 		bne	.L2
+  37:../button.c   **** 		buttons |= BUT1;
+ 1829              		.loc 1 37 0
+ 1830 0034 10301BE5 		ldr	r3, [fp, #-16]
+ 1831 0038 013083E3 		orr	r3, r3, #1
+ 1832 003c 10300BE5 		str	r3, [fp, #-16]
+ 1833              	.L2:
+  38:../button.c   **** 
+  39:../button.c   **** 	portG_read(7, &val);
+ 1834              		.loc 1 39 0
+ 1835 0040 11304BE2 		sub	r3, fp, #17
+ 1836 0044 0700A0E3 		mov	r0, #7
+ 1837 0048 0310A0E1 		mov	r1, r3
+ 1838 004c FEFFFFEB 		bl	portG_read
+  40:../button.c   **** 	if(!val)
+ 1839              		.loc 1 40 0
+ 1840 0050 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 1841 0054 000053E3 		cmp	r3, #0
+ 1842 0058 0200001A 		bne	.L3
+  41:../button.c   **** 		buttons |= BUT2;
+ 1843              		.loc 1 41 0
+ 1844 005c 10301BE5 		ldr	r3, [fp, #-16]
+ 1845 0060 023083E3 		orr	r3, r3, #2
+ 1846 0064 10300BE5 		str	r3, [fp, #-16]
+ 1847              	.L3:
+  42:../button.c   **** 
+  43:../button.c   **** 	return buttons;
+ 1848              		.loc 1 43 0
+ 1849 0068 10301BE5 		ldr	r3, [fp, #-16]
+  44:../button.c   **** }
+ 1850              		.loc 1 44 0
+ 1851 006c 0300A0E1 		mov	r0, r3
+ 1852 0070 0CD04BE2 		sub	sp, fp, #12
+ 1853 0074 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1854 0078 1EFF2FE1 		bx	lr
+ 1855              		.cfi_endproc
+ 1856              	.LFE0:
+ 1858              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 button.c
+C:\Users\Pedro\AppData\Local\Temp\ccn8rRMA.s:1796   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccn8rRMA.s:1799   .text:00000000 read_button
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+portG_read
