@@ -1,0 +1,814 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  21              	.Ltext0:
+  22              		.file 1 "../main.c"
+ 2760              		.align	2
+ 2763              	RL:
+ 2764 0000 00000000 		.word	0
+ 2765 0004 05000000 		.word	5
+ 2766 0008 00000000 		.word	0
+ 2767 000c 00000000 		.word	0
+ 2768              		.bss
+ 2769              		.align	2
+ 2770              	contador_pulsaciones:
+ 2771 0000 00000000 		.space	4
+ 2772              		.text
+ 2773              		.align	2
+ 2774              		.global	timer_ISR
+ 2776              	timer_ISR:
+ 2777              	.LFB0:
+   1:../main.c     **** #include <stdio.h>
+   2:../main.c     **** #include "44b.h"
+   3:../main.c     **** #include "button.h"
+   4:../main.c     **** #include "leds.h"
+   5:../main.c     **** #include "utils.h"
+   6:../main.c     **** #include "D8Led.h"
+   7:../main.c     **** #include "intcontroller.h"
+   8:../main.c     **** #include "timer.h"
+   9:../main.c     **** #include "gpio.h"
+  10:../main.c     **** #include "keyboard.h"
+  11:../main.c     **** 
+  12:../main.c     **** struct RLstat {
+  13:../main.c     **** 	int moving;
+  14:../main.c     **** 	int speed;
+  15:../main.c     **** 	int direction;
+  16:../main.c     **** 	int position;
+  17:../main.c     **** };
+  18:../main.c     **** 
+  19:../main.c     **** static struct RLstat RL = {
+  20:../main.c     **** 	.moving = 0,
+  21:../main.c     **** 	.speed = 5,
+  22:../main.c     **** 	.direction = 0,
+  23:../main.c     **** 	.position = 0,
+  24:../main.c     **** };
+  25:../main.c     **** 
+  26:../main.c     **** static int contador_pulsaciones = 0;
+  27:../main.c     **** 
+  28:../main.c     **** void timer_ISR(void) __attribute__ ((interrupt ("IRQ")));
+  29:../main.c     **** void button_ISR(void) __attribute__ ((interrupt ("IRQ")));
+  30:../main.c     **** void keyboard_ISR(void) __attribute__ ((interrupt ("IRQ")));
+  31:../main.c     **** 
+  32:../main.c     **** void timer_ISR(void)
+  33:../main.c     **** {
+ 2778              		.loc 1 33 0
+ 2779              		.cfi_startproc
+ 2780              		@ Interrupt Service Routine.
+ 2781              		@ args = 0, pretend = 0, frame = 0
+ 2782              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2783 0000 04C02DE5 		str	ip, [sp, #-4]!
+ 2784 0004 0DC0A0E1 		mov	ip, sp
+ 2785              	.LCFI0:
+ 2786              		.cfi_def_cfa_register 12
+ 2787 0008 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 2788 000c 04B04CE2 		sub	fp, ip, #4
+ 2789              		.cfi_offset 14, -8
+ 2790              		.cfi_offset 13, -12
+ 2791              		.cfi_offset 11, -16
+ 2792              		.cfi_offset 3, -20
+ 2793              		.cfi_offset 2, -24
+ 2794              		.cfi_offset 1, -28
+ 2795              		.cfi_offset 0, -32
+ 2796              	.LCFI1:
+ 2797              		.cfi_def_cfa 11, 4
+  34:../main.c     **** 	// COMPLETAR: debemos hacer avanzar el led rotante una posición en
+  35:../main.c     **** 	// la dirección indicada por el campo direction de la variable RL.
+  36:../main.c     **** 
+  37:../main.c     **** 	// La posición actual está representada en el campo position.
+  38:../main.c     **** 	// Recordar que queremos un movimiento circular, representado por
+  39:../main.c     **** 	// las 6 primeras posiciones en el array Segmentes del display de 8
+  40:../main.c     **** 	// segmentos, por lo que position debe estar siempre entre 0 y 5.
+  41:../main.c     **** 
+  42:../main.c     **** 	//	   0
+  43:../main.c     **** 	//    __
+  44:../main.c     **** 	// 5 |  | 1
+  45:../main.c     **** 	//   |__|
+  46:../main.c     **** 	//   |  | 2
+  47:../main.c     **** 	// 4 |__|
+  48:../main.c     **** 	//     3
+  49:../main.c     **** 	if(RL.direction) {
+ 2798              		.loc 1 49 0
+ 2799 0010 94309FE5 		ldr	r3, .L4
+ 2800 0014 083093E5 		ldr	r3, [r3, #8]
+ 2801 0018 000053E3 		cmp	r3, #0
+ 2802 001c 0C00000A 		beq	.L2
+  50:../main.c     **** 		//Horario
+  51:../main.c     **** 		RL.position++;
+ 2803              		.loc 1 51 0
+ 2804 0020 84309FE5 		ldr	r3, .L4
+ 2805 0024 0C3093E5 		ldr	r3, [r3, #12]
+ 2806 0028 012083E2 		add	r2, r3, #1
+ 2807 002c 78309FE5 		ldr	r3, .L4
+ 2808 0030 0C2083E5 		str	r2, [r3, #12]
+  52:../main.c     **** 
+  53:../main.c     **** 		if(RL.position == 6)
+ 2809              		.loc 1 53 0
+ 2810 0034 70309FE5 		ldr	r3, .L4
+ 2811 0038 0C3093E5 		ldr	r3, [r3, #12]
+ 2812 003c 060053E3 		cmp	r3, #6
+ 2813 0040 0F00001A 		bne	.L3
+  54:../main.c     **** 			RL.position = 0;
+ 2814              		.loc 1 54 0
+ 2815 0044 60309FE5 		ldr	r3, .L4
+ 2816 0048 0020A0E3 		mov	r2, #0
+ 2817 004c 0C2083E5 		str	r2, [r3, #12]
+ 2818 0050 0B0000EA 		b	.L3
+ 2819              	.L2:
+  55:../main.c     **** 
+  56:../main.c     **** 	} else {
+  57:../main.c     **** 		//Antihorario
+  58:../main.c     **** 		RL.position--;
+ 2820              		.loc 1 58 0
+ 2821 0054 50309FE5 		ldr	r3, .L4
+ 2822 0058 0C3093E5 		ldr	r3, [r3, #12]
+ 2823 005c 012043E2 		sub	r2, r3, #1
+ 2824 0060 44309FE5 		ldr	r3, .L4
+ 2825 0064 0C2083E5 		str	r2, [r3, #12]
+  59:../main.c     **** 
+  60:../main.c     **** 		if(RL.position == -1)
+ 2826              		.loc 1 60 0
+ 2827 0068 3C309FE5 		ldr	r3, .L4
+ 2828 006c 0C3093E5 		ldr	r3, [r3, #12]
+ 2829 0070 010073E3 		cmn	r3, #1
+ 2830 0074 0200001A 		bne	.L3
+  61:../main.c     **** 			RL.position = 5;
+ 2831              		.loc 1 61 0
+ 2832 0078 2C309FE5 		ldr	r3, .L4
+ 2833 007c 0520A0E3 		mov	r2, #5
+ 2834 0080 0C2083E5 		str	r2, [r3, #12]
+ 2835              	.L3:
+  62:../main.c     **** 	}
+  63:../main.c     **** 	D8Led_segment(RL.position);
+ 2836              		.loc 1 63 0
+ 2837 0084 20309FE5 		ldr	r3, .L4
+ 2838 0088 0C3093E5 		ldr	r3, [r3, #12]
+ 2839 008c 0300A0E1 		mov	r0, r3
+ 2840 0090 FEFFFFEB 		bl	D8Led_segment
+  64:../main.c     **** 
+  65:../main.c     **** 	//Solamente hay que borrar la interrupcion interna
+  66:../main.c     **** 	ic_cleanflag(INT_TIMER0);
+ 2841              		.loc 1 66 0
+ 2842 0094 0D00A0E3 		mov	r0, #13
+ 2843 0098 FEFFFFEB 		bl	ic_cleanflag
+  67:../main.c     **** }
+ 2844              		.loc 1 67 0
+ 2845 009c 1CD04BE2 		sub	sp, fp, #28
+ 2846 00a0 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 2847 00a4 04C09DE4 		ldmfd	sp!, {ip}
+ 2848 00a8 04F05EE2 		subs	pc, lr, #4
+ 2849              	.L5:
+ 2850              		.align	2
+ 2851              	.L4:
+ 2852 00ac 00000000 		.word	RL
+ 2853              		.cfi_endproc
+ 2854              	.LFE0:
+ 2856              		.align	2
+ 2857              		.global	button_ISR
+ 2859              	button_ISR:
+ 2860              	.LFB1:
+  68:../main.c     **** 
+  69:../main.c     **** void button_ISR(void)
+  70:../main.c     **** {
+ 2861              		.loc 1 70 0
+ 2862              		.cfi_startproc
+ 2863              		@ Interrupt Service Routine.
+ 2864              		@ args = 0, pretend = 0, frame = 8
+ 2865              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2866 00b0 04C02DE5 		str	ip, [sp, #-4]!
+ 2867 00b4 0DC0A0E1 		mov	ip, sp
+ 2868              	.LCFI2:
+ 2869              		.cfi_def_cfa_register 12
+ 2870 00b8 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 2871 00bc 04B04CE2 		sub	fp, ip, #4
+ 2872              		.cfi_offset 14, -8
+ 2873              		.cfi_offset 13, -12
+ 2874              		.cfi_offset 11, -16
+ 2875              		.cfi_offset 3, -20
+ 2876              		.cfi_offset 2, -24
+ 2877              		.cfi_offset 1, -28
+ 2878              		.cfi_offset 0, -32
+ 2879              	.LCFI3:
+ 2880              		.cfi_def_cfa 11, 4
+ 2881 00c0 08D04DE2 		sub	sp, sp, #8
+  71:../main.c     **** 	unsigned int whicheint = rEXTINTPND;
+ 2882              		.loc 1 71 0
+ 2883 00c4 40319FE5 		ldr	r3, .L15
+ 2884 00c8 003093E5 		ldr	r3, [r3, #0]
+ 2885 00cc 20300BE5 		str	r3, [fp, #-32]
+  72:../main.c     **** 	unsigned int buttons = (whicheint >> 2) & 0x3;
+ 2886              		.loc 1 72 0
+ 2887 00d0 20301BE5 		ldr	r3, [fp, #-32]
+ 2888 00d4 2331A0E1 		mov	r3, r3, lsr #2
+ 2889 00d8 033003E2 		and	r3, r3, #3
+ 2890 00dc 24300BE5 		str	r3, [fp, #-36]
+  73:../main.c     **** 
+  74:../main.c     **** 	//COMPLETAR: usar el código de la primera parte parte de atención a los
+  75:../main.c     **** 	//pulsadores
+  76:../main.c     **** 
+  77:../main.c     **** 	if (buttons & BUT1) {
+ 2891              		.loc 1 77 0
+ 2892 00e0 24301BE5 		ldr	r3, [fp, #-36]
+ 2893 00e4 013003E2 		and	r3, r3, #1
+ 2894 00e8 FF3003E2 		and	r3, r3, #255
+ 2895 00ec 000053E3 		cmp	r3, #0
+ 2896 00f0 0800000A 		beq	.L7
+  78:../main.c     **** 			// COMPLETAR: utilizando la interfaz para los leds definida en leds.h
+  79:../main.c     **** 			// hay que apagar ambos leds
+  80:../main.c     **** 			led1_off();
+ 2897              		.loc 1 80 0
+ 2898 00f4 FEFFFFEB 		bl	led1_off
+  81:../main.c     **** 			led2_off();
+ 2899              		.loc 1 81 0
+ 2900 00f8 FEFFFFEB 		bl	led2_off
+  82:../main.c     **** 
+  83:../main.c     **** 			// También hay que conmutar la dirección del movimiento del led rotante
+  84:../main.c     **** 			// representado por el campo direction de la variable RL
+  85:../main.c     **** 			RL.direction = !RL.direction;
+ 2901              		.loc 1 85 0
+ 2902 00fc 0C319FE5 		ldr	r3, .L15+4
+ 2903 0100 083093E5 		ldr	r3, [r3, #8]
+ 2904 0104 000053E3 		cmp	r3, #0
+ 2905 0108 0020A013 		movne	r2, #0
+ 2906 010c 0120A003 		moveq	r2, #1
+ 2907 0110 F8309FE5 		ldr	r3, .L15+4
+ 2908 0114 082083E5 		str	r2, [r3, #8]
+ 2909              	.L7:
+  86:../main.c     **** 	}
+  87:../main.c     **** 
+  88:../main.c     **** 	if (buttons & BUT2) {
+ 2910              		.loc 1 88 0
+ 2911 0118 24301BE5 		ldr	r3, [fp, #-36]
+ 2912 011c 023003E2 		and	r3, r3, #2
+ 2913 0120 000053E3 		cmp	r3, #0
+ 2914 0124 1D00000A 		beq	.L8
+  89:../main.c     **** 		// COMPLETAR: utilizando la interfaz para los leds definida en leds.h
+  90:../main.c     **** 		// Incrementar contador de pulsaciones. Si es par, conmUtar led1. Si es impar, conmutar el led2.
+  91:../main.c     **** 
+  92:../main.c     **** 		contador_pulsaciones++;
+ 2915              		.loc 1 92 0
+ 2916 0128 E4309FE5 		ldr	r3, .L15+8
+ 2917 012c 003093E5 		ldr	r3, [r3, #0]
+ 2918 0130 012083E2 		add	r2, r3, #1
+ 2919 0134 D8309FE5 		ldr	r3, .L15+8
+ 2920 0138 002083E5 		str	r2, [r3, #0]
+  93:../main.c     **** 
+  94:../main.c     **** 		if(contador_pulsaciones & 1)
+ 2921              		.loc 1 94 0
+ 2922 013c D0309FE5 		ldr	r3, .L15+8
+ 2923 0140 003093E5 		ldr	r3, [r3, #0]
+ 2924 0144 013003E2 		and	r3, r3, #1
+ 2925 0148 FF3003E2 		and	r3, r3, #255
+ 2926 014c 000053E3 		cmp	r3, #0
+ 2927 0150 0100000A 		beq	.L9
+  95:../main.c     **** 			//impar
+  96:../main.c     **** 			led2_switch();
+ 2928              		.loc 1 96 0
+ 2929 0154 FEFFFFEB 		bl	led2_switch
+ 2930 0158 000000EA 		b	.L10
+ 2931              	.L9:
+  97:../main.c     **** 		else
+  98:../main.c     **** 			//par
+  99:../main.c     **** 			led1_switch();
+ 2932              		.loc 1 99 0
+ 2933 015c FEFFFFEB 		bl	led1_switch
+ 2934              	.L10:
+ 100:../main.c     **** 
+ 101:../main.c     **** 		// También hay que conmutar el estado de movimiento del led rotante
+ 102:../main.c     **** 		// representado por el campo moving de la variable RL.
+ 103:../main.c     **** 		if(RL.moving)
+ 2935              		.loc 1 103 0
+ 2936 0160 A8309FE5 		ldr	r3, .L15+4
+ 2937 0164 003093E5 		ldr	r3, [r3, #0]
+ 2938 0168 000053E3 		cmp	r3, #0
+ 2939 016c 0200000A 		beq	.L11
+ 104:../main.c     **** 			tmr_stop(TIMER0);
+ 2940              		.loc 1 104 0
+ 2941 0170 0000A0E3 		mov	r0, #0
+ 2942 0174 FEFFFFEB 		bl	tmr_stop
+ 2943 0178 010000EA 		b	.L12
+ 2944              	.L11:
+ 105:../main.c     **** 		else
+ 106:../main.c     **** 			tmr_start(TIMER0);
+ 2945              		.loc 1 106 0
+ 2946 017c 0000A0E3 		mov	r0, #0
+ 2947 0180 FEFFFFEB 		bl	tmr_start
+ 2948              	.L12:
+ 107:../main.c     **** 		RL.moving = !RL.moving;
+ 2949              		.loc 1 107 0
+ 2950 0184 84309FE5 		ldr	r3, .L15+4
+ 2951 0188 003093E5 		ldr	r3, [r3, #0]
+ 2952 018c 000053E3 		cmp	r3, #0
+ 2953 0190 0020A013 		movne	r2, #0
+ 2954 0194 0120A003 		moveq	r2, #1
+ 2955 0198 70309FE5 		ldr	r3, .L15+4
+ 2956 019c 002083E5 		str	r2, [r3, #0]
+ 2957              	.L8:
+ 108:../main.c     **** 	}
+ 109:../main.c     **** 
+ 110:../main.c     **** 	// eliminamos rebotes
+ 111:../main.c     **** 	Delay(2000);
+ 2958              		.loc 1 111 0
+ 2959 01a0 7D0EA0E3 		mov	r0, #2000
+ 2960 01a4 FEFFFFEB 		bl	Delay
+ 112:../main.c     **** 	// borramos el flag en extintpnd
+ 113:../main.c     **** 	//COMPLETAR: debemos borrar las peticiones de interrupción en
+ 114:../main.c     **** 	//EXTINTPND escribiendo un 1 en los flags que queremos borrar (los
+ 115:../main.c     **** 	//correspondientes a los pulsadores pulsados)
+ 116:../main.c     **** 
+ 117:../main.c     **** 	if(buttons & BUT1)
+ 2961              		.loc 1 117 0
+ 2962 01a8 24301BE5 		ldr	r3, [fp, #-36]
+ 2963 01ac 013003E2 		and	r3, r3, #1
+ 2964 01b0 FF3003E2 		and	r3, r3, #255
+ 2965 01b4 000053E3 		cmp	r3, #0
+ 2966 01b8 0400000A 		beq	.L13
+ 118:../main.c     **** 		//Borrar bit 2
+ 119:../main.c     **** 		rEXTINTPND |= 1 << 2;
+ 2967              		.loc 1 119 0
+ 2968 01bc 48309FE5 		ldr	r3, .L15
+ 2969 01c0 44209FE5 		ldr	r2, .L15
+ 2970 01c4 002092E5 		ldr	r2, [r2, #0]
+ 2971 01c8 042082E3 		orr	r2, r2, #4
+ 2972 01cc 002083E5 		str	r2, [r3, #0]
+ 2973              	.L13:
+ 120:../main.c     **** 
+ 121:../main.c     **** 	if(buttons & BUT2)
+ 2974              		.loc 1 121 0
+ 2975 01d0 24301BE5 		ldr	r3, [fp, #-36]
+ 2976 01d4 023003E2 		and	r3, r3, #2
+ 2977 01d8 000053E3 		cmp	r3, #0
+ 2978 01dc 0400000A 		beq	.L14
+ 122:../main.c     **** 		//Borrar bit 3
+ 123:../main.c     **** 		rEXTINTPND |= 1 << 3;
+ 2979              		.loc 1 123 0
+ 2980 01e0 24309FE5 		ldr	r3, .L15
+ 2981 01e4 20209FE5 		ldr	r2, .L15
+ 2982 01e8 002092E5 		ldr	r2, [r2, #0]
+ 2983 01ec 082082E3 		orr	r2, r2, #8
+ 2984 01f0 002083E5 		str	r2, [r3, #0]
+ 2985              	.L14:
+ 124:../main.c     **** 
+ 125:../main.c     **** 	ic_cleanflag(INT_EINT4567);
+ 2986              		.loc 1 125 0
+ 2987 01f4 1500A0E3 		mov	r0, #21
+ 2988 01f8 FEFFFFEB 		bl	ic_cleanflag
+ 126:../main.c     **** }
+ 2989              		.loc 1 126 0
+ 2990 01fc 1CD04BE2 		sub	sp, fp, #28
+ 2991 0200 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 2992 0204 04C09DE4 		ldmfd	sp!, {ip}
+ 2993 0208 04F05EE2 		subs	pc, lr, #4
+ 2994              	.L16:
+ 2995              		.align	2
+ 2996              	.L15:
+ 2997 020c 5400D201 		.word	30539860
+ 2998 0210 00000000 		.word	RL
+ 2999 0214 00000000 		.word	contador_pulsaciones
+ 3000              		.cfi_endproc
+ 3001              	.LFE1:
+ 3003              		.align	2
+ 3004              		.global	keyboard_ISR
+ 3006              	keyboard_ISR:
+ 3007              	.LFB2:
+ 127:../main.c     **** 
+ 128:../main.c     **** void keyboard_ISR(void)
+ 129:../main.c     **** {
+ 3008              		.loc 1 129 0
+ 3009              		.cfi_startproc
+ 3010              		@ Interrupt Service Routine.
+ 3011              		@ args = 0, pretend = 0, frame = 8
+ 3012              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3013 0218 04C02DE5 		str	ip, [sp, #-4]!
+ 3014 021c 0DC0A0E1 		mov	ip, sp
+ 3015              	.LCFI4:
+ 3016              		.cfi_def_cfa_register 12
+ 3017 0220 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 3018 0224 04B04CE2 		sub	fp, ip, #4
+ 3019              		.cfi_offset 14, -8
+ 3020              		.cfi_offset 13, -12
+ 3021              		.cfi_offset 11, -16
+ 3022              		.cfi_offset 3, -20
+ 3023              		.cfi_offset 2, -24
+ 3024              		.cfi_offset 1, -28
+ 3025              		.cfi_offset 0, -32
+ 3026              	.LCFI5:
+ 3027              		.cfi_def_cfa 11, 4
+ 3028 0228 08D04DE2 		sub	sp, sp, #8
+ 130:../main.c     **** 	int key;
+ 131:../main.c     **** 
+ 132:../main.c     **** 	/* Eliminar rebotes de presión */
+ 133:../main.c     **** 	Delay(200);
+ 3029              		.loc 1 133 0
+ 3030 022c C800A0E3 		mov	r0, #200
+ 3031 0230 FEFFFFEB 		bl	Delay
+ 134:../main.c     **** 	
+ 135:../main.c     **** 	/* Escaneo de tecla */
+ 136:../main.c     **** 	key = kb_scan();
+ 3032              		.loc 1 136 0
+ 3033 0234 FEFFFFEB 		bl	kb_scan
+ 3034 0238 20000BE5 		str	r0, [fp, #-32]
+ 137:../main.c     **** 
+ 138:../main.c     **** 	if (key != -1) {
+ 3035              		.loc 1 138 0
+ 3036 023c 20301BE5 		ldr	r3, [fp, #-32]
+ 3037 0240 010073E3 		cmn	r3, #1
+ 3038 0244 0800000A 		beq	.L18
+ 139:../main.c     **** 		/* Visualizacion en el display */
+ 140:../main.c     **** 		//COMPLETAR: mostrar la tecla en el display utilizando el interfaz
+ 141:../main.c     **** 		//definido en D8Led.h
+ 142:../main.c     **** 
+ 143:../main.c     **** 		switch (key) {
+ 3039              		.loc 1 143 0
+ 3040 0248 20301BE5 		ldr	r3, [fp, #-32]
+ 3041 024c 030053E3 		cmp	r3, #3
+ 3042 0250 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 3043 0254 030000EA 		b	.L25
+ 3044              	.L24:
+ 3045 0258 68020000 		.word	.L25
+ 3046 025c 68020000 		.word	.L25
+ 3047 0260 68020000 		.word	.L25
+ 3048 0264 68020000 		.word	.L25
+ 3049              	.L25:
+ 144:../main.c     **** 			case 0:
+ 145:../main.c     **** 				//COMPLETAR: poner en timer0 divisor 1/8 y contador 62500
+ 146:../main.c     **** 				break;
+ 147:../main.c     **** 			case 1:
+ 148:../main.c     **** 				//COMPLETAR: poner en timer0 timer divisor 1/8 y contador 31250
+ 149:../main.c     **** 				break;
+ 150:../main.c     **** 			case 2:
+ 151:../main.c     **** 				//COMPLETAR: poner en timer0 timer divisor 1/8 y contador 15625
+ 152:../main.c     **** 				break;
+ 153:../main.c     **** 			case 3:
+ 154:../main.c     **** 				//COMPLETAR: poner en timer0 timer divisor 1/4 y contador 15625
+ 155:../main.c     **** 				break;
+ 156:../main.c     **** 			default:
+ 157:../main.c     **** 				break;
+ 3050              		.loc 1 157 0
+ 3051 0268 0000A0E1 		mov	r0, r0	@ nop
+ 3052              	.L18:
+ 158:../main.c     **** 		}
+ 159:../main.c     **** 		
+ 160:../main.c     **** 		/* Esperar a que la tecla se suelte, consultando el registro de datos */		
+ 161:../main.c     **** 		//while (/*COMPLETAR: true si está pulsada la tecla (leer del registro rPDATG)*/);
+ 162:../main.c     **** 	}
+ 163:../main.c     **** 
+ 164:../main.c     ****     /* Eliminar rebotes de depresión */
+ 165:../main.c     ****     Delay(200);
+ 3053              		.loc 1 165 0
+ 3054 026c C800A0E3 		mov	r0, #200
+ 3055 0270 FEFFFFEB 		bl	Delay
+ 166:../main.c     ****      
+ 167:../main.c     ****     /* Borrar interrupciones pendientes */
+ 168:../main.c     **** 	//COMPLETAR
+ 169:../main.c     **** 	//borrar la interrupción por la línea EINT1 en el registro rI_ISPC
+ 170:../main.c     **** }
+ 3056              		.loc 1 170 0
+ 3057 0274 1CD04BE2 		sub	sp, fp, #28
+ 3058 0278 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 3059 027c 04C09DE4 		ldmfd	sp!, {ip}
+ 3060 0280 04F05EE2 		subs	pc, lr, #4
+ 3061              		.cfi_endproc
+ 3062              	.LFE2:
+ 3064              		.align	2
+ 3065              		.global	setup
+ 3067              	setup:
+ 3068              	.LFB3:
+ 171:../main.c     **** 
+ 172:../main.c     **** int setup(void)
+ 173:../main.c     **** {
+ 3069              		.loc 1 173 0
+ 3070              		.cfi_startproc
+ 3071              		@ Function supports interworking.
+ 3072              		@ args = 0, pretend = 0, frame = 0
+ 3073              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3074 0284 0DC0A0E1 		mov	ip, sp
+ 3075              	.LCFI6:
+ 3076              		.cfi_def_cfa_register 12
+ 3077 0288 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3078 028c 04B04CE2 		sub	fp, ip, #4
+ 3079              		.cfi_offset 14, -8
+ 3080              		.cfi_offset 13, -12
+ 3081              		.cfi_offset 11, -16
+ 3082              	.LCFI7:
+ 3083              		.cfi_def_cfa 11, 4
+ 174:../main.c     **** 	leds_init();
+ 3084              		.loc 1 174 0
+ 3085 0290 FEFFFFEB 		bl	leds_init
+ 175:../main.c     **** 	D8Led_init();
+ 3086              		.loc 1 175 0
+ 3087 0294 FEFFFFEB 		bl	D8Led_init
+ 176:../main.c     **** 	D8Led_segment(RL.position);
+ 3088              		.loc 1 176 0
+ 3089 0298 20319FE5 		ldr	r3, .L28
+ 3090 029c 0C3093E5 		ldr	r3, [r3, #12]
+ 3091 02a0 0300A0E1 		mov	r0, r3
+ 3092 02a4 FEFFFFEB 		bl	D8Led_segment
+ 177:../main.c     **** 
+ 178:../main.c     **** 	/* Port G: configuración para generación de interrupciones externas,
+ 179:../main.c     **** 	 *         botones y teclado
+ 180:../main.c     **** 	 **/
+ 181:../main.c     **** 
+ 182:../main.c     **** 	//COMPLETAR: utilizando el interfaz para el puerto G definido en gpio.h
+ 183:../main.c     **** 	//configurar los pines 1, 6 y 7 del puerto G para poder generar interrupciones
+ 184:../main.c     **** 	//externas por flanco de bajada por ellos y activar las correspondientes
+ 185:../main.c     **** 	//resistencias de pull-up.
+ 186:../main.c     **** 
+ 187:../main.c     **** 	portG_conf(6, EINT);
+ 3093              		.loc 1 187 0
+ 3094 02a8 0600A0E3 		mov	r0, #6
+ 3095 02ac 0310A0E3 		mov	r1, #3
+ 3096 02b0 FEFFFFEB 		bl	portG_conf
+ 188:../main.c     **** 	portG_eint_trig(6, FALLING);
+ 3097              		.loc 1 188 0
+ 3098 02b4 0600A0E3 		mov	r0, #6
+ 3099 02b8 0210A0E3 		mov	r1, #2
+ 3100 02bc FEFFFFEB 		bl	portG_eint_trig
+ 189:../main.c     **** 	portG_conf_pup(6, ENABLE);
+ 3101              		.loc 1 189 0
+ 3102 02c0 0600A0E3 		mov	r0, #6
+ 3103 02c4 0110A0E3 		mov	r1, #1
+ 3104 02c8 FEFFFFEB 		bl	portG_conf_pup
+ 190:../main.c     **** 
+ 191:../main.c     **** 	portG_conf(7, EINT);
+ 3105              		.loc 1 191 0
+ 3106 02cc 0700A0E3 		mov	r0, #7
+ 3107 02d0 0310A0E3 		mov	r1, #3
+ 3108 02d4 FEFFFFEB 		bl	portG_conf
+ 192:../main.c     **** 	portG_eint_trig(7, FALLING);
+ 3109              		.loc 1 192 0
+ 3110 02d8 0700A0E3 		mov	r0, #7
+ 3111 02dc 0210A0E3 		mov	r1, #2
+ 3112 02e0 FEFFFFEB 		bl	portG_eint_trig
+ 193:../main.c     **** 	portG_conf_pup(7, ENABLE);
+ 3113              		.loc 1 193 0
+ 3114 02e4 0700A0E3 		mov	r0, #7
+ 3115 02e8 0110A0E3 		mov	r1, #1
+ 3116 02ec FEFFFFEB 		bl	portG_conf_pup
+ 194:../main.c     **** 
+ 195:../main.c     **** 	/********************************************************************/
+ 196:../main.c     **** 
+ 197:../main.c     **** 	/* Configuración del timer */
+ 198:../main.c     **** 
+ 199:../main.c     **** 	//TIMER0: 2 segundos
+ 200:../main.c     **** 
+ 201:../main.c     **** 	tmr_set_mode(TIMER0, RELOAD);
+ 3117              		.loc 1 201 0
+ 3118 02f0 0000A0E3 		mov	r0, #0
+ 3119 02f4 0110A0E3 		mov	r1, #1
+ 3120 02f8 FEFFFFEB 		bl	tmr_set_mode
+ 202:../main.c     **** 	tmr_set_prescaler(TIMER0, 255);
+ 3121              		.loc 1 202 0
+ 3122 02fc 0000A0E3 		mov	r0, #0
+ 3123 0300 FF10A0E3 		mov	r1, #255
+ 3124 0304 FEFFFFEB 		bl	tmr_set_prescaler
+ 203:../main.c     **** 	tmr_set_divider(TIMER0, D1_8);
+ 3125              		.loc 1 203 0
+ 3126 0308 0000A0E3 		mov	r0, #0
+ 3127 030c 0210A0E3 		mov	r1, #2
+ 3128 0310 FEFFFFEB 		bl	tmr_set_divider
+ 204:../main.c     **** 	tmr_set_count(TIMER0, 62500, 1);
+ 3129              		.loc 1 204 0
+ 3130 0314 0000A0E3 		mov	r0, #0
+ 3131 0318 A4109FE5 		ldr	r1, .L28+4
+ 3132 031c 0120A0E3 		mov	r2, #1
+ 3133 0320 FEFFFFEB 		bl	tmr_set_count
+ 205:../main.c     **** 
+ 206:../main.c     **** 	tmr_update(TIMER0);
+ 3134              		.loc 1 206 0
+ 3135 0324 0000A0E3 		mov	r0, #0
+ 3136 0328 FEFFFFEB 		bl	tmr_update
+ 207:../main.c     **** 
+ 208:../main.c     **** 	//COMPLETAR: tomar el código de la segunda parte
+ 209:../main.c     **** 
+ 210:../main.c     **** 	if (RL.moving)
+ 3137              		.loc 1 210 0
+ 3138 032c 8C309FE5 		ldr	r3, .L28
+ 3139 0330 003093E5 		ldr	r3, [r3, #0]
+ 3140 0334 000053E3 		cmp	r3, #0
+ 3141 0338 0100000A 		beq	.L27
+ 211:../main.c     **** 		tmr_start(TIMER0);
+ 3142              		.loc 1 211 0
+ 3143 033c 0000A0E3 		mov	r0, #0
+ 3144 0340 FEFFFFEB 		bl	tmr_start
+ 3145              	.L27:
+ 212:../main.c     **** 	/***************************/
+ 213:../main.c     **** 
+ 214:../main.c     **** 	// Registramos las ISRs
+ 215:../main.c     **** 	pISR_TIMER0 = (unsigned)timer_ISR;//COMPLETAR: registrar la RTI del timer
+ 3146              		.loc 1 215 0
+ 3147 0344 7C309FE5 		ldr	r3, .L28+8
+ 3148 0348 7C209FE5 		ldr	r2, .L28+12
+ 3149 034c 002083E5 		str	r2, [r3, #0]
+ 216:../main.c     **** 	pISR_EINT4567 = (unsigned)button_ISR; //COMPLETAR: registrar la RTI de los botones
+ 3150              		.loc 1 216 0
+ 3151 0350 78309FE5 		ldr	r3, .L28+16
+ 3152 0354 78209FE5 		ldr	r2, .L28+20
+ 3153 0358 002083E5 		str	r2, [r3, #0]
+ 217:../main.c     **** 	//pISR_EINT1    = //COMPLETAR: registrar la RTI del teclado
+ 218:../main.c     **** 
+ 219:../main.c     **** 	/* Configuración del controlador de interrupciones
+ 220:../main.c     **** 	 * Habilitamos la línea IRQ, en modo vectorizado 
+ 221:../main.c     **** 	 * Configuramos el timer 0 en modo IRQ y habilitamos esta línea
+ 222:../main.c     **** 	 * Configuramos la línea EINT4567 en modo IRQ y la habilitamos
+ 223:../main.c     **** 	 * Configuramos la línea EINT1 en modo IRQ y la habilitamos
+ 224:../main.c     **** 	 */
+ 225:../main.c     **** 
+ 226:../main.c     **** 	ic_init();
+ 3154              		.loc 1 226 0
+ 3155 035c FEFFFFEB 		bl	ic_init
+ 227:../main.c     **** 	//COMPLETAR: utilizando el interfaz definido en intcontroller.h
+ 228:../main.c     **** 	//		habilitar la línea IRQ en modo vectorizado
+ 229:../main.c     **** 	//		deshabilitar la línea FIQ
+ 230:../main.c     **** 	//		configurar la línea INT_TIMER0 en modo IRQ
+ 231:../main.c     **** 	//		configurar la línea INT_EINT4567 en modo IRQ
+ 232:../main.c     **** 	//		configurar la línea INT_EINT1 en modo IRQ
+ 233:../main.c     **** 	//		habilitar la línea INT_TIMER0
+ 234:../main.c     **** 	//		habilitar la línea INT_EINT4567
+ 235:../main.c     **** 	//		habilitar la línea INT_EINT1
+ 236:../main.c     **** 
+ 237:../main.c     **** 	/***************************************************/
+ 238:../main.c     **** 
+ 239:../main.c     **** 	ic_conf_irq(ENABLE, VEC);
+ 3156              		.loc 1 239 0
+ 3157 0360 0100A0E3 		mov	r0, #1
+ 3158 0364 0010A0E3 		mov	r1, #0
+ 3159 0368 FEFFFFEB 		bl	ic_conf_irq
+ 240:../main.c     **** 	ic_conf_fiq(DISABLE);
+ 3160              		.loc 1 240 0
+ 3161 036c 0000A0E3 		mov	r0, #0
+ 3162 0370 FEFFFFEB 		bl	ic_conf_fiq
+ 241:../main.c     **** 	ic_conf_line(INT_TIMER0, IRQ);
+ 3163              		.loc 1 241 0
+ 3164 0374 0D00A0E3 		mov	r0, #13
+ 3165 0378 0010A0E3 		mov	r1, #0
+ 3166 037c FEFFFFEB 		bl	ic_conf_line
+ 242:../main.c     **** 	ic_conf_line(INT_EINT4567, IRQ);
+ 3167              		.loc 1 242 0
+ 3168 0380 1500A0E3 		mov	r0, #21
+ 3169 0384 0010A0E3 		mov	r1, #0
+ 3170 0388 FEFFFFEB 		bl	ic_conf_line
+ 243:../main.c     **** 	ic_enable(INT_TIMER0);
+ 3171              		.loc 1 243 0
+ 3172 038c 0D00A0E3 		mov	r0, #13
+ 3173 0390 FEFFFFEB 		bl	ic_enable
+ 244:../main.c     **** 	ic_enable(INT_EINT4567);
+ 3174              		.loc 1 244 0
+ 3175 0394 1500A0E3 		mov	r0, #21
+ 3176 0398 FEFFFFEB 		bl	ic_enable
+ 245:../main.c     **** 	ic_enable(INT_GLOBAL);
+ 3177              		.loc 1 245 0
+ 3178 039c 1A00A0E3 		mov	r0, #26
+ 3179 03a0 FEFFFFEB 		bl	ic_enable
+ 246:../main.c     **** 
+ 247:../main.c     **** 	Delay(0);
+ 3180              		.loc 1 247 0
+ 3181 03a4 0000A0E3 		mov	r0, #0
+ 3182 03a8 FEFFFFEB 		bl	Delay
+ 248:../main.c     **** 	return 0;
+ 3183              		.loc 1 248 0
+ 3184 03ac 0030A0E3 		mov	r3, #0
+ 249:../main.c     **** }
+ 3185              		.loc 1 249 0
+ 3186 03b0 0300A0E1 		mov	r0, r3
+ 3187 03b4 0CD04BE2 		sub	sp, fp, #12
+ 3188 03b8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3189 03bc 1EFF2FE1 		bx	lr
+ 3190              	.L29:
+ 3191              		.align	2
+ 3192              	.L28:
+ 3193 03c0 00000000 		.word	RL
+ 3194 03c4 24F40000 		.word	62500
+ 3195 03c8 54FF7F0C 		.word	209715028
+ 3196 03cc 00000000 		.word	timer_ISR
+ 3197 03d0 74FF7F0C 		.word	209715060
+ 3198 03d4 00000000 		.word	button_ISR
+ 3199              		.cfi_endproc
+ 3200              	.LFE3:
+ 3202              		.align	2
+ 3203              		.global	loop
+ 3205              	loop:
+ 3206              	.LFB4:
+ 250:../main.c     **** 
+ 251:../main.c     **** int loop(void)
+ 252:../main.c     **** {
+ 3207              		.loc 1 252 0
+ 3208              		.cfi_startproc
+ 3209              		@ Function supports interworking.
+ 3210              		@ args = 0, pretend = 0, frame = 0
+ 3211              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3212 03d8 0DC0A0E1 		mov	ip, sp
+ 3213              	.LCFI8:
+ 3214              		.cfi_def_cfa_register 12
+ 3215 03dc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3216 03e0 04B04CE2 		sub	fp, ip, #4
+ 3217              		.cfi_offset 14, -8
+ 3218              		.cfi_offset 13, -12
+ 3219              		.cfi_offset 11, -16
+ 3220              	.LCFI9:
+ 3221              		.cfi_def_cfa 11, 4
+ 253:../main.c     **** 	return 0;
+ 3222              		.loc 1 253 0
+ 3223 03e4 0030A0E3 		mov	r3, #0
+ 254:../main.c     **** }
+ 3224              		.loc 1 254 0
+ 3225 03e8 0300A0E1 		mov	r0, r3
+ 3226 03ec 0CD04BE2 		sub	sp, fp, #12
+ 3227 03f0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3228 03f4 1EFF2FE1 		bx	lr
+ 3229              		.cfi_endproc
+ 3230              	.LFE4:
+ 3232              		.align	2
+ 3233              		.global	main
+ 3235              	main:
+ 3236              	.LFB5:
+ 255:../main.c     **** 
+ 256:../main.c     **** 
+ 257:../main.c     **** int main(void)
+ 258:../main.c     **** {
+ 3237              		.loc 1 258 0
+ 3238              		.cfi_startproc
+ 3239              		@ Function supports interworking.
+ 3240              		@ args = 0, pretend = 0, frame = 0
+ 3241              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3242 03f8 0DC0A0E1 		mov	ip, sp
+ 3243              	.LCFI10:
+ 3244              		.cfi_def_cfa_register 12
+ 3245 03fc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3246 0400 04B04CE2 		sub	fp, ip, #4
+ 3247              		.cfi_offset 14, -8
+ 3248              		.cfi_offset 13, -12
+ 3249              		.cfi_offset 11, -16
+ 3250              	.LCFI11:
+ 3251              		.cfi_def_cfa 11, 4
+ 259:../main.c     **** 	setup();
+ 3252              		.loc 1 259 0
+ 3253 0404 FEFFFFEB 		bl	setup
+ 3254              	.L32:
+ 260:../main.c     **** 
+ 261:../main.c     **** 	while (1) {
+ 262:../main.c     **** 		loop();
+ 3255              		.loc 1 262 0 discriminator 1
+ 3256 0408 FEFFFFEB 		bl	loop
+ 263:../main.c     **** 	}
+ 3257              		.loc 1 263 0 discriminator 1
+ 3258 040c FDFFFFEA 		b	.L32
+ 3259              		.cfi_endproc
+ 3260              	.LFE5:
+ 3262              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2760   .data:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2763   .data:00000000 RL
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2769   .bss:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2770   .bss:00000000 contador_pulsaciones
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2773   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2776   .text:00000000 timer_ISR
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2852   .text:000000ac $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2856   .text:000000b0 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2859   .text:000000b0 button_ISR
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:2997   .text:0000020c $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3003   .text:00000218 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3006   .text:00000218 keyboard_ISR
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3045   .text:00000258 $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3051   .text:00000268 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3067   .text:00000284 setup
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3193   .text:000003c0 $d
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3202   .text:000003d8 $a
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3205   .text:000003d8 loop
+C:\Users\Pedro\AppData\Local\Temp\cccqGdQa.s:3235   .text:000003f8 main
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+D8Led_segment
+ic_cleanflag
+led1_off
+led2_off
+led2_switch
+led1_switch
+tmr_stop
+tmr_start
+Delay
+kb_scan
+leds_init
+D8Led_init
+portG_conf
+portG_eint_trig
+portG_conf_pup
+tmr_set_mode
+tmr_set_prescaler
+tmr_set_divider
+tmr_set_count
+tmr_update
+ic_init
+ic_conf_irq
+ic_conf_fiq
+ic_conf_line
+ic_enable
