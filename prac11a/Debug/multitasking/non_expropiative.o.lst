@@ -1,0 +1,1171 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"non_expropiative.c"
+  21              	.Ltext0:
+  22              		.file 1 "../multitasking/non_expropiative.c"
+ 1926              		.align	2
+ 1927              	.LC0:
+ 1928 0000 0A0A2045 		.ascii	"\012\012 Ejecutando kernel de planificaci\363n no e"
+ 1928      6A656375 
+ 1928      74616E64 
+ 1928      6F206B65 
+ 1928      726E656C 
+ 1929 002a 7870726F 		.ascii	"xpropiativa\012\000"
+ 1929      70696174 
+ 1929      6976610A 
+ 1929      00
+ 1930 0037 00       		.align	2
+ 1931              	.LC1:
+ 1932 0038 202D2D2D 		.ascii	" --------------------------------------------------"
+ 1932      2D2D2D2D 
+ 1932      2D2D2D2D 
+ 1932      2D2D2D2D 
+ 1932      2D2D2D2D 
+ 1933 006b 0A0A00   		.ascii	"\012\012\000"
+ 1934              		.text
+ 1935              		.align	2
+ 1936              		.global	non_expropiative_kernel
+ 1938              	non_expropiative_kernel:
+ 1939              	.LFB0:
+   1:../multitasking/non_expropiative.c **** /*-------------------------------------------------------------------
+   2:../multitasking/non_expropiative.c **** **
+   3:../multitasking/non_expropiative.c **** **  Fichero:
+   4:../multitasking/non_expropiative.c **** **    lab13.c  12/1/2021
+   5:../multitasking/non_expropiative.c **** **
+   6:../multitasking/non_expropiative.c **** **    (c) J.M. Mendias
+   7:../multitasking/non_expropiative.c **** **    Programación de Sistemas y Dispositivos
+   8:../multitasking/non_expropiative.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../multitasking/non_expropiative.c **** **
+  10:../multitasking/non_expropiative.c **** **  Propósito:
+  11:../multitasking/non_expropiative.c **** **    Ejemplo de una aplicación bajo un kernel de planificación
+  12:../multitasking/non_expropiative.c **** **    no expropiativa de tareas cooperativas multiestado
+  13:../multitasking/non_expropiative.c **** **
+  14:../multitasking/non_expropiative.c **** **  Notas de diseño:
+  15:../multitasking/non_expropiative.c **** **
+  16:../multitasking/non_expropiative.c **** **-----------------------------------------------------------------*/
+  17:../multitasking/non_expropiative.c **** 
+  18:../multitasking/non_expropiative.c **** #include "kernelcoop.h"
+  19:../multitasking/non_expropiative.c **** 
+  20:../multitasking/non_expropiative.c **** #include "../44b.h"
+  21:../multitasking/non_expropiative.c **** #include "../common_types.h"
+  22:../multitasking/non_expropiative.c **** #include "../leds.h"
+  23:../multitasking/non_expropiative.c **** #include "../D8Led.h"
+  24:../multitasking/non_expropiative.c **** #include "../uart.h"
+  25:../multitasking/non_expropiative.c **** #include "../button.h"
+  26:../multitasking/non_expropiative.c **** #include "../keyboard.h"
+  27:../multitasking/non_expropiative.c **** #include "../intcontroller.h"
+  28:../multitasking/non_expropiative.c **** #include "../timer.h"
+  29:../multitasking/non_expropiative.c **** #include "../utils.h"
+  30:../multitasking/non_expropiative.c **** #include "../rtc.h"
+  31:../multitasking/non_expropiative.c **** #include "non_expropiative.h"
+  32:../multitasking/non_expropiative.c **** 
+  33:../multitasking/non_expropiative.c **** /* Declaración de recursos */
+  34:../multitasking/non_expropiative.c **** 
+  35:../multitasking/non_expropiative.c **** uint8 scancode;
+  36:../multitasking/non_expropiative.c **** boolean flagTask5;
+  37:../multitasking/non_expropiative.c **** boolean flagTask6;
+  38:../multitasking/non_expropiative.c **** 
+  39:../multitasking/non_expropiative.c **** volatile boolean flagPb;
+  40:../multitasking/non_expropiative.c **** 
+  41:../multitasking/non_expropiative.c **** /* Declaración de tareas */
+  42:../multitasking/non_expropiative.c **** 
+  43:../multitasking/non_expropiative.c **** void Task1( void );
+  44:../multitasking/non_expropiative.c **** void Task2( void );
+  45:../multitasking/non_expropiative.c **** void Task3( void );
+  46:../multitasking/non_expropiative.c **** void Task4( void );
+  47:../multitasking/non_expropiative.c **** void Task5( void );
+  48:../multitasking/non_expropiative.c **** void Task6( void );
+  49:../multitasking/non_expropiative.c **** void Task7( void );
+  50:../multitasking/non_expropiative.c **** 
+  51:../multitasking/non_expropiative.c **** /* Declaración de RTI */
+  52:../multitasking/non_expropiative.c **** 
+  53:../multitasking/non_expropiative.c **** void isr_pb( void ) __attribute__ ((interrupt ("IRQ")));
+  54:../multitasking/non_expropiative.c **** 
+  55:../multitasking/non_expropiative.c **** /*******************************************************************/
+  56:../multitasking/non_expropiative.c **** 
+  57:../multitasking/non_expropiative.c **** void non_expropiative_kernel( void )
+  58:../multitasking/non_expropiative.c **** {
+ 1940              		.loc 1 58 0
+ 1941              		.cfi_startproc
+ 1942              		@ Function supports interworking.
+ 1943              		@ args = 0, pretend = 0, frame = 0
+ 1944              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1945 0000 0DC0A0E1 		mov	ip, sp
+ 1946              	.LCFI0:
+ 1947              		.cfi_def_cfa_register 12
+ 1948 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1949 0008 04B04CE2 		sub	fp, ip, #4
+ 1950              		.cfi_offset 14, -8
+ 1951              		.cfi_offset 13, -12
+ 1952              		.cfi_offset 11, -16
+ 1953              	.LCFI1:
+ 1954              		.cfi_def_cfa 11, 4
+  59:../multitasking/non_expropiative.c **** 	/*
+  60:../multitasking/non_expropiative.c ****     timers_init();
+  61:../multitasking/non_expropiative.c ****     uart0_init();
+  62:../multitasking/non_expropiative.c ****     leds_init();
+  63:../multitasking/non_expropiative.c ****     segs_init();
+  64:../multitasking/non_expropiative.c ****     rtc_init();
+  65:../multitasking/non_expropiative.c ****     pbs_init();
+  66:../multitasking/non_expropiative.c ****     keypad_init();*/
+  67:../multitasking/non_expropiative.c **** 
+  68:../multitasking/non_expropiative.c ****     uart0_puts( "\n\n Ejecutando kernel de planificación no expropiativa\n" );
+ 1955              		.loc 1 68 0
+ 1956 000c FC009FE5 		ldr	r0, .L3
+ 1957 0010 FEFFFFEB 		bl	uart0_puts
+  69:../multitasking/non_expropiative.c ****     uart0_puts( " --------------------------------------------------\n\n" ) ;
+ 1958              		.loc 1 69 0
+ 1959 0014 F8009FE5 		ldr	r0, .L3+4
+ 1960 0018 FEFFFFEB 		bl	uart0_puts
+  70:../multitasking/non_expropiative.c **** 
+  71:../multitasking/non_expropiative.c ****     flagTask5  = FALSE;               /* Inicializa flags */
+ 1961              		.loc 1 71 0
+ 1962 001c F4309FE5 		ldr	r3, .L3+8
+ 1963 0020 0020A0E3 		mov	r2, #0
+ 1964 0024 0020C3E5 		strb	r2, [r3, #0]
+  72:../multitasking/non_expropiative.c ****     flagTask6  = FALSE;
+ 1965              		.loc 1 72 0
+ 1966 0028 EC309FE5 		ldr	r3, .L3+12
+ 1967 002c 0020A0E3 		mov	r2, #0
+ 1968 0030 0020C3E5 		strb	r2, [r3, #0]
+  73:../multitasking/non_expropiative.c ****     flagPb     = FALSE;
+ 1969              		.loc 1 73 0
+ 1970 0034 E4309FE5 		ldr	r3, .L3+16
+ 1971 0038 0020A0E3 		mov	r2, #0
+ 1972 003c 0020C3E5 		strb	r2, [r3, #0]
+  74:../multitasking/non_expropiative.c **** 
+  75:../multitasking/non_expropiative.c ****     scheduler_init();                 /* Inicializa el kernel */
+ 1973              		.loc 1 75 0
+ 1974 0040 FEFFFFEB 		bl	scheduler_init
+  76:../multitasking/non_expropiative.c **** 
+  77:../multitasking/non_expropiative.c ****     create_task( Task2, 5 );          /* Crea las tareas de la aplicación... */
+ 1975              		.loc 1 77 0
+ 1976 0044 D8009FE5 		ldr	r0, .L3+20
+ 1977 0048 0510A0E3 		mov	r1, #5
+ 1978 004c FEFFFFEB 		bl	create_task
+  78:../multitasking/non_expropiative.c ****     create_task( Task7, 5 );          /* ... el kernel asigna la prioridad según orden de creación:
+ 1979              		.loc 1 78 0
+ 1980 0050 D0009FE5 		ldr	r0, .L3+24
+ 1981 0054 0510A0E3 		mov	r1, #5
+ 1982 0058 FEFFFFEB 		bl	create_task
+  79:../multitasking/non_expropiative.c ****     create_task( Task5, 10 );         /* ... las tareas más frecuentes tienen mayor prioridad (crit
+ 1983              		.loc 1 79 0
+ 1984 005c C8009FE5 		ldr	r0, .L3+28
+ 1985 0060 0A10A0E3 		mov	r1, #10
+ 1986 0064 FEFFFFEB 		bl	create_task
+  80:../multitasking/non_expropiative.c ****     create_task( Task6, 10 );
+ 1987              		.loc 1 80 0
+ 1988 0068 C0009FE5 		ldr	r0, .L3+32
+ 1989 006c 0A10A0E3 		mov	r1, #10
+ 1990 0070 FEFFFFEB 		bl	create_task
+  81:../multitasking/non_expropiative.c ****     create_task( Task1, 50 );
+ 1991              		.loc 1 81 0
+ 1992 0074 B8009FE5 		ldr	r0, .L3+36
+ 1993 0078 3210A0E3 		mov	r1, #50
+ 1994 007c FEFFFFEB 		bl	create_task
+  82:../multitasking/non_expropiative.c ****     create_task( Task3, 100 );
+ 1995              		.loc 1 82 0
+ 1996 0080 B0009FE5 		ldr	r0, .L3+40
+ 1997 0084 6410A0E3 		mov	r1, #100
+ 1998 0088 FEFFFFEB 		bl	create_task
+  83:../multitasking/non_expropiative.c ****     create_task( Task4, 1000 );
+ 1999              		.loc 1 83 0
+ 2000 008c A8009FE5 		ldr	r0, .L3+44
+ 2001 0090 FA1FA0E3 		mov	r1, #1000
+ 2002 0094 FEFFFFEB 		bl	create_task
+  84:../multitasking/non_expropiative.c **** 
+  85:../multitasking/non_expropiative.c ****     pISR_EINT4567 = (unsigned) isr_pb;
+ 2003              		.loc 1 85 0
+ 2004 0098 A0309FE5 		ldr	r3, .L3+48
+ 2005 009c A0209FE5 		ldr	r2, .L3+52
+ 2006 00a0 002083E5 		str	r2, [r3, #0]
+  86:../multitasking/non_expropiative.c ****    	ic_enable(INT_EINT4567);
+ 2007              		.loc 1 86 0
+ 2008 00a4 1500A0E3 		mov	r0, #21
+ 2009 00a8 FEFFFFEB 		bl	ic_enable
+  87:../multitasking/non_expropiative.c **** 
+  88:../multitasking/non_expropiative.c ****     //10ms
+  89:../multitasking/non_expropiative.c ****     tmr_set_mode(TIMER0, RELOAD);
+ 2010              		.loc 1 89 0
+ 2011 00ac 0000A0E3 		mov	r0, #0
+ 2012 00b0 0110A0E3 		mov	r1, #1
+ 2013 00b4 FEFFFFEB 		bl	tmr_set_mode
+  90:../multitasking/non_expropiative.c **** 	tmr_set_prescaler(TIMER0, 1);
+ 2014              		.loc 1 90 0
+ 2015 00b8 0000A0E3 		mov	r0, #0
+ 2016 00bc 0110A0E3 		mov	r1, #1
+ 2017 00c0 FEFFFFEB 		bl	tmr_set_prescaler
+  91:../multitasking/non_expropiative.c **** 	tmr_set_divider(TIMER0, D1_8);
+ 2018              		.loc 1 91 0
+ 2019 00c4 0000A0E3 		mov	r0, #0
+ 2020 00c8 0210A0E3 		mov	r1, #2
+ 2021 00cc FEFFFFEB 		bl	tmr_set_divider
+  92:../multitasking/non_expropiative.c **** 	tmr_set_count(TIMER0, 40000, 1);
+ 2022              		.loc 1 92 0
+ 2023 00d0 0000A0E3 		mov	r0, #0
+ 2024 00d4 6C109FE5 		ldr	r1, .L3+56
+ 2025 00d8 0120A0E3 		mov	r2, #1
+ 2026 00dc FEFFFFEB 		bl	tmr_set_count
+  93:../multitasking/non_expropiative.c **** 
+  94:../multitasking/non_expropiative.c ****    	tmr_update(TIMER0);
+ 2027              		.loc 1 94 0
+ 2028 00e0 0000A0E3 		mov	r0, #0
+ 2029 00e4 FEFFFFEB 		bl	tmr_update
+  95:../multitasking/non_expropiative.c **** 
+  96:../multitasking/non_expropiative.c ****    	pISR_TIMER0 =(unsigned)scheduler;
+ 2030              		.loc 1 96 0
+ 2031 00e8 5C309FE5 		ldr	r3, .L3+60
+ 2032 00ec 5C209FE5 		ldr	r2, .L3+64
+ 2033 00f0 002083E5 		str	r2, [r3, #0]
+  97:../multitasking/non_expropiative.c ****    	tmr_start(TIMER0);
+ 2034              		.loc 1 97 0
+ 2035 00f4 0000A0E3 		mov	r0, #0
+ 2036 00f8 FEFFFFEB 		bl	tmr_start
+  98:../multitasking/non_expropiative.c **** 
+  99:../multitasking/non_expropiative.c ****    	ic_enable(INT_TIMER0);
+ 2037              		.loc 1 99 0
+ 2038 00fc 0D00A0E3 		mov	r0, #13
+ 2039 0100 FEFFFFEB 		bl	ic_enable
+ 2040              	.L2:
+ 100:../multitasking/non_expropiative.c **** 
+ 101:../multitasking/non_expropiative.c ****     while( 1 )
+ 102:../multitasking/non_expropiative.c ****     {
+ 103:../multitasking/non_expropiative.c ****         sleep();                /* Entra en estado IDLE, sale por interrupción */
+ 2041              		.loc 1 103 0 discriminator 1
+ 2042 0104 FEFFFFEB 		bl	sleep
+ 104:../multitasking/non_expropiative.c ****         dispacher();            /* Las tareas preparadas se ejecutan en esta hebra (background) en 
+ 2043              		.loc 1 104 0 discriminator 1
+ 2044 0108 FEFFFFEB 		bl	dispacher
+ 105:../multitasking/non_expropiative.c ****     }
+ 2045              		.loc 1 105 0 discriminator 1
+ 2046 010c FCFFFFEA 		b	.L2
+ 2047              	.L4:
+ 2048              		.align	2
+ 2049              	.L3:
+ 2050 0110 00000000 		.word	.LC0
+ 2051 0114 38000000 		.word	.LC1
+ 2052 0118 00000000 		.word	flagTask5
+ 2053 011c 00000000 		.word	flagTask6
+ 2054 0120 00000000 		.word	flagPb
+ 2055 0124 00000000 		.word	Task2
+ 2056 0128 00000000 		.word	Task7
+ 2057 012c 00000000 		.word	Task5
+ 2058 0130 00000000 		.word	Task6
+ 2059 0134 00000000 		.word	Task1
+ 2060 0138 00000000 		.word	Task3
+ 2061 013c 00000000 		.word	Task4
+ 2062 0140 74FF7F0C 		.word	209715060
+ 2063 0144 00000000 		.word	isr_pb
+ 2064 0148 409C0000 		.word	40000
+ 2065 014c 54FF7F0C 		.word	209715028
+ 2066 0150 00000000 		.word	scheduler
+ 2067              		.cfi_endproc
+ 2068              	.LFE0:
+ 2070              		.section	.rodata
+ 2071 006e 0000     		.align	2
+ 2072              	.LC2:
+ 2073 0070 20546173 		.ascii	" Task 1: iniciada.\012\000"
+ 2073      6B20313A 
+ 2073      20696E69 
+ 2073      63696164 
+ 2073      612E0A00 
+ 2074              		.text
+ 2075              		.align	2
+ 2076              		.global	Task1
+ 2078              	Task1:
+ 2079              	.LFB1:
+ 106:../multitasking/non_expropiative.c **** 
+ 107:../multitasking/non_expropiative.c **** }
+ 108:../multitasking/non_expropiative.c **** 
+ 109:../multitasking/non_expropiative.c **** /*******************************************************************/
+ 110:../multitasking/non_expropiative.c **** 
+ 111:../multitasking/non_expropiative.c **** void Task1( void )  /* Cada 0,5 segundos (50 ticks) alterna el led que se enciende */
+ 112:../multitasking/non_expropiative.c **** {
+ 2080              		.loc 1 112 0
+ 2081              		.cfi_startproc
+ 2082              		@ Function supports interworking.
+ 2083              		@ args = 0, pretend = 0, frame = 0
+ 2084              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2085 0154 0DC0A0E1 		mov	ip, sp
+ 2086              	.LCFI2:
+ 2087              		.cfi_def_cfa_register 12
+ 2088 0158 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2089 015c 04B04CE2 		sub	fp, ip, #4
+ 2090              		.cfi_offset 14, -8
+ 2091              		.cfi_offset 13, -12
+ 2092              		.cfi_offset 11, -16
+ 2093              	.LCFI3:
+ 2094              		.cfi_def_cfa 11, 4
+ 113:../multitasking/non_expropiative.c ****     static boolean init = TRUE;
+ 114:../multitasking/non_expropiative.c **** 
+ 115:../multitasking/non_expropiative.c ****     if( init )
+ 2095              		.loc 1 115 0
+ 2096 0160 3C309FE5 		ldr	r3, .L8
+ 2097 0164 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2098 0168 000053E3 		cmp	r3, #0
+ 2099 016c 0700000A 		beq	.L6
+ 116:../multitasking/non_expropiative.c ****     {
+ 117:../multitasking/non_expropiative.c ****         init = FALSE;
+ 2100              		.loc 1 117 0
+ 2101 0170 2C309FE5 		ldr	r3, .L8
+ 2102 0174 0020A0E3 		mov	r2, #0
+ 2103 0178 0020C3E5 		strb	r2, [r3, #0]
+ 118:../multitasking/non_expropiative.c ****         uart0_puts( " Task 1: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2104              		.loc 1 118 0
+ 2105 017c 24009FE5 		ldr	r0, .L8+4
+ 2106 0180 FEFFFFEB 		bl	uart0_puts
+ 119:../multitasking/non_expropiative.c ****         led1_on();
+ 2107              		.loc 1 119 0
+ 2108 0184 FEFFFFEB 		bl	led1_on
+ 120:../multitasking/non_expropiative.c ****         led2_off();
+ 2109              		.loc 1 120 0
+ 2110 0188 FEFFFFEB 		bl	led2_off
+ 2111 018c 010000EA 		b	.L5
+ 2112              	.L6:
+ 121:../multitasking/non_expropiative.c ****     }
+ 122:../multitasking/non_expropiative.c ****     else
+ 123:../multitasking/non_expropiative.c ****     {
+ 124:../multitasking/non_expropiative.c ****         led1_switch();
+ 2113              		.loc 1 124 0
+ 2114 0190 FEFFFFEB 		bl	led1_switch
+ 125:../multitasking/non_expropiative.c ****         led2_switch();
+ 2115              		.loc 1 125 0
+ 2116 0194 FEFFFFEB 		bl	led2_switch
+ 2117              	.L5:
+ 126:../multitasking/non_expropiative.c ****     }
+ 127:../multitasking/non_expropiative.c **** }
+ 2118              		.loc 1 127 0
+ 2119 0198 0CD04BE2 		sub	sp, fp, #12
+ 2120 019c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2121 01a0 1EFF2FE1 		bx	lr
+ 2122              	.L9:
+ 2123              		.align	2
+ 2124              	.L8:
+ 2125 01a4 06000000 		.word	init.4157
+ 2126 01a8 70000000 		.word	.LC2
+ 2127              		.cfi_endproc
+ 2128              	.LFE1:
+ 2130              		.section	.rodata
+ 2131              		.align	2
+ 2132              	.LC3:
+ 2133 0084 20546173 		.ascii	" Task 2: iniciada.\012\000"
+ 2133      6B20323A 
+ 2133      20696E69 
+ 2133      63696164 
+ 2133      612E0A00 
+ 2134              		.text
+ 2135              		.align	2
+ 2136              		.global	Task2
+ 2138              	Task2:
+ 2139              	.LFB2:
+ 128:../multitasking/non_expropiative.c **** 
+ 129:../multitasking/non_expropiative.c **** void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scancode a otras tareas *
+ 130:../multitasking/non_expropiative.c **** {
+ 2140              		.loc 1 130 0
+ 2141              		.cfi_startproc
+ 2142              		@ Function supports interworking.
+ 2143              		@ args = 0, pretend = 0, frame = 0
+ 2144              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2145 01ac 0DC0A0E1 		mov	ip, sp
+ 2146              	.LCFI4:
+ 2147              		.cfi_def_cfa_register 12
+ 2148 01b0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2149 01b4 04B04CE2 		sub	fp, ip, #4
+ 2150              		.cfi_offset 14, -8
+ 2151              		.cfi_offset 13, -12
+ 2152              		.cfi_offset 11, -16
+ 2153              	.LCFI5:
+ 2154              		.cfi_def_cfa 11, 4
+ 131:../multitasking/non_expropiative.c ****     static boolean init = TRUE;
+ 132:../multitasking/non_expropiative.c ****     static enum { wait_keydown, scan, wait_keyup } state;
+ 133:../multitasking/non_expropiative.c **** 
+ 134:../multitasking/non_expropiative.c ****     if( init )
+ 2155              		.loc 1 134 0
+ 2156 01b8 E0309FE5 		ldr	r3, .L20
+ 2157 01bc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2158 01c0 000053E3 		cmp	r3, #0
+ 2159 01c4 0800000A 		beq	.L11
+ 135:../multitasking/non_expropiative.c ****     {
+ 136:../multitasking/non_expropiative.c ****         init  = FALSE;
+ 2160              		.loc 1 136 0
+ 2161 01c8 D0309FE5 		ldr	r3, .L20
+ 2162 01cc 0020A0E3 		mov	r2, #0
+ 2163 01d0 0020C3E5 		strb	r2, [r3, #0]
+ 137:../multitasking/non_expropiative.c ****         uart0_puts( " Task 2: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2164              		.loc 1 137 0
+ 2165 01d4 C8009FE5 		ldr	r0, .L20+4
+ 2166 01d8 FEFFFFEB 		bl	uart0_puts
+ 138:../multitasking/non_expropiative.c ****         state = wait_keydown;
+ 2167              		.loc 1 138 0
+ 2168 01dc C4309FE5 		ldr	r3, .L20+8
+ 2169 01e0 0020A0E3 		mov	r2, #0
+ 2170 01e4 0020C3E5 		strb	r2, [r3, #0]
+ 2171 01e8 290000EA 		b	.L10
+ 2172              	.L11:
+ 139:../multitasking/non_expropiative.c ****     }
+ 140:../multitasking/non_expropiative.c ****     else switch( state )
+ 2173              		.loc 1 140 0
+ 2174 01ec B4309FE5 		ldr	r3, .L20+8
+ 2175 01f0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2176 01f4 010053E3 		cmp	r3, #1
+ 2177 01f8 0B00000A 		beq	.L14
+ 2178 01fc 020053E3 		cmp	r3, #2
+ 2179 0200 1800000A 		beq	.L15
+ 2180 0204 000053E3 		cmp	r3, #0
+ 2181 0208 2100001A 		bne	.L10
+ 2182              	.L13:
+ 141:../multitasking/non_expropiative.c ****     {
+ 142:../multitasking/non_expropiative.c ****         case wait_keydown:
+ 143:../multitasking/non_expropiative.c ****             if( kb_scan() >= 0 )
+ 2183              		.loc 1 143 0
+ 2184 020c FEFFFFEB 		bl	kb_scan
+ 2185 0210 0030A0E1 		mov	r3, r0
+ 2186 0214 000053E3 		cmp	r3, #0
+ 2187 0218 1A0000BA 		blt	.L18
+ 144:../multitasking/non_expropiative.c ****                 state = scan;
+ 2188              		.loc 1 144 0
+ 2189 021c 84309FE5 		ldr	r3, .L20+8
+ 2190 0220 0120A0E3 		mov	r2, #1
+ 2191 0224 0020C3E5 		strb	r2, [r3, #0]
+ 145:../multitasking/non_expropiative.c ****             break;
+ 2192              		.loc 1 145 0
+ 2193 0228 190000EA 		b	.L10
+ 2194              	.L14:
+ 146:../multitasking/non_expropiative.c ****         case scan:
+ 147:../multitasking/non_expropiative.c ****             scancode = kb_scan();
+ 2195              		.loc 1 147 0
+ 2196 022c FEFFFFEB 		bl	kb_scan
+ 2197 0230 0030A0E1 		mov	r3, r0
+ 2198 0234 FF2003E2 		and	r2, r3, #255
+ 2199 0238 6C309FE5 		ldr	r3, .L20+12
+ 2200 023c 0020C3E5 		strb	r2, [r3, #0]
+ 148:../multitasking/non_expropiative.c ****             if( scancode >= 0 )
+ 149:../multitasking/non_expropiative.c ****             {
+ 150:../multitasking/non_expropiative.c ****                 flagTask5 = TRUE;
+ 2201              		.loc 1 150 0
+ 2202 0240 68309FE5 		ldr	r3, .L20+16
+ 2203 0244 0120A0E3 		mov	r2, #1
+ 2204 0248 0020C3E5 		strb	r2, [r3, #0]
+ 151:../multitasking/non_expropiative.c ****                 flagTask6 = TRUE;
+ 2205              		.loc 1 151 0
+ 2206 024c 60309FE5 		ldr	r3, .L20+20
+ 2207 0250 0120A0E3 		mov	r2, #1
+ 2208 0254 0020C3E5 		strb	r2, [r3, #0]
+ 152:../multitasking/non_expropiative.c ****             }
+ 153:../multitasking/non_expropiative.c ****             state = wait_keyup;
+ 2209              		.loc 1 153 0
+ 2210 0258 48309FE5 		ldr	r3, .L20+8
+ 2211 025c 0220A0E3 		mov	r2, #2
+ 2212 0260 0020C3E5 		strb	r2, [r3, #0]
+ 154:../multitasking/non_expropiative.c ****             break;
+ 2213              		.loc 1 154 0
+ 2214 0264 0A0000EA 		b	.L10
+ 2215              	.L15:
+ 155:../multitasking/non_expropiative.c ****         case wait_keyup:
+ 156:../multitasking/non_expropiative.c ****             if( kb_scan() < 0 )
+ 2216              		.loc 1 156 0
+ 2217 0268 FEFFFFEB 		bl	kb_scan
+ 2218 026c 0030A0E1 		mov	r3, r0
+ 2219 0270 000053E3 		cmp	r3, #0
+ 2220 0274 050000AA 		bge	.L19
+ 157:../multitasking/non_expropiative.c ****                 state = wait_keydown;
+ 2221              		.loc 1 157 0
+ 2222 0278 28309FE5 		ldr	r3, .L20+8
+ 2223 027c 0020A0E3 		mov	r2, #0
+ 2224 0280 0020C3E5 		strb	r2, [r3, #0]
+ 158:../multitasking/non_expropiative.c ****             break;
+ 2225              		.loc 1 158 0
+ 2226 0284 020000EA 		b	.L10
+ 2227              	.L18:
+ 145:../multitasking/non_expropiative.c ****             break;
+ 2228              		.loc 1 145 0
+ 2229 0288 0000A0E1 		mov	r0, r0	@ nop
+ 2230 028c 000000EA 		b	.L10
+ 2231              	.L19:
+ 2232              		.loc 1 158 0
+ 2233 0290 0000A0E1 		mov	r0, r0	@ nop
+ 2234              	.L10:
+ 159:../multitasking/non_expropiative.c ****     }
+ 160:../multitasking/non_expropiative.c **** }
+ 2235              		.loc 1 160 0
+ 2236 0294 0CD04BE2 		sub	sp, fp, #12
+ 2237 0298 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2238 029c 1EFF2FE1 		bx	lr
+ 2239              	.L21:
+ 2240              		.align	2
+ 2241              	.L20:
+ 2242 02a0 05000000 		.word	init.4161
+ 2243 02a4 84000000 		.word	.LC3
+ 2244 02a8 04000000 		.word	state.4166
+ 2245 02ac 00000000 		.word	scancode
+ 2246 02b0 00000000 		.word	flagTask5
+ 2247 02b4 00000000 		.word	flagTask6
+ 2248              		.cfi_endproc
+ 2249              	.LFE2:
+ 2251              		.section	.rodata
+ 2252              		.align	2
+ 2253              	.LC4:
+ 2254 0098 20546173 		.ascii	" Task 3: iniciada.\012\000"
+ 2254      6B20333A 
+ 2254      20696E69 
+ 2254      63696164 
+ 2254      612E0A00 
+ 2255              		.align	2
+ 2256              	.LC5:
+ 2257 00ac 20202854 		.ascii	"  (Task 3) Hora: \000"
+ 2257      61736B20 
+ 2257      33292048 
+ 2257      6F72613A 
+ 2257      2000
+ 2258 00be 0000     		.align	2
+ 2259              	.LC6:
+ 2260 00c0 0A00     		.ascii	"\012\000"
+ 2261              		.text
+ 2262              		.align	2
+ 2263              		.global	Task3
+ 2265              	Task3:
+ 2266              	.LFB3:
+ 161:../multitasking/non_expropiative.c **** 
+ 162:../multitasking/non_expropiative.c **** void Task3( void  )  /* Cada segundo (100 ticks) muestra por la UART0 la hora del RTC */
+ 163:../multitasking/non_expropiative.c **** {
+ 2267              		.loc 1 163 0
+ 2268              		.cfi_startproc
+ 2269              		@ Function supports interworking.
+ 2270              		@ args = 0, pretend = 0, frame = 8
+ 2271              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2272 02b8 0DC0A0E1 		mov	ip, sp
+ 2273              	.LCFI6:
+ 2274              		.cfi_def_cfa_register 12
+ 2275 02bc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2276 02c0 04B04CE2 		sub	fp, ip, #4
+ 2277              		.cfi_offset 14, -8
+ 2278              		.cfi_offset 13, -12
+ 2279              		.cfi_offset 11, -16
+ 2280              	.LCFI7:
+ 2281              		.cfi_def_cfa 11, 4
+ 2282 02c4 08D04DE2 		sub	sp, sp, #8
+ 164:../multitasking/non_expropiative.c ****     static boolean init = TRUE;
+ 165:../multitasking/non_expropiative.c ****     rtc_time_t rtc_time;
+ 166:../multitasking/non_expropiative.c **** 
+ 167:../multitasking/non_expropiative.c ****     if( init )
+ 2283              		.loc 1 167 0
+ 2284 02c8 7C309FE5 		ldr	r3, .L25
+ 2285 02cc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2286 02d0 000053E3 		cmp	r3, #0
+ 2287 02d4 0500000A 		beq	.L23
+ 168:../multitasking/non_expropiative.c ****     {
+ 169:../multitasking/non_expropiative.c ****         init = FALSE;
+ 2288              		.loc 1 169 0
+ 2289 02d8 6C309FE5 		ldr	r3, .L25
+ 2290 02dc 0020A0E3 		mov	r2, #0
+ 2291 02e0 0020C3E5 		strb	r2, [r3, #0]
+ 170:../multitasking/non_expropiative.c ****         uart0_puts( " Task 3: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2292              		.loc 1 170 0
+ 2293 02e4 64009FE5 		ldr	r0, .L25+4
+ 2294 02e8 FEFFFFEB 		bl	uart0_puts
+ 2295 02ec 130000EA 		b	.L22
+ 2296              	.L23:
+ 171:../multitasking/non_expropiative.c ****     }
+ 172:../multitasking/non_expropiative.c ****     else
+ 173:../multitasking/non_expropiative.c ****     {
+ 174:../multitasking/non_expropiative.c ****         rtc_gettime( &rtc_time );
+ 2297              		.loc 1 174 0
+ 2298 02f0 14304BE2 		sub	r3, fp, #20
+ 2299 02f4 0300A0E1 		mov	r0, r3
+ 2300 02f8 FEFFFFEB 		bl	rtc_gettime
+ 175:../multitasking/non_expropiative.c ****         uart0_puts( "  (Task 3) Hora: " );
+ 2301              		.loc 1 175 0
+ 2302 02fc 50009FE5 		ldr	r0, .L25+8
+ 2303 0300 FEFFFFEB 		bl	uart0_puts
+ 176:../multitasking/non_expropiative.c ****         uart0_putint( rtc_time.hour );
+ 2304              		.loc 1 176 0
+ 2305 0304 12305BE5 		ldrb	r3, [fp, #-18]	@ zero_extendqisi2
+ 2306 0308 0300A0E1 		mov	r0, r3
+ 2307 030c FEFFFFEB 		bl	uart0_putint
+ 177:../multitasking/non_expropiative.c ****         uart0_putchar( ':' );
+ 2308              		.loc 1 177 0
+ 2309 0310 3A00A0E3 		mov	r0, #58
+ 2310 0314 FEFFFFEB 		bl	uart0_putchar
+ 178:../multitasking/non_expropiative.c ****         uart0_putint( rtc_time.min );
+ 2311              		.loc 1 178 0
+ 2312 0318 13305BE5 		ldrb	r3, [fp, #-19]	@ zero_extendqisi2
+ 2313 031c 0300A0E1 		mov	r0, r3
+ 2314 0320 FEFFFFEB 		bl	uart0_putint
+ 179:../multitasking/non_expropiative.c ****         uart0_putchar( ':' );
+ 2315              		.loc 1 179 0
+ 2316 0324 3A00A0E3 		mov	r0, #58
+ 2317 0328 FEFFFFEB 		bl	uart0_putchar
+ 180:../multitasking/non_expropiative.c ****         uart0_putint( rtc_time.sec );
+ 2318              		.loc 1 180 0
+ 2319 032c 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 2320 0330 0300A0E1 		mov	r0, r3
+ 2321 0334 FEFFFFEB 		bl	uart0_putint
+ 181:../multitasking/non_expropiative.c ****         uart0_puts( "\n" );
+ 2322              		.loc 1 181 0
+ 2323 0338 18009FE5 		ldr	r0, .L25+12
+ 2324 033c FEFFFFEB 		bl	uart0_puts
+ 2325              	.L22:
+ 182:../multitasking/non_expropiative.c ****     }
+ 183:../multitasking/non_expropiative.c **** }
+ 2326              		.loc 1 183 0
+ 2327 0340 0CD04BE2 		sub	sp, fp, #12
+ 2328 0344 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2329 0348 1EFF2FE1 		bx	lr
+ 2330              	.L26:
+ 2331              		.align	2
+ 2332              	.L25:
+ 2333 034c 04000000 		.word	init.4174
+ 2334 0350 98000000 		.word	.LC4
+ 2335 0354 AC000000 		.word	.LC5
+ 2336 0358 C0000000 		.word	.LC6
+ 2337              		.cfi_endproc
+ 2338              	.LFE3:
+ 2340              		.section	.rodata
+ 2341 00c2 0000     		.align	2
+ 2342              	.LC7:
+ 2343 00c4 20546173 		.ascii	" Task 4: iniciada.\012\000"
+ 2343      6B20343A 
+ 2343      20696E69 
+ 2343      63696164 
+ 2343      612E0A00 
+ 2344              		.align	2
+ 2345              	.LC8:
+ 2346 00d8 20202854 		.ascii	"  (Task 4) Ticks: \000"
+ 2346      61736B20 
+ 2346      34292054 
+ 2346      69636B73 
+ 2346      3A2000
+ 2347              		.text
+ 2348              		.align	2
+ 2349              		.global	Task4
+ 2351              	Task4:
+ 2352              	.LFB4:
+ 184:../multitasking/non_expropiative.c **** 
+ 185:../multitasking/non_expropiative.c **** void Task4( void )  /* Cada 10 segundos (1000 ticks) muestra por la UART0 los ticks transcurridos *
+ 186:../multitasking/non_expropiative.c **** {
+ 2353              		.loc 1 186 0
+ 2354              		.cfi_startproc
+ 2355              		@ Function supports interworking.
+ 2356              		@ args = 0, pretend = 0, frame = 0
+ 2357              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2358 035c 0DC0A0E1 		mov	ip, sp
+ 2359              	.LCFI8:
+ 2360              		.cfi_def_cfa_register 12
+ 2361 0360 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2362 0364 04B04CE2 		sub	fp, ip, #4
+ 2363              		.cfi_offset 14, -8
+ 2364              		.cfi_offset 13, -12
+ 2365              		.cfi_offset 11, -16
+ 2366              	.LCFI9:
+ 2367              		.cfi_def_cfa 11, 4
+ 187:../multitasking/non_expropiative.c ****     static boolean init = TRUE;
+ 188:../multitasking/non_expropiative.c ****     static uint32 ticks;
+ 189:../multitasking/non_expropiative.c **** 
+ 190:../multitasking/non_expropiative.c ****     if( init )
+ 2368              		.loc 1 190 0
+ 2369 0368 6C309FE5 		ldr	r3, .L30
+ 2370 036c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2371 0370 000053E3 		cmp	r3, #0
+ 2372 0374 0800000A 		beq	.L28
+ 191:../multitasking/non_expropiative.c ****     {
+ 192:../multitasking/non_expropiative.c ****         init = FALSE;
+ 2373              		.loc 1 192 0
+ 2374 0378 5C309FE5 		ldr	r3, .L30
+ 2375 037c 0020A0E3 		mov	r2, #0
+ 2376 0380 0020C3E5 		strb	r2, [r3, #0]
+ 193:../multitasking/non_expropiative.c ****         uart0_puts( " Task 4: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2377              		.loc 1 193 0
+ 2378 0384 54009FE5 		ldr	r0, .L30+4
+ 2379 0388 FEFFFFEB 		bl	uart0_puts
+ 194:../multitasking/non_expropiative.c ****         ticks = 0;
+ 2380              		.loc 1 194 0
+ 2381 038c 50309FE5 		ldr	r3, .L30+8
+ 2382 0390 0020A0E3 		mov	r2, #0
+ 2383 0394 002083E5 		str	r2, [r3, #0]
+ 2384 0398 0C0000EA 		b	.L27
+ 2385              	.L28:
+ 195:../multitasking/non_expropiative.c ****     }
+ 196:../multitasking/non_expropiative.c ****     else
+ 197:../multitasking/non_expropiative.c ****     {
+ 198:../multitasking/non_expropiative.c ****         ticks += TICKS_PER_SEC * 10;
+ 2386              		.loc 1 198 0
+ 2387 039c 40309FE5 		ldr	r3, .L30+8
+ 2388 03a0 003093E5 		ldr	r3, [r3, #0]
+ 2389 03a4 FA2F83E2 		add	r2, r3, #1000
+ 2390 03a8 34309FE5 		ldr	r3, .L30+8
+ 2391 03ac 002083E5 		str	r2, [r3, #0]
+ 199:../multitasking/non_expropiative.c ****         uart0_puts( "  (Task 4) Ticks: " );
+ 2392              		.loc 1 199 0
+ 2393 03b0 30009FE5 		ldr	r0, .L30+12
+ 2394 03b4 FEFFFFEB 		bl	uart0_puts
+ 200:../multitasking/non_expropiative.c ****         uart0_putint( ticks );
+ 2395              		.loc 1 200 0
+ 2396 03b8 24309FE5 		ldr	r3, .L30+8
+ 2397 03bc 003093E5 		ldr	r3, [r3, #0]
+ 2398 03c0 0300A0E1 		mov	r0, r3
+ 2399 03c4 FEFFFFEB 		bl	uart0_putint
+ 201:../multitasking/non_expropiative.c ****         uart0_puts( "\n" );
+ 2400              		.loc 1 201 0
+ 2401 03c8 1C009FE5 		ldr	r0, .L30+16
+ 2402 03cc FEFFFFEB 		bl	uart0_puts
+ 2403              	.L27:
+ 202:../multitasking/non_expropiative.c ****     }
+ 203:../multitasking/non_expropiative.c **** }
+ 2404              		.loc 1 203 0
+ 2405 03d0 0CD04BE2 		sub	sp, fp, #12
+ 2406 03d4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2407 03d8 1EFF2FE1 		bx	lr
+ 2408              	.L31:
+ 2409              		.align	2
+ 2410              	.L30:
+ 2411 03dc 03000000 		.word	init.4179
+ 2412 03e0 C4000000 		.word	.LC7
+ 2413 03e4 00000000 		.word	ticks.4180
+ 2414 03e8 D8000000 		.word	.LC8
+ 2415 03ec C0000000 		.word	.LC6
+ 2416              		.cfi_endproc
+ 2417              	.LFE4:
+ 2419              		.section	.rodata
+ 2420 00eb 00       		.align	2
+ 2421              	.LC9:
+ 2422 00ec 20546173 		.ascii	" Task 5: iniciada.\012\000"
+ 2422      6B20353A 
+ 2422      20696E69 
+ 2422      63696164 
+ 2422      612E0A00 
+ 2423              		.align	2
+ 2424              	.LC10:
+ 2425 0100 20202854 		.ascii	"  (Task 5) Tecla pulsada: \000"
+ 2425      61736B20 
+ 2425      35292054 
+ 2425      65636C61 
+ 2425      2070756C 
+ 2426              		.text
+ 2427              		.align	2
+ 2428              		.global	Task5
+ 2430              	Task5:
+ 2431              	.LFB5:
+ 204:../multitasking/non_expropiative.c **** 
+ 205:../multitasking/non_expropiative.c **** void Task5( void )  /* Cada vez que reciba un scancode lo muestra por la UART0 */
+ 206:../multitasking/non_expropiative.c **** {
+ 2432              		.loc 1 206 0
+ 2433              		.cfi_startproc
+ 2434              		@ Function supports interworking.
+ 2435              		@ args = 0, pretend = 0, frame = 0
+ 2436              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2437 03f0 0DC0A0E1 		mov	ip, sp
+ 2438              	.LCFI10:
+ 2439              		.cfi_def_cfa_register 12
+ 2440 03f4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2441 03f8 04B04CE2 		sub	fp, ip, #4
+ 2442              		.cfi_offset 14, -8
+ 2443              		.cfi_offset 13, -12
+ 2444              		.cfi_offset 11, -16
+ 2445              	.LCFI11:
+ 2446              		.cfi_def_cfa 11, 4
+ 207:../multitasking/non_expropiative.c ****     static boolean init = TRUE;
+ 208:../multitasking/non_expropiative.c **** 
+ 209:../multitasking/non_expropiative.c ****     if( init )
+ 2447              		.loc 1 209 0
+ 2448 03fc 68309FE5 		ldr	r3, .L35
+ 2449 0400 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2450 0404 000053E3 		cmp	r3, #0
+ 2451 0408 0500000A 		beq	.L33
+ 210:../multitasking/non_expropiative.c ****     {
+ 211:../multitasking/non_expropiative.c ****         init = FALSE;
+ 2452              		.loc 1 211 0
+ 2453 040c 58309FE5 		ldr	r3, .L35
+ 2454 0410 0020A0E3 		mov	r2, #0
+ 2455 0414 0020C3E5 		strb	r2, [r3, #0]
+ 212:../multitasking/non_expropiative.c ****         uart0_puts( " Task 5: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2456              		.loc 1 212 0
+ 2457 0418 50009FE5 		ldr	r0, .L35+4
+ 2458 041c FEFFFFEB 		bl	uart0_puts
+ 2459 0420 0E0000EA 		b	.L32
+ 2460              	.L33:
+ 213:../multitasking/non_expropiative.c ****     }
+ 214:../multitasking/non_expropiative.c ****     else if( flagTask5 )
+ 2461              		.loc 1 214 0
+ 2462 0424 48309FE5 		ldr	r3, .L35+8
+ 2463 0428 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2464 042c 000053E3 		cmp	r3, #0
+ 2465 0430 0A00000A 		beq	.L32
+ 215:../multitasking/non_expropiative.c ****     {
+ 216:../multitasking/non_expropiative.c ****         flagTask5 = FALSE;
+ 2466              		.loc 1 216 0
+ 2467 0434 38309FE5 		ldr	r3, .L35+8
+ 2468 0438 0020A0E3 		mov	r2, #0
+ 2469 043c 0020C3E5 		strb	r2, [r3, #0]
+ 217:../multitasking/non_expropiative.c ****         uart0_puts( "  (Task 5) Tecla pulsada: " );
+ 2470              		.loc 1 217 0
+ 2471 0440 30009FE5 		ldr	r0, .L35+12
+ 2472 0444 FEFFFFEB 		bl	uart0_puts
+ 218:../multitasking/non_expropiative.c ****         uart0_puthex( scancode );
+ 2473              		.loc 1 218 0
+ 2474 0448 2C309FE5 		ldr	r3, .L35+16
+ 2475 044c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2476 0450 0300A0E1 		mov	r0, r3
+ 2477 0454 FEFFFFEB 		bl	uart0_puthex
+ 219:../multitasking/non_expropiative.c ****         uart0_puts( "\n" );
+ 2478              		.loc 1 219 0
+ 2479 0458 20009FE5 		ldr	r0, .L35+20
+ 2480 045c FEFFFFEB 		bl	uart0_puts
+ 2481              	.L32:
+ 220:../multitasking/non_expropiative.c ****     }
+ 221:../multitasking/non_expropiative.c **** }
+ 2482              		.loc 1 221 0
+ 2483 0460 0CD04BE2 		sub	sp, fp, #12
+ 2484 0464 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2485 0468 1EFF2FE1 		bx	lr
+ 2486              	.L36:
+ 2487              		.align	2
+ 2488              	.L35:
+ 2489 046c 02000000 		.word	init.4184
+ 2490 0470 EC000000 		.word	.LC9
+ 2491 0474 00000000 		.word	flagTask5
+ 2492 0478 00010000 		.word	.LC10
+ 2493 047c 00000000 		.word	scancode
+ 2494 0480 C0000000 		.word	.LC6
+ 2495              		.cfi_endproc
+ 2496              	.LFE5:
+ 2498              		.section	.rodata
+ 2499 011b 00       		.align	2
+ 2500              	.LC11:
+ 2501 011c 20546173 		.ascii	" Task 6: iniciada.\012\000"
+ 2501      6B20363A 
+ 2501      20696E69 
+ 2501      63696164 
+ 2501      612E0A00 
+ 2502              		.text
+ 2503              		.align	2
+ 2504              		.global	Task6
+ 2506              	Task6:
+ 2507              	.LFB6:
+ 222:../multitasking/non_expropiative.c **** 
+ 223:../multitasking/non_expropiative.c **** void Task6( void )  /* Cada vez que reciba un scancode lo muestra por los 7 segmentos */
+ 224:../multitasking/non_expropiative.c **** {
+ 2508              		.loc 1 224 0
+ 2509              		.cfi_startproc
+ 2510              		@ Function supports interworking.
+ 2511              		@ args = 0, pretend = 0, frame = 0
+ 2512              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2513 0484 0DC0A0E1 		mov	ip, sp
+ 2514              	.LCFI12:
+ 2515              		.cfi_def_cfa_register 12
+ 2516 0488 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2517 048c 04B04CE2 		sub	fp, ip, #4
+ 2518              		.cfi_offset 14, -8
+ 2519              		.cfi_offset 13, -12
+ 2520              		.cfi_offset 11, -16
+ 2521              	.LCFI13:
+ 2522              		.cfi_def_cfa 11, 4
+ 225:../multitasking/non_expropiative.c ****     static boolean init = TRUE;
+ 226:../multitasking/non_expropiative.c **** 
+ 227:../multitasking/non_expropiative.c ****     if( init )
+ 2523              		.loc 1 227 0
+ 2524 0490 58309FE5 		ldr	r3, .L40
+ 2525 0494 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2526 0498 000053E3 		cmp	r3, #0
+ 2527 049c 0500000A 		beq	.L38
+ 228:../multitasking/non_expropiative.c ****     {
+ 229:../multitasking/non_expropiative.c ****         init = FALSE;
+ 2528              		.loc 1 229 0
+ 2529 04a0 48309FE5 		ldr	r3, .L40
+ 2530 04a4 0020A0E3 		mov	r2, #0
+ 2531 04a8 0020C3E5 		strb	r2, [r3, #0]
+ 230:../multitasking/non_expropiative.c ****         uart0_puts( " Task 6: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2532              		.loc 1 230 0
+ 2533 04ac 40009FE5 		ldr	r0, .L40+4
+ 2534 04b0 FEFFFFEB 		bl	uart0_puts
+ 2535 04b4 0A0000EA 		b	.L37
+ 2536              	.L38:
+ 231:../multitasking/non_expropiative.c ****     }
+ 232:../multitasking/non_expropiative.c ****     else if( flagTask6 )
+ 2537              		.loc 1 232 0
+ 2538 04b8 38309FE5 		ldr	r3, .L40+8
+ 2539 04bc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2540 04c0 000053E3 		cmp	r3, #0
+ 2541 04c4 0600000A 		beq	.L37
+ 233:../multitasking/non_expropiative.c ****     {
+ 234:../multitasking/non_expropiative.c ****         flagTask6 = FALSE;
+ 2542              		.loc 1 234 0
+ 2543 04c8 28309FE5 		ldr	r3, .L40+8
+ 2544 04cc 0020A0E3 		mov	r2, #0
+ 2545 04d0 0020C3E5 		strb	r2, [r3, #0]
+ 235:../multitasking/non_expropiative.c ****         D8Led_digit(scancode);
+ 2546              		.loc 1 235 0
+ 2547 04d4 20309FE5 		ldr	r3, .L40+12
+ 2548 04d8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2549 04dc 0300A0E1 		mov	r0, r3
+ 2550 04e0 FEFFFFEB 		bl	D8Led_digit
+ 2551              	.L37:
+ 236:../multitasking/non_expropiative.c ****     }
+ 237:../multitasking/non_expropiative.c **** }
+ 2552              		.loc 1 237 0
+ 2553 04e4 0CD04BE2 		sub	sp, fp, #12
+ 2554 04e8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2555 04ec 1EFF2FE1 		bx	lr
+ 2556              	.L41:
+ 2557              		.align	2
+ 2558              	.L40:
+ 2559 04f0 01000000 		.word	init.4188
+ 2560 04f4 1C010000 		.word	.LC11
+ 2561 04f8 00000000 		.word	flagTask6
+ 2562 04fc 00000000 		.word	scancode
+ 2563              		.cfi_endproc
+ 2564              	.LFE6:
+ 2566              		.section	.rodata
+ 2567              		.align	2
+ 2568              	.LC12:
+ 2569 0130 20546173 		.ascii	" Task 7: iniciada.\012\000"
+ 2569      6B20373A 
+ 2569      20696E69 
+ 2569      63696164 
+ 2569      612E0A00 
+ 2570              		.align	2
+ 2571              	.LC13:
+ 2572 0144 20202854 		.ascii	"  (Task 7) Se ha pulsado alg\372n pushbutton...\012"
+ 2572      61736B20 
+ 2572      37292053 
+ 2572      65206861 
+ 2572      2070756C 
+ 2573 0171 00       		.ascii	"\000"
+ 2574 0172 0000     		.text
+ 2575              		.align	2
+ 2576              		.global	Task7
+ 2578              	Task7:
+ 2579              	.LFB7:
+ 238:../multitasking/non_expropiative.c **** 
+ 239:../multitasking/non_expropiative.c **** void Task7( void )  /* Cada vez que se presione un pulsador lo avisa por la UART0 */
+ 240:../multitasking/non_expropiative.c **** {
+ 2580              		.loc 1 240 0
+ 2581              		.cfi_startproc
+ 2582              		@ Function supports interworking.
+ 2583              		@ args = 0, pretend = 0, frame = 0
+ 2584              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2585 0500 0DC0A0E1 		mov	ip, sp
+ 2586              	.LCFI14:
+ 2587              		.cfi_def_cfa_register 12
+ 2588 0504 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2589 0508 04B04CE2 		sub	fp, ip, #4
+ 2590              		.cfi_offset 14, -8
+ 2591              		.cfi_offset 13, -12
+ 2592              		.cfi_offset 11, -16
+ 2593              	.LCFI15:
+ 2594              		.cfi_def_cfa 11, 4
+ 241:../multitasking/non_expropiative.c ****     static boolean init = TRUE;
+ 242:../multitasking/non_expropiative.c **** 
+ 243:../multitasking/non_expropiative.c ****     if( init )
+ 2595              		.loc 1 243 0
+ 2596 050c 54309FE5 		ldr	r3, .L45
+ 2597 0510 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2598 0514 000053E3 		cmp	r3, #0
+ 2599 0518 0500000A 		beq	.L43
+ 244:../multitasking/non_expropiative.c ****     {
+ 245:../multitasking/non_expropiative.c ****         init = FALSE;
+ 2600              		.loc 1 245 0
+ 2601 051c 44309FE5 		ldr	r3, .L45
+ 2602 0520 0020A0E3 		mov	r2, #0
+ 2603 0524 0020C3E5 		strb	r2, [r3, #0]
+ 246:../multitasking/non_expropiative.c ****         uart0_puts( " Task 7: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2604              		.loc 1 246 0
+ 2605 0528 3C009FE5 		ldr	r0, .L45+4
+ 2606 052c FEFFFFEB 		bl	uart0_puts
+ 2607 0530 090000EA 		b	.L42
+ 2608              	.L43:
+ 247:../multitasking/non_expropiative.c ****     }
+ 248:../multitasking/non_expropiative.c ****     else if( flagPb )
+ 2609              		.loc 1 248 0
+ 2610 0534 34309FE5 		ldr	r3, .L45+8
+ 2611 0538 0030D3E5 		ldrb	r3, [r3, #0]
+ 2612 053c FF3003E2 		and	r3, r3, #255
+ 2613 0540 000053E3 		cmp	r3, #0
+ 2614 0544 0400000A 		beq	.L42
+ 249:../multitasking/non_expropiative.c ****     {
+ 250:../multitasking/non_expropiative.c ****         flagPb = FALSE;
+ 2615              		.loc 1 250 0
+ 2616 0548 20309FE5 		ldr	r3, .L45+8
+ 2617 054c 0020A0E3 		mov	r2, #0
+ 2618 0550 0020C3E5 		strb	r2, [r3, #0]
+ 251:../multitasking/non_expropiative.c ****         uart0_puts( "  (Task 7) Se ha pulsado algún pushbutton...\n" );
+ 2619              		.loc 1 251 0
+ 2620 0554 18009FE5 		ldr	r0, .L45+12
+ 2621 0558 FEFFFFEB 		bl	uart0_puts
+ 2622              	.L42:
+ 252:../multitasking/non_expropiative.c ****     }
+ 253:../multitasking/non_expropiative.c **** }
+ 2623              		.loc 1 253 0
+ 2624 055c 0CD04BE2 		sub	sp, fp, #12
+ 2625 0560 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2626 0564 1EFF2FE1 		bx	lr
+ 2627              	.L46:
+ 2628              		.align	2
+ 2629              	.L45:
+ 2630 0568 00000000 		.word	init.4192
+ 2631 056c 30010000 		.word	.LC12
+ 2632 0570 00000000 		.word	flagPb
+ 2633 0574 44010000 		.word	.LC13
+ 2634              		.cfi_endproc
+ 2635              	.LFE7:
+ 2637              		.align	2
+ 2638              		.global	isr_pb
+ 2640              	isr_pb:
+ 2641              	.LFB8:
+ 254:../multitasking/non_expropiative.c **** 
+ 255:../multitasking/non_expropiative.c **** /*******************************************************************/
+ 256:../multitasking/non_expropiative.c **** 
+ 257:../multitasking/non_expropiative.c **** 
+ 258:../multitasking/non_expropiative.c **** void isr_pb( void )
+ 259:../multitasking/non_expropiative.c **** {
+ 2642              		.loc 1 259 0
+ 2643              		.cfi_startproc
+ 2644              		@ Interrupt Service Routine.
+ 2645              		@ args = 0, pretend = 0, frame = 0
+ 2646              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2647 0578 04C02DE5 		str	ip, [sp, #-4]!
+ 2648 057c 0DC0A0E1 		mov	ip, sp
+ 2649              	.LCFI16:
+ 2650              		.cfi_def_cfa_register 12
+ 2651 0580 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 2652 0584 04B04CE2 		sub	fp, ip, #4
+ 2653              		.cfi_offset 14, -8
+ 2654              		.cfi_offset 13, -12
+ 2655              		.cfi_offset 11, -16
+ 2656              		.cfi_offset 3, -20
+ 2657              		.cfi_offset 2, -24
+ 2658              		.cfi_offset 1, -28
+ 2659              		.cfi_offset 0, -32
+ 2660              	.LCFI17:
+ 2661              		.cfi_def_cfa 11, 4
+ 260:../multitasking/non_expropiative.c ****     flagPb = TRUE;
+ 2662              		.loc 1 260 0
+ 2663 0588 28309FE5 		ldr	r3, .L48
+ 2664 058c 0120A0E3 		mov	r2, #1
+ 2665 0590 0020C3E5 		strb	r2, [r3, #0]
+ 261:../multitasking/non_expropiative.c ****     rEXTINTPND = (1 << 2) | (1 << 3);
+ 2666              		.loc 1 261 0
+ 2667 0594 20309FE5 		ldr	r3, .L48+4
+ 2668 0598 0C20A0E3 		mov	r2, #12
+ 2669 059c 002083E5 		str	r2, [r3, #0]
+ 262:../multitasking/non_expropiative.c **** 	ic_cleanflag(INT_EINT4567);
+ 2670              		.loc 1 262 0
+ 2671 05a0 1500A0E3 		mov	r0, #21
+ 2672 05a4 FEFFFFEB 		bl	ic_cleanflag
+ 263:../multitasking/non_expropiative.c **** }
+ 2673              		.loc 1 263 0
+ 2674 05a8 1CD04BE2 		sub	sp, fp, #28
+ 2675 05ac 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 2676 05b0 04C09DE4 		ldmfd	sp!, {ip}
+ 2677 05b4 04F05EE2 		subs	pc, lr, #4
+ 2678              	.L49:
+ 2679              		.align	2
+ 2680              	.L48:
+ 2681 05b8 00000000 		.word	flagPb
+ 2682 05bc 5400D201 		.word	30539860
+ 2683              		.cfi_endproc
+ 2684              	.LFE8:
+ 2686              		.data
+ 2689              	init.4192:
+ 2690 0000 01       		.byte	1
+ 2693              	init.4188:
+ 2694 0001 01       		.byte	1
+ 2697              	init.4184:
+ 2698 0002 01       		.byte	1
+ 2701              	init.4179:
+ 2702 0003 01       		.byte	1
+ 2703              		.bss
+ 2704              		.align	2
+ 2705              	ticks.4180:
+ 2706 0000 00000000 		.space	4
+ 2707              		.data
+ 2710              	init.4174:
+ 2711 0004 01       		.byte	1
+ 2714              	init.4161:
+ 2715 0005 01       		.byte	1
+ 2716              		.bss
+ 2717              	state.4166:
+ 2718 0004 00       		.space	1
+ 2719 0005 000000   		.data
+ 2722              	init.4157:
+ 2723 0006 01       		.byte	1
+ 2724              		.text
+ 2725              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 non_expropiative.c
+                            *COM*:00000001 scancode
+                            *COM*:00000001 flagTask5
+                            *COM*:00000001 flagTask6
+                            *COM*:00000001 flagPb
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:1926   .rodata:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:1935   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:1938   .text:00000000 non_expropiative_kernel
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2050   .text:00000110 $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2138   .text:000001ac Task2
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2578   .text:00000500 Task7
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2430   .text:000003f0 Task5
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2506   .text:00000484 Task6
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2078   .text:00000154 Task1
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2265   .text:000002b8 Task3
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2351   .text:0000035c Task4
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2640   .text:00000578 isr_pb
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2075   .text:00000154 $a
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2125   .text:000001a4 $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2722   .data:00000006 init.4157
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2135   .text:000001ac $a
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2242   .text:000002a0 $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2714   .data:00000005 init.4161
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2717   .bss:00000004 state.4166
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2262   .text:000002b8 $a
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2333   .text:0000034c $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2710   .data:00000004 init.4174
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2348   .text:0000035c $a
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2411   .text:000003dc $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2701   .data:00000003 init.4179
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2705   .bss:00000000 ticks.4180
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2427   .text:000003f0 $a
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2489   .text:0000046c $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2697   .data:00000002 init.4184
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2503   .text:00000484 $a
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2559   .text:000004f0 $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2693   .data:00000001 init.4188
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2575   .text:00000500 $a
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2630   .text:00000568 $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2689   .data:00000000 init.4192
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2637   .text:00000578 $a
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2681   .text:000005b8 $d
+C:\Users\Pedro\AppData\Local\Temp\ccW1g5Yb.s:2704   .bss:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+uart0_puts
+scheduler_init
+create_task
+ic_enable
+tmr_set_mode
+tmr_set_prescaler
+tmr_set_divider
+tmr_set_count
+tmr_update
+tmr_start
+sleep
+dispacher
+scheduler
+led1_on
+led2_off
+led1_switch
+led2_switch
+kb_scan
+rtc_gettime
+uart0_putint
+uart0_putchar
+uart0_puthex
+D8Led_digit
+ic_cleanflag

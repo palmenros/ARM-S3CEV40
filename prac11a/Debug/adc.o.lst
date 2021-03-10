@@ -1,0 +1,509 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"adc.c"
+  21              	.Ltext0:
+  22              		.file 1 "../adc.c"
+ 1837              	state:
+ 1838 0000 00       		.space	1
+ 1839              		.text
+ 1840              		.align	2
+ 1841              		.global	isr_ADC_dummy
+ 1843              	isr_ADC_dummy:
+ 1844              	.LFB0:
+   1:../adc.c      **** #include "intcontroller.h"
+   2:../adc.c      **** #include "44b.h"
+   3:../adc.c      **** #include "adc.h"
+   4:../adc.c      **** #include "utils.h"
+   5:../adc.c      **** 
+   6:../adc.c      **** static uint8 state;
+   7:../adc.c      **** 
+   8:../adc.c      **** void isr_ADC_dummy( void ) __attribute__ ((interrupt ("IRQ")));
+   9:../adc.c      **** 
+  10:../adc.c      **** void isr_ADC_dummy(void)
+  11:../adc.c      **** {
+ 1845              		.loc 1 11 0
+ 1846              		.cfi_startproc
+ 1847              		@ Interrupt Service Routine.
+ 1848              		@ args = 0, pretend = 0, frame = 0
+ 1849              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1850 0000 04C02DE5 		str	ip, [sp, #-4]!
+ 1851 0004 0DC0A0E1 		mov	ip, sp
+ 1852              	.LCFI0:
+ 1853              		.cfi_def_cfa_register 12
+ 1854 0008 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 1855 000c 04B04CE2 		sub	fp, ip, #4
+ 1856              		.cfi_offset 14, -8
+ 1857              		.cfi_offset 13, -12
+ 1858              		.cfi_offset 11, -16
+ 1859              		.cfi_offset 3, -20
+ 1860              		.cfi_offset 2, -24
+ 1861              		.cfi_offset 1, -28
+ 1862              		.cfi_offset 0, -32
+ 1863              	.LCFI1:
+ 1864              		.cfi_def_cfa 11, 4
+  12:../adc.c      **** 	ic_cleanflag(INT_ADC);
+ 1865              		.loc 1 12 0
+ 1866 0010 0000A0E3 		mov	r0, #0
+ 1867 0014 FEFFFFEB 		bl	ic_cleanflag
+  13:../adc.c      **** }
+ 1868              		.loc 1 13 0
+ 1869 0018 1CD04BE2 		sub	sp, fp, #28
+ 1870 001c 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 1871 0020 04C09DE4 		ldmfd	sp!, {ip}
+ 1872 0024 04F05EE2 		subs	pc, lr, #4
+ 1873              		.cfi_endproc
+ 1874              	.LFE0:
+ 1876              		.align	2
+ 1877              		.global	adc_init
+ 1879              	adc_init:
+ 1880              	.LFB1:
+  14:../adc.c      **** 
+  15:../adc.c      **** void adc_init( void )
+  16:../adc.c      **** {
+ 1881              		.loc 1 16 0
+ 1882              		.cfi_startproc
+ 1883              		@ Function supports interworking.
+ 1884              		@ args = 0, pretend = 0, frame = 0
+ 1885              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1886 0028 0DC0A0E1 		mov	ip, sp
+ 1887              	.LCFI2:
+ 1888              		.cfi_def_cfa_register 12
+ 1889 002c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1890 0030 04B04CE2 		sub	fp, ip, #4
+ 1891              		.cfi_offset 14, -8
+ 1892              		.cfi_offset 13, -12
+ 1893              		.cfi_offset 11, -16
+ 1894              	.LCFI3:
+ 1895              		.cfi_def_cfa 11, 4
+  17:../adc.c      **** 	//Tasa de conversión: máxima (100 KSPS, tiempo de conversión 10 us)
+  18:../adc.c      **** 	//100KHz = 64 MHz / 2(n+1)×16 => n = 19
+  19:../adc.c      **** 	rADCPSR = 19;
+ 1896              		.loc 1 19 0
+ 1897 0034 14309FE5 		ldr	r3, .L3
+ 1898 0038 1320A0E3 		mov	r2, #19
+ 1899 003c 002083E5 		str	r2, [r3, #0]
+  20:../adc.c      ****     adc_off();
+ 1900              		.loc 1 20 0
+ 1901 0040 FEFFFFEB 		bl	adc_off
+  21:../adc.c      **** }
+ 1902              		.loc 1 21 0
+ 1903 0044 0CD04BE2 		sub	sp, fp, #12
+ 1904 0048 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1905 004c 1EFF2FE1 		bx	lr
+ 1906              	.L4:
+ 1907              		.align	2
+ 1908              	.L3:
+ 1909 0050 0400D401 		.word	30670852
+ 1910              		.cfi_endproc
+ 1911              	.LFE1:
+ 1913              		.align	2
+ 1914              		.global	adc_on
+ 1916              	adc_on:
+ 1917              	.LFB2:
+  22:../adc.c      **** 
+  23:../adc.c      **** void adc_on( void )
+  24:../adc.c      **** {
+ 1918              		.loc 1 24 0
+ 1919              		.cfi_startproc
+ 1920              		@ Function supports interworking.
+ 1921              		@ args = 0, pretend = 0, frame = 0
+ 1922              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1923 0054 0DC0A0E1 		mov	ip, sp
+ 1924              	.LCFI4:
+ 1925              		.cfi_def_cfa_register 12
+ 1926 0058 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1927 005c 04B04CE2 		sub	fp, ip, #4
+ 1928              		.cfi_offset 14, -8
+ 1929              		.cfi_offset 13, -12
+ 1930              		.cfi_offset 11, -16
+ 1931              	.LCFI5:
+ 1932              		.cfi_def_cfa 11, 4
+  25:../adc.c      **** 	//	ADCCON[5] = 0 Normal mode
+  26:../adc.c      **** 	rADCCON &= ~(1 << 5);
+ 1933              		.loc 1 26 0
+ 1934 0060 7537A0E3 		mov	r3, #30670848
+ 1935 0064 7527A0E3 		mov	r2, #30670848
+ 1936 0068 002092E5 		ldr	r2, [r2, #0]
+ 1937 006c 2020C2E3 		bic	r2, r2, #32
+ 1938 0070 002083E5 		str	r2, [r3, #0]
+  27:../adc.c      **** 
+  28:../adc.c      **** 	//Esperar 10 ms antes de arrancar la conversión
+  29:../adc.c      **** 	Delay(10);
+ 1939              		.loc 1 29 0
+ 1940 0074 0A00A0E3 		mov	r0, #10
+ 1941 0078 FEFFFFEB 		bl	Delay
+  30:../adc.c      ****     state = ON;
+ 1942              		.loc 1 30 0
+ 1943 007c 10309FE5 		ldr	r3, .L6
+ 1944 0080 0120A0E3 		mov	r2, #1
+ 1945 0084 0020C3E5 		strb	r2, [r3, #0]
+  31:../adc.c      **** }
+ 1946              		.loc 1 31 0
+ 1947 0088 0CD04BE2 		sub	sp, fp, #12
+ 1948 008c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1949 0090 1EFF2FE1 		bx	lr
+ 1950              	.L7:
+ 1951              		.align	2
+ 1952              	.L6:
+ 1953 0094 00000000 		.word	state
+ 1954              		.cfi_endproc
+ 1955              	.LFE2:
+ 1957              		.align	2
+ 1958              		.global	adc_off
+ 1960              	adc_off:
+ 1961              	.LFB3:
+  32:../adc.c      **** 
+  33:../adc.c      **** void adc_off( void )
+  34:../adc.c      **** {
+ 1962              		.loc 1 34 0
+ 1963              		.cfi_startproc
+ 1964              		@ Function supports interworking.
+ 1965              		@ args = 0, pretend = 0, frame = 0
+ 1966              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1967 0098 0DC0A0E1 		mov	ip, sp
+ 1968              	.LCFI6:
+ 1969              		.cfi_def_cfa_register 12
+ 1970 009c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1971 00a0 04B04CE2 		sub	fp, ip, #4
+ 1972              		.cfi_offset 14, -8
+ 1973              		.cfi_offset 13, -12
+ 1974              		.cfi_offset 11, -16
+ 1975              	.LCFI7:
+ 1976              		.cfi_def_cfa 11, 4
+  35:../adc.c      **** 	//ADCCON[5] = 1  Sleep mode
+  36:../adc.c      **** 	rADCCON |= 1 << 5;
+ 1977              		.loc 1 36 0
+ 1978 00a4 7537A0E3 		mov	r3, #30670848
+ 1979 00a8 7527A0E3 		mov	r2, #30670848
+ 1980 00ac 002092E5 		ldr	r2, [r2, #0]
+ 1981 00b0 202082E3 		orr	r2, r2, #32
+ 1982 00b4 002083E5 		str	r2, [r3, #0]
+  37:../adc.c      **** 	state = OFF;
+ 1983              		.loc 1 37 0
+ 1984 00b8 10309FE5 		ldr	r3, .L9
+ 1985 00bc 0020A0E3 		mov	r2, #0
+ 1986 00c0 0020C3E5 		strb	r2, [r3, #0]
+  38:../adc.c      **** }
+ 1987              		.loc 1 38 0
+ 1988 00c4 0CD04BE2 		sub	sp, fp, #12
+ 1989 00c8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1990 00cc 1EFF2FE1 		bx	lr
+ 1991              	.L10:
+ 1992              		.align	2
+ 1993              	.L9:
+ 1994 00d0 00000000 		.word	state
+ 1995              		.cfi_endproc
+ 1996              	.LFE3:
+ 1998              		.align	2
+ 1999              		.global	adc_status
+ 2001              	adc_status:
+ 2002              	.LFB4:
+  39:../adc.c      **** 
+  40:../adc.c      **** uint8 adc_status( void )
+  41:../adc.c      **** {
+ 2003              		.loc 1 41 0
+ 2004              		.cfi_startproc
+ 2005              		@ Function supports interworking.
+ 2006              		@ args = 0, pretend = 0, frame = 0
+ 2007              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2008 00d4 0DC0A0E1 		mov	ip, sp
+ 2009              	.LCFI8:
+ 2010              		.cfi_def_cfa_register 12
+ 2011 00d8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2012 00dc 04B04CE2 		sub	fp, ip, #4
+ 2013              		.cfi_offset 14, -8
+ 2014              		.cfi_offset 13, -12
+ 2015              		.cfi_offset 11, -16
+ 2016              	.LCFI9:
+ 2017              		.cfi_def_cfa 11, 4
+  42:../adc.c      ****     return state;
+ 2018              		.loc 1 42 0
+ 2019 00e0 10309FE5 		ldr	r3, .L12
+ 2020 00e4 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  43:../adc.c      **** }
+ 2021              		.loc 1 43 0
+ 2022 00e8 0300A0E1 		mov	r0, r3
+ 2023 00ec 0CD04BE2 		sub	sp, fp, #12
+ 2024 00f0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2025 00f4 1EFF2FE1 		bx	lr
+ 2026              	.L13:
+ 2027              		.align	2
+ 2028              	.L12:
+ 2029 00f8 00000000 		.word	state
+ 2030              		.cfi_endproc
+ 2031              	.LFE4:
+ 2033              		.align	2
+ 2034              		.global	adc_getSample
+ 2036              	adc_getSample:
+ 2037              	.LFB5:
+  44:../adc.c      **** 
+  45:../adc.c      **** uint16 adc_getSample( enum ADC_channel_t ch )
+  46:../adc.c      **** {
+ 2038              		.loc 1 46 0
+ 2039              		.cfi_startproc
+ 2040              		@ Function supports interworking.
+ 2041              		@ args = 0, pretend = 0, frame = 16
+ 2042              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2043 00fc 0DC0A0E1 		mov	ip, sp
+ 2044              	.LCFI10:
+ 2045              		.cfi_def_cfa_register 12
+ 2046 0100 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2047 0104 04B04CE2 		sub	fp, ip, #4
+ 2048              		.cfi_offset 14, -8
+ 2049              		.cfi_offset 13, -12
+ 2050              		.cfi_offset 11, -16
+ 2051              	.LCFI11:
+ 2052              		.cfi_def_cfa 11, 4
+ 2053 0108 10D04DE2 		sub	sp, sp, #16
+ 2054 010c 0030A0E1 		mov	r3, r0
+ 2055 0110 15304BE5 		strb	r3, [fp, #-21]
+  47:../adc.c      ****     uint32 sample;
+  48:../adc.c      ****     uint8 i;
+  49:../adc.c      **** 
+  50:../adc.c      ****     //Seleccionar el canal
+  51:../adc.c      ****     rADCCON &= ~(0b111 << 2);
+ 2056              		.loc 1 51 0
+ 2057 0114 7537A0E3 		mov	r3, #30670848
+ 2058 0118 7527A0E3 		mov	r2, #30670848
+ 2059 011c 002092E5 		ldr	r2, [r2, #0]
+ 2060 0120 1C20C2E3 		bic	r2, r2, #28
+ 2061 0124 002083E5 		str	r2, [r3, #0]
+  52:../adc.c      ****     rADCCON |= ch << 2;
+ 2062              		.loc 1 52 0
+ 2063 0128 7537A0E3 		mov	r3, #30670848
+ 2064 012c 7527A0E3 		mov	r2, #30670848
+ 2065 0130 001092E5 		ldr	r1, [r2, #0]
+ 2066 0134 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 2067 0138 0221A0E1 		mov	r2, r2, asl #2
+ 2068 013c 022081E1 		orr	r2, r1, r2
+ 2069 0140 002083E5 		str	r2, [r3, #0]
+  53:../adc.c      **** 
+  54:../adc.c      ****     Delay(10);
+ 2070              		.loc 1 54 0
+ 2071 0144 0A00A0E3 		mov	r0, #10
+ 2072 0148 FEFFFFEB 		bl	Delay
+  55:../adc.c      **** 
+  56:../adc.c      ****     // Hacer la media de 5 samples para estabilizar
+  57:../adc.c      ****     for( i=0, sample=0; i<5; i++ )
+ 2073              		.loc 1 57 0
+ 2074 014c 0030A0E3 		mov	r3, #0
+ 2075 0150 11304BE5 		strb	r3, [fp, #-17]
+ 2076 0154 0030A0E3 		mov	r3, #0
+ 2077 0158 10300BE5 		str	r3, [fp, #-16]
+ 2078 015c 200000EA 		b	.L15
+ 2079              	.L18:
+  58:../adc.c      ****     {
+  59:../adc.c      ****     	//ADCCON[1] = 0 deshabilita arranque por lectura
+  60:../adc.c      ****     	//ADCCON[0] = 1 arranca manualmente la conversión
+  61:../adc.c      **** 
+  62:../adc.c      ****     	rADCCON &= ~2;
+ 2080              		.loc 1 62 0
+ 2081 0160 7537A0E3 		mov	r3, #30670848
+ 2082 0164 7527A0E3 		mov	r2, #30670848
+ 2083 0168 002092E5 		ldr	r2, [r2, #0]
+ 2084 016c 0220C2E3 		bic	r2, r2, #2
+ 2085 0170 002083E5 		str	r2, [r3, #0]
+  63:../adc.c      ****         rADCCON |= 1;
+ 2086              		.loc 1 63 0
+ 2087 0174 7537A0E3 		mov	r3, #30670848
+ 2088 0178 7527A0E3 		mov	r2, #30670848
+ 2089 017c 002092E5 		ldr	r2, [r2, #0]
+ 2090 0180 012082E3 		orr	r2, r2, #1
+ 2091 0184 002083E5 		str	r2, [r3, #0]
+  64:../adc.c      **** 
+  65:../adc.c      ****     	//Espera hasta que la conversion comience (mientras ADCCON[0] == 1)
+  66:../adc.c      ****         while( rADCCON & 1 );
+ 2092              		.loc 1 66 0
+ 2093 0188 0000A0E1 		mov	r0, r0	@ nop
+ 2094              	.L16:
+ 2095              		.loc 1 66 0 is_stmt 0 discriminator 1
+ 2096 018c 7537A0E3 		mov	r3, #30670848
+ 2097 0190 003093E5 		ldr	r3, [r3, #0]
+ 2098 0194 013003E2 		and	r3, r3, #1
+ 2099 0198 FF3003E2 		and	r3, r3, #255
+ 2100 019c 000053E3 		cmp	r3, #0
+ 2101 01a0 F9FFFF1A 		bne	.L16
+  67:../adc.c      **** 
+  68:../adc.c      ****     	//Espera hasta que la conversion finalice (mientras ADCCON[6] == 0)
+  69:../adc.c      ****         while( !(rADCCON & (1 << 6)) );
+ 2102              		.loc 1 69 0 is_stmt 1
+ 2103 01a4 0000A0E1 		mov	r0, r0	@ nop
+ 2104              	.L17:
+ 2105              		.loc 1 69 0 is_stmt 0 discriminator 1
+ 2106 01a8 7537A0E3 		mov	r3, #30670848
+ 2107 01ac 003093E5 		ldr	r3, [r3, #0]
+ 2108 01b0 403003E2 		and	r3, r3, #64
+ 2109 01b4 000053E3 		cmp	r3, #0
+ 2110 01b8 FAFFFF0A 		beq	.L17
+  70:../adc.c      **** 
+  71:../adc.c      ****         sample += rADCDAT & 0x3ff;
+ 2111              		.loc 1 71 0 is_stmt 1
+ 2112 01bc 54309FE5 		ldr	r3, .L19
+ 2113 01c0 003093E5 		ldr	r3, [r3, #0]
+ 2114 01c4 033BA0E1 		mov	r3, r3, asl #22
+ 2115 01c8 233BA0E1 		mov	r3, r3, lsr #22
+ 2116 01cc 10201BE5 		ldr	r2, [fp, #-16]
+ 2117 01d0 033082E0 		add	r3, r2, r3
+ 2118 01d4 10300BE5 		str	r3, [fp, #-16]
+  57:../adc.c      ****     for( i=0, sample=0; i<5; i++ )
+ 2119              		.loc 1 57 0
+ 2120 01d8 11305BE5 		ldrb	r3, [fp, #-17]
+ 2121 01dc 013083E2 		add	r3, r3, #1
+ 2122 01e0 11304BE5 		strb	r3, [fp, #-17]
+ 2123              	.L15:
+  57:../adc.c      ****     for( i=0, sample=0; i<5; i++ )
+ 2124              		.loc 1 57 0 is_stmt 0 discriminator 1
+ 2125 01e4 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2126 01e8 040053E3 		cmp	r3, #4
+ 2127 01ec DBFFFF9A 		bls	.L18
+  72:../adc.c      ****     }
+  73:../adc.c      ****     return sample / 5;
+ 2128              		.loc 1 73 0 is_stmt 1
+ 2129 01f0 10201BE5 		ldr	r2, [fp, #-16]
+ 2130 01f4 20309FE5 		ldr	r3, .L19+4
+ 2131 01f8 921383E0 		umull	r1, r3, r2, r3
+ 2132 01fc 2331A0E1 		mov	r3, r3, lsr #2
+ 2133 0200 0338A0E1 		mov	r3, r3, asl #16
+ 2134 0204 2338A0E1 		mov	r3, r3, lsr #16
+  74:../adc.c      **** }
+ 2135              		.loc 1 74 0
+ 2136 0208 0300A0E1 		mov	r0, r3
+ 2137 020c 0CD04BE2 		sub	sp, fp, #12
+ 2138 0210 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2139 0214 1EFF2FE1 		bx	lr
+ 2140              	.L20:
+ 2141              		.align	2
+ 2142              	.L19:
+ 2143 0218 0800D401 		.word	30670856
+ 2144 021c CDCCCCCC 		.word	-858993459
+ 2145              		.cfi_endproc
+ 2146              	.LFE5:
+ 2148              		.align	2
+ 2149              		.global	adc_open
+ 2151              	adc_open:
+ 2152              	.LFB6:
+  75:../adc.c      **** 
+  76:../adc.c      **** void adc_open( void (*isr)(void) )
+  77:../adc.c      **** {
+ 2153              		.loc 1 77 0
+ 2154              		.cfi_startproc
+ 2155              		@ Function supports interworking.
+ 2156              		@ args = 0, pretend = 0, frame = 8
+ 2157              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2158 0220 0DC0A0E1 		mov	ip, sp
+ 2159              	.LCFI12:
+ 2160              		.cfi_def_cfa_register 12
+ 2161 0224 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2162 0228 04B04CE2 		sub	fp, ip, #4
+ 2163              		.cfi_offset 14, -8
+ 2164              		.cfi_offset 13, -12
+ 2165              		.cfi_offset 11, -16
+ 2166              	.LCFI13:
+ 2167              		.cfi_def_cfa 11, 4
+ 2168 022c 08D04DE2 		sub	sp, sp, #8
+ 2169 0230 10000BE5 		str	r0, [fp, #-16]
+  78:../adc.c      **** 	pISR_ADC = (unsigned) isr;
+ 2170              		.loc 1 78 0
+ 2171 0234 18309FE5 		ldr	r3, .L22
+ 2172 0238 10201BE5 		ldr	r2, [fp, #-16]
+ 2173 023c 002083E5 		str	r2, [r3, #0]
+  79:../adc.c      ****     ic_enable(INT_ADC);
+ 2174              		.loc 1 79 0
+ 2175 0240 0000A0E3 		mov	r0, #0
+ 2176 0244 FEFFFFEB 		bl	ic_enable
+  80:../adc.c      **** }
+ 2177              		.loc 1 80 0
+ 2178 0248 0CD04BE2 		sub	sp, fp, #12
+ 2179 024c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2180 0250 1EFF2FE1 		bx	lr
+ 2181              	.L23:
+ 2182              		.align	2
+ 2183              	.L22:
+ 2184 0254 20FF7F0C 		.word	209714976
+ 2185              		.cfi_endproc
+ 2186              	.LFE6:
+ 2188              		.align	2
+ 2189              		.global	adc_close
+ 2191              	adc_close:
+ 2192              	.LFB7:
+  81:../adc.c      **** 
+  82:../adc.c      **** void adc_close( void )
+  83:../adc.c      **** {
+ 2193              		.loc 1 83 0
+ 2194              		.cfi_startproc
+ 2195              		@ Function supports interworking.
+ 2196              		@ args = 0, pretend = 0, frame = 0
+ 2197              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2198 0258 0DC0A0E1 		mov	ip, sp
+ 2199              	.LCFI14:
+ 2200              		.cfi_def_cfa_register 12
+ 2201 025c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2202 0260 04B04CE2 		sub	fp, ip, #4
+ 2203              		.cfi_offset 14, -8
+ 2204              		.cfi_offset 13, -12
+ 2205              		.cfi_offset 11, -16
+ 2206              	.LCFI15:
+ 2207              		.cfi_def_cfa 11, 4
+  84:../adc.c      ****     ic_disable(INT_ADC);
+ 2208              		.loc 1 84 0
+ 2209 0264 0000A0E3 		mov	r0, #0
+ 2210 0268 FEFFFFEB 		bl	ic_disable
+  85:../adc.c      ****     pISR_ADC = (unsigned) isr_ADC_dummy;
+ 2211              		.loc 1 85 0
+ 2212 026c 10309FE5 		ldr	r3, .L25
+ 2213 0270 10209FE5 		ldr	r2, .L25+4
+ 2214 0274 002083E5 		str	r2, [r3, #0]
+  86:../adc.c      **** }
+ 2215              		.loc 1 86 0
+ 2216 0278 0CD04BE2 		sub	sp, fp, #12
+ 2217 027c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2218 0280 1EFF2FE1 		bx	lr
+ 2219              	.L26:
+ 2220              		.align	2
+ 2221              	.L25:
+ 2222 0284 20FF7F0C 		.word	209714976
+ 2223 0288 00000000 		.word	isr_ADC_dummy
+ 2224              		.cfi_endproc
+ 2225              	.LFE7:
+ 2227              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 adc.c
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1837   .bss:00000000 state
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1838   .bss:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1840   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1843   .text:00000000 isr_ADC_dummy
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1879   .text:00000028 adc_init
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1960   .text:00000098 adc_off
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1909   .text:00000050 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1913   .text:00000054 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1916   .text:00000054 adc_on
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1953   .text:00000094 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1957   .text:00000098 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1994   .text:000000d0 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:1998   .text:000000d4 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2001   .text:000000d4 adc_status
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2029   .text:000000f8 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2033   .text:000000fc $a
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2036   .text:000000fc adc_getSample
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2143   .text:00000218 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2148   .text:00000220 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2151   .text:00000220 adc_open
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2184   .text:00000254 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2188   .text:00000258 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2191   .text:00000258 adc_close
+C:\Users\Pedro\AppData\Local\Temp\ccwhcYBS.s:2222   .text:00000284 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+ic_cleanflag
+Delay
+ic_enable
+ic_disable

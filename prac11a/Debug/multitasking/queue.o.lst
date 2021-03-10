@@ -1,0 +1,994 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"queue.c"
+  21              	.Ltext0:
+  22              		.file 1 "../multitasking/queue.c"
+ 1919              		.align	2
+ 1920              	.LC0:
+ 1921 0000 0A0A2045 		.ascii	"\012\012 Ejecutando una aplicaci\363n como cola de "
+ 1921      6A656375 
+ 1921      74616E64 
+ 1921      6F20756E 
+ 1921      61206170 
+ 1922 002a 66756E63 		.ascii	"funciones\012\000"
+ 1922      696F6E65 
+ 1922      730A00
+ 1923 0035 000000   		.align	2
+ 1924              	.LC1:
+ 1925 0038 202D2D2D 		.ascii	" ------------------------------------------------\012"
+ 1925      2D2D2D2D 
+ 1925      2D2D2D2D 
+ 1925      2D2D2D2D 
+ 1925      2D2D2D2D 
+ 1926 006a 0A00     		.ascii	"\012\000"
+ 1927              		.text
+ 1928              		.align	2
+ 1929              		.global	queue
+ 1931              	queue:
+ 1932              	.LFB0:
+   1:../multitasking/queue.c **** /*-------------------------------------------------------------------
+   2:../multitasking/queue.c **** **
+   3:../multitasking/queue.c **** **  Fichero:
+   4:../multitasking/queue.c **** **    lab15.c  14/1/2021
+   5:../multitasking/queue.c **** **
+   6:../multitasking/queue.c **** **    (c) J.M. Mendias
+   7:../multitasking/queue.c **** **    Programación de Sistemas y Dispositivos
+   8:../multitasking/queue.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../multitasking/queue.c **** **
+  10:../multitasking/queue.c **** **  Propósito:
+  11:../multitasking/queue.c **** **    Ejemplo de una aplicación guiada por tiempo con arquitectura
+  12:../multitasking/queue.c **** **    cola de funciones tipo FIFO
+  13:../multitasking/queue.c **** **
+  14:../multitasking/queue.c **** **  Notas de diseño:
+  15:../multitasking/queue.c **** **
+  16:../multitasking/queue.c **** **-----------------------------------------------------------------*/
+  17:../multitasking/queue.c **** 
+  18:../multitasking/queue.c **** #include "../44b.h"
+  19:../multitasking/queue.c **** #include "../common_types.h"
+  20:../multitasking/queue.c **** #include "../leds.h"
+  21:../multitasking/queue.c **** #include "../D8Led.h"
+  22:../multitasking/queue.c **** #include "../uart.h"
+  23:../multitasking/queue.c **** #include "../button.h"
+  24:../multitasking/queue.c **** #include "../keyboard.h"
+  25:../multitasking/queue.c **** #include "../intcontroller.h"
+  26:../multitasking/queue.c **** #include "../timer.h"
+  27:../multitasking/queue.c **** #include "../utils.h"
+  28:../multitasking/queue.c **** #include "../rtc.h"
+  29:../multitasking/queue.c **** #include "queue.h"
+  30:../multitasking/queue.c **** 
+  31:../multitasking/queue.c **** #define TICKS_PER_SEC   (100)
+  32:../multitasking/queue.c **** 
+  33:../multitasking/queue.c **** /* Declaración de fifo de punteros a funciones */
+  34:../multitasking/queue.c **** 
+  35:../multitasking/queue.c **** #define BUFFER_LEN   (512)
+  36:../multitasking/queue.c **** 
+  37:../multitasking/queue.c **** typedef void (*pf_t)(void);
+  38:../multitasking/queue.c **** 
+  39:../multitasking/queue.c **** typedef struct fifo {
+  40:../multitasking/queue.c ****     uint16 head;
+  41:../multitasking/queue.c ****     uint16 tail;
+  42:../multitasking/queue.c ****     uint16 size;
+  43:../multitasking/queue.c ****     pf_t buffer[BUFFER_LEN];
+  44:../multitasking/queue.c **** } fifo_t;
+  45:../multitasking/queue.c **** 
+  46:../multitasking/queue.c **** void fifo_init( void );
+  47:../multitasking/queue.c **** void fifo_enqueue( pf_t pf );
+  48:../multitasking/queue.c **** pf_t fifo_dequeue( void );
+  49:../multitasking/queue.c **** boolean fifo_is_empty( void );
+  50:../multitasking/queue.c **** boolean fifo_is_full( void );
+  51:../multitasking/queue.c **** 
+  52:../multitasking/queue.c **** /* Declaración de recursos */
+  53:../multitasking/queue.c **** 
+  54:../multitasking/queue.c **** volatile fifo_t fifo;
+  55:../multitasking/queue.c **** 
+  56:../multitasking/queue.c **** uint8 scancode;
+  57:../multitasking/queue.c **** 
+  58:../multitasking/queue.c **** /* Declaración de tareas */
+  59:../multitasking/queue.c **** 
+  60:../multitasking/queue.c **** void Task1( void );
+  61:../multitasking/queue.c **** void Task2( void );
+  62:../multitasking/queue.c **** void Task3( void );
+  63:../multitasking/queue.c **** void Task4( void );
+  64:../multitasking/queue.c **** void Task5( void );
+  65:../multitasking/queue.c **** void Task6( void );
+  66:../multitasking/queue.c **** void Task7( void );
+  67:../multitasking/queue.c **** 
+  68:../multitasking/queue.c **** /* Declaración de RTI */
+  69:../multitasking/queue.c **** 
+  70:../multitasking/queue.c **** void isr_pb( void ) __attribute__ ((interrupt ("IRQ")));
+  71:../multitasking/queue.c **** void isr_tick( void ) __attribute__ ((interrupt ("IRQ")));
+  72:../multitasking/queue.c **** 
+  73:../multitasking/queue.c **** /*******************************************************************/
+  74:../multitasking/queue.c **** 
+  75:../multitasking/queue.c **** void queue( void )
+  76:../multitasking/queue.c **** {
+ 1933              		.loc 1 76 0
+ 1934              		.cfi_startproc
+ 1935              		@ Function supports interworking.
+ 1936              		@ args = 0, pretend = 0, frame = 8
+ 1937              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1938 0000 0DC0A0E1 		mov	ip, sp
+ 1939              	.LCFI0:
+ 1940              		.cfi_def_cfa_register 12
+ 1941 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1942 0008 04B04CE2 		sub	fp, ip, #4
+ 1943              		.cfi_offset 14, -8
+ 1944              		.cfi_offset 13, -12
+ 1945              		.cfi_offset 11, -16
+ 1946              	.LCFI1:
+ 1947              		.cfi_def_cfa 11, 4
+ 1948 000c 08D04DE2 		sub	sp, sp, #8
+  77:../multitasking/queue.c ****     pf_t pf;
+  78:../multitasking/queue.c **** 
+  79:../multitasking/queue.c ****     /*timers_init();
+  80:../multitasking/queue.c ****     uart0_init();
+  81:../multitasking/queue.c ****     leds_init();
+  82:../multitasking/queue.c ****     segs_init();
+  83:../multitasking/queue.c ****     rtc_init();
+  84:../multitasking/queue.c ****     pbs_init();
+  85:../multitasking/queue.c ****     keypad_init();*/
+  86:../multitasking/queue.c **** 
+  87:../multitasking/queue.c ****     uart0_puts( "\n\n Ejecutando una aplicación como cola de funciones\n" );
+ 1949              		.loc 1 87 0
+ 1950 0010 C4009FE5 		ldr	r0, .L5
+ 1951 0014 FEFFFFEB 		bl	uart0_puts
+  88:../multitasking/queue.c ****     uart0_puts( " ------------------------------------------------\n\n" ) ;
+ 1952              		.loc 1 88 0
+ 1953 0018 C0009FE5 		ldr	r0, .L5+4
+ 1954 001c FEFFFFEB 		bl	uart0_puts
+  89:../multitasking/queue.c **** 
+  90:../multitasking/queue.c ****     fifo_init();             /* Inicializa cola de funciones */
+ 1955              		.loc 1 90 0
+ 1956 0020 FEFFFFEB 		bl	fifo_init
+  91:../multitasking/queue.c **** 
+  92:../multitasking/queue.c ****     Task1();    /* Ejecuta por primera vez a las funciones para inicializarlas */
+ 1957              		.loc 1 92 0
+ 1958 0024 FEFFFFEB 		bl	Task1
+  93:../multitasking/queue.c ****     Task2();
+ 1959              		.loc 1 93 0
+ 1960 0028 FEFFFFEB 		bl	Task2
+  94:../multitasking/queue.c ****     Task3();
+ 1961              		.loc 1 94 0
+ 1962 002c FEFFFFEB 		bl	Task3
+  95:../multitasking/queue.c ****     Task4();
+ 1963              		.loc 1 95 0
+ 1964 0030 FEFFFFEB 		bl	Task4
+  96:../multitasking/queue.c ****     Task5();
+ 1965              		.loc 1 96 0
+ 1966 0034 FEFFFFEB 		bl	Task5
+  97:../multitasking/queue.c ****     Task6();
+ 1967              		.loc 1 97 0
+ 1968 0038 FEFFFFEB 		bl	Task6
+  98:../multitasking/queue.c ****     Task7();
+ 1969              		.loc 1 98 0
+ 1970 003c FEFFFFEB 		bl	Task7
+  99:../multitasking/queue.c **** 
+ 100:../multitasking/queue.c ****     pISR_EINT4567 = (unsigned) isr_pb;
+ 1971              		.loc 1 100 0
+ 1972 0040 9C309FE5 		ldr	r3, .L5+8
+ 1973 0044 9C209FE5 		ldr	r2, .L5+12
+ 1974 0048 002083E5 		str	r2, [r3, #0]
+ 101:../multitasking/queue.c ****     ic_enable(INT_EINT4567);
+ 1975              		.loc 1 101 0
+ 1976 004c 1500A0E3 		mov	r0, #21
+ 1977 0050 FEFFFFEB 		bl	ic_enable
+ 102:../multitasking/queue.c **** 
+ 103:../multitasking/queue.c ****     //10ms
+ 104:../multitasking/queue.c ****     tmr_set_mode(TIMER0, RELOAD);
+ 1978              		.loc 1 104 0
+ 1979 0054 0000A0E3 		mov	r0, #0
+ 1980 0058 0110A0E3 		mov	r1, #1
+ 1981 005c FEFFFFEB 		bl	tmr_set_mode
+ 105:../multitasking/queue.c **** 	tmr_set_prescaler(TIMER0, 1);
+ 1982              		.loc 1 105 0
+ 1983 0060 0000A0E3 		mov	r0, #0
+ 1984 0064 0110A0E3 		mov	r1, #1
+ 1985 0068 FEFFFFEB 		bl	tmr_set_prescaler
+ 106:../multitasking/queue.c **** 	tmr_set_divider(TIMER0, D1_8);
+ 1986              		.loc 1 106 0
+ 1987 006c 0000A0E3 		mov	r0, #0
+ 1988 0070 0210A0E3 		mov	r1, #2
+ 1989 0074 FEFFFFEB 		bl	tmr_set_divider
+ 107:../multitasking/queue.c **** 	tmr_set_count(TIMER0, 40000, 1);
+ 1990              		.loc 1 107 0
+ 1991 0078 0000A0E3 		mov	r0, #0
+ 1992 007c 68109FE5 		ldr	r1, .L5+16
+ 1993 0080 0120A0E3 		mov	r2, #1
+ 1994 0084 FEFFFFEB 		bl	tmr_set_count
+ 108:../multitasking/queue.c **** 
+ 109:../multitasking/queue.c **** 	tmr_update(TIMER0);
+ 1995              		.loc 1 109 0
+ 1996 0088 0000A0E3 		mov	r0, #0
+ 1997 008c FEFFFFEB 		bl	tmr_update
+ 110:../multitasking/queue.c **** 
+ 111:../multitasking/queue.c **** 	pISR_TIMER0 =(unsigned)isr_tick;
+ 1998              		.loc 1 111 0
+ 1999 0090 58309FE5 		ldr	r3, .L5+20
+ 2000 0094 58209FE5 		ldr	r2, .L5+24
+ 2001 0098 002083E5 		str	r2, [r3, #0]
+ 112:../multitasking/queue.c **** 	tmr_start(TIMER0);
+ 2002              		.loc 1 112 0
+ 2003 009c 0000A0E3 		mov	r0, #0
+ 2004 00a0 FEFFFFEB 		bl	tmr_start
+ 113:../multitasking/queue.c **** 
+ 114:../multitasking/queue.c **** 	ic_enable(INT_TIMER0);
+ 2005              		.loc 1 114 0
+ 2006 00a4 0D00A0E3 		mov	r0, #13
+ 2007 00a8 FEFFFFEB 		bl	ic_enable
+ 2008              	.L4:
+ 115:../multitasking/queue.c **** 
+ 116:../multitasking/queue.c ****     while( 1 )
+ 117:../multitasking/queue.c ****     {
+ 118:../multitasking/queue.c ****         sleep();                        /* Entra en estado IDLE, sale por interrupción */
+ 2009              		.loc 1 118 0
+ 2010 00ac FEFFFFEB 		bl	sleep
+ 119:../multitasking/queue.c ****         while( !fifo_is_empty() )
+ 2011              		.loc 1 119 0
+ 2012 00b0 040000EA 		b	.L2
+ 2013              	.L3:
+ 120:../multitasking/queue.c ****         {
+ 121:../multitasking/queue.c ****             pf = fifo_dequeue();
+ 2014              		.loc 1 121 0
+ 2015 00b4 FEFFFFEB 		bl	fifo_dequeue
+ 2016 00b8 10000BE5 		str	r0, [fp, #-16]
+ 122:../multitasking/queue.c ****             (*pf)();                    /* Las tareas encoladas se ejecutan en esta hebra (backgrou
+ 2017              		.loc 1 122 0
+ 2018 00bc 10301BE5 		ldr	r3, [fp, #-16]
+ 2019 00c0 0FE0A0E1 		mov	lr, pc
+ 2020 00c4 13FF2FE1 		bx	r3
+ 2021              	.L2:
+ 119:../multitasking/queue.c ****         while( !fifo_is_empty() )
+ 2022              		.loc 1 119 0 discriminator 1
+ 2023 00c8 FEFFFFEB 		bl	fifo_is_empty
+ 2024 00cc 0030A0E1 		mov	r3, r0
+ 2025 00d0 000053E3 		cmp	r3, #0
+ 2026 00d4 F6FFFF0A 		beq	.L3
+ 123:../multitasking/queue.c ****         }
+ 124:../multitasking/queue.c ****     }
+ 2027              		.loc 1 124 0
+ 2028 00d8 F3FFFFEA 		b	.L4
+ 2029              	.L6:
+ 2030              		.align	2
+ 2031              	.L5:
+ 2032 00dc 00000000 		.word	.LC0
+ 2033 00e0 38000000 		.word	.LC1
+ 2034 00e4 74FF7F0C 		.word	209715060
+ 2035 00e8 00000000 		.word	isr_pb
+ 2036 00ec 409C0000 		.word	40000
+ 2037 00f0 54FF7F0C 		.word	209715028
+ 2038 00f4 00000000 		.word	isr_tick
+ 2039              		.cfi_endproc
+ 2040              	.LFE0:
+ 2042              		.align	2
+ 2043              		.global	isr_tick
+ 2045              	isr_tick:
+ 2046              	.LFB1:
+ 125:../multitasking/queue.c **** 
+ 126:../multitasking/queue.c **** }
+ 127:../multitasking/queue.c **** 
+ 128:../multitasking/queue.c **** /*******************************************************************/
+ 129:../multitasking/queue.c **** 
+ 130:../multitasking/queue.c **** //Task names are used by all 3 multitasking systems. Shut down each other when using others
+ 131:../multitasking/queue.c **** 
+ 132:../multitasking/queue.c **** #if 0
+ 133:../multitasking/queue.c **** 
+ 134:../multitasking/queue.c **** void Task1( void )  /* Cada 0,5 segundos (50 ticks) alterna el led que se enciende */
+ 135:../multitasking/queue.c **** {
+ 136:../multitasking/queue.c ****     static boolean init = TRUE;
+ 137:../multitasking/queue.c **** 
+ 138:../multitasking/queue.c ****     if( init )
+ 139:../multitasking/queue.c ****     {
+ 140:../multitasking/queue.c ****         init = FALSE;
+ 141:../multitasking/queue.c ****         uart0_puts( " Task 1: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 142:../multitasking/queue.c ****         led1_on();
+ 143:../multitasking/queue.c ****         led2_off();
+ 144:../multitasking/queue.c ****     }
+ 145:../multitasking/queue.c ****     else
+ 146:../multitasking/queue.c ****     {
+ 147:../multitasking/queue.c ****         led1_switch();
+ 148:../multitasking/queue.c ****         led2_switch();
+ 149:../multitasking/queue.c ****     }
+ 150:../multitasking/queue.c **** }
+ 151:../multitasking/queue.c **** 
+ 152:../multitasking/queue.c **** void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scancode a otras tareas *
+ 153:../multitasking/queue.c **** {
+ 154:../multitasking/queue.c ****     static boolean init = TRUE;
+ 155:../multitasking/queue.c ****     static enum { wait_keydown, scan, wait_keyup } state;
+ 156:../multitasking/queue.c **** 
+ 157:../multitasking/queue.c ****     if( init )
+ 158:../multitasking/queue.c ****     {
+ 159:../multitasking/queue.c ****         init  = FALSE;
+ 160:../multitasking/queue.c ****         uart0_puts( " Task 2: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 161:../multitasking/queue.c ****         state = wait_keydown;
+ 162:../multitasking/queue.c ****     }
+ 163:../multitasking/queue.c ****     else switch( state )
+ 164:../multitasking/queue.c ****     {
+ 165:../multitasking/queue.c ****         case wait_keydown:
+ 166:../multitasking/queue.c ****             if( kb_scan() >= 0 )
+ 167:../multitasking/queue.c ****                 state = scan;
+ 168:../multitasking/queue.c ****             break;
+ 169:../multitasking/queue.c ****         case scan:
+ 170:../multitasking/queue.c ****             scancode = kb_scan();
+ 171:../multitasking/queue.c ****             if( scancode >= 0 )
+ 172:../multitasking/queue.c ****             {
+ 173:../multitasking/queue.c ****                 fifo_enqueue( Task5 );
+ 174:../multitasking/queue.c ****                 fifo_enqueue( Task6 );
+ 175:../multitasking/queue.c ****             }
+ 176:../multitasking/queue.c ****             state = wait_keyup;
+ 177:../multitasking/queue.c ****             break;
+ 178:../multitasking/queue.c ****         case wait_keyup:
+ 179:../multitasking/queue.c ****             if( kb_scan() < 0 )
+ 180:../multitasking/queue.c ****                 state = wait_keydown;
+ 181:../multitasking/queue.c ****             break;
+ 182:../multitasking/queue.c ****     }
+ 183:../multitasking/queue.c **** }
+ 184:../multitasking/queue.c **** 
+ 185:../multitasking/queue.c **** void Task3( void  )  /* Cada segundo (100 ticks) muestra por la UART0 la hora del RTC */
+ 186:../multitasking/queue.c **** {
+ 187:../multitasking/queue.c ****     static boolean init = TRUE;
+ 188:../multitasking/queue.c ****     rtc_time_t rtc_time;
+ 189:../multitasking/queue.c **** 
+ 190:../multitasking/queue.c ****     if( init )
+ 191:../multitasking/queue.c ****     {
+ 192:../multitasking/queue.c ****         init = FALSE;
+ 193:../multitasking/queue.c ****         uart0_puts( " Task 3: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 194:../multitasking/queue.c ****     }
+ 195:../multitasking/queue.c ****     else
+ 196:../multitasking/queue.c ****     {
+ 197:../multitasking/queue.c ****         rtc_gettime( &rtc_time );
+ 198:../multitasking/queue.c ****         uart0_puts( "  (Task 3) Hora: " );
+ 199:../multitasking/queue.c ****         uart0_putint( rtc_time.hour );
+ 200:../multitasking/queue.c ****         uart0_putchar( ':' );
+ 201:../multitasking/queue.c ****         uart0_putint( rtc_time.min );
+ 202:../multitasking/queue.c ****         uart0_putchar( ':' );
+ 203:../multitasking/queue.c ****         uart0_putint( rtc_time.sec );
+ 204:../multitasking/queue.c ****         uart0_puts( "\n" );
+ 205:../multitasking/queue.c ****     }
+ 206:../multitasking/queue.c **** }
+ 207:../multitasking/queue.c **** 
+ 208:../multitasking/queue.c **** void Task4( void )  /* Cada 10 segundos (1000 ticks) muestra por la UART0 los ticks transcurridos *
+ 209:../multitasking/queue.c **** {
+ 210:../multitasking/queue.c ****     static boolean init = TRUE;
+ 211:../multitasking/queue.c ****     static uint32 ticks;
+ 212:../multitasking/queue.c **** 
+ 213:../multitasking/queue.c ****     if( init )
+ 214:../multitasking/queue.c ****     {
+ 215:../multitasking/queue.c ****         init = FALSE;
+ 216:../multitasking/queue.c ****         uart0_puts( " Task 4: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 217:../multitasking/queue.c ****         ticks = 0;
+ 218:../multitasking/queue.c ****     }
+ 219:../multitasking/queue.c ****     else
+ 220:../multitasking/queue.c ****     {
+ 221:../multitasking/queue.c ****         ticks += TICKS_PER_SEC * 10;
+ 222:../multitasking/queue.c ****         uart0_puts( "  (Task 4) Ticks: " );
+ 223:../multitasking/queue.c ****         uart0_putint( ticks );
+ 224:../multitasking/queue.c ****         uart0_puts( "\n" );
+ 225:../multitasking/queue.c ****     }
+ 226:../multitasking/queue.c **** }
+ 227:../multitasking/queue.c **** 
+ 228:../multitasking/queue.c **** void Task5( void )  /* Cada vez que reciba un scancode lo muestra por la UART0 */
+ 229:../multitasking/queue.c **** {
+ 230:../multitasking/queue.c ****     static boolean init = TRUE;
+ 231:../multitasking/queue.c **** 
+ 232:../multitasking/queue.c ****     if( init )
+ 233:../multitasking/queue.c ****     {
+ 234:../multitasking/queue.c ****         init = FALSE;
+ 235:../multitasking/queue.c ****         uart0_puts( " Task 5: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 236:../multitasking/queue.c ****     }
+ 237:../multitasking/queue.c ****     else
+ 238:../multitasking/queue.c ****     {
+ 239:../multitasking/queue.c ****         uart0_puts( "  (Task 5) Tecla pulsada: " );
+ 240:../multitasking/queue.c ****         uart0_puthex( scancode );
+ 241:../multitasking/queue.c ****         uart0_puts( "\n" );
+ 242:../multitasking/queue.c ****     }
+ 243:../multitasking/queue.c **** }
+ 244:../multitasking/queue.c **** 
+ 245:../multitasking/queue.c **** void Task6( void )  /* Cada vez que reciba un scancode lo muestra por los 7 segmentos */
+ 246:../multitasking/queue.c **** {
+ 247:../multitasking/queue.c ****     static boolean init = TRUE;
+ 248:../multitasking/queue.c **** 
+ 249:../multitasking/queue.c ****     if( init )
+ 250:../multitasking/queue.c ****     {
+ 251:../multitasking/queue.c ****         init = FALSE;
+ 252:../multitasking/queue.c ****         uart0_puts( " Task 6: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 253:../multitasking/queue.c ****     }
+ 254:../multitasking/queue.c ****     else
+ 255:../multitasking/queue.c ****     {
+ 256:../multitasking/queue.c ****     	D8Led_digit(scancode);
+ 257:../multitasking/queue.c ****     }
+ 258:../multitasking/queue.c **** }
+ 259:../multitasking/queue.c **** 
+ 260:../multitasking/queue.c **** void Task7( void )  /* Cada vez que se presione un pulsador lo avisa por la UART0 */
+ 261:../multitasking/queue.c **** {
+ 262:../multitasking/queue.c ****     static boolean init = TRUE;
+ 263:../multitasking/queue.c **** 
+ 264:../multitasking/queue.c ****     if( init )
+ 265:../multitasking/queue.c ****     {
+ 266:../multitasking/queue.c ****         init = FALSE;
+ 267:../multitasking/queue.c ****         uart0_puts( " Task 7: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 268:../multitasking/queue.c ****     }
+ 269:../multitasking/queue.c ****     else
+ 270:../multitasking/queue.c ****     {
+ 271:../multitasking/queue.c ****         uart0_puts( "  (Task 7) Se ha pulsado algún pushbutton...\n" );
+ 272:../multitasking/queue.c ****     }
+ 273:../multitasking/queue.c **** }
+ 274:../multitasking/queue.c **** 
+ 275:../multitasking/queue.c **** /*******************************************************************/
+ 276:../multitasking/queue.c **** 
+ 277:../multitasking/queue.c **** void isr_pb( void )
+ 278:../multitasking/queue.c **** {
+ 279:../multitasking/queue.c ****     fifo_enqueue( Task7 );
+ 280:../multitasking/queue.c ****     rEXTINTPND = (1 << 2) | (1 << 3);
+ 281:../multitasking/queue.c **** 	ic_cleanflag(INT_EINT4567);
+ 282:../multitasking/queue.c **** }
+ 283:../multitasking/queue.c **** 
+ 284:../multitasking/queue.c **** #endif
+ 285:../multitasking/queue.c **** 
+ 286:../multitasking/queue.c **** void isr_tick( void )
+ 287:../multitasking/queue.c **** {
+ 2047              		.loc 1 287 0
+ 2048              		.cfi_startproc
+ 2049              		@ Interrupt Service Routine.
+ 2050              		@ args = 0, pretend = 0, frame = 0
+ 2051              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2052 00f8 04C02DE5 		str	ip, [sp, #-4]!
+ 2053 00fc 0DC0A0E1 		mov	ip, sp
+ 2054              	.LCFI2:
+ 2055              		.cfi_def_cfa_register 12
+ 2056 0100 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 2057 0104 04B04CE2 		sub	fp, ip, #4
+ 2058              		.cfi_offset 14, -8
+ 2059              		.cfi_offset 13, -12
+ 2060              		.cfi_offset 11, -16
+ 2061              		.cfi_offset 3, -20
+ 2062              		.cfi_offset 2, -24
+ 2063              		.cfi_offset 1, -28
+ 2064              		.cfi_offset 0, -32
+ 2065              	.LCFI3:
+ 2066              		.cfi_def_cfa 11, 4
+ 288:../multitasking/queue.c ****     static uint16 cont5ticks    = 5;
+ 289:../multitasking/queue.c ****     static uint16 cont50ticks   = 50;
+ 290:../multitasking/queue.c ****     static uint16 cont100ticks  = 100;
+ 291:../multitasking/queue.c ****     static uint16 cont1000ticks = 1000;
+ 292:../multitasking/queue.c **** 
+ 293:../multitasking/queue.c ****     if( !(--cont5ticks) )
+ 2067              		.loc 1 293 0
+ 2068 0108 10319FE5 		ldr	r3, .L12
+ 2069 010c B030D3E1 		ldrh	r3, [r3, #0]
+ 2070 0110 013043E2 		sub	r3, r3, #1
+ 2071 0114 0338A0E1 		mov	r3, r3, asl #16
+ 2072 0118 2328A0E1 		mov	r2, r3, lsr #16
+ 2073 011c FC309FE5 		ldr	r3, .L12
+ 2074 0120 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 2075 0124 F4309FE5 		ldr	r3, .L12
+ 2076 0128 B030D3E1 		ldrh	r3, [r3, #0]
+ 2077 012c 000053E3 		cmp	r3, #0
+ 2078 0130 0400001A 		bne	.L8
+ 294:../multitasking/queue.c ****     {
+ 295:../multitasking/queue.c ****         cont5ticks = 5;
+ 2079              		.loc 1 295 0
+ 2080 0134 E4309FE5 		ldr	r3, .L12
+ 2081 0138 0520A0E3 		mov	r2, #5
+ 2082 013c B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 296:../multitasking/queue.c ****         fifo_enqueue( Task2 );
+ 2083              		.loc 1 296 0
+ 2084 0140 DC009FE5 		ldr	r0, .L12+4
+ 2085 0144 FEFFFFEB 		bl	fifo_enqueue
+ 2086              	.L8:
+ 297:../multitasking/queue.c ****     }
+ 298:../multitasking/queue.c ****     if( !(--cont50ticks) )
+ 2087              		.loc 1 298 0
+ 2088 0148 D8309FE5 		ldr	r3, .L12+8
+ 2089 014c B030D3E1 		ldrh	r3, [r3, #0]
+ 2090 0150 013043E2 		sub	r3, r3, #1
+ 2091 0154 0338A0E1 		mov	r3, r3, asl #16
+ 2092 0158 2328A0E1 		mov	r2, r3, lsr #16
+ 2093 015c C4309FE5 		ldr	r3, .L12+8
+ 2094 0160 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 2095 0164 BC309FE5 		ldr	r3, .L12+8
+ 2096 0168 B030D3E1 		ldrh	r3, [r3, #0]
+ 2097 016c 000053E3 		cmp	r3, #0
+ 2098 0170 0400001A 		bne	.L9
+ 299:../multitasking/queue.c ****     {
+ 300:../multitasking/queue.c ****         cont50ticks = 50;
+ 2099              		.loc 1 300 0
+ 2100 0174 AC309FE5 		ldr	r3, .L12+8
+ 2101 0178 3220A0E3 		mov	r2, #50
+ 2102 017c B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 301:../multitasking/queue.c ****         fifo_enqueue( Task1 );
+ 2103              		.loc 1 301 0
+ 2104 0180 A4009FE5 		ldr	r0, .L12+12
+ 2105 0184 FEFFFFEB 		bl	fifo_enqueue
+ 2106              	.L9:
+ 302:../multitasking/queue.c ****     }
+ 303:../multitasking/queue.c ****     if( !(--cont100ticks) )
+ 2107              		.loc 1 303 0
+ 2108 0188 A0309FE5 		ldr	r3, .L12+16
+ 2109 018c B030D3E1 		ldrh	r3, [r3, #0]
+ 2110 0190 013043E2 		sub	r3, r3, #1
+ 2111 0194 0338A0E1 		mov	r3, r3, asl #16
+ 2112 0198 2328A0E1 		mov	r2, r3, lsr #16
+ 2113 019c 8C309FE5 		ldr	r3, .L12+16
+ 2114 01a0 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 2115 01a4 84309FE5 		ldr	r3, .L12+16
+ 2116 01a8 B030D3E1 		ldrh	r3, [r3, #0]
+ 2117 01ac 000053E3 		cmp	r3, #0
+ 2118 01b0 0400001A 		bne	.L10
+ 304:../multitasking/queue.c ****     {
+ 305:../multitasking/queue.c ****         cont100ticks = 100;
+ 2119              		.loc 1 305 0
+ 2120 01b4 74309FE5 		ldr	r3, .L12+16
+ 2121 01b8 6420A0E3 		mov	r2, #100
+ 2122 01bc B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 306:../multitasking/queue.c ****         fifo_enqueue( Task3 );
+ 2123              		.loc 1 306 0
+ 2124 01c0 6C009FE5 		ldr	r0, .L12+20
+ 2125 01c4 FEFFFFEB 		bl	fifo_enqueue
+ 2126              	.L10:
+ 307:../multitasking/queue.c ****     }
+ 308:../multitasking/queue.c ****     if( !(--cont1000ticks) )
+ 2127              		.loc 1 308 0
+ 2128 01c8 68309FE5 		ldr	r3, .L12+24
+ 2129 01cc B030D3E1 		ldrh	r3, [r3, #0]
+ 2130 01d0 013043E2 		sub	r3, r3, #1
+ 2131 01d4 0338A0E1 		mov	r3, r3, asl #16
+ 2132 01d8 2328A0E1 		mov	r2, r3, lsr #16
+ 2133 01dc 54309FE5 		ldr	r3, .L12+24
+ 2134 01e0 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 2135 01e4 4C309FE5 		ldr	r3, .L12+24
+ 2136 01e8 B030D3E1 		ldrh	r3, [r3, #0]
+ 2137 01ec 000053E3 		cmp	r3, #0
+ 2138 01f0 0400001A 		bne	.L11
+ 309:../multitasking/queue.c ****     {
+ 310:../multitasking/queue.c ****         cont1000ticks = 1000;
+ 2139              		.loc 1 310 0
+ 2140 01f4 3C309FE5 		ldr	r3, .L12+24
+ 2141 01f8 FA2FA0E3 		mov	r2, #1000
+ 2142 01fc B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 311:../multitasking/queue.c ****         fifo_enqueue( Task4 );
+ 2143              		.loc 1 311 0
+ 2144 0200 34009FE5 		ldr	r0, .L12+28
+ 2145 0204 FEFFFFEB 		bl	fifo_enqueue
+ 2146              	.L11:
+ 312:../multitasking/queue.c ****     }
+ 313:../multitasking/queue.c **** 
+ 314:../multitasking/queue.c ****     ic_cleanflag(INT_TIMER0);
+ 2147              		.loc 1 314 0
+ 2148 0208 0D00A0E3 		mov	r0, #13
+ 2149 020c FEFFFFEB 		bl	ic_cleanflag
+ 315:../multitasking/queue.c **** };
+ 2150              		.loc 1 315 0
+ 2151 0210 1CD04BE2 		sub	sp, fp, #28
+ 2152 0214 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 2153 0218 04C09DE4 		ldmfd	sp!, {ip}
+ 2154 021c 04F05EE2 		subs	pc, lr, #4
+ 2155              	.L13:
+ 2156              		.align	2
+ 2157              	.L12:
+ 2158 0220 00000000 		.word	cont5ticks.4160
+ 2159 0224 00000000 		.word	Task2
+ 2160 0228 02000000 		.word	cont50ticks.4161
+ 2161 022c 00000000 		.word	Task1
+ 2162 0230 04000000 		.word	cont100ticks.4162
+ 2163 0234 00000000 		.word	Task3
+ 2164 0238 06000000 		.word	cont1000ticks.4163
+ 2165 023c 00000000 		.word	Task4
+ 2166              		.cfi_endproc
+ 2167              	.LFE1:
+ 2169              		.align	2
+ 2170              		.global	fifo_init
+ 2172              	fifo_init:
+ 2173              	.LFB2:
+ 316:../multitasking/queue.c **** 
+ 317:../multitasking/queue.c **** 
+ 318:../multitasking/queue.c **** /*******************************************************************/
+ 319:../multitasking/queue.c **** 
+ 320:../multitasking/queue.c **** void fifo_init( void )
+ 321:../multitasking/queue.c **** {
+ 2174              		.loc 1 321 0
+ 2175              		.cfi_startproc
+ 2176              		@ Function supports interworking.
+ 2177              		@ args = 0, pretend = 0, frame = 0
+ 2178              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2179 0240 0DC0A0E1 		mov	ip, sp
+ 2180              	.LCFI4:
+ 2181              		.cfi_def_cfa_register 12
+ 2182 0244 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2183 0248 04B04CE2 		sub	fp, ip, #4
+ 2184              		.cfi_offset 14, -8
+ 2185              		.cfi_offset 13, -12
+ 2186              		.cfi_offset 11, -16
+ 2187              	.LCFI5:
+ 2188              		.cfi_def_cfa 11, 4
+ 322:../multitasking/queue.c ****     fifo.head = 0;
+ 2189              		.loc 1 322 0
+ 2190 024c 28309FE5 		ldr	r3, .L15
+ 2191 0250 0020A0E3 		mov	r2, #0
+ 2192 0254 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 323:../multitasking/queue.c ****     fifo.tail = 0;
+ 2193              		.loc 1 323 0
+ 2194 0258 1C309FE5 		ldr	r3, .L15
+ 2195 025c 0020A0E3 		mov	r2, #0
+ 2196 0260 B220C3E1 		strh	r2, [r3, #2]	@ movhi
+ 324:../multitasking/queue.c ****     fifo.size = 0;
+ 2197              		.loc 1 324 0
+ 2198 0264 10309FE5 		ldr	r3, .L15
+ 2199 0268 0020A0E3 		mov	r2, #0
+ 2200 026c B420C3E1 		strh	r2, [r3, #4]	@ movhi
+ 325:../multitasking/queue.c **** }
+ 2201              		.loc 1 325 0
+ 2202 0270 0CD04BE2 		sub	sp, fp, #12
+ 2203 0274 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2204 0278 1EFF2FE1 		bx	lr
+ 2205              	.L16:
+ 2206              		.align	2
+ 2207              	.L15:
+ 2208 027c 00000000 		.word	fifo
+ 2209              		.cfi_endproc
+ 2210              	.LFE2:
+ 2212              		.align	2
+ 2213              		.global	fifo_enqueue
+ 2215              	fifo_enqueue:
+ 2216              	.LFB3:
+ 326:../multitasking/queue.c **** 
+ 327:../multitasking/queue.c **** void fifo_enqueue( pf_t pf )
+ 328:../multitasking/queue.c **** {
+ 2217              		.loc 1 328 0
+ 2218              		.cfi_startproc
+ 2219              		@ Function supports interworking.
+ 2220              		@ args = 0, pretend = 0, frame = 8
+ 2221              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2222 0280 0DC0A0E1 		mov	ip, sp
+ 2223              	.LCFI6:
+ 2224              		.cfi_def_cfa_register 12
+ 2225 0284 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2226 0288 04B04CE2 		sub	fp, ip, #4
+ 2227              		.cfi_offset 14, -8
+ 2228              		.cfi_offset 13, -12
+ 2229              		.cfi_offset 11, -16
+ 2230              	.LCFI7:
+ 2231              		.cfi_def_cfa 11, 4
+ 2232 028c 08D04DE2 		sub	sp, sp, #8
+ 2233 0290 10000BE5 		str	r0, [fp, #-16]
+ 329:../multitasking/queue.c ****     fifo.buffer[fifo.tail++] = pf;
+ 2234              		.loc 1 329 0
+ 2235 0294 9C309FE5 		ldr	r3, .L19
+ 2236 0298 B230D3E1 		ldrh	r3, [r3, #2]	@ movhi
+ 2237 029c 0338A0E1 		mov	r3, r3, asl #16
+ 2238 02a0 2338A0E1 		mov	r3, r3, lsr #16
+ 2239 02a4 0310A0E1 		mov	r1, r3
+ 2240 02a8 88209FE5 		ldr	r2, .L19
+ 2241 02ac 021081E2 		add	r1, r1, #2
+ 2242 02b0 10001BE5 		ldr	r0, [fp, #-16]
+ 2243 02b4 010182E7 		str	r0, [r2, r1, asl #2]
+ 2244 02b8 013083E2 		add	r3, r3, #1
+ 2245 02bc 0338A0E1 		mov	r3, r3, asl #16
+ 2246 02c0 2328A0E1 		mov	r2, r3, lsr #16
+ 2247 02c4 6C309FE5 		ldr	r3, .L19
+ 2248 02c8 B220C3E1 		strh	r2, [r3, #2]	@ movhi
+ 330:../multitasking/queue.c ****     if( fifo.tail == BUFFER_LEN )
+ 2249              		.loc 1 330 0
+ 2250 02cc 64309FE5 		ldr	r3, .L19
+ 2251 02d0 B230D3E1 		ldrh	r3, [r3, #2]	@ movhi
+ 2252 02d4 0338A0E1 		mov	r3, r3, asl #16
+ 2253 02d8 2338A0E1 		mov	r3, r3, lsr #16
+ 2254 02dc 020C53E3 		cmp	r3, #512
+ 2255 02e0 0200001A 		bne	.L18
+ 331:../multitasking/queue.c ****         fifo.tail = 0;
+ 2256              		.loc 1 331 0
+ 2257 02e4 4C309FE5 		ldr	r3, .L19
+ 2258 02e8 0020A0E3 		mov	r2, #0
+ 2259 02ec B220C3E1 		strh	r2, [r3, #2]	@ movhi
+ 2260              	.L18:
+ 332:../multitasking/queue.c ****     INT_DISABLE;
+ 2261              		.loc 1 332 0
+ 2262              	@ 332 "../multitasking/queue.c" 1
+ 2263 02f0 00000FE1 		mrs   r0, cpsr
+ 2264              	@ 0 "" 2
+ 2265              	@ 332 "../multitasking/queue.c" 1
+ 2266 02f4 04002DE5 		stmfd sp!, {r0}
+ 2267              	@ 0 "" 2
+ 2268              	@ 332 "../multitasking/queue.c" 1
+ 2269 02f8 C00080E3 		orr   r0, r0, #0b11000000
+ 2270              	@ 0 "" 2
+ 2271              	@ 332 "../multitasking/queue.c" 1
+ 2272 02fc 00F021E1 		msr   cpsr_c, r0
+ 2273              	@ 0 "" 2
+ 333:../multitasking/queue.c ****     fifo.size++;
+ 2274              		.loc 1 333 0
+ 2275 0300 30309FE5 		ldr	r3, .L19
+ 2276 0304 B430D3E1 		ldrh	r3, [r3, #4]	@ movhi
+ 2277 0308 0338A0E1 		mov	r3, r3, asl #16
+ 2278 030c 2338A0E1 		mov	r3, r3, lsr #16
+ 2279 0310 013083E2 		add	r3, r3, #1
+ 2280 0314 0338A0E1 		mov	r3, r3, asl #16
+ 2281 0318 2328A0E1 		mov	r2, r3, lsr #16
+ 2282 031c 14309FE5 		ldr	r3, .L19
+ 2283 0320 B420C3E1 		strh	r2, [r3, #4]	@ movhi
+ 334:../multitasking/queue.c ****     INT_ENABLE;
+ 2284              		.loc 1 334 0
+ 2285              	@ 334 "../multitasking/queue.c" 1
+ 2286 0324 04009DE4 		ldmfd sp!, {r0}
+ 2287              	@ 0 "" 2
+ 2288              	@ 334 "../multitasking/queue.c" 1
+ 2289 0328 00F021E1 		msr   cpsr_c, r0
+ 2290              	@ 0 "" 2
+ 335:../multitasking/queue.c **** }
+ 2291              		.loc 1 335 0
+ 2292 032c 0CD04BE2 		sub	sp, fp, #12
+ 2293 0330 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2294 0334 1EFF2FE1 		bx	lr
+ 2295              	.L20:
+ 2296              		.align	2
+ 2297              	.L19:
+ 2298 0338 00000000 		.word	fifo
+ 2299              		.cfi_endproc
+ 2300              	.LFE3:
+ 2302              		.align	2
+ 2303              		.global	fifo_dequeue
+ 2305              	fifo_dequeue:
+ 2306              	.LFB4:
+ 336:../multitasking/queue.c **** 
+ 337:../multitasking/queue.c **** pf_t fifo_dequeue( void )
+ 338:../multitasking/queue.c **** {
+ 2307              		.loc 1 338 0
+ 2308              		.cfi_startproc
+ 2309              		@ Function supports interworking.
+ 2310              		@ args = 0, pretend = 0, frame = 8
+ 2311              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2312 033c 0DC0A0E1 		mov	ip, sp
+ 2313              	.LCFI8:
+ 2314              		.cfi_def_cfa_register 12
+ 2315 0340 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2316 0344 04B04CE2 		sub	fp, ip, #4
+ 2317              		.cfi_offset 14, -8
+ 2318              		.cfi_offset 13, -12
+ 2319              		.cfi_offset 11, -16
+ 2320              	.LCFI9:
+ 2321              		.cfi_def_cfa 11, 4
+ 2322 0348 08D04DE2 		sub	sp, sp, #8
+ 339:../multitasking/queue.c ****     pf_t pf;
+ 340:../multitasking/queue.c **** 
+ 341:../multitasking/queue.c ****     pf = fifo.buffer[fifo.head++];
+ 2323              		.loc 1 341 0
+ 2324 034c A4309FE5 		ldr	r3, .L23
+ 2325 0350 B030D3E1 		ldrh	r3, [r3, #0]	@ movhi
+ 2326 0354 0338A0E1 		mov	r3, r3, asl #16
+ 2327 0358 2338A0E1 		mov	r3, r3, lsr #16
+ 2328 035c 0310A0E1 		mov	r1, r3
+ 2329 0360 90209FE5 		ldr	r2, .L23
+ 2330 0364 021081E2 		add	r1, r1, #2
+ 2331 0368 012192E7 		ldr	r2, [r2, r1, asl #2]
+ 2332 036c 10200BE5 		str	r2, [fp, #-16]
+ 2333 0370 013083E2 		add	r3, r3, #1
+ 2334 0374 0338A0E1 		mov	r3, r3, asl #16
+ 2335 0378 2328A0E1 		mov	r2, r3, lsr #16
+ 2336 037c 74309FE5 		ldr	r3, .L23
+ 2337 0380 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 342:../multitasking/queue.c ****     if( fifo.head == BUFFER_LEN )
+ 2338              		.loc 1 342 0
+ 2339 0384 6C309FE5 		ldr	r3, .L23
+ 2340 0388 B030D3E1 		ldrh	r3, [r3, #0]	@ movhi
+ 2341 038c 0338A0E1 		mov	r3, r3, asl #16
+ 2342 0390 2338A0E1 		mov	r3, r3, lsr #16
+ 2343 0394 020C53E3 		cmp	r3, #512
+ 2344 0398 0200001A 		bne	.L22
+ 343:../multitasking/queue.c ****         fifo.head = 0;
+ 2345              		.loc 1 343 0
+ 2346 039c 54309FE5 		ldr	r3, .L23
+ 2347 03a0 0020A0E3 		mov	r2, #0
+ 2348 03a4 B020C3E1 		strh	r2, [r3, #0]	@ movhi
+ 2349              	.L22:
+ 344:../multitasking/queue.c ****     INT_DISABLE;
+ 2350              		.loc 1 344 0
+ 2351              	@ 344 "../multitasking/queue.c" 1
+ 2352 03a8 00000FE1 		mrs   r0, cpsr
+ 2353              	@ 0 "" 2
+ 2354              	@ 344 "../multitasking/queue.c" 1
+ 2355 03ac 04002DE5 		stmfd sp!, {r0}
+ 2356              	@ 0 "" 2
+ 2357              	@ 344 "../multitasking/queue.c" 1
+ 2358 03b0 C00080E3 		orr   r0, r0, #0b11000000
+ 2359              	@ 0 "" 2
+ 2360              	@ 344 "../multitasking/queue.c" 1
+ 2361 03b4 00F021E1 		msr   cpsr_c, r0
+ 2362              	@ 0 "" 2
+ 345:../multitasking/queue.c ****     fifo.size--;
+ 2363              		.loc 1 345 0
+ 2364 03b8 38309FE5 		ldr	r3, .L23
+ 2365 03bc B430D3E1 		ldrh	r3, [r3, #4]	@ movhi
+ 2366 03c0 0338A0E1 		mov	r3, r3, asl #16
+ 2367 03c4 2338A0E1 		mov	r3, r3, lsr #16
+ 2368 03c8 013043E2 		sub	r3, r3, #1
+ 2369 03cc 0338A0E1 		mov	r3, r3, asl #16
+ 2370 03d0 2328A0E1 		mov	r2, r3, lsr #16
+ 2371 03d4 1C309FE5 		ldr	r3, .L23
+ 2372 03d8 B420C3E1 		strh	r2, [r3, #4]	@ movhi
+ 346:../multitasking/queue.c ****     INT_ENABLE;
+ 2373              		.loc 1 346 0
+ 2374              	@ 346 "../multitasking/queue.c" 1
+ 2375 03dc 04009DE4 		ldmfd sp!, {r0}
+ 2376              	@ 0 "" 2
+ 2377              	@ 346 "../multitasking/queue.c" 1
+ 2378 03e0 00F021E1 		msr   cpsr_c, r0
+ 2379              	@ 0 "" 2
+ 347:../multitasking/queue.c ****     return pf;
+ 2380              		.loc 1 347 0
+ 2381 03e4 10301BE5 		ldr	r3, [fp, #-16]
+ 348:../multitasking/queue.c **** }
+ 2382              		.loc 1 348 0
+ 2383 03e8 0300A0E1 		mov	r0, r3
+ 2384 03ec 0CD04BE2 		sub	sp, fp, #12
+ 2385 03f0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2386 03f4 1EFF2FE1 		bx	lr
+ 2387              	.L24:
+ 2388              		.align	2
+ 2389              	.L23:
+ 2390 03f8 00000000 		.word	fifo
+ 2391              		.cfi_endproc
+ 2392              	.LFE4:
+ 2394              		.align	2
+ 2395              		.global	fifo_is_empty
+ 2397              	fifo_is_empty:
+ 2398              	.LFB5:
+ 349:../multitasking/queue.c **** 
+ 350:../multitasking/queue.c **** boolean fifo_is_empty( void )
+ 351:../multitasking/queue.c **** {
+ 2399              		.loc 1 351 0
+ 2400              		.cfi_startproc
+ 2401              		@ Function supports interworking.
+ 2402              		@ args = 0, pretend = 0, frame = 0
+ 2403              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2404 03fc 0DC0A0E1 		mov	ip, sp
+ 2405              	.LCFI10:
+ 2406              		.cfi_def_cfa_register 12
+ 2407 0400 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2408 0404 04B04CE2 		sub	fp, ip, #4
+ 2409              		.cfi_offset 14, -8
+ 2410              		.cfi_offset 13, -12
+ 2411              		.cfi_offset 11, -16
+ 2412              	.LCFI11:
+ 2413              		.cfi_def_cfa 11, 4
+ 352:../multitasking/queue.c ****     return (fifo.size == 0);
+ 2414              		.loc 1 352 0
+ 2415 0408 28309FE5 		ldr	r3, .L26
+ 2416 040c B430D3E1 		ldrh	r3, [r3, #4]	@ movhi
+ 2417 0410 0338A0E1 		mov	r3, r3, asl #16
+ 2418 0414 2338A0E1 		mov	r3, r3, lsr #16
+ 2419 0418 000053E3 		cmp	r3, #0
+ 2420 041c 0030A013 		movne	r3, #0
+ 2421 0420 0130A003 		moveq	r3, #1
+ 2422 0424 FF3003E2 		and	r3, r3, #255
+ 353:../multitasking/queue.c **** }
+ 2423              		.loc 1 353 0
+ 2424 0428 0300A0E1 		mov	r0, r3
+ 2425 042c 0CD04BE2 		sub	sp, fp, #12
+ 2426 0430 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2427 0434 1EFF2FE1 		bx	lr
+ 2428              	.L27:
+ 2429              		.align	2
+ 2430              	.L26:
+ 2431 0438 00000000 		.word	fifo
+ 2432              		.cfi_endproc
+ 2433              	.LFE5:
+ 2435              		.align	2
+ 2436              		.global	fifo_is_full
+ 2438              	fifo_is_full:
+ 2439              	.LFB6:
+ 354:../multitasking/queue.c **** 
+ 355:../multitasking/queue.c **** boolean fifo_is_full( void )
+ 356:../multitasking/queue.c **** {
+ 2440              		.loc 1 356 0
+ 2441              		.cfi_startproc
+ 2442              		@ Function supports interworking.
+ 2443              		@ args = 0, pretend = 0, frame = 0
+ 2444              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2445 043c 0DC0A0E1 		mov	ip, sp
+ 2446              	.LCFI12:
+ 2447              		.cfi_def_cfa_register 12
+ 2448 0440 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2449 0444 04B04CE2 		sub	fp, ip, #4
+ 2450              		.cfi_offset 14, -8
+ 2451              		.cfi_offset 13, -12
+ 2452              		.cfi_offset 11, -16
+ 2453              	.LCFI13:
+ 2454              		.cfi_def_cfa 11, 4
+ 357:../multitasking/queue.c ****     return (fifo.size == BUFFER_LEN-1);
+ 2455              		.loc 1 357 0
+ 2456 0448 2C309FE5 		ldr	r3, .L29
+ 2457 044c B430D3E1 		ldrh	r3, [r3, #4]	@ movhi
+ 2458 0450 0338A0E1 		mov	r3, r3, asl #16
+ 2459 0454 2328A0E1 		mov	r2, r3, lsr #16
+ 2460 0458 20309FE5 		ldr	r3, .L29+4
+ 2461 045c 030052E1 		cmp	r2, r3
+ 2462 0460 0030A013 		movne	r3, #0
+ 2463 0464 0130A003 		moveq	r3, #1
+ 2464 0468 FF3003E2 		and	r3, r3, #255
+ 358:../multitasking/queue.c **** }
+ 2465              		.loc 1 358 0
+ 2466 046c 0300A0E1 		mov	r0, r3
+ 2467 0470 0CD04BE2 		sub	sp, fp, #12
+ 2468 0474 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2469 0478 1EFF2FE1 		bx	lr
+ 2470              	.L30:
+ 2471              		.align	2
+ 2472              	.L29:
+ 2473 047c 00000000 		.word	fifo
+ 2474 0480 FF010000 		.word	511
+ 2475              		.cfi_endproc
+ 2476              	.LFE6:
+ 2478              		.data
+ 2479              		.align	1
+ 2482              	cont5ticks.4160:
+ 2483 0000 0500     		.short	5
+ 2484              		.align	1
+ 2487              	cont50ticks.4161:
+ 2488 0002 3200     		.short	50
+ 2489              		.align	1
+ 2492              	cont100ticks.4162:
+ 2493 0004 6400     		.short	100
+ 2494              		.align	1
+ 2497              	cont1000ticks.4163:
+ 2498 0006 E803     		.short	1000
+ 2499              		.text
+ 2500              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 queue.c
+                            *COM*:00000808 fifo
+                            *COM*:00000001 scancode
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:1919   .rodata:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:1928   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:1931   .text:00000000 queue
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2172   .text:00000240 fifo_init
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2305   .text:0000033c fifo_dequeue
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2397   .text:000003fc fifo_is_empty
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2032   .text:000000dc $d
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2045   .text:000000f8 isr_tick
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2042   .text:000000f8 $a
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2215   .text:00000280 fifo_enqueue
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2158   .text:00000220 $d
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2482   .data:00000000 cont5ticks.4160
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2487   .data:00000002 cont50ticks.4161
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2492   .data:00000004 cont100ticks.4162
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2497   .data:00000006 cont1000ticks.4163
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2169   .text:00000240 $a
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2208   .text:0000027c $d
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2212   .text:00000280 $a
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2298   .text:00000338 $d
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2302   .text:0000033c $a
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2390   .text:000003f8 $d
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2394   .text:000003fc $a
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2431   .text:00000438 $d
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2435   .text:0000043c $a
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2438   .text:0000043c fifo_is_full
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2473   .text:0000047c $d
+C:\Users\Pedro\AppData\Local\Temp\ccf1X6ng.s:2479   .data:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+uart0_puts
+Task1
+Task2
+Task3
+Task4
+Task5
+Task6
+Task7
+ic_enable
+tmr_set_mode
+tmr_set_prescaler
+tmr_set_divider
+tmr_set_count
+tmr_update
+tmr_start
+sleep
+isr_pb
+ic_cleanflag

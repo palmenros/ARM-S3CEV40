@@ -1,0 +1,587 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"at24c04.c"
+  21              	.Ltext0:
+  22              		.file 1 "../at24c04.c"
+ 1792              		.align	2
+ 1793              		.global	at24c04_clear
+ 1795              	at24c04_clear:
+ 1796              	.LFB0:
+   1:../at24c04.c  **** #include "common_types.h"
+   2:../at24c04.c  **** #include "44b.h"
+   3:../at24c04.c  **** #include "at24c04.h"
+   4:../at24c04.c  **** #include "iic.h"
+   5:../at24c04.c  **** 
+   6:../at24c04.c  **** #define DEVICE_ADDR  (( 0xA << 4) | (0 << 1))
+   7:../at24c04.c  **** 
+   8:../at24c04.c  **** #define READ  (1)
+   9:../at24c04.c  **** #define WRITE (0)
+  10:../at24c04.c  **** 
+  11:../at24c04.c  **** void at24c04_clear( void )
+  12:../at24c04.c  **** {
+ 1797              		.loc 1 12 0
+ 1798              		.cfi_startproc
+ 1799              		@ Function supports interworking.
+ 1800              		@ args = 0, pretend = 0, frame = 16
+ 1801              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1802 0000 0DC0A0E1 		mov	ip, sp
+ 1803              	.LCFI0:
+ 1804              		.cfi_def_cfa_register 12
+ 1805 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1806 0008 04B04CE2 		sub	fp, ip, #4
+ 1807              		.cfi_offset 14, -8
+ 1808              		.cfi_offset 13, -12
+ 1809              		.cfi_offset 11, -16
+ 1810              	.LCFI1:
+ 1811              		.cfi_def_cfa 11, 4
+ 1812 000c 10D04DE2 		sub	sp, sp, #16
+  13:../at24c04.c  ****     //Store 32 pages of 16 bytes zeros
+  14:../at24c04.c  **** 	int page_count = 0, byte_count = 0;
+ 1813              		.loc 1 14 0
+ 1814 0010 0030A0E3 		mov	r3, #0
+ 1815 0014 10300BE5 		str	r3, [fp, #-16]
+ 1816 0018 0030A0E3 		mov	r3, #0
+ 1817 001c 14300BE5 		str	r3, [fp, #-20]
+  15:../at24c04.c  **** 	uint8 bit;
+  16:../at24c04.c  **** 
+  17:../at24c04.c  **** 	for(page_count=0; page_count < 32; ++page_count) {
+ 1818              		.loc 1 17 0
+ 1819 0020 0030A0E3 		mov	r3, #0
+ 1820 0024 10300BE5 		str	r3, [fp, #-16]
+ 1821 0028 250000EA 		b	.L2
+ 1822              	.L5:
+ 1823              	.LBB2:
+  18:../at24c04.c  **** 		//Store page
+  19:../at24c04.c  **** 		int addr = page_count * 16;
+ 1824              		.loc 1 19 0
+ 1825 002c 10301BE5 		ldr	r3, [fp, #-16]
+ 1826 0030 0332A0E1 		mov	r3, r3, asl #4
+ 1827 0034 18300BE5 		str	r3, [fp, #-24]
+  20:../at24c04.c  **** 		bit = (addr & 0x100) >> 8;
+ 1828              		.loc 1 20 0
+ 1829 0038 18301BE5 		ldr	r3, [fp, #-24]
+ 1830 003c 013C03E2 		and	r3, r3, #256
+ 1831 0040 4334A0E1 		mov	r3, r3, asr #8
+ 1832 0044 19304BE5 		strb	r3, [fp, #-25]
+  21:../at24c04.c  **** 
+  22:../at24c04.c  **** 		//Se envía la start condition seguida del 1er. byte que incluye:
+  23:../at24c04.c  **** 		//-los 6 bits más significativos de la dirección del dispositivo IIC (101000)
+  24:../at24c04.c  **** 		//-el bit 8 de la dirección del dato
+  25:../at24c04.c  **** 		//-un 0 para indicar la operación de escritura
+  26:../at24c04.c  **** 		iic_start( IIC_Tx, DEVICE_ADDR | (bit << 1) | WRITE );
+ 1833              		.loc 1 26 0
+ 1834 0048 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 1835 004c 8330A0E1 		mov	r3, r3, asl #1
+ 1836 0050 FF3003E2 		and	r3, r3, #255
+ 1837 0054 0330E0E1 		mvn	r3, r3
+ 1838 0058 5F3003E2 		and	r3, r3, #95
+ 1839 005c 0330E0E1 		mvn	r3, r3
+ 1840 0060 FF3003E2 		and	r3, r3, #255
+ 1841 0064 FF3003E2 		and	r3, r3, #255
+ 1842 0068 0300A0E3 		mov	r0, #3
+ 1843 006c 0310A0E1 		mov	r1, r3
+ 1844 0070 FEFFFFEB 		bl	iic_start
+  27:../at24c04.c  **** 
+  28:../at24c04.c  **** 		//Se envía el 2do. byte que incluye los bits 7..0 (8 bits) de la dirección del dato.
+  29:../at24c04.c  **** 		iic_putByte(addr & 0xff);
+ 1845              		.loc 1 29 0
+ 1846 0074 18301BE5 		ldr	r3, [fp, #-24]
+ 1847 0078 FF3003E2 		and	r3, r3, #255
+ 1848 007c 0300A0E1 		mov	r0, r3
+ 1849 0080 FEFFFFEB 		bl	iic_putByte
+  30:../at24c04.c  **** 
+  31:../at24c04.c  **** 		//Se envían del 3er. al 18vo. byte que incluyen los 16 primeros datos (8 bits cada uno).
+  32:../at24c04.c  **** 		for(byte_count = 0; byte_count < 16; byte_count++) {
+ 1850              		.loc 1 32 0
+ 1851 0084 0030A0E3 		mov	r3, #0
+ 1852 0088 14300BE5 		str	r3, [fp, #-20]
+ 1853 008c 040000EA 		b	.L3
+ 1854              	.L4:
+  33:../at24c04.c  **** 			iic_putByte(0);
+ 1855              		.loc 1 33 0 discriminator 2
+ 1856 0090 0000A0E3 		mov	r0, #0
+ 1857 0094 FEFFFFEB 		bl	iic_putByte
+  32:../at24c04.c  **** 		for(byte_count = 0; byte_count < 16; byte_count++) {
+ 1858              		.loc 1 32 0 discriminator 2
+ 1859 0098 14301BE5 		ldr	r3, [fp, #-20]
+ 1860 009c 013083E2 		add	r3, r3, #1
+ 1861 00a0 14300BE5 		str	r3, [fp, #-20]
+ 1862              	.L3:
+  32:../at24c04.c  **** 		for(byte_count = 0; byte_count < 16; byte_count++) {
+ 1863              		.loc 1 32 0 is_stmt 0 discriminator 1
+ 1864 00a4 14301BE5 		ldr	r3, [fp, #-20]
+ 1865 00a8 0F0053E3 		cmp	r3, #15
+ 1866 00ac F7FFFFDA 		ble	.L4
+  34:../at24c04.c  **** 		}
+  35:../at24c04.c  **** 
+  36:../at24c04.c  **** 		//Se envía la stop condition
+  37:../at24c04.c  **** 		iic_stop(5);
+ 1867              		.loc 1 37 0 is_stmt 1
+ 1868 00b0 0500A0E3 		mov	r0, #5
+ 1869 00b4 FEFFFFEB 		bl	iic_stop
+ 1870              	.LBE2:
+  17:../at24c04.c  **** 	for(page_count=0; page_count < 32; ++page_count) {
+ 1871              		.loc 1 17 0
+ 1872 00b8 10301BE5 		ldr	r3, [fp, #-16]
+ 1873 00bc 013083E2 		add	r3, r3, #1
+ 1874 00c0 10300BE5 		str	r3, [fp, #-16]
+ 1875              	.L2:
+  17:../at24c04.c  **** 	for(page_count=0; page_count < 32; ++page_count) {
+ 1876              		.loc 1 17 0 is_stmt 0 discriminator 1
+ 1877 00c4 10301BE5 		ldr	r3, [fp, #-16]
+ 1878 00c8 1F0053E3 		cmp	r3, #31
+ 1879 00cc D6FFFFDA 		ble	.L5
+  38:../at24c04.c  **** 	}
+  39:../at24c04.c  **** }
+ 1880              		.loc 1 39 0 is_stmt 1
+ 1881 00d0 0CD04BE2 		sub	sp, fp, #12
+ 1882 00d4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1883 00d8 1EFF2FE1 		bx	lr
+ 1884              		.cfi_endproc
+ 1885              	.LFE0:
+ 1887              		.align	2
+ 1888              		.global	at24c04_bytewrite
+ 1890              	at24c04_bytewrite:
+ 1891              	.LFB1:
+  40:../at24c04.c  **** 
+  41:../at24c04.c  **** void at24c04_bytewrite( uint16 addr, uint8 data )
+  42:../at24c04.c  **** {
+ 1892              		.loc 1 42 0
+ 1893              		.cfi_startproc
+ 1894              		@ Function supports interworking.
+ 1895              		@ args = 0, pretend = 0, frame = 16
+ 1896              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1897 00dc 0DC0A0E1 		mov	ip, sp
+ 1898              	.LCFI2:
+ 1899              		.cfi_def_cfa_register 12
+ 1900 00e0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1901 00e4 04B04CE2 		sub	fp, ip, #4
+ 1902              		.cfi_offset 14, -8
+ 1903              		.cfi_offset 13, -12
+ 1904              		.cfi_offset 11, -16
+ 1905              	.LCFI3:
+ 1906              		.cfi_def_cfa 11, 4
+ 1907 00e8 10D04DE2 		sub	sp, sp, #16
+ 1908 00ec 0020A0E1 		mov	r2, r0
+ 1909 00f0 0130A0E1 		mov	r3, r1
+ 1910 00f4 B6214BE1 		strh	r2, [fp, #-22]	@ movhi
+ 1911 00f8 17304BE5 		strb	r3, [fp, #-23]
+  43:../at24c04.c  ****     uint8 page;
+  44:../at24c04.c  **** 
+  45:../at24c04.c  ****     page = (addr & 0x100) >> 8;
+ 1912              		.loc 1 45 0
+ 1913 00fc B6315BE1 		ldrh	r3, [fp, #-22]
+ 1914 0100 013C03E2 		and	r3, r3, #256
+ 1915 0104 4334A0E1 		mov	r3, r3, asr #8
+ 1916 0108 0D304BE5 		strb	r3, [fp, #-13]
+  46:../at24c04.c  **** 
+  47:../at24c04.c  ****     iic_start( IIC_Tx, DEVICE_ADDR | (page << 1) | WRITE );
+ 1917              		.loc 1 47 0
+ 1918 010c 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 1919 0110 8330A0E1 		mov	r3, r3, asl #1
+ 1920 0114 FF3003E2 		and	r3, r3, #255
+ 1921 0118 0330E0E1 		mvn	r3, r3
+ 1922 011c 5F3003E2 		and	r3, r3, #95
+ 1923 0120 0330E0E1 		mvn	r3, r3
+ 1924 0124 FF3003E2 		and	r3, r3, #255
+ 1925 0128 FF3003E2 		and	r3, r3, #255
+ 1926 012c 0300A0E3 		mov	r0, #3
+ 1927 0130 0310A0E1 		mov	r1, r3
+ 1928 0134 FEFFFFEB 		bl	iic_start
+  48:../at24c04.c  ****     iic_putByte( addr & 0xFF );
+ 1929              		.loc 1 48 0
+ 1930 0138 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 1931 013c FF3003E2 		and	r3, r3, #255
+ 1932 0140 0300A0E1 		mov	r0, r3
+ 1933 0144 FEFFFFEB 		bl	iic_putByte
+  49:../at24c04.c  ****     iic_putByte( data );
+ 1934              		.loc 1 49 0
+ 1935 0148 17305BE5 		ldrb	r3, [fp, #-23]	@ zero_extendqisi2
+ 1936 014c 0300A0E1 		mov	r0, r3
+ 1937 0150 FEFFFFEB 		bl	iic_putByte
+  50:../at24c04.c  ****     iic_stop( 5 );
+ 1938              		.loc 1 50 0
+ 1939 0154 0500A0E3 		mov	r0, #5
+ 1940 0158 FEFFFFEB 		bl	iic_stop
+  51:../at24c04.c  **** }
+ 1941              		.loc 1 51 0
+ 1942 015c 0CD04BE2 		sub	sp, fp, #12
+ 1943 0160 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1944 0164 1EFF2FE1 		bx	lr
+ 1945              		.cfi_endproc
+ 1946              	.LFE1:
+ 1948              		.align	2
+ 1949              		.global	at24c04_byteread
+ 1951              	at24c04_byteread:
+ 1952              	.LFB2:
+  52:../at24c04.c  **** 
+  53:../at24c04.c  **** void at24c04_byteread( uint16 addr, uint8 *data )
+  54:../at24c04.c  **** {
+ 1953              		.loc 1 54 0
+ 1954              		.cfi_startproc
+ 1955              		@ Function supports interworking.
+ 1956              		@ args = 0, pretend = 0, frame = 16
+ 1957              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1958 0168 0DC0A0E1 		mov	ip, sp
+ 1959              	.LCFI4:
+ 1960              		.cfi_def_cfa_register 12
+ 1961 016c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1962 0170 04B04CE2 		sub	fp, ip, #4
+ 1963              		.cfi_offset 14, -8
+ 1964              		.cfi_offset 13, -12
+ 1965              		.cfi_offset 11, -16
+ 1966              	.LCFI5:
+ 1967              		.cfi_def_cfa 11, 4
+ 1968 0174 10D04DE2 		sub	sp, sp, #16
+ 1969 0178 0030A0E1 		mov	r3, r0
+ 1970 017c 1C100BE5 		str	r1, [fp, #-28]
+ 1971 0180 B6314BE1 		strh	r3, [fp, #-22]	@ movhi
+  55:../at24c04.c  **** 	//Read random byte
+  56:../at24c04.c  **** 	uint8 page;
+  57:../at24c04.c  ****     page = (addr & 0x100) >> 8;
+ 1972              		.loc 1 57 0
+ 1973 0184 B6315BE1 		ldrh	r3, [fp, #-22]
+ 1974 0188 013C03E2 		and	r3, r3, #256
+ 1975 018c 4334A0E1 		mov	r3, r3, asr #8
+ 1976 0190 0D304BE5 		strb	r3, [fp, #-13]
+  58:../at24c04.c  **** 
+  59:../at24c04.c  **** 	//Steps:
+  60:../at24c04.c  **** 	//Se envía la start condition seguida del 1er. byte que incluye:
+  61:../at24c04.c  **** 	//- los 6 bits más significativos de la dirección del dispositivo IIC (101000)
+  62:../at24c04.c  **** 	//- el bit 8 de la dirección del dato
+  63:../at24c04.c  **** 	//- un 0 para indicar la operación de escritura (escritura ficticia)
+  64:../at24c04.c  ****     iic_start( IIC_Tx, DEVICE_ADDR | (page << 1) | WRITE );
+ 1977              		.loc 1 64 0
+ 1978 0194 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 1979 0198 8330A0E1 		mov	r3, r3, asl #1
+ 1980 019c FF3003E2 		and	r3, r3, #255
+ 1981 01a0 0330E0E1 		mvn	r3, r3
+ 1982 01a4 5F3003E2 		and	r3, r3, #95
+ 1983 01a8 0330E0E1 		mvn	r3, r3
+ 1984 01ac FF3003E2 		and	r3, r3, #255
+ 1985 01b0 FF3003E2 		and	r3, r3, #255
+ 1986 01b4 0300A0E3 		mov	r0, #3
+ 1987 01b8 0310A0E1 		mov	r1, r3
+ 1988 01bc FEFFFFEB 		bl	iic_start
+  65:../at24c04.c  **** 
+  66:../at24c04.c  **** 	//Se envía el 2do. byte que incluye los bits 7..0 (8 bits) de la dirección del dato.
+  67:../at24c04.c  ****     iic_putByte( addr & 0xFF );
+ 1989              		.loc 1 67 0
+ 1990 01c0 B6315BE1 		ldrh	r3, [fp, #-22]	@ movhi
+ 1991 01c4 FF3003E2 		and	r3, r3, #255
+ 1992 01c8 0300A0E1 		mov	r0, r3
+ 1993 01cc FEFFFFEB 		bl	iic_putByte
+  68:../at24c04.c  **** 
+  69:../at24c04.c  **** 	//Se envía la start condition seguida del 3er. byte que incluye:
+  70:../at24c04.c  **** 	//- La misma información que el 1er. byte pero con un 1 final para indicar la operación de lectu
+  71:../at24c04.c  ****     iic_start( IIC_Rx, DEVICE_ADDR | (page << 1) | READ);
+ 1994              		.loc 1 71 0
+ 1995 01d0 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 1996 01d4 8330A0E1 		mov	r3, r3, asl #1
+ 1997 01d8 FF3003E2 		and	r3, r3, #255
+ 1998 01dc 0330E0E1 		mvn	r3, r3
+ 1999 01e0 5E3003E2 		and	r3, r3, #94
+ 2000 01e4 0330E0E1 		mvn	r3, r3
+ 2001 01e8 FF3003E2 		and	r3, r3, #255
+ 2002 01ec FF3003E2 		and	r3, r3, #255
+ 2003 01f0 0200A0E3 		mov	r0, #2
+ 2004 01f4 0310A0E1 		mov	r1, r3
+ 2005 01f8 FEFFFFEB 		bl	iic_start
+  72:../at24c04.c  **** 
+  73:../at24c04.c  **** 	//Se recibe el byte que incluye el dato (sin enviar ACK).
+  74:../at24c04.c  ****     *data = iic_getByte(NO_RxACK);
+ 2006              		.loc 1 74 0
+ 2007 01fc 0000A0E3 		mov	r0, #0
+ 2008 0200 FEFFFFEB 		bl	iic_getByte
+ 2009 0204 0030A0E1 		mov	r3, r0
+ 2010 0208 0320A0E1 		mov	r2, r3
+ 2011 020c 1C301BE5 		ldr	r3, [fp, #-28]
+ 2012 0210 0020C3E5 		strb	r2, [r3, #0]
+  75:../at24c04.c  **** 
+  76:../at24c04.c  **** 	//Se envía la stop condition
+  77:../at24c04.c  ****     iic_stop( 5 );
+ 2013              		.loc 1 77 0
+ 2014 0214 0500A0E3 		mov	r0, #5
+ 2015 0218 FEFFFFEB 		bl	iic_stop
+  78:../at24c04.c  **** }
+ 2016              		.loc 1 78 0
+ 2017 021c 0CD04BE2 		sub	sp, fp, #12
+ 2018 0220 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2019 0224 1EFF2FE1 		bx	lr
+ 2020              		.cfi_endproc
+ 2021              	.LFE2:
+ 2023              		.align	2
+ 2024              		.global	at24c04_load
+ 2026              	at24c04_load:
+ 2027              	.LFB3:
+  79:../at24c04.c  **** 
+  80:../at24c04.c  **** void at24c04_load( uint8 *buffer )
+  81:../at24c04.c  **** {
+ 2028              		.loc 1 81 0
+ 2029              		.cfi_startproc
+ 2030              		@ Function supports interworking.
+ 2031              		@ args = 0, pretend = 0, frame = 16
+ 2032              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2033 0228 0DC0A0E1 		mov	ip, sp
+ 2034              	.LCFI6:
+ 2035              		.cfi_def_cfa_register 12
+ 2036 022c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2037 0230 04B04CE2 		sub	fp, ip, #4
+ 2038              		.cfi_offset 14, -8
+ 2039              		.cfi_offset 13, -12
+ 2040              		.cfi_offset 11, -16
+ 2041              	.LCFI7:
+ 2042              		.cfi_def_cfa 11, 4
+ 2043 0234 10D04DE2 		sub	sp, sp, #16
+ 2044 0238 18000BE5 		str	r0, [fp, #-24]
+  82:../at24c04.c  ****     //Load sequentially all 512 bytes from 0x0
+  83:../at24c04.c  **** 	int i = 0;
+ 2045              		.loc 1 83 0
+ 2046 023c 0030A0E3 		mov	r3, #0
+ 2047 0240 10300BE5 		str	r3, [fp, #-16]
+  84:../at24c04.c  **** 
+  85:../at24c04.c  **** 	//Se envía la start condition seguida del 1er. byte que incluye:
+  86:../at24c04.c  **** 	// - los 6 bits más significativos de la dirección del dispositivo IIC (101000)
+  87:../at24c04.c  **** 	// - el bit 8 de la dirección del dato
+  88:../at24c04.c  **** 	// -un 0 para indicar la operación de escritura (escritura ficticia)
+  89:../at24c04.c  ****     iic_start( IIC_Tx, DEVICE_ADDR | (0 << 1) | WRITE );
+ 2048              		.loc 1 89 0
+ 2049 0244 0300A0E3 		mov	r0, #3
+ 2050 0248 A010A0E3 		mov	r1, #160
+ 2051 024c FEFFFFEB 		bl	iic_start
+  90:../at24c04.c  **** 
+  91:../at24c04.c  **** 	//Se envía el 2do. byte que incluye los bits 7..0 (8 bits) de la dirección del dato.
+  92:../at24c04.c  ****     iic_putByte(00);
+ 2052              		.loc 1 92 0
+ 2053 0250 0000A0E3 		mov	r0, #0
+ 2054 0254 FEFFFFEB 		bl	iic_putByte
+  93:../at24c04.c  **** 
+  94:../at24c04.c  **** 	//Se envía la start condition seguida del 3er. byte que incluye:
+  95:../at24c04.c  **** 	// - La misma información que el 1er. byte pero con un 1 final para indicar la operación de lect
+  96:../at24c04.c  ****     iic_start( IIC_Rx, DEVICE_ADDR | (0 << 1) | READ );
+ 2055              		.loc 1 96 0
+ 2056 0258 0200A0E3 		mov	r0, #2
+ 2057 025c A110A0E3 		mov	r1, #161
+ 2058 0260 FEFFFFEB 		bl	iic_start
+  97:../at24c04.c  **** 
+  98:../at24c04.c  **** 	//Se reciben n‐1 bytes que incluyen los datos (enviando ACK en cada uno)
+  99:../at24c04.c  ****     for(i = 0; i < 512 - 1; ++i) {
+ 2059              		.loc 1 99 0
+ 2060 0264 0030A0E3 		mov	r3, #0
+ 2061 0268 10300BE5 		str	r3, [fp, #-16]
+ 2062 026c 0B0000EA 		b	.L9
+ 2063              	.L10:
+ 100:../at24c04.c  ****     	*buffer = iic_getByte(RxACK);
+ 2064              		.loc 1 100 0 discriminator 2
+ 2065 0270 0100A0E3 		mov	r0, #1
+ 2066 0274 FEFFFFEB 		bl	iic_getByte
+ 2067 0278 0030A0E1 		mov	r3, r0
+ 2068 027c 0320A0E1 		mov	r2, r3
+ 2069 0280 18301BE5 		ldr	r3, [fp, #-24]
+ 2070 0284 0020C3E5 		strb	r2, [r3, #0]
+ 101:../at24c04.c  ****     	buffer++;
+ 2071              		.loc 1 101 0 discriminator 2
+ 2072 0288 18301BE5 		ldr	r3, [fp, #-24]
+ 2073 028c 013083E2 		add	r3, r3, #1
+ 2074 0290 18300BE5 		str	r3, [fp, #-24]
+  99:../at24c04.c  ****     for(i = 0; i < 512 - 1; ++i) {
+ 2075              		.loc 1 99 0 discriminator 2
+ 2076 0294 10301BE5 		ldr	r3, [fp, #-16]
+ 2077 0298 013083E2 		add	r3, r3, #1
+ 2078 029c 10300BE5 		str	r3, [fp, #-16]
+ 2079              	.L9:
+  99:../at24c04.c  ****     for(i = 0; i < 512 - 1; ++i) {
+ 2080              		.loc 1 99 0 is_stmt 0 discriminator 1
+ 2081 02a0 10201BE5 		ldr	r2, [fp, #-16]
+ 2082 02a4 30309FE5 		ldr	r3, .L11
+ 2083 02a8 030052E1 		cmp	r2, r3
+ 2084 02ac EFFFFFDA 		ble	.L10
+ 102:../at24c04.c  ****     }
+ 103:../at24c04.c  **** 
+ 104:../at24c04.c  **** 	//Se recibe el último byte que incluye datos (sin enviar ACK).
+ 105:../at24c04.c  **** 	*buffer = iic_getByte(NO_RxACK);
+ 2085              		.loc 1 105 0 is_stmt 1
+ 2086 02b0 0000A0E3 		mov	r0, #0
+ 2087 02b4 FEFFFFEB 		bl	iic_getByte
+ 2088 02b8 0030A0E1 		mov	r3, r0
+ 2089 02bc 0320A0E1 		mov	r2, r3
+ 2090 02c0 18301BE5 		ldr	r3, [fp, #-24]
+ 2091 02c4 0020C3E5 		strb	r2, [r3, #0]
+ 106:../at24c04.c  **** 
+ 107:../at24c04.c  **** 	//Se envía la stop condition.
+ 108:../at24c04.c  ****     iic_stop( 5 );
+ 2092              		.loc 1 108 0
+ 2093 02c8 0500A0E3 		mov	r0, #5
+ 2094 02cc FEFFFFEB 		bl	iic_stop
+ 109:../at24c04.c  **** }
+ 2095              		.loc 1 109 0
+ 2096 02d0 0CD04BE2 		sub	sp, fp, #12
+ 2097 02d4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2098 02d8 1EFF2FE1 		bx	lr
+ 2099              	.L12:
+ 2100              		.align	2
+ 2101              	.L11:
+ 2102 02dc FE010000 		.word	510
+ 2103              		.cfi_endproc
+ 2104              	.LFE3:
+ 2106              		.align	2
+ 2107              		.global	at24c04_store
+ 2109              	at24c04_store:
+ 2110              	.LFB4:
+ 110:../at24c04.c  **** 
+ 111:../at24c04.c  **** void at24c04_store( uint8 *buffer )
+ 112:../at24c04.c  **** {
+ 2111              		.loc 1 112 0
+ 2112              		.cfi_startproc
+ 2113              		@ Function supports interworking.
+ 2114              		@ args = 0, pretend = 0, frame = 24
+ 2115              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2116 02e0 0DC0A0E1 		mov	ip, sp
+ 2117              	.LCFI8:
+ 2118              		.cfi_def_cfa_register 12
+ 2119 02e4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2120 02e8 04B04CE2 		sub	fp, ip, #4
+ 2121              		.cfi_offset 14, -8
+ 2122              		.cfi_offset 13, -12
+ 2123              		.cfi_offset 11, -16
+ 2124              	.LCFI9:
+ 2125              		.cfi_def_cfa 11, 4
+ 2126 02ec 18D04DE2 		sub	sp, sp, #24
+ 2127 02f0 20000BE5 		str	r0, [fp, #-32]
+ 113:../at24c04.c  ****     //32 stores of 16 byte pages
+ 114:../at24c04.c  **** 	int page_count = 0, byte_count = 0;
+ 2128              		.loc 1 114 0
+ 2129 02f4 0030A0E3 		mov	r3, #0
+ 2130 02f8 10300BE5 		str	r3, [fp, #-16]
+ 2131 02fc 0030A0E3 		mov	r3, #0
+ 2132 0300 14300BE5 		str	r3, [fp, #-20]
+ 115:../at24c04.c  **** 	uint8 bit;
+ 116:../at24c04.c  **** 
+ 117:../at24c04.c  **** 	for(page_count=0; page_count < 32; ++page_count) {
+ 2133              		.loc 1 117 0
+ 2134 0304 0030A0E3 		mov	r3, #0
+ 2135 0308 10300BE5 		str	r3, [fp, #-16]
+ 2136 030c 2A0000EA 		b	.L14
+ 2137              	.L17:
+ 2138              	.LBB3:
+ 118:../at24c04.c  **** 		//Store page
+ 119:../at24c04.c  **** 		int addr = page_count * 16;
+ 2139              		.loc 1 119 0
+ 2140 0310 10301BE5 		ldr	r3, [fp, #-16]
+ 2141 0314 0332A0E1 		mov	r3, r3, asl #4
+ 2142 0318 18300BE5 		str	r3, [fp, #-24]
+ 120:../at24c04.c  **** 	    bit = (addr & 0x100) >> 8;
+ 2143              		.loc 1 120 0
+ 2144 031c 18301BE5 		ldr	r3, [fp, #-24]
+ 2145 0320 013C03E2 		and	r3, r3, #256
+ 2146 0324 4334A0E1 		mov	r3, r3, asr #8
+ 2147 0328 19304BE5 		strb	r3, [fp, #-25]
+ 121:../at24c04.c  **** 
+ 122:../at24c04.c  **** 	    //Se envía la start condition seguida del 1er. byte que incluye:
+ 123:../at24c04.c  **** 		//-los 6 bits más significativos de la dirección del dispositivo IIC (101000)
+ 124:../at24c04.c  **** 		//-el bit 8 de la dirección del dato
+ 125:../at24c04.c  **** 		//-un 0 para indicar la operación de escritura
+ 126:../at24c04.c  **** 	    iic_start( IIC_Tx, DEVICE_ADDR | (bit << 1) | WRITE );
+ 2148              		.loc 1 126 0
+ 2149 032c 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 2150 0330 8330A0E1 		mov	r3, r3, asl #1
+ 2151 0334 FF3003E2 		and	r3, r3, #255
+ 2152 0338 0330E0E1 		mvn	r3, r3
+ 2153 033c 5F3003E2 		and	r3, r3, #95
+ 2154 0340 0330E0E1 		mvn	r3, r3
+ 2155 0344 FF3003E2 		and	r3, r3, #255
+ 2156 0348 FF3003E2 		and	r3, r3, #255
+ 2157 034c 0300A0E3 		mov	r0, #3
+ 2158 0350 0310A0E1 		mov	r1, r3
+ 2159 0354 FEFFFFEB 		bl	iic_start
+ 127:../at24c04.c  **** 
+ 128:../at24c04.c  **** 	    //Se envía el 2do. byte que incluye los bits 7..0 (8 bits) de la dirección del dato.
+ 129:../at24c04.c  **** 	    iic_putByte(addr & 0xff);
+ 2160              		.loc 1 129 0
+ 2161 0358 18301BE5 		ldr	r3, [fp, #-24]
+ 2162 035c FF3003E2 		and	r3, r3, #255
+ 2163 0360 0300A0E1 		mov	r0, r3
+ 2164 0364 FEFFFFEB 		bl	iic_putByte
+ 130:../at24c04.c  **** 
+ 131:../at24c04.c  **** 	    //Se envían del 3er. al 18vo. byte que incluyen los 16 primeros datos (8 bits cada uno).
+ 132:../at24c04.c  **** 	    for(byte_count = 0; byte_count < 16; byte_count++) {
+ 2165              		.loc 1 132 0
+ 2166 0368 0030A0E3 		mov	r3, #0
+ 2167 036c 14300BE5 		str	r3, [fp, #-20]
+ 2168 0370 090000EA 		b	.L15
+ 2169              	.L16:
+ 133:../at24c04.c  **** 	    	iic_putByte(*buffer);
+ 2170              		.loc 1 133 0 discriminator 2
+ 2171 0374 20301BE5 		ldr	r3, [fp, #-32]
+ 2172 0378 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2173 037c 0300A0E1 		mov	r0, r3
+ 2174 0380 FEFFFFEB 		bl	iic_putByte
+ 134:../at24c04.c  **** 	    	++buffer;
+ 2175              		.loc 1 134 0 discriminator 2
+ 2176 0384 20301BE5 		ldr	r3, [fp, #-32]
+ 2177 0388 013083E2 		add	r3, r3, #1
+ 2178 038c 20300BE5 		str	r3, [fp, #-32]
+ 132:../at24c04.c  **** 	    for(byte_count = 0; byte_count < 16; byte_count++) {
+ 2179              		.loc 1 132 0 discriminator 2
+ 2180 0390 14301BE5 		ldr	r3, [fp, #-20]
+ 2181 0394 013083E2 		add	r3, r3, #1
+ 2182 0398 14300BE5 		str	r3, [fp, #-20]
+ 2183              	.L15:
+ 132:../at24c04.c  **** 	    for(byte_count = 0; byte_count < 16; byte_count++) {
+ 2184              		.loc 1 132 0 is_stmt 0 discriminator 1
+ 2185 039c 14301BE5 		ldr	r3, [fp, #-20]
+ 2186 03a0 0F0053E3 		cmp	r3, #15
+ 2187 03a4 F2FFFFDA 		ble	.L16
+ 135:../at24c04.c  **** 	    }
+ 136:../at24c04.c  **** 
+ 137:../at24c04.c  **** 	    //Se envía la stop condition
+ 138:../at24c04.c  **** 	    iic_stop(5);
+ 2188              		.loc 1 138 0 is_stmt 1
+ 2189 03a8 0500A0E3 		mov	r0, #5
+ 2190 03ac FEFFFFEB 		bl	iic_stop
+ 2191              	.LBE3:
+ 117:../at24c04.c  **** 	for(page_count=0; page_count < 32; ++page_count) {
+ 2192              		.loc 1 117 0
+ 2193 03b0 10301BE5 		ldr	r3, [fp, #-16]
+ 2194 03b4 013083E2 		add	r3, r3, #1
+ 2195 03b8 10300BE5 		str	r3, [fp, #-16]
+ 2196              	.L14:
+ 117:../at24c04.c  **** 	for(page_count=0; page_count < 32; ++page_count) {
+ 2197              		.loc 1 117 0 is_stmt 0 discriminator 1
+ 2198 03bc 10301BE5 		ldr	r3, [fp, #-16]
+ 2199 03c0 1F0053E3 		cmp	r3, #31
+ 2200 03c4 D1FFFFDA 		ble	.L17
+ 139:../at24c04.c  **** 	}
+ 140:../at24c04.c  **** }
+ 2201              		.loc 1 140 0 is_stmt 1
+ 2202 03c8 0CD04BE2 		sub	sp, fp, #12
+ 2203 03cc 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2204 03d0 1EFF2FE1 		bx	lr
+ 2205              		.cfi_endproc
+ 2206              	.LFE4:
+ 2208              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 at24c04.c
+C:\Users\Pedro\AppData\Local\Temp\ccsxvIQj.s:1792   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccsxvIQj.s:1795   .text:00000000 at24c04_clear
+C:\Users\Pedro\AppData\Local\Temp\ccsxvIQj.s:1890   .text:000000dc at24c04_bytewrite
+C:\Users\Pedro\AppData\Local\Temp\ccsxvIQj.s:1951   .text:00000168 at24c04_byteread
+C:\Users\Pedro\AppData\Local\Temp\ccsxvIQj.s:2026   .text:00000228 at24c04_load
+C:\Users\Pedro\AppData\Local\Temp\ccsxvIQj.s:2102   .text:000002dc $d
+C:\Users\Pedro\AppData\Local\Temp\ccsxvIQj.s:2106   .text:000002e0 $a
+C:\Users\Pedro\AppData\Local\Temp\ccsxvIQj.s:2109   .text:000002e0 at24c04_store
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+iic_start
+iic_putByte
+iic_stop
+iic_getByte

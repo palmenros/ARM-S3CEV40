@@ -1,0 +1,456 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"foreback.c"
+  21              	.Ltext0:
+  22              		.file 1 "../multitasking/foreback.c"
+ 1922              		.align	2
+ 1923              	.LC0:
+ 1924 0000 0A0A2045 		.ascii	"\012\012 Ejecutando una aplicaci\363n foreground/ba"
+ 1924      6A656375 
+ 1924      74616E64 
+ 1924      6F20756E 
+ 1924      61206170 
+ 1925 002a 636B6772 		.ascii	"ckground\012\000"
+ 1925      6F756E64 
+ 1925      0A00
+ 1926              		.align	2
+ 1927              	.LC1:
+ 1928 0034 202D2D2D 		.ascii	" -----------------------------------------------\012"
+ 1928      2D2D2D2D 
+ 1928      2D2D2D2D 
+ 1928      2D2D2D2D 
+ 1928      2D2D2D2D 
+ 1929 0065 0A00     		.ascii	"\012\000"
+ 1930 0067 00       		.text
+ 1931              		.align	2
+ 1932              		.global	foreback
+ 1934              	foreback:
+ 1935              	.LFB0:
+   1:../multitasking/foreback.c **** /*-------------------------------------------------------------------
+   2:../multitasking/foreback.c **** **
+   3:../multitasking/foreback.c **** **  Fichero:
+   4:../multitasking/foreback.c **** **    lab14.c  14/1/2021
+   5:../multitasking/foreback.c **** **
+   6:../multitasking/foreback.c **** **    (c) J.M. Mendias
+   7:../multitasking/foreback.c **** **    Programación de Sistemas y Dispositivos
+   8:../multitasking/foreback.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../multitasking/foreback.c **** **
+  10:../multitasking/foreback.c **** **  Propósito:
+  11:../multitasking/foreback.c **** **    Ejemplo de una aplicación guiada por tiempo con arquitectura
+  12:../multitasking/foreback.c **** **    foreground/background
+  13:../multitasking/foreback.c **** **
+  14:../multitasking/foreback.c **** **  Notas de diseño:
+  15:../multitasking/foreback.c **** **
+  16:../multitasking/foreback.c **** **-----------------------------------------------------------------*/
+  17:../multitasking/foreback.c **** 
+  18:../multitasking/foreback.c **** #include "../44b.h"
+  19:../multitasking/foreback.c **** #include "../common_types.h"
+  20:../multitasking/foreback.c **** #include "../leds.h"
+  21:../multitasking/foreback.c **** #include "../D8Led.h"
+  22:../multitasking/foreback.c **** #include "../uart.h"
+  23:../multitasking/foreback.c **** #include "../button.h"
+  24:../multitasking/foreback.c **** #include "../keyboard.h"
+  25:../multitasking/foreback.c **** #include "../intcontroller.h"
+  26:../multitasking/foreback.c **** #include "../timer.h"
+  27:../multitasking/foreback.c **** #include "../utils.h"
+  28:../multitasking/foreback.c **** #include "../rtc.h"
+  29:../multitasking/foreback.c **** #include "foreback.h"
+  30:../multitasking/foreback.c **** 
+  31:../multitasking/foreback.c **** #define TICKS_PER_SEC   (100)
+  32:../multitasking/foreback.c **** 
+  33:../multitasking/foreback.c **** /* Declaración de recursos */
+  34:../multitasking/foreback.c **** 
+  35:../multitasking/foreback.c **** uint8 scancode;
+  36:../multitasking/foreback.c **** boolean flagTask5;
+  37:../multitasking/foreback.c **** boolean flagTask6;
+  38:../multitasking/foreback.c **** 
+  39:../multitasking/foreback.c **** volatile boolean flagPb;
+  40:../multitasking/foreback.c **** volatile boolean flagToggleLeds;
+  41:../multitasking/foreback.c **** volatile boolean flagReadKeypad;
+  42:../multitasking/foreback.c **** volatile boolean flagWriteRTC;
+  43:../multitasking/foreback.c **** volatile boolean flagWriteTicks;
+  44:../multitasking/foreback.c **** 
+  45:../multitasking/foreback.c **** /* Declaración de tareas */
+  46:../multitasking/foreback.c **** 
+  47:../multitasking/foreback.c **** void Task1( void );
+  48:../multitasking/foreback.c **** void Task2( void );
+  49:../multitasking/foreback.c **** void Task3( void );
+  50:../multitasking/foreback.c **** void Task4( void );
+  51:../multitasking/foreback.c **** void Task5( void );
+  52:../multitasking/foreback.c **** void Task6( void );
+  53:../multitasking/foreback.c **** void Task7( void );
+  54:../multitasking/foreback.c **** 
+  55:../multitasking/foreback.c **** /* Declaración de RTI */
+  56:../multitasking/foreback.c **** 
+  57:../multitasking/foreback.c **** void isr_pb( void ) __attribute__ ((interrupt ("IRQ")));
+  58:../multitasking/foreback.c **** void isr_tick( void ) __attribute__ ((interrupt ("IRQ")));
+  59:../multitasking/foreback.c **** 
+  60:../multitasking/foreback.c **** /*******************************************************************/
+  61:../multitasking/foreback.c **** 
+  62:../multitasking/foreback.c **** void foreback( void ) {
+ 1936              		.loc 1 62 0
+ 1937              		.cfi_startproc
+ 1938              		@ Function supports interworking.
+ 1939              		@ args = 0, pretend = 0, frame = 0
+ 1940              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1941 0000 0DC0A0E1 		mov	ip, sp
+ 1942              	.LCFI0:
+ 1943              		.cfi_def_cfa_register 12
+ 1944 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1945 0008 04B04CE2 		sub	fp, ip, #4
+ 1946              		.cfi_offset 14, -8
+ 1947              		.cfi_offset 13, -12
+ 1948              		.cfi_offset 11, -16
+ 1949              	.LCFI1:
+ 1950              		.cfi_def_cfa 11, 4
+  63:../multitasking/foreback.c **** /*
+  64:../multitasking/foreback.c ****     timers_init();
+  65:../multitasking/foreback.c ****     uart0_init();
+  66:../multitasking/foreback.c ****     leds_init();
+  67:../multitasking/foreback.c ****     segs_init();
+  68:../multitasking/foreback.c ****     rtc_init();
+  69:../multitasking/foreback.c ****     pbs_init();
+  70:../multitasking/foreback.c ****     keypad_init();
+  71:../multitasking/foreback.c **** */
+  72:../multitasking/foreback.c **** 
+  73:../multitasking/foreback.c ****     uart0_puts( "\n\n Ejecutando una aplicación foreground/background\n" );
+ 1951              		.loc 1 73 0
+ 1952 000c E8019FE5 		ldr	r0, .L11
+ 1953 0010 FEFFFFEB 		bl	uart0_puts
+  74:../multitasking/foreback.c ****     uart0_puts( " -----------------------------------------------\n\n" ) ;
+ 1954              		.loc 1 74 0
+ 1955 0014 E4019FE5 		ldr	r0, .L11+4
+ 1956 0018 FEFFFFEB 		bl	uart0_puts
+  75:../multitasking/foreback.c **** 
+  76:../multitasking/foreback.c ****     flagTask5      = FALSE;    /* Inicializa flags */
+ 1957              		.loc 1 76 0
+ 1958 001c E0319FE5 		ldr	r3, .L11+8
+ 1959 0020 0020A0E3 		mov	r2, #0
+ 1960 0024 0020C3E5 		strb	r2, [r3, #0]
+  77:../multitasking/foreback.c ****     flagTask6      = FALSE;
+ 1961              		.loc 1 77 0
+ 1962 0028 D8319FE5 		ldr	r3, .L11+12
+ 1963 002c 0020A0E3 		mov	r2, #0
+ 1964 0030 0020C3E5 		strb	r2, [r3, #0]
+  78:../multitasking/foreback.c ****     flagPb         = FALSE;
+ 1965              		.loc 1 78 0
+ 1966 0034 D0319FE5 		ldr	r3, .L11+16
+ 1967 0038 0020A0E3 		mov	r2, #0
+ 1968 003c 0020C3E5 		strb	r2, [r3, #0]
+  79:../multitasking/foreback.c ****     flagToggleLeds = FALSE;
+ 1969              		.loc 1 79 0
+ 1970 0040 C8319FE5 		ldr	r3, .L11+20
+ 1971 0044 0020A0E3 		mov	r2, #0
+ 1972 0048 0020C3E5 		strb	r2, [r3, #0]
+  80:../multitasking/foreback.c ****     flagReadKeypad = FALSE;
+ 1973              		.loc 1 80 0
+ 1974 004c C0319FE5 		ldr	r3, .L11+24
+ 1975 0050 0020A0E3 		mov	r2, #0
+ 1976 0054 0020C3E5 		strb	r2, [r3, #0]
+  81:../multitasking/foreback.c ****     flagWriteRTC   = FALSE;
+ 1977              		.loc 1 81 0
+ 1978 0058 B8319FE5 		ldr	r3, .L11+28
+ 1979 005c 0020A0E3 		mov	r2, #0
+ 1980 0060 0020C3E5 		strb	r2, [r3, #0]
+  82:../multitasking/foreback.c ****     flagWriteTicks = FALSE;
+ 1981              		.loc 1 82 0
+ 1982 0064 B0319FE5 		ldr	r3, .L11+32
+ 1983 0068 0020A0E3 		mov	r2, #0
+ 1984 006c 0020C3E5 		strb	r2, [r3, #0]
+  83:../multitasking/foreback.c **** 
+  84:../multitasking/foreback.c ****     Task1();    /* Ejecuta por primera vez a las funciones para inicializarlas */
+ 1985              		.loc 1 84 0
+ 1986 0070 FEFFFFEB 		bl	Task1
+  85:../multitasking/foreback.c ****     Task2();
+ 1987              		.loc 1 85 0
+ 1988 0074 FEFFFFEB 		bl	Task2
+  86:../multitasking/foreback.c ****     Task3();
+ 1989              		.loc 1 86 0
+ 1990 0078 FEFFFFEB 		bl	Task3
+  87:../multitasking/foreback.c ****     Task4();
+ 1991              		.loc 1 87 0
+ 1992 007c FEFFFFEB 		bl	Task4
+  88:../multitasking/foreback.c ****     Task5();
+ 1993              		.loc 1 88 0
+ 1994 0080 FEFFFFEB 		bl	Task5
+  89:../multitasking/foreback.c ****     Task6();
+ 1995              		.loc 1 89 0
+ 1996 0084 FEFFFFEB 		bl	Task6
+  90:../multitasking/foreback.c ****     Task7();
+ 1997              		.loc 1 90 0
+ 1998 0088 FEFFFFEB 		bl	Task7
+  91:../multitasking/foreback.c **** 
+  92:../multitasking/foreback.c ****     pISR_EINT4567 = (unsigned) isr_pb;
+ 1999              		.loc 1 92 0
+ 2000 008c 8C319FE5 		ldr	r3, .L11+36
+ 2001 0090 8C219FE5 		ldr	r2, .L11+40
+ 2002 0094 002083E5 		str	r2, [r3, #0]
+  93:../multitasking/foreback.c ****     ic_enable(INT_EINT4567);
+ 2003              		.loc 1 93 0
+ 2004 0098 1500A0E3 		mov	r0, #21
+ 2005 009c FEFFFFEB 		bl	ic_enable
+  94:../multitasking/foreback.c **** 
+  95:../multitasking/foreback.c ****     //10ms
+  96:../multitasking/foreback.c ****     tmr_set_mode(TIMER0, RELOAD);
+ 2006              		.loc 1 96 0
+ 2007 00a0 0000A0E3 		mov	r0, #0
+ 2008 00a4 0110A0E3 		mov	r1, #1
+ 2009 00a8 FEFFFFEB 		bl	tmr_set_mode
+  97:../multitasking/foreback.c **** 	tmr_set_prescaler(TIMER0, 1);
+ 2010              		.loc 1 97 0
+ 2011 00ac 0000A0E3 		mov	r0, #0
+ 2012 00b0 0110A0E3 		mov	r1, #1
+ 2013 00b4 FEFFFFEB 		bl	tmr_set_prescaler
+  98:../multitasking/foreback.c **** 	tmr_set_divider(TIMER0, D1_8);
+ 2014              		.loc 1 98 0
+ 2015 00b8 0000A0E3 		mov	r0, #0
+ 2016 00bc 0210A0E3 		mov	r1, #2
+ 2017 00c0 FEFFFFEB 		bl	tmr_set_divider
+  99:../multitasking/foreback.c **** 	tmr_set_count(TIMER0, 40000, 1);
+ 2018              		.loc 1 99 0
+ 2019 00c4 0000A0E3 		mov	r0, #0
+ 2020 00c8 58119FE5 		ldr	r1, .L11+44
+ 2021 00cc 0120A0E3 		mov	r2, #1
+ 2022 00d0 FEFFFFEB 		bl	tmr_set_count
+ 100:../multitasking/foreback.c **** 
+ 101:../multitasking/foreback.c **** 	tmr_update(TIMER0);
+ 2023              		.loc 1 101 0
+ 2024 00d4 0000A0E3 		mov	r0, #0
+ 2025 00d8 FEFFFFEB 		bl	tmr_update
+ 102:../multitasking/foreback.c **** 
+ 103:../multitasking/foreback.c **** 	pISR_TIMER0 =(unsigned)isr_tick;
+ 2026              		.loc 1 103 0
+ 2027 00dc 48319FE5 		ldr	r3, .L11+48
+ 2028 00e0 48219FE5 		ldr	r2, .L11+52
+ 2029 00e4 002083E5 		str	r2, [r3, #0]
+ 104:../multitasking/foreback.c **** 	tmr_start(TIMER0);
+ 2030              		.loc 1 104 0
+ 2031 00e8 0000A0E3 		mov	r0, #0
+ 2032 00ec FEFFFFEB 		bl	tmr_start
+ 105:../multitasking/foreback.c **** 
+ 106:../multitasking/foreback.c **** 	ic_enable(INT_TIMER0);
+ 2033              		.loc 1 106 0
+ 2034 00f0 0D00A0E3 		mov	r0, #13
+ 2035 00f4 FEFFFFEB 		bl	ic_enable
+ 2036 00f8 000000EA 		b	.L9
+ 2037              	.L10:
+ 107:../multitasking/foreback.c **** 
+ 108:../multitasking/foreback.c ****     while( 1 )
+ 109:../multitasking/foreback.c ****     {
+ 110:../multitasking/foreback.c ****         sleep();                        /* Entra en estado IDLE, sale por interrupción */
+ 111:../multitasking/foreback.c ****         if( flagToggleLeds )            /* Las tareas se ejecutan en esta hebra (background) en ord
+ 112:../multitasking/foreback.c ****         {
+ 113:../multitasking/foreback.c ****             flagToggleLeds = FALSE;
+ 114:../multitasking/foreback.c ****             Task1();
+ 115:../multitasking/foreback.c ****         }
+ 116:../multitasking/foreback.c ****         if( flagReadKeypad )
+ 117:../multitasking/foreback.c ****         {
+ 118:../multitasking/foreback.c ****             flagReadKeypad = FALSE;
+ 119:../multitasking/foreback.c ****             Task2();
+ 120:../multitasking/foreback.c ****         }
+ 121:../multitasking/foreback.c ****         if( flagWriteRTC )
+ 122:../multitasking/foreback.c ****         {
+ 123:../multitasking/foreback.c ****             flagWriteRTC = FALSE;
+ 124:../multitasking/foreback.c ****             Task3();
+ 125:../multitasking/foreback.c ****         }
+ 126:../multitasking/foreback.c ****         if( flagWriteTicks )
+ 127:../multitasking/foreback.c ****         {
+ 128:../multitasking/foreback.c ****             flagWriteTicks = FALSE;
+ 129:../multitasking/foreback.c ****             Task4();
+ 130:../multitasking/foreback.c ****         }
+ 131:../multitasking/foreback.c ****         if( flagTask5 )
+ 132:../multitasking/foreback.c ****         {
+ 133:../multitasking/foreback.c ****             flagTask5 = FALSE;
+ 134:../multitasking/foreback.c ****             Task5();
+ 135:../multitasking/foreback.c ****         }
+ 136:../multitasking/foreback.c ****         if( flagTask6 )
+ 137:../multitasking/foreback.c ****         {
+ 138:../multitasking/foreback.c ****             flagTask6 = FALSE;
+ 139:../multitasking/foreback.c ****             Task6();
+ 140:../multitasking/foreback.c ****         }
+ 141:../multitasking/foreback.c ****         if( flagPb )
+ 142:../multitasking/foreback.c ****         {
+ 143:../multitasking/foreback.c ****             flagPb = FALSE;
+ 144:../multitasking/foreback.c ****             Task7();
+ 145:../multitasking/foreback.c ****         }
+ 146:../multitasking/foreback.c ****     }
+ 2038              		.loc 1 146 0
+ 2039 00fc 0000A0E1 		mov	r0, r0	@ nop
+ 2040              	.L9:
+ 110:../multitasking/foreback.c ****         sleep();                        /* Entra en estado IDLE, sale por interrupción */
+ 2041              		.loc 1 110 0
+ 2042 0100 FEFFFFEB 		bl	sleep
+ 111:../multitasking/foreback.c ****         if( flagToggleLeds )            /* Las tareas se ejecutan en esta hebra (background) en ord
+ 2043              		.loc 1 111 0
+ 2044 0104 04319FE5 		ldr	r3, .L11+20
+ 2045 0108 0030D3E5 		ldrb	r3, [r3, #0]
+ 2046 010c FF3003E2 		and	r3, r3, #255
+ 2047 0110 000053E3 		cmp	r3, #0
+ 2048 0114 0300000A 		beq	.L2
+ 113:../multitasking/foreback.c ****             flagToggleLeds = FALSE;
+ 2049              		.loc 1 113 0
+ 2050 0118 F0309FE5 		ldr	r3, .L11+20
+ 2051 011c 0020A0E3 		mov	r2, #0
+ 2052 0120 0020C3E5 		strb	r2, [r3, #0]
+ 114:../multitasking/foreback.c ****             Task1();
+ 2053              		.loc 1 114 0
+ 2054 0124 FEFFFFEB 		bl	Task1
+ 2055              	.L2:
+ 116:../multitasking/foreback.c ****         if( flagReadKeypad )
+ 2056              		.loc 1 116 0
+ 2057 0128 E4309FE5 		ldr	r3, .L11+24
+ 2058 012c 0030D3E5 		ldrb	r3, [r3, #0]
+ 2059 0130 FF3003E2 		and	r3, r3, #255
+ 2060 0134 000053E3 		cmp	r3, #0
+ 2061 0138 0300000A 		beq	.L3
+ 118:../multitasking/foreback.c ****             flagReadKeypad = FALSE;
+ 2062              		.loc 1 118 0
+ 2063 013c D0309FE5 		ldr	r3, .L11+24
+ 2064 0140 0020A0E3 		mov	r2, #0
+ 2065 0144 0020C3E5 		strb	r2, [r3, #0]
+ 119:../multitasking/foreback.c ****             Task2();
+ 2066              		.loc 1 119 0
+ 2067 0148 FEFFFFEB 		bl	Task2
+ 2068              	.L3:
+ 121:../multitasking/foreback.c ****         if( flagWriteRTC )
+ 2069              		.loc 1 121 0
+ 2070 014c C4309FE5 		ldr	r3, .L11+28
+ 2071 0150 0030D3E5 		ldrb	r3, [r3, #0]
+ 2072 0154 FF3003E2 		and	r3, r3, #255
+ 2073 0158 000053E3 		cmp	r3, #0
+ 2074 015c 0300000A 		beq	.L4
+ 123:../multitasking/foreback.c ****             flagWriteRTC = FALSE;
+ 2075              		.loc 1 123 0
+ 2076 0160 B0309FE5 		ldr	r3, .L11+28
+ 2077 0164 0020A0E3 		mov	r2, #0
+ 2078 0168 0020C3E5 		strb	r2, [r3, #0]
+ 124:../multitasking/foreback.c ****             Task3();
+ 2079              		.loc 1 124 0
+ 2080 016c FEFFFFEB 		bl	Task3
+ 2081              	.L4:
+ 126:../multitasking/foreback.c ****         if( flagWriteTicks )
+ 2082              		.loc 1 126 0
+ 2083 0170 A4309FE5 		ldr	r3, .L11+32
+ 2084 0174 0030D3E5 		ldrb	r3, [r3, #0]
+ 2085 0178 FF3003E2 		and	r3, r3, #255
+ 2086 017c 000053E3 		cmp	r3, #0
+ 2087 0180 0300000A 		beq	.L5
+ 128:../multitasking/foreback.c ****             flagWriteTicks = FALSE;
+ 2088              		.loc 1 128 0
+ 2089 0184 90309FE5 		ldr	r3, .L11+32
+ 2090 0188 0020A0E3 		mov	r2, #0
+ 2091 018c 0020C3E5 		strb	r2, [r3, #0]
+ 129:../multitasking/foreback.c ****             Task4();
+ 2092              		.loc 1 129 0
+ 2093 0190 FEFFFFEB 		bl	Task4
+ 2094              	.L5:
+ 131:../multitasking/foreback.c ****         if( flagTask5 )
+ 2095              		.loc 1 131 0
+ 2096 0194 68309FE5 		ldr	r3, .L11+8
+ 2097 0198 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2098 019c 000053E3 		cmp	r3, #0
+ 2099 01a0 0300000A 		beq	.L6
+ 133:../multitasking/foreback.c ****             flagTask5 = FALSE;
+ 2100              		.loc 1 133 0
+ 2101 01a4 58309FE5 		ldr	r3, .L11+8
+ 2102 01a8 0020A0E3 		mov	r2, #0
+ 2103 01ac 0020C3E5 		strb	r2, [r3, #0]
+ 134:../multitasking/foreback.c ****             Task5();
+ 2104              		.loc 1 134 0
+ 2105 01b0 FEFFFFEB 		bl	Task5
+ 2106              	.L6:
+ 136:../multitasking/foreback.c ****         if( flagTask6 )
+ 2107              		.loc 1 136 0
+ 2108 01b4 4C309FE5 		ldr	r3, .L11+12
+ 2109 01b8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2110 01bc 000053E3 		cmp	r3, #0
+ 2111 01c0 0300000A 		beq	.L7
+ 138:../multitasking/foreback.c ****             flagTask6 = FALSE;
+ 2112              		.loc 1 138 0
+ 2113 01c4 3C309FE5 		ldr	r3, .L11+12
+ 2114 01c8 0020A0E3 		mov	r2, #0
+ 2115 01cc 0020C3E5 		strb	r2, [r3, #0]
+ 139:../multitasking/foreback.c ****             Task6();
+ 2116              		.loc 1 139 0
+ 2117 01d0 FEFFFFEB 		bl	Task6
+ 2118              	.L7:
+ 141:../multitasking/foreback.c ****         if( flagPb )
+ 2119              		.loc 1 141 0
+ 2120 01d4 30309FE5 		ldr	r3, .L11+16
+ 2121 01d8 0030D3E5 		ldrb	r3, [r3, #0]
+ 2122 01dc FF3003E2 		and	r3, r3, #255
+ 2123 01e0 000053E3 		cmp	r3, #0
+ 2124 01e4 C4FFFF0A 		beq	.L10
+ 143:../multitasking/foreback.c ****             flagPb = FALSE;
+ 2125              		.loc 1 143 0
+ 2126 01e8 1C309FE5 		ldr	r3, .L11+16
+ 2127 01ec 0020A0E3 		mov	r2, #0
+ 2128 01f0 0020C3E5 		strb	r2, [r3, #0]
+ 144:../multitasking/foreback.c ****             Task7();
+ 2129              		.loc 1 144 0
+ 2130 01f4 FEFFFFEB 		bl	Task7
+ 2131              		.loc 1 146 0
+ 2132 01f8 C0FFFFEA 		b	.L9
+ 2133              	.L12:
+ 2134              		.align	2
+ 2135              	.L11:
+ 2136 01fc 00000000 		.word	.LC0
+ 2137 0200 34000000 		.word	.LC1
+ 2138 0204 00000000 		.word	flagTask5
+ 2139 0208 00000000 		.word	flagTask6
+ 2140 020c 00000000 		.word	flagPb
+ 2141 0210 00000000 		.word	flagToggleLeds
+ 2142 0214 00000000 		.word	flagReadKeypad
+ 2143 0218 00000000 		.word	flagWriteRTC
+ 2144 021c 00000000 		.word	flagWriteTicks
+ 2145 0220 74FF7F0C 		.word	209715060
+ 2146 0224 00000000 		.word	isr_pb
+ 2147 0228 409C0000 		.word	40000
+ 2148 022c 54FF7F0C 		.word	209715028
+ 2149 0230 00000000 		.word	isr_tick
+ 2150              		.cfi_endproc
+ 2151              	.LFE0:
+ 2153              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 foreback.c
+                            *COM*:00000001 scancode
+                            *COM*:00000001 flagTask5
+                            *COM*:00000001 flagTask6
+                            *COM*:00000001 flagPb
+                            *COM*:00000001 flagToggleLeds
+                            *COM*:00000001 flagReadKeypad
+                            *COM*:00000001 flagWriteRTC
+                            *COM*:00000001 flagWriteTicks
+C:\Users\Pedro\AppData\Local\Temp\ccqNSU4a.s:1922   .rodata:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccqNSU4a.s:1931   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccqNSU4a.s:1934   .text:00000000 foreback
+C:\Users\Pedro\AppData\Local\Temp\ccqNSU4a.s:2136   .text:000001fc $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+uart0_puts
+Task1
+Task2
+Task3
+Task4
+Task5
+Task6
+Task7
+ic_enable
+tmr_set_mode
+tmr_set_prescaler
+tmr_set_divider
+tmr_set_count
+tmr_update
+tmr_start
+sleep
+isr_pb
+isr_tick
