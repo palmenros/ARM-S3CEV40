@@ -1,0 +1,1717 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"cyclic.c"
+  21              	.Ltext0:
+  22              		.file 1 "../multitasking/cyclic.c"
+ 1926              		.align	2
+ 1929              	pjobs:
+ 1930 0000 00000000 		.word	JobA
+ 1931 0004 00000000 		.word	JobB
+ 1932 0008 00000000 		.word	JobA
+ 1933 000c 00000000 		.word	JobB
+ 1934 0010 00000000 		.word	JobA
+ 1935 0014 00000000 		.word	JobB
+ 1936 0018 00000000 		.word	JobA
+ 1937 001c 00000000 		.word	JobB
+ 1938 0020 00000000 		.word	JobA
+ 1939 0024 00000000 		.word	JobC
+ 1940 0028 00000000 		.word	JobA
+ 1941 002c 00000000 		.word	JobB
+ 1942 0030 00000000 		.word	JobA
+ 1943 0034 00000000 		.word	JobB
+ 1944 0038 00000000 		.word	JobA
+ 1945 003c 00000000 		.word	JobB
+ 1946 0040 00000000 		.word	JobA
+ 1947 0044 00000000 		.word	JobB
+ 1948 0048 00000000 		.word	JobA
+ 1949 004c 00000000 		.word	JobD
+ 1950 0050 00000000 		.word	JobA
+ 1951 0054 00000000 		.word	JobB
+ 1952 0058 00000000 		.word	JobA
+ 1953 005c 00000000 		.word	JobB
+ 1954 0060 00000000 		.word	JobA
+ 1955 0064 00000000 		.word	JobB
+ 1956 0068 00000000 		.word	JobA
+ 1957 006c 00000000 		.word	JobB
+ 1958 0070 00000000 		.word	JobA
+ 1959 0074 00000000 		.word	JobC
+ 1960 0078 00000000 		.word	JobA
+ 1961 007c 00000000 		.word	JobB
+ 1962 0080 00000000 		.word	JobA
+ 1963 0084 00000000 		.word	JobB
+ 1964 0088 00000000 		.word	JobA
+ 1965 008c 00000000 		.word	JobB
+ 1966 0090 00000000 		.word	JobA
+ 1967 0094 00000000 		.word	JobB
+ 1968 0098 00000000 		.word	JobA
+ 1969 009c 00000000 		.word	JobD
+ 1970 00a0 00000000 		.word	JobA
+ 1971 00a4 00000000 		.word	JobB
+ 1972 00a8 00000000 		.word	JobA
+ 1973 00ac 00000000 		.word	JobB
+ 1974 00b0 00000000 		.word	JobA
+ 1975 00b4 00000000 		.word	JobB
+ 1976 00b8 00000000 		.word	JobA
+ 1977 00bc 00000000 		.word	JobB
+ 1978 00c0 00000000 		.word	JobA
+ 1979 00c4 00000000 		.word	JobC
+ 1980 00c8 00000000 		.word	JobA
+ 1981 00cc 00000000 		.word	JobB
+ 1982 00d0 00000000 		.word	JobA
+ 1983 00d4 00000000 		.word	JobB
+ 1984 00d8 00000000 		.word	JobA
+ 1985 00dc 00000000 		.word	JobB
+ 1986 00e0 00000000 		.word	JobA
+ 1987 00e4 00000000 		.word	JobB
+ 1988 00e8 00000000 		.word	JobA
+ 1989 00ec 00000000 		.word	JobD
+ 1990 00f0 00000000 		.word	JobA
+ 1991 00f4 00000000 		.word	JobB
+ 1992 00f8 00000000 		.word	JobA
+ 1993 00fc 00000000 		.word	JobB
+ 1994 0100 00000000 		.word	JobA
+ 1995 0104 00000000 		.word	JobB
+ 1996 0108 00000000 		.word	JobA
+ 1997 010c 00000000 		.word	JobB
+ 1998 0110 00000000 		.word	JobA
+ 1999 0114 00000000 		.word	JobC
+ 2000 0118 00000000 		.word	JobA
+ 2001 011c 00000000 		.word	JobB
+ 2002 0120 00000000 		.word	JobA
+ 2003 0124 00000000 		.word	JobB
+ 2004 0128 00000000 		.word	JobA
+ 2005 012c 00000000 		.word	JobB
+ 2006 0130 00000000 		.word	JobA
+ 2007 0134 00000000 		.word	JobB
+ 2008 0138 00000000 		.word	JobA
+ 2009 013c 00000000 		.word	JobD
+ 2010 0140 00000000 		.word	JobA
+ 2011 0144 00000000 		.word	JobB
+ 2012 0148 00000000 		.word	JobA
+ 2013 014c 00000000 		.word	JobB
+ 2014 0150 00000000 		.word	JobA
+ 2015 0154 00000000 		.word	JobB
+ 2016 0158 00000000 		.word	JobA
+ 2017 015c 00000000 		.word	JobB
+ 2018 0160 00000000 		.word	JobA
+ 2019 0164 00000000 		.word	JobC
+ 2020 0168 00000000 		.word	JobA
+ 2021 016c 00000000 		.word	JobB
+ 2022 0170 00000000 		.word	JobA
+ 2023 0174 00000000 		.word	JobB
+ 2024 0178 00000000 		.word	JobA
+ 2025 017c 00000000 		.word	JobB
+ 2026 0180 00000000 		.word	JobA
+ 2027 0184 00000000 		.word	JobB
+ 2028 0188 00000000 		.word	JobA
+ 2029 018c 00000000 		.word	JobD
+ 2030 0190 00000000 		.word	JobA
+ 2031 0194 00000000 		.word	JobB
+ 2032 0198 00000000 		.word	JobA
+ 2033 019c 00000000 		.word	JobB
+ 2034 01a0 00000000 		.word	JobA
+ 2035 01a4 00000000 		.word	JobB
+ 2036 01a8 00000000 		.word	JobA
+ 2037 01ac 00000000 		.word	JobB
+ 2038 01b0 00000000 		.word	JobA
+ 2039 01b4 00000000 		.word	JobC
+ 2040 01b8 00000000 		.word	JobA
+ 2041 01bc 00000000 		.word	JobB
+ 2042 01c0 00000000 		.word	JobA
+ 2043 01c4 00000000 		.word	JobB
+ 2044 01c8 00000000 		.word	JobA
+ 2045 01cc 00000000 		.word	JobB
+ 2046 01d0 00000000 		.word	JobA
+ 2047 01d4 00000000 		.word	JobB
+ 2048 01d8 00000000 		.word	JobA
+ 2049 01dc 00000000 		.word	JobD
+ 2050 01e0 00000000 		.word	JobA
+ 2051 01e4 00000000 		.word	JobB
+ 2052 01e8 00000000 		.word	JobA
+ 2053 01ec 00000000 		.word	JobB
+ 2054 01f0 00000000 		.word	JobA
+ 2055 01f4 00000000 		.word	JobB
+ 2056 01f8 00000000 		.word	JobA
+ 2057 01fc 00000000 		.word	JobB
+ 2058 0200 00000000 		.word	JobA
+ 2059 0204 00000000 		.word	JobC
+ 2060 0208 00000000 		.word	JobA
+ 2061 020c 00000000 		.word	JobB
+ 2062 0210 00000000 		.word	JobA
+ 2063 0214 00000000 		.word	JobB
+ 2064 0218 00000000 		.word	JobA
+ 2065 021c 00000000 		.word	JobB
+ 2066 0220 00000000 		.word	JobA
+ 2067 0224 00000000 		.word	JobB
+ 2068 0228 00000000 		.word	JobA
+ 2069 022c 00000000 		.word	JobD
+ 2070 0230 00000000 		.word	JobA
+ 2071 0234 00000000 		.word	JobB
+ 2072 0238 00000000 		.word	JobA
+ 2073 023c 00000000 		.word	JobB
+ 2074 0240 00000000 		.word	JobA
+ 2075 0244 00000000 		.word	JobB
+ 2076 0248 00000000 		.word	JobA
+ 2077 024c 00000000 		.word	JobB
+ 2078 0250 00000000 		.word	JobA
+ 2079 0254 00000000 		.word	JobC
+ 2080 0258 00000000 		.word	JobA
+ 2081 025c 00000000 		.word	JobB
+ 2082 0260 00000000 		.word	JobA
+ 2083 0264 00000000 		.word	JobB
+ 2084 0268 00000000 		.word	JobA
+ 2085 026c 00000000 		.word	JobB
+ 2086 0270 00000000 		.word	JobA
+ 2087 0274 00000000 		.word	JobB
+ 2088 0278 00000000 		.word	JobA
+ 2089 027c 00000000 		.word	JobD
+ 2090 0280 00000000 		.word	JobA
+ 2091 0284 00000000 		.word	JobB
+ 2092 0288 00000000 		.word	JobA
+ 2093 028c 00000000 		.word	JobB
+ 2094 0290 00000000 		.word	JobA
+ 2095 0294 00000000 		.word	JobB
+ 2096 0298 00000000 		.word	JobA
+ 2097 029c 00000000 		.word	JobB
+ 2098 02a0 00000000 		.word	JobA
+ 2099 02a4 00000000 		.word	JobC
+ 2100 02a8 00000000 		.word	JobA
+ 2101 02ac 00000000 		.word	JobB
+ 2102 02b0 00000000 		.word	JobA
+ 2103 02b4 00000000 		.word	JobB
+ 2104 02b8 00000000 		.word	JobA
+ 2105 02bc 00000000 		.word	JobB
+ 2106 02c0 00000000 		.word	JobA
+ 2107 02c4 00000000 		.word	JobB
+ 2108 02c8 00000000 		.word	JobA
+ 2109 02cc 00000000 		.word	JobD
+ 2110 02d0 00000000 		.word	JobA
+ 2111 02d4 00000000 		.word	JobB
+ 2112 02d8 00000000 		.word	JobA
+ 2113 02dc 00000000 		.word	JobB
+ 2114 02e0 00000000 		.word	JobA
+ 2115 02e4 00000000 		.word	JobB
+ 2116 02e8 00000000 		.word	JobA
+ 2117 02ec 00000000 		.word	JobB
+ 2118 02f0 00000000 		.word	JobA
+ 2119 02f4 00000000 		.word	JobC
+ 2120 02f8 00000000 		.word	JobA
+ 2121 02fc 00000000 		.word	JobB
+ 2122 0300 00000000 		.word	JobA
+ 2123 0304 00000000 		.word	JobB
+ 2124 0308 00000000 		.word	JobA
+ 2125 030c 00000000 		.word	JobB
+ 2126 0310 00000000 		.word	JobA
+ 2127 0314 00000000 		.word	JobB
+ 2128 0318 00000000 		.word	JobA
+ 2129 031c 00000000 		.word	JobE
+ 2130              		.align	2
+ 2131              	.LC0:
+ 2132 0320 0A0A2045 		.ascii	"\012\012 Ejecutando una aplicaci\363n cyclic execut"
+ 2132      6A656375 
+ 2132      74616E64 
+ 2132      6F20756E 
+ 2132      61206170 
+ 2133 034a 6976650A 		.ascii	"ive\012\000"
+ 2133      00
+ 2134 034f 00       		.align	2
+ 2135              	.LC1:
+ 2136 0350 202D2D2D 		.ascii	" ------------------------------------------\012\012"
+ 2136      2D2D2D2D 
+ 2136      2D2D2D2D 
+ 2136      2D2D2D2D 
+ 2136      2D2D2D2D 
+ 2137 037d 00       		.ascii	"\000"
+ 2138              		.text
+ 2139              		.align	2
+ 2140              		.global	cyclic
+ 2142              	cyclic:
+ 2143              	.LFB0:
+   1:../multitasking/cyclic.c **** /*-------------------------------------------------------------------
+   2:../multitasking/cyclic.c **** **
+   3:../multitasking/cyclic.c **** **  Fichero:
+   4:../multitasking/cyclic.c **** **    lab14.c  14/1/2021
+   5:../multitasking/cyclic.c **** **
+   6:../multitasking/cyclic.c **** **    (c) J.M. Mendias
+   7:../multitasking/cyclic.c **** **    Programación de Sistemas y Dispositivos
+   8:../multitasking/cyclic.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../multitasking/cyclic.c **** **
+  10:../multitasking/cyclic.c **** **  Propósito:
+  11:../multitasking/cyclic.c **** **    Ejemplo de una aplicación guiada por tiempo con arquitectura
+  12:../multitasking/cyclic.c **** **    cyclic executive
+  13:../multitasking/cyclic.c **** **
+  14:../multitasking/cyclic.c **** **  Notas de diseño:
+  15:../multitasking/cyclic.c **** **
+  16:../multitasking/cyclic.c **** **-----------------------------------------------------------------*/
+  17:../multitasking/cyclic.c **** 
+  18:../multitasking/cyclic.c **** 
+  19:../multitasking/cyclic.c **** #include "../44b.h"
+  20:../multitasking/cyclic.c **** #include "../common_types.h"
+  21:../multitasking/cyclic.c **** #include "../leds.h"
+  22:../multitasking/cyclic.c **** #include "../D8Led.h"
+  23:../multitasking/cyclic.c **** #include "../uart.h"
+  24:../multitasking/cyclic.c **** #include "../button.h"
+  25:../multitasking/cyclic.c **** #include "../keyboard.h"
+  26:../multitasking/cyclic.c **** #include "../intcontroller.h"
+  27:../multitasking/cyclic.c **** #include "../timer.h"
+  28:../multitasking/cyclic.c **** #include "../utils.h"
+  29:../multitasking/cyclic.c **** #include "../rtc.h"
+  30:../multitasking/cyclic.c **** #include "cyclic.h"
+  31:../multitasking/cyclic.c **** 
+  32:../multitasking/cyclic.c **** #define TICKS_PER_SEC   (100)
+  33:../multitasking/cyclic.c **** 
+  34:../multitasking/cyclic.c **** #define MAYOR_PERIOD (10000)    /* mcm( 50 ms, 100 ms, 500 ms, 1000 ms, 10000 ms */
+  35:../multitasking/cyclic.c **** #define MINOR_PERIOD (50)       /* 50 ms */
+  36:../multitasking/cyclic.c **** 
+  37:../multitasking/cyclic.c **** #define NUM_JOBS     (MAYOR_PERIOD/MINOR_PERIOD)
+  38:../multitasking/cyclic.c **** 
+  39:../multitasking/cyclic.c **** typedef void (*pf_t)(void);
+  40:../multitasking/cyclic.c **** 
+  41:../multitasking/cyclic.c **** /* Declaración de recursos */
+  42:../multitasking/cyclic.c **** 
+  43:../multitasking/cyclic.c **** uint8 scancode;
+  44:../multitasking/cyclic.c **** boolean flagTask5;
+  45:../multitasking/cyclic.c **** boolean flagTask6;
+  46:../multitasking/cyclic.c **** 
+  47:../multitasking/cyclic.c **** volatile boolean flagPb;
+  48:../multitasking/cyclic.c **** volatile boolean flagTimer;
+  49:../multitasking/cyclic.c **** 
+  50:../multitasking/cyclic.c **** /* Declaración de tareas */
+  51:../multitasking/cyclic.c **** 
+  52:../multitasking/cyclic.c **** void Task1( void );
+  53:../multitasking/cyclic.c **** void Task2( void );
+  54:../multitasking/cyclic.c **** void Task3( void );
+  55:../multitasking/cyclic.c **** void Task4( void );
+  56:../multitasking/cyclic.c **** void Task5( void );
+  57:../multitasking/cyclic.c **** void Task6( void );
+  58:../multitasking/cyclic.c **** void Task7( void );
+  59:../multitasking/cyclic.c **** 
+  60:../multitasking/cyclic.c **** /* Declaración de trabajos */
+  61:../multitasking/cyclic.c **** 
+  62:../multitasking/cyclic.c **** void JobA( void );
+  63:../multitasking/cyclic.c **** void JobB( void );
+  64:../multitasking/cyclic.c **** void JobC( void );
+  65:../multitasking/cyclic.c **** void JobD( void );
+  66:../multitasking/cyclic.c **** void JobE( void );
+  67:../multitasking/cyclic.c **** 
+  68:../multitasking/cyclic.c **** /* Planificación estática de trabajos */
+  69:../multitasking/cyclic.c **** 
+  70:../multitasking/cyclic.c **** const pf_t pjobs[NUM_JOBS] =
+  71:../multitasking/cyclic.c **** {
+  72:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*   500 ms */
+  73:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobD,    /*  1000 ms */
+  74:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*  1500 ms */
+  75:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobD,    /*  2000 ms */
+  76:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*  2500 ms */
+  77:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobD,    /*  3000 ms */
+  78:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*  3500 ms */
+  79:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobD,    /*  4000 ms */
+  80:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*  4500 ms */
+  81:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobD,    /*  5000 ms */
+  82:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*  5500 ms */
+  83:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobD,    /*  6000 ms */
+  84:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*  6500 ms */
+  85:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobD,    /*  7000 ms */
+  86:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*  7500 ms */
+  87:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobD,    /*  8000 ms */
+  88:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*  8500 ms */
+  89:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobD,    /*  9000 ms */
+  90:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobC,    /*  9500 ms */
+  91:../multitasking/cyclic.c ****     JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobB, JobA, JobE     /* 10000 ms */
+  92:../multitasking/cyclic.c **** };
+  93:../multitasking/cyclic.c **** 
+  94:../multitasking/cyclic.c **** /* Declaración de RTI */
+  95:../multitasking/cyclic.c **** 
+  96:../multitasking/cyclic.c **** void isr_pb( void ) __attribute__ ((interrupt ("IRQ")));
+  97:../multitasking/cyclic.c **** void isr_tick( void ) __attribute__ ((interrupt ("IRQ")));
+  98:../multitasking/cyclic.c **** 
+  99:../multitasking/cyclic.c **** /*******************************************************************/
+ 100:../multitasking/cyclic.c **** 
+ 101:../multitasking/cyclic.c **** void cyclic( void )
+ 102:../multitasking/cyclic.c **** {
+ 2144              		.loc 1 102 0
+ 2145              		.cfi_startproc
+ 2146              		@ Function supports interworking.
+ 2147              		@ args = 0, pretend = 0, frame = 8
+ 2148              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2149 0000 0DC0A0E1 		mov	ip, sp
+ 2150              	.LCFI0:
+ 2151              		.cfi_def_cfa_register 12
+ 2152 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2153 0008 04B04CE2 		sub	fp, ip, #4
+ 2154              		.cfi_offset 14, -8
+ 2155              		.cfi_offset 13, -12
+ 2156              		.cfi_offset 11, -16
+ 2157              	.LCFI1:
+ 2158              		.cfi_def_cfa 11, 4
+ 2159 000c 08D04DE2 		sub	sp, sp, #8
+ 103:../multitasking/cyclic.c ****     uint8 i;
+ 104:../multitasking/cyclic.c **** 
+ 105:../multitasking/cyclic.c **** 
+ 106:../multitasking/cyclic.c ****     /*timers_init();
+ 107:../multitasking/cyclic.c ****     uart0_init();
+ 108:../multitasking/cyclic.c ****     leds_init();
+ 109:../multitasking/cyclic.c ****     segs_init();
+ 110:../multitasking/cyclic.c ****     rtc_init();
+ 111:../multitasking/cyclic.c ****     pbs_init();
+ 112:../multitasking/cyclic.c ****     keypad_init();*/
+ 113:../multitasking/cyclic.c **** 
+ 114:../multitasking/cyclic.c ****     uart0_puts( "\n\n Ejecutando una aplicación cyclic executive\n" );
+ 2160              		.loc 1 114 0
+ 2161 0010 28019FE5 		ldr	r0, .L7
+ 2162 0014 FEFFFFEB 		bl	uart0_puts
+ 115:../multitasking/cyclic.c ****     uart0_puts(     " ------------------------------------------\n\n" ) ;
+ 2163              		.loc 1 115 0
+ 2164 0018 24019FE5 		ldr	r0, .L7+4
+ 2165 001c FEFFFFEB 		bl	uart0_puts
+ 116:../multitasking/cyclic.c **** 
+ 117:../multitasking/cyclic.c ****     flagTask5 = FALSE;    /* Inicializa flags */
+ 2166              		.loc 1 117 0
+ 2167 0020 20319FE5 		ldr	r3, .L7+8
+ 2168 0024 0020A0E3 		mov	r2, #0
+ 2169 0028 0020C3E5 		strb	r2, [r3, #0]
+ 118:../multitasking/cyclic.c ****     flagTask6 = FALSE;
+ 2170              		.loc 1 118 0
+ 2171 002c 18319FE5 		ldr	r3, .L7+12
+ 2172 0030 0020A0E3 		mov	r2, #0
+ 2173 0034 0020C3E5 		strb	r2, [r3, #0]
+ 119:../multitasking/cyclic.c ****     flagPb    = FALSE;
+ 2174              		.loc 1 119 0
+ 2175 0038 10319FE5 		ldr	r3, .L7+16
+ 2176 003c 0020A0E3 		mov	r2, #0
+ 2177 0040 0020C3E5 		strb	r2, [r3, #0]
+ 120:../multitasking/cyclic.c ****     flagTimer = FALSE;
+ 2178              		.loc 1 120 0
+ 2179 0044 08319FE5 		ldr	r3, .L7+20
+ 2180 0048 0020A0E3 		mov	r2, #0
+ 2181 004c 0020C3E5 		strb	r2, [r3, #0]
+ 121:../multitasking/cyclic.c **** 
+ 122:../multitasking/cyclic.c ****     Task1();    /* Ejecuta por primera vez a las funciones para inicializarlas */
+ 2182              		.loc 1 122 0
+ 2183 0050 FEFFFFEB 		bl	Task1
+ 123:../multitasking/cyclic.c ****     Task2();
+ 2184              		.loc 1 123 0
+ 2185 0054 FEFFFFEB 		bl	Task2
+ 124:../multitasking/cyclic.c ****     Task3();
+ 2186              		.loc 1 124 0
+ 2187 0058 FEFFFFEB 		bl	Task3
+ 125:../multitasking/cyclic.c ****     Task4();
+ 2188              		.loc 1 125 0
+ 2189 005c FEFFFFEB 		bl	Task4
+ 126:../multitasking/cyclic.c ****     Task5();
+ 2190              		.loc 1 126 0
+ 2191 0060 FEFFFFEB 		bl	Task5
+ 127:../multitasking/cyclic.c ****     Task6();
+ 2192              		.loc 1 127 0
+ 2193 0064 FEFFFFEB 		bl	Task6
+ 128:../multitasking/cyclic.c ****     Task7();
+ 2194              		.loc 1 128 0
+ 2195 0068 FEFFFFEB 		bl	Task7
+ 129:../multitasking/cyclic.c **** 
+ 130:../multitasking/cyclic.c ****     pISR_EINT4567 = (unsigned) isr_pb;
+ 2196              		.loc 1 130 0
+ 2197 006c E4309FE5 		ldr	r3, .L7+24
+ 2198 0070 E4209FE5 		ldr	r2, .L7+28
+ 2199 0074 002083E5 		str	r2, [r3, #0]
+ 131:../multitasking/cyclic.c **** 	ic_enable(INT_EINT4567);
+ 2200              		.loc 1 131 0
+ 2201 0078 1500A0E3 		mov	r0, #21
+ 2202 007c FEFFFFEB 		bl	ic_enable
+ 132:../multitasking/cyclic.c **** 
+ 133:../multitasking/cyclic.c **** 	//MINOR_PERIOD: 50ms
+ 134:../multitasking/cyclic.c **** 	tmr_set_mode(TIMER0, RELOAD);
+ 2203              		.loc 1 134 0
+ 2204 0080 0000A0E3 		mov	r0, #0
+ 2205 0084 0110A0E3 		mov	r1, #1
+ 2206 0088 FEFFFFEB 		bl	tmr_set_mode
+ 135:../multitasking/cyclic.c **** 	tmr_set_prescaler(TIMER0, 10);
+ 2207              		.loc 1 135 0
+ 2208 008c 0000A0E3 		mov	r0, #0
+ 2209 0090 0A10A0E3 		mov	r1, #10
+ 2210 0094 FEFFFFEB 		bl	tmr_set_prescaler
+ 136:../multitasking/cyclic.c **** 	tmr_set_divider(TIMER0, D1_8);
+ 2211              		.loc 1 136 0
+ 2212 0098 0000A0E3 		mov	r0, #0
+ 2213 009c 0210A0E3 		mov	r1, #2
+ 2214 00a0 FEFFFFEB 		bl	tmr_set_divider
+ 137:../multitasking/cyclic.c **** 	tmr_set_count(TIMER0, 40000, 1);
+ 2215              		.loc 1 137 0
+ 2216 00a4 0000A0E3 		mov	r0, #0
+ 2217 00a8 B0109FE5 		ldr	r1, .L7+32
+ 2218 00ac 0120A0E3 		mov	r2, #1
+ 2219 00b0 FEFFFFEB 		bl	tmr_set_count
+ 138:../multitasking/cyclic.c **** 
+ 139:../multitasking/cyclic.c **** 	tmr_update(TIMER0);
+ 2220              		.loc 1 139 0
+ 2221 00b4 0000A0E3 		mov	r0, #0
+ 2222 00b8 FEFFFFEB 		bl	tmr_update
+ 140:../multitasking/cyclic.c **** 
+ 141:../multitasking/cyclic.c **** 	pISR_TIMER0 =(unsigned)isr_tick;
+ 2223              		.loc 1 141 0
+ 2224 00bc A0309FE5 		ldr	r3, .L7+36
+ 2225 00c0 A0209FE5 		ldr	r2, .L7+40
+ 2226 00c4 002083E5 		str	r2, [r3, #0]
+ 142:../multitasking/cyclic.c **** 	tmr_start(TIMER0);
+ 2227              		.loc 1 142 0
+ 2228 00c8 0000A0E3 		mov	r0, #0
+ 2229 00cc FEFFFFEB 		bl	tmr_start
+ 143:../multitasking/cyclic.c **** 
+ 144:../multitasking/cyclic.c **** 	ic_enable(INT_TIMER0);
+ 2230              		.loc 1 144 0
+ 2231 00d0 0D00A0E3 		mov	r0, #13
+ 2232 00d4 FEFFFFEB 		bl	ic_enable
+ 2233 00d8 000000EA 		b	.L5
+ 2234              	.L6:
+ 145:../multitasking/cyclic.c **** 
+ 146:../multitasking/cyclic.c ****     while( 1 )
+ 147:../multitasking/cyclic.c ****     {
+ 148:../multitasking/cyclic.c ****         sleep();                        /* Entra en estado IDLE, sale por interrupción */
+ 149:../multitasking/cyclic.c ****         if( flagTimer )
+ 150:../multitasking/cyclic.c ****         {
+ 151:../multitasking/cyclic.c ****         	flagTimer = FALSE;
+ 152:../multitasking/cyclic.c ****         	(*pjobs[i])();              /* Las tareas que forman el trabajo se ejecutan en esta hebra 
+ 153:../multitasking/cyclic.c ****         	i = ( i==NUM_JOBS-1 ? 0 : i+1 );
+ 154:../multitasking/cyclic.c ****         }
+ 155:../multitasking/cyclic.c ****     }
+ 2235              		.loc 1 155 0
+ 2236 00dc 0000A0E1 		mov	r0, r0	@ nop
+ 2237              	.L5:
+ 148:../multitasking/cyclic.c ****         sleep();                        /* Entra en estado IDLE, sale por interrupción */
+ 2238              		.loc 1 148 0
+ 2239 00e0 FEFFFFEB 		bl	sleep
+ 149:../multitasking/cyclic.c ****         if( flagTimer )
+ 2240              		.loc 1 149 0
+ 2241 00e4 68309FE5 		ldr	r3, .L7+20
+ 2242 00e8 0030D3E5 		ldrb	r3, [r3, #0]
+ 2243 00ec FF3003E2 		and	r3, r3, #255
+ 2244 00f0 000053E3 		cmp	r3, #0
+ 2245 00f4 F8FFFF0A 		beq	.L6
+ 151:../multitasking/cyclic.c ****         	flagTimer = FALSE;
+ 2246              		.loc 1 151 0
+ 2247 00f8 54309FE5 		ldr	r3, .L7+20
+ 2248 00fc 0020A0E3 		mov	r2, #0
+ 2249 0100 0020C3E5 		strb	r2, [r3, #0]
+ 152:../multitasking/cyclic.c ****         	(*pjobs[i])();              /* Las tareas que forman el trabajo se ejecutan en esta hebra 
+ 2250              		.loc 1 152 0
+ 2251 0104 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 2252 0108 5C309FE5 		ldr	r3, .L7+44
+ 2253 010c 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 2254 0110 0FE0A0E1 		mov	lr, pc
+ 2255 0114 13FF2FE1 		bx	r3
+ 153:../multitasking/cyclic.c ****         	i = ( i==NUM_JOBS-1 ? 0 : i+1 );
+ 2256              		.loc 1 153 0
+ 2257 0118 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2258 011c C70053E3 		cmp	r3, #199
+ 2259 0120 0300000A 		beq	.L3
+ 153:../multitasking/cyclic.c ****         	i = ( i==NUM_JOBS-1 ? 0 : i+1 );
+ 2260              		.loc 1 153 0 is_stmt 0 discriminator 1
+ 2261 0124 0D305BE5 		ldrb	r3, [fp, #-13]
+ 2262 0128 013083E2 		add	r3, r3, #1
+ 2263 012c FF3003E2 		and	r3, r3, #255
+ 2264 0130 000000EA 		b	.L4
+ 2265              	.L3:
+ 153:../multitasking/cyclic.c ****         	i = ( i==NUM_JOBS-1 ? 0 : i+1 );
+ 2266              		.loc 1 153 0 discriminator 2
+ 2267 0134 0030A0E3 		mov	r3, #0
+ 2268              	.L4:
+ 153:../multitasking/cyclic.c ****         	i = ( i==NUM_JOBS-1 ? 0 : i+1 );
+ 2269              		.loc 1 153 0 discriminator 3
+ 2270 0138 0D304BE5 		strb	r3, [fp, #-13]
+ 2271              		.loc 1 155 0 is_stmt 1 discriminator 3
+ 2272 013c E7FFFFEA 		b	.L5
+ 2273              	.L8:
+ 2274              		.align	2
+ 2275              	.L7:
+ 2276 0140 20030000 		.word	.LC0
+ 2277 0144 50030000 		.word	.LC1
+ 2278 0148 00000000 		.word	flagTask5
+ 2279 014c 00000000 		.word	flagTask6
+ 2280 0150 00000000 		.word	flagPb
+ 2281 0154 00000000 		.word	flagTimer
+ 2282 0158 74FF7F0C 		.word	209715060
+ 2283 015c 00000000 		.word	isr_pb
+ 2284 0160 409C0000 		.word	40000
+ 2285 0164 54FF7F0C 		.word	209715028
+ 2286 0168 00000000 		.word	isr_tick
+ 2287 016c 00000000 		.word	pjobs
+ 2288              		.cfi_endproc
+ 2289              	.LFE0:
+ 2291              		.align	2
+ 2292              		.global	JobA
+ 2294              	JobA:
+ 2295              	.LFB1:
+ 156:../multitasking/cyclic.c **** }
+ 157:../multitasking/cyclic.c **** 
+ 158:../multitasking/cyclic.c **** /*******************************************************************/
+ 159:../multitasking/cyclic.c **** 
+ 160:../multitasking/cyclic.c **** void JobA( void )
+ 161:../multitasking/cyclic.c **** {
+ 2296              		.loc 1 161 0
+ 2297              		.cfi_startproc
+ 2298              		@ Function supports interworking.
+ 2299              		@ args = 0, pretend = 0, frame = 0
+ 2300              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2301 0170 0DC0A0E1 		mov	ip, sp
+ 2302              	.LCFI2:
+ 2303              		.cfi_def_cfa_register 12
+ 2304 0174 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2305 0178 04B04CE2 		sub	fp, ip, #4
+ 2306              		.cfi_offset 14, -8
+ 2307              		.cfi_offset 13, -12
+ 2308              		.cfi_offset 11, -16
+ 2309              	.LCFI3:
+ 2310              		.cfi_def_cfa 11, 4
+ 162:../multitasking/cyclic.c ****     Task2();
+ 2311              		.loc 1 162 0
+ 2312 017c FEFFFFEB 		bl	Task2
+ 163:../multitasking/cyclic.c ****     Task7();
+ 2313              		.loc 1 163 0
+ 2314 0180 FEFFFFEB 		bl	Task7
+ 164:../multitasking/cyclic.c **** }
+ 2315              		.loc 1 164 0
+ 2316 0184 0CD04BE2 		sub	sp, fp, #12
+ 2317 0188 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2318 018c 1EFF2FE1 		bx	lr
+ 2319              		.cfi_endproc
+ 2320              	.LFE1:
+ 2322              		.align	2
+ 2323              		.global	JobB
+ 2325              	JobB:
+ 2326              	.LFB2:
+ 165:../multitasking/cyclic.c **** 
+ 166:../multitasking/cyclic.c **** void JobB( void )
+ 167:../multitasking/cyclic.c **** {
+ 2327              		.loc 1 167 0
+ 2328              		.cfi_startproc
+ 2329              		@ Function supports interworking.
+ 2330              		@ args = 0, pretend = 0, frame = 0
+ 2331              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2332 0190 0DC0A0E1 		mov	ip, sp
+ 2333              	.LCFI4:
+ 2334              		.cfi_def_cfa_register 12
+ 2335 0194 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2336 0198 04B04CE2 		sub	fp, ip, #4
+ 2337              		.cfi_offset 14, -8
+ 2338              		.cfi_offset 13, -12
+ 2339              		.cfi_offset 11, -16
+ 2340              	.LCFI5:
+ 2341              		.cfi_def_cfa 11, 4
+ 168:../multitasking/cyclic.c ****     Task2();
+ 2342              		.loc 1 168 0
+ 2343 019c FEFFFFEB 		bl	Task2
+ 169:../multitasking/cyclic.c ****     Task5();
+ 2344              		.loc 1 169 0
+ 2345 01a0 FEFFFFEB 		bl	Task5
+ 170:../multitasking/cyclic.c ****     Task6();
+ 2346              		.loc 1 170 0
+ 2347 01a4 FEFFFFEB 		bl	Task6
+ 171:../multitasking/cyclic.c ****     Task7();
+ 2348              		.loc 1 171 0
+ 2349 01a8 FEFFFFEB 		bl	Task7
+ 172:../multitasking/cyclic.c **** }
+ 2350              		.loc 1 172 0
+ 2351 01ac 0CD04BE2 		sub	sp, fp, #12
+ 2352 01b0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2353 01b4 1EFF2FE1 		bx	lr
+ 2354              		.cfi_endproc
+ 2355              	.LFE2:
+ 2357              		.align	2
+ 2358              		.global	JobC
+ 2360              	JobC:
+ 2361              	.LFB3:
+ 173:../multitasking/cyclic.c **** 
+ 174:../multitasking/cyclic.c **** void JobC( void )
+ 175:../multitasking/cyclic.c **** {
+ 2362              		.loc 1 175 0
+ 2363              		.cfi_startproc
+ 2364              		@ Function supports interworking.
+ 2365              		@ args = 0, pretend = 0, frame = 0
+ 2366              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2367 01b8 0DC0A0E1 		mov	ip, sp
+ 2368              	.LCFI6:
+ 2369              		.cfi_def_cfa_register 12
+ 2370 01bc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2371 01c0 04B04CE2 		sub	fp, ip, #4
+ 2372              		.cfi_offset 14, -8
+ 2373              		.cfi_offset 13, -12
+ 2374              		.cfi_offset 11, -16
+ 2375              	.LCFI7:
+ 2376              		.cfi_def_cfa 11, 4
+ 176:../multitasking/cyclic.c ****     Task2();
+ 2377              		.loc 1 176 0
+ 2378 01c4 FEFFFFEB 		bl	Task2
+ 177:../multitasking/cyclic.c ****     Task5();
+ 2379              		.loc 1 177 0
+ 2380 01c8 FEFFFFEB 		bl	Task5
+ 178:../multitasking/cyclic.c ****     Task6();
+ 2381              		.loc 1 178 0
+ 2382 01cc FEFFFFEB 		bl	Task6
+ 179:../multitasking/cyclic.c ****     Task1();
+ 2383              		.loc 1 179 0
+ 2384 01d0 FEFFFFEB 		bl	Task1
+ 180:../multitasking/cyclic.c ****     Task7();
+ 2385              		.loc 1 180 0
+ 2386 01d4 FEFFFFEB 		bl	Task7
+ 181:../multitasking/cyclic.c **** }
+ 2387              		.loc 1 181 0
+ 2388 01d8 0CD04BE2 		sub	sp, fp, #12
+ 2389 01dc 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2390 01e0 1EFF2FE1 		bx	lr
+ 2391              		.cfi_endproc
+ 2392              	.LFE3:
+ 2394              		.align	2
+ 2395              		.global	JobD
+ 2397              	JobD:
+ 2398              	.LFB4:
+ 182:../multitasking/cyclic.c **** 
+ 183:../multitasking/cyclic.c **** void JobD( void )
+ 184:../multitasking/cyclic.c **** {
+ 2399              		.loc 1 184 0
+ 2400              		.cfi_startproc
+ 2401              		@ Function supports interworking.
+ 2402              		@ args = 0, pretend = 0, frame = 0
+ 2403              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2404 01e4 0DC0A0E1 		mov	ip, sp
+ 2405              	.LCFI8:
+ 2406              		.cfi_def_cfa_register 12
+ 2407 01e8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2408 01ec 04B04CE2 		sub	fp, ip, #4
+ 2409              		.cfi_offset 14, -8
+ 2410              		.cfi_offset 13, -12
+ 2411              		.cfi_offset 11, -16
+ 2412              	.LCFI9:
+ 2413              		.cfi_def_cfa 11, 4
+ 185:../multitasking/cyclic.c ****     Task2();
+ 2414              		.loc 1 185 0
+ 2415 01f0 FEFFFFEB 		bl	Task2
+ 186:../multitasking/cyclic.c ****     Task5();
+ 2416              		.loc 1 186 0
+ 2417 01f4 FEFFFFEB 		bl	Task5
+ 187:../multitasking/cyclic.c ****     Task6();
+ 2418              		.loc 1 187 0
+ 2419 01f8 FEFFFFEB 		bl	Task6
+ 188:../multitasking/cyclic.c ****     Task1();
+ 2420              		.loc 1 188 0
+ 2421 01fc FEFFFFEB 		bl	Task1
+ 189:../multitasking/cyclic.c ****     Task3();
+ 2422              		.loc 1 189 0
+ 2423 0200 FEFFFFEB 		bl	Task3
+ 190:../multitasking/cyclic.c ****     Task7();
+ 2424              		.loc 1 190 0
+ 2425 0204 FEFFFFEB 		bl	Task7
+ 191:../multitasking/cyclic.c **** }
+ 2426              		.loc 1 191 0
+ 2427 0208 0CD04BE2 		sub	sp, fp, #12
+ 2428 020c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2429 0210 1EFF2FE1 		bx	lr
+ 2430              		.cfi_endproc
+ 2431              	.LFE4:
+ 2433              		.align	2
+ 2434              		.global	JobE
+ 2436              	JobE:
+ 2437              	.LFB5:
+ 192:../multitasking/cyclic.c **** 
+ 193:../multitasking/cyclic.c **** void JobE( void )
+ 194:../multitasking/cyclic.c **** {
+ 2438              		.loc 1 194 0
+ 2439              		.cfi_startproc
+ 2440              		@ Function supports interworking.
+ 2441              		@ args = 0, pretend = 0, frame = 0
+ 2442              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2443 0214 0DC0A0E1 		mov	ip, sp
+ 2444              	.LCFI10:
+ 2445              		.cfi_def_cfa_register 12
+ 2446 0218 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2447 021c 04B04CE2 		sub	fp, ip, #4
+ 2448              		.cfi_offset 14, -8
+ 2449              		.cfi_offset 13, -12
+ 2450              		.cfi_offset 11, -16
+ 2451              	.LCFI11:
+ 2452              		.cfi_def_cfa 11, 4
+ 195:../multitasking/cyclic.c ****     Task2();
+ 2453              		.loc 1 195 0
+ 2454 0220 FEFFFFEB 		bl	Task2
+ 196:../multitasking/cyclic.c ****     Task5();
+ 2455              		.loc 1 196 0
+ 2456 0224 FEFFFFEB 		bl	Task5
+ 197:../multitasking/cyclic.c ****     Task6();
+ 2457              		.loc 1 197 0
+ 2458 0228 FEFFFFEB 		bl	Task6
+ 198:../multitasking/cyclic.c ****     Task1();
+ 2459              		.loc 1 198 0
+ 2460 022c FEFFFFEB 		bl	Task1
+ 199:../multitasking/cyclic.c ****     Task3();
+ 2461              		.loc 1 199 0
+ 2462 0230 FEFFFFEB 		bl	Task3
+ 200:../multitasking/cyclic.c ****     Task4();
+ 2463              		.loc 1 200 0
+ 2464 0234 FEFFFFEB 		bl	Task4
+ 201:../multitasking/cyclic.c ****     Task7();
+ 2465              		.loc 1 201 0
+ 2466 0238 FEFFFFEB 		bl	Task7
+ 202:../multitasking/cyclic.c **** }
+ 2467              		.loc 1 202 0
+ 2468 023c 0CD04BE2 		sub	sp, fp, #12
+ 2469 0240 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2470 0244 1EFF2FE1 		bx	lr
+ 2471              		.cfi_endproc
+ 2472              	.LFE5:
+ 2474              		.section	.rodata
+ 2475 037e 0000     		.align	2
+ 2476              	.LC2:
+ 2477 0380 20546173 		.ascii	" Task 1: iniciada.\012\000"
+ 2477      6B20313A 
+ 2477      20696E69 
+ 2477      63696164 
+ 2477      612E0A00 
+ 2478              		.text
+ 2479              		.align	2
+ 2480              		.global	Task1
+ 2482              	Task1:
+ 2483              	.LFB6:
+ 203:../multitasking/cyclic.c **** 
+ 204:../multitasking/cyclic.c **** /*******************************************************************/
+ 205:../multitasking/cyclic.c **** 
+ 206:../multitasking/cyclic.c **** void Task1( void )  /* Cada 0,5 segundos (50 ticks) alterna el led que se enciende */
+ 207:../multitasking/cyclic.c **** {
+ 2484              		.loc 1 207 0
+ 2485              		.cfi_startproc
+ 2486              		@ Function supports interworking.
+ 2487              		@ args = 0, pretend = 0, frame = 0
+ 2488              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2489 0248 0DC0A0E1 		mov	ip, sp
+ 2490              	.LCFI12:
+ 2491              		.cfi_def_cfa_register 12
+ 2492 024c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2493 0250 04B04CE2 		sub	fp, ip, #4
+ 2494              		.cfi_offset 14, -8
+ 2495              		.cfi_offset 13, -12
+ 2496              		.cfi_offset 11, -16
+ 2497              	.LCFI13:
+ 2498              		.cfi_def_cfa 11, 4
+ 208:../multitasking/cyclic.c ****     static boolean init = TRUE;
+ 209:../multitasking/cyclic.c **** 
+ 210:../multitasking/cyclic.c ****     if( init )
+ 2499              		.loc 1 210 0
+ 2500 0254 3C309FE5 		ldr	r3, .L17
+ 2501 0258 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2502 025c 000053E3 		cmp	r3, #0
+ 2503 0260 0700000A 		beq	.L15
+ 211:../multitasking/cyclic.c ****     {
+ 212:../multitasking/cyclic.c ****         init = FALSE;
+ 2504              		.loc 1 212 0
+ 2505 0264 2C309FE5 		ldr	r3, .L17
+ 2506 0268 0020A0E3 		mov	r2, #0
+ 2507 026c 0020C3E5 		strb	r2, [r3, #0]
+ 213:../multitasking/cyclic.c ****         uart0_puts( " Task 1: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2508              		.loc 1 213 0
+ 2509 0270 24009FE5 		ldr	r0, .L17+4
+ 2510 0274 FEFFFFEB 		bl	uart0_puts
+ 214:../multitasking/cyclic.c ****         led1_on();
+ 2511              		.loc 1 214 0
+ 2512 0278 FEFFFFEB 		bl	led1_on
+ 215:../multitasking/cyclic.c ****         led2_off();
+ 2513              		.loc 1 215 0
+ 2514 027c FEFFFFEB 		bl	led2_off
+ 2515 0280 010000EA 		b	.L14
+ 2516              	.L15:
+ 216:../multitasking/cyclic.c ****     }
+ 217:../multitasking/cyclic.c ****     else
+ 218:../multitasking/cyclic.c ****     {
+ 219:../multitasking/cyclic.c ****         led1_switch();
+ 2517              		.loc 1 219 0
+ 2518 0284 FEFFFFEB 		bl	led1_switch
+ 220:../multitasking/cyclic.c ****         led2_switch();
+ 2519              		.loc 1 220 0
+ 2520 0288 FEFFFFEB 		bl	led2_switch
+ 2521              	.L14:
+ 221:../multitasking/cyclic.c ****     }
+ 222:../multitasking/cyclic.c **** }
+ 2522              		.loc 1 222 0
+ 2523 028c 0CD04BE2 		sub	sp, fp, #12
+ 2524 0290 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2525 0294 1EFF2FE1 		bx	lr
+ 2526              	.L18:
+ 2527              		.align	2
+ 2528              	.L17:
+ 2529 0298 06000000 		.word	init.4170
+ 2530 029c 80030000 		.word	.LC2
+ 2531              		.cfi_endproc
+ 2532              	.LFE6:
+ 2534              		.section	.rodata
+ 2535              		.align	2
+ 2536              	.LC3:
+ 2537 0394 20546173 		.ascii	" Task 2: iniciada.\012\000"
+ 2537      6B20323A 
+ 2537      20696E69 
+ 2537      63696164 
+ 2537      612E0A00 
+ 2538              		.text
+ 2539              		.align	2
+ 2540              		.global	Task2
+ 2542              	Task2:
+ 2543              	.LFB7:
+ 223:../multitasking/cyclic.c **** 
+ 224:../multitasking/cyclic.c **** void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scancode a otras tareas *
+ 225:../multitasking/cyclic.c **** {
+ 2544              		.loc 1 225 0
+ 2545              		.cfi_startproc
+ 2546              		@ Function supports interworking.
+ 2547              		@ args = 0, pretend = 0, frame = 0
+ 2548              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2549 02a0 0DC0A0E1 		mov	ip, sp
+ 2550              	.LCFI14:
+ 2551              		.cfi_def_cfa_register 12
+ 2552 02a4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2553 02a8 04B04CE2 		sub	fp, ip, #4
+ 2554              		.cfi_offset 14, -8
+ 2555              		.cfi_offset 13, -12
+ 2556              		.cfi_offset 11, -16
+ 2557              	.LCFI15:
+ 2558              		.cfi_def_cfa 11, 4
+ 226:../multitasking/cyclic.c ****     static boolean init = TRUE;
+ 227:../multitasking/cyclic.c ****     static enum { wait_keydown, scan, wait_keyup } state;
+ 228:../multitasking/cyclic.c **** 
+ 229:../multitasking/cyclic.c ****     if( init )
+ 2559              		.loc 1 229 0
+ 2560 02ac E0309FE5 		ldr	r3, .L29
+ 2561 02b0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2562 02b4 000053E3 		cmp	r3, #0
+ 2563 02b8 0800000A 		beq	.L20
+ 230:../multitasking/cyclic.c ****     {
+ 231:../multitasking/cyclic.c ****         init  = FALSE;
+ 2564              		.loc 1 231 0
+ 2565 02bc D0309FE5 		ldr	r3, .L29
+ 2566 02c0 0020A0E3 		mov	r2, #0
+ 2567 02c4 0020C3E5 		strb	r2, [r3, #0]
+ 232:../multitasking/cyclic.c ****         uart0_puts( " Task 2: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2568              		.loc 1 232 0
+ 2569 02c8 C8009FE5 		ldr	r0, .L29+4
+ 2570 02cc FEFFFFEB 		bl	uart0_puts
+ 233:../multitasking/cyclic.c ****         state = wait_keydown;
+ 2571              		.loc 1 233 0
+ 2572 02d0 C4309FE5 		ldr	r3, .L29+8
+ 2573 02d4 0020A0E3 		mov	r2, #0
+ 2574 02d8 0020C3E5 		strb	r2, [r3, #0]
+ 2575 02dc 290000EA 		b	.L19
+ 2576              	.L20:
+ 234:../multitasking/cyclic.c ****     }
+ 235:../multitasking/cyclic.c ****     else switch( state )
+ 2577              		.loc 1 235 0
+ 2578 02e0 B4309FE5 		ldr	r3, .L29+8
+ 2579 02e4 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2580 02e8 010053E3 		cmp	r3, #1
+ 2581 02ec 0B00000A 		beq	.L23
+ 2582 02f0 020053E3 		cmp	r3, #2
+ 2583 02f4 1800000A 		beq	.L24
+ 2584 02f8 000053E3 		cmp	r3, #0
+ 2585 02fc 2100001A 		bne	.L19
+ 2586              	.L22:
+ 236:../multitasking/cyclic.c ****     {
+ 237:../multitasking/cyclic.c ****         case wait_keydown:
+ 238:../multitasking/cyclic.c ****             if( kb_scan() >= 0 )
+ 2587              		.loc 1 238 0
+ 2588 0300 FEFFFFEB 		bl	kb_scan
+ 2589 0304 0030A0E1 		mov	r3, r0
+ 2590 0308 000053E3 		cmp	r3, #0
+ 2591 030c 1A0000BA 		blt	.L27
+ 239:../multitasking/cyclic.c ****                 state = scan;
+ 2592              		.loc 1 239 0
+ 2593 0310 84309FE5 		ldr	r3, .L29+8
+ 2594 0314 0120A0E3 		mov	r2, #1
+ 2595 0318 0020C3E5 		strb	r2, [r3, #0]
+ 240:../multitasking/cyclic.c ****             break;
+ 2596              		.loc 1 240 0
+ 2597 031c 190000EA 		b	.L19
+ 2598              	.L23:
+ 241:../multitasking/cyclic.c ****         case scan:
+ 242:../multitasking/cyclic.c ****             scancode = kb_scan();
+ 2599              		.loc 1 242 0
+ 2600 0320 FEFFFFEB 		bl	kb_scan
+ 2601 0324 0030A0E1 		mov	r3, r0
+ 2602 0328 FF2003E2 		and	r2, r3, #255
+ 2603 032c 6C309FE5 		ldr	r3, .L29+12
+ 2604 0330 0020C3E5 		strb	r2, [r3, #0]
+ 243:../multitasking/cyclic.c ****             if( scancode >= 0 )
+ 244:../multitasking/cyclic.c ****             {
+ 245:../multitasking/cyclic.c ****                 flagTask5 = TRUE;
+ 2605              		.loc 1 245 0
+ 2606 0334 68309FE5 		ldr	r3, .L29+16
+ 2607 0338 0120A0E3 		mov	r2, #1
+ 2608 033c 0020C3E5 		strb	r2, [r3, #0]
+ 246:../multitasking/cyclic.c ****                 flagTask6 = TRUE;
+ 2609              		.loc 1 246 0
+ 2610 0340 60309FE5 		ldr	r3, .L29+20
+ 2611 0344 0120A0E3 		mov	r2, #1
+ 2612 0348 0020C3E5 		strb	r2, [r3, #0]
+ 247:../multitasking/cyclic.c ****             }
+ 248:../multitasking/cyclic.c ****             state = wait_keyup;
+ 2613              		.loc 1 248 0
+ 2614 034c 48309FE5 		ldr	r3, .L29+8
+ 2615 0350 0220A0E3 		mov	r2, #2
+ 2616 0354 0020C3E5 		strb	r2, [r3, #0]
+ 249:../multitasking/cyclic.c ****             break;
+ 2617              		.loc 1 249 0
+ 2618 0358 0A0000EA 		b	.L19
+ 2619              	.L24:
+ 250:../multitasking/cyclic.c ****         case wait_keyup:
+ 251:../multitasking/cyclic.c ****             if( kb_scan() < 0 )
+ 2620              		.loc 1 251 0
+ 2621 035c FEFFFFEB 		bl	kb_scan
+ 2622 0360 0030A0E1 		mov	r3, r0
+ 2623 0364 000053E3 		cmp	r3, #0
+ 2624 0368 050000AA 		bge	.L28
+ 252:../multitasking/cyclic.c ****                 state = wait_keydown;
+ 2625              		.loc 1 252 0
+ 2626 036c 28309FE5 		ldr	r3, .L29+8
+ 2627 0370 0020A0E3 		mov	r2, #0
+ 2628 0374 0020C3E5 		strb	r2, [r3, #0]
+ 253:../multitasking/cyclic.c ****             break;
+ 2629              		.loc 1 253 0
+ 2630 0378 020000EA 		b	.L19
+ 2631              	.L27:
+ 240:../multitasking/cyclic.c ****             break;
+ 2632              		.loc 1 240 0
+ 2633 037c 0000A0E1 		mov	r0, r0	@ nop
+ 2634 0380 000000EA 		b	.L19
+ 2635              	.L28:
+ 2636              		.loc 1 253 0
+ 2637 0384 0000A0E1 		mov	r0, r0	@ nop
+ 2638              	.L19:
+ 254:../multitasking/cyclic.c ****     }
+ 255:../multitasking/cyclic.c **** }
+ 2639              		.loc 1 255 0
+ 2640 0388 0CD04BE2 		sub	sp, fp, #12
+ 2641 038c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2642 0390 1EFF2FE1 		bx	lr
+ 2643              	.L30:
+ 2644              		.align	2
+ 2645              	.L29:
+ 2646 0394 05000000 		.word	init.4174
+ 2647 0398 94030000 		.word	.LC3
+ 2648 039c 04000000 		.word	state.4179
+ 2649 03a0 00000000 		.word	scancode
+ 2650 03a4 00000000 		.word	flagTask5
+ 2651 03a8 00000000 		.word	flagTask6
+ 2652              		.cfi_endproc
+ 2653              	.LFE7:
+ 2655              		.section	.rodata
+ 2656              		.align	2
+ 2657              	.LC4:
+ 2658 03a8 20546173 		.ascii	" Task 3: iniciada.\012\000"
+ 2658      6B20333A 
+ 2658      20696E69 
+ 2658      63696164 
+ 2658      612E0A00 
+ 2659              		.align	2
+ 2660              	.LC5:
+ 2661 03bc 20202854 		.ascii	"  (Task 3) Hora: \000"
+ 2661      61736B20 
+ 2661      33292048 
+ 2661      6F72613A 
+ 2661      2000
+ 2662 03ce 0000     		.align	2
+ 2663              	.LC6:
+ 2664 03d0 0A00     		.ascii	"\012\000"
+ 2665              		.text
+ 2666              		.align	2
+ 2667              		.global	Task3
+ 2669              	Task3:
+ 2670              	.LFB8:
+ 256:../multitasking/cyclic.c **** 
+ 257:../multitasking/cyclic.c **** void Task3( void  )  /* Cada segundo (100 ticks) muestra por la UART0 la hora del RTC */
+ 258:../multitasking/cyclic.c **** {
+ 2671              		.loc 1 258 0
+ 2672              		.cfi_startproc
+ 2673              		@ Function supports interworking.
+ 2674              		@ args = 0, pretend = 0, frame = 8
+ 2675              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2676 03ac 0DC0A0E1 		mov	ip, sp
+ 2677              	.LCFI16:
+ 2678              		.cfi_def_cfa_register 12
+ 2679 03b0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2680 03b4 04B04CE2 		sub	fp, ip, #4
+ 2681              		.cfi_offset 14, -8
+ 2682              		.cfi_offset 13, -12
+ 2683              		.cfi_offset 11, -16
+ 2684              	.LCFI17:
+ 2685              		.cfi_def_cfa 11, 4
+ 2686 03b8 08D04DE2 		sub	sp, sp, #8
+ 259:../multitasking/cyclic.c ****     static boolean init = TRUE;
+ 260:../multitasking/cyclic.c ****     rtc_time_t rtc_time;
+ 261:../multitasking/cyclic.c **** 
+ 262:../multitasking/cyclic.c ****     if( init )
+ 2687              		.loc 1 262 0
+ 2688 03bc 7C309FE5 		ldr	r3, .L34
+ 2689 03c0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2690 03c4 000053E3 		cmp	r3, #0
+ 2691 03c8 0500000A 		beq	.L32
+ 263:../multitasking/cyclic.c ****     {
+ 264:../multitasking/cyclic.c ****         init = FALSE;
+ 2692              		.loc 1 264 0
+ 2693 03cc 6C309FE5 		ldr	r3, .L34
+ 2694 03d0 0020A0E3 		mov	r2, #0
+ 2695 03d4 0020C3E5 		strb	r2, [r3, #0]
+ 265:../multitasking/cyclic.c ****         uart0_puts( " Task 3: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2696              		.loc 1 265 0
+ 2697 03d8 64009FE5 		ldr	r0, .L34+4
+ 2698 03dc FEFFFFEB 		bl	uart0_puts
+ 2699 03e0 130000EA 		b	.L31
+ 2700              	.L32:
+ 266:../multitasking/cyclic.c ****     }
+ 267:../multitasking/cyclic.c ****     else
+ 268:../multitasking/cyclic.c ****     {
+ 269:../multitasking/cyclic.c ****         rtc_gettime( &rtc_time );
+ 2701              		.loc 1 269 0
+ 2702 03e4 14304BE2 		sub	r3, fp, #20
+ 2703 03e8 0300A0E1 		mov	r0, r3
+ 2704 03ec FEFFFFEB 		bl	rtc_gettime
+ 270:../multitasking/cyclic.c ****         uart0_puts( "  (Task 3) Hora: " );
+ 2705              		.loc 1 270 0
+ 2706 03f0 50009FE5 		ldr	r0, .L34+8
+ 2707 03f4 FEFFFFEB 		bl	uart0_puts
+ 271:../multitasking/cyclic.c ****         uart0_putint( rtc_time.hour );
+ 2708              		.loc 1 271 0
+ 2709 03f8 12305BE5 		ldrb	r3, [fp, #-18]	@ zero_extendqisi2
+ 2710 03fc 0300A0E1 		mov	r0, r3
+ 2711 0400 FEFFFFEB 		bl	uart0_putint
+ 272:../multitasking/cyclic.c ****         uart0_putchar( ':' );
+ 2712              		.loc 1 272 0
+ 2713 0404 3A00A0E3 		mov	r0, #58
+ 2714 0408 FEFFFFEB 		bl	uart0_putchar
+ 273:../multitasking/cyclic.c ****         uart0_putint( rtc_time.min );
+ 2715              		.loc 1 273 0
+ 2716 040c 13305BE5 		ldrb	r3, [fp, #-19]	@ zero_extendqisi2
+ 2717 0410 0300A0E1 		mov	r0, r3
+ 2718 0414 FEFFFFEB 		bl	uart0_putint
+ 274:../multitasking/cyclic.c ****         uart0_putchar( ':' );
+ 2719              		.loc 1 274 0
+ 2720 0418 3A00A0E3 		mov	r0, #58
+ 2721 041c FEFFFFEB 		bl	uart0_putchar
+ 275:../multitasking/cyclic.c ****         uart0_putint( rtc_time.sec );
+ 2722              		.loc 1 275 0
+ 2723 0420 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 2724 0424 0300A0E1 		mov	r0, r3
+ 2725 0428 FEFFFFEB 		bl	uart0_putint
+ 276:../multitasking/cyclic.c ****         uart0_puts( "\n" );
+ 2726              		.loc 1 276 0
+ 2727 042c 18009FE5 		ldr	r0, .L34+12
+ 2728 0430 FEFFFFEB 		bl	uart0_puts
+ 2729              	.L31:
+ 277:../multitasking/cyclic.c ****     }
+ 278:../multitasking/cyclic.c **** }
+ 2730              		.loc 1 278 0
+ 2731 0434 0CD04BE2 		sub	sp, fp, #12
+ 2732 0438 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2733 043c 1EFF2FE1 		bx	lr
+ 2734              	.L35:
+ 2735              		.align	2
+ 2736              	.L34:
+ 2737 0440 04000000 		.word	init.4187
+ 2738 0444 A8030000 		.word	.LC4
+ 2739 0448 BC030000 		.word	.LC5
+ 2740 044c D0030000 		.word	.LC6
+ 2741              		.cfi_endproc
+ 2742              	.LFE8:
+ 2744              		.section	.rodata
+ 2745 03d2 0000     		.align	2
+ 2746              	.LC7:
+ 2747 03d4 20546173 		.ascii	" Task 4: iniciada.\012\000"
+ 2747      6B20343A 
+ 2747      20696E69 
+ 2747      63696164 
+ 2747      612E0A00 
+ 2748              		.align	2
+ 2749              	.LC8:
+ 2750 03e8 20202854 		.ascii	"  (Task 4) Ticks: \000"
+ 2750      61736B20 
+ 2750      34292054 
+ 2750      69636B73 
+ 2750      3A2000
+ 2751              		.text
+ 2752              		.align	2
+ 2753              		.global	Task4
+ 2755              	Task4:
+ 2756              	.LFB9:
+ 279:../multitasking/cyclic.c **** 
+ 280:../multitasking/cyclic.c **** void Task4( void )  /* Cada 10 segundos (1000 ticks) muestra por la UART0 los ticks transcurridos *
+ 281:../multitasking/cyclic.c **** {
+ 2757              		.loc 1 281 0
+ 2758              		.cfi_startproc
+ 2759              		@ Function supports interworking.
+ 2760              		@ args = 0, pretend = 0, frame = 0
+ 2761              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2762 0450 0DC0A0E1 		mov	ip, sp
+ 2763              	.LCFI18:
+ 2764              		.cfi_def_cfa_register 12
+ 2765 0454 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2766 0458 04B04CE2 		sub	fp, ip, #4
+ 2767              		.cfi_offset 14, -8
+ 2768              		.cfi_offset 13, -12
+ 2769              		.cfi_offset 11, -16
+ 2770              	.LCFI19:
+ 2771              		.cfi_def_cfa 11, 4
+ 282:../multitasking/cyclic.c ****     static boolean init = TRUE;
+ 283:../multitasking/cyclic.c ****     static uint32 ticks;
+ 284:../multitasking/cyclic.c **** 
+ 285:../multitasking/cyclic.c ****     if( init )
+ 2772              		.loc 1 285 0
+ 2773 045c 6C309FE5 		ldr	r3, .L39
+ 2774 0460 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2775 0464 000053E3 		cmp	r3, #0
+ 2776 0468 0800000A 		beq	.L37
+ 286:../multitasking/cyclic.c ****     {
+ 287:../multitasking/cyclic.c ****         init = FALSE;
+ 2777              		.loc 1 287 0
+ 2778 046c 5C309FE5 		ldr	r3, .L39
+ 2779 0470 0020A0E3 		mov	r2, #0
+ 2780 0474 0020C3E5 		strb	r2, [r3, #0]
+ 288:../multitasking/cyclic.c ****         uart0_puts( " Task 4: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2781              		.loc 1 288 0
+ 2782 0478 54009FE5 		ldr	r0, .L39+4
+ 2783 047c FEFFFFEB 		bl	uart0_puts
+ 289:../multitasking/cyclic.c ****         ticks = 0;
+ 2784              		.loc 1 289 0
+ 2785 0480 50309FE5 		ldr	r3, .L39+8
+ 2786 0484 0020A0E3 		mov	r2, #0
+ 2787 0488 002083E5 		str	r2, [r3, #0]
+ 2788 048c 0C0000EA 		b	.L36
+ 2789              	.L37:
+ 290:../multitasking/cyclic.c ****     }
+ 291:../multitasking/cyclic.c ****     else
+ 292:../multitasking/cyclic.c ****     {
+ 293:../multitasking/cyclic.c ****         ticks += TICKS_PER_SEC * 10;
+ 2790              		.loc 1 293 0
+ 2791 0490 40309FE5 		ldr	r3, .L39+8
+ 2792 0494 003093E5 		ldr	r3, [r3, #0]
+ 2793 0498 FA2F83E2 		add	r2, r3, #1000
+ 2794 049c 34309FE5 		ldr	r3, .L39+8
+ 2795 04a0 002083E5 		str	r2, [r3, #0]
+ 294:../multitasking/cyclic.c ****         uart0_puts( "  (Task 4) Ticks: " );
+ 2796              		.loc 1 294 0
+ 2797 04a4 30009FE5 		ldr	r0, .L39+12
+ 2798 04a8 FEFFFFEB 		bl	uart0_puts
+ 295:../multitasking/cyclic.c ****         uart0_putint( ticks );
+ 2799              		.loc 1 295 0
+ 2800 04ac 24309FE5 		ldr	r3, .L39+8
+ 2801 04b0 003093E5 		ldr	r3, [r3, #0]
+ 2802 04b4 0300A0E1 		mov	r0, r3
+ 2803 04b8 FEFFFFEB 		bl	uart0_putint
+ 296:../multitasking/cyclic.c ****         uart0_puts( "\n" );
+ 2804              		.loc 1 296 0
+ 2805 04bc 1C009FE5 		ldr	r0, .L39+16
+ 2806 04c0 FEFFFFEB 		bl	uart0_puts
+ 2807              	.L36:
+ 297:../multitasking/cyclic.c ****     }
+ 298:../multitasking/cyclic.c **** }
+ 2808              		.loc 1 298 0
+ 2809 04c4 0CD04BE2 		sub	sp, fp, #12
+ 2810 04c8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2811 04cc 1EFF2FE1 		bx	lr
+ 2812              	.L40:
+ 2813              		.align	2
+ 2814              	.L39:
+ 2815 04d0 03000000 		.word	init.4192
+ 2816 04d4 D4030000 		.word	.LC7
+ 2817 04d8 00000000 		.word	ticks.4193
+ 2818 04dc E8030000 		.word	.LC8
+ 2819 04e0 D0030000 		.word	.LC6
+ 2820              		.cfi_endproc
+ 2821              	.LFE9:
+ 2823              		.section	.rodata
+ 2824 03fb 00       		.align	2
+ 2825              	.LC9:
+ 2826 03fc 20546173 		.ascii	" Task 5: iniciada.\012\000"
+ 2826      6B20353A 
+ 2826      20696E69 
+ 2826      63696164 
+ 2826      612E0A00 
+ 2827              		.align	2
+ 2828              	.LC10:
+ 2829 0410 20202854 		.ascii	"  (Task 5) Tecla pulsada: \000"
+ 2829      61736B20 
+ 2829      35292054 
+ 2829      65636C61 
+ 2829      2070756C 
+ 2830              		.text
+ 2831              		.align	2
+ 2832              		.global	Task5
+ 2834              	Task5:
+ 2835              	.LFB10:
+ 299:../multitasking/cyclic.c **** 
+ 300:../multitasking/cyclic.c **** void Task5( void )  /* Cada vez que reciba un scancode lo muestra por la UART0 */
+ 301:../multitasking/cyclic.c **** {
+ 2836              		.loc 1 301 0
+ 2837              		.cfi_startproc
+ 2838              		@ Function supports interworking.
+ 2839              		@ args = 0, pretend = 0, frame = 0
+ 2840              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2841 04e4 0DC0A0E1 		mov	ip, sp
+ 2842              	.LCFI20:
+ 2843              		.cfi_def_cfa_register 12
+ 2844 04e8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2845 04ec 04B04CE2 		sub	fp, ip, #4
+ 2846              		.cfi_offset 14, -8
+ 2847              		.cfi_offset 13, -12
+ 2848              		.cfi_offset 11, -16
+ 2849              	.LCFI21:
+ 2850              		.cfi_def_cfa 11, 4
+ 302:../multitasking/cyclic.c ****     static boolean init = TRUE;
+ 303:../multitasking/cyclic.c **** 
+ 304:../multitasking/cyclic.c ****     if( init )
+ 2851              		.loc 1 304 0
+ 2852 04f0 68309FE5 		ldr	r3, .L44
+ 2853 04f4 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2854 04f8 000053E3 		cmp	r3, #0
+ 2855 04fc 0500000A 		beq	.L42
+ 305:../multitasking/cyclic.c ****     {
+ 306:../multitasking/cyclic.c ****         init = FALSE;
+ 2856              		.loc 1 306 0
+ 2857 0500 58309FE5 		ldr	r3, .L44
+ 2858 0504 0020A0E3 		mov	r2, #0
+ 2859 0508 0020C3E5 		strb	r2, [r3, #0]
+ 307:../multitasking/cyclic.c ****         uart0_puts( " Task 5: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2860              		.loc 1 307 0
+ 2861 050c 50009FE5 		ldr	r0, .L44+4
+ 2862 0510 FEFFFFEB 		bl	uart0_puts
+ 2863 0514 0E0000EA 		b	.L41
+ 2864              	.L42:
+ 308:../multitasking/cyclic.c ****     }
+ 309:../multitasking/cyclic.c ****     else if( flagTask5 )
+ 2865              		.loc 1 309 0
+ 2866 0518 48309FE5 		ldr	r3, .L44+8
+ 2867 051c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2868 0520 000053E3 		cmp	r3, #0
+ 2869 0524 0A00000A 		beq	.L41
+ 310:../multitasking/cyclic.c ****     {
+ 311:../multitasking/cyclic.c ****         flagTask5 = FALSE;
+ 2870              		.loc 1 311 0
+ 2871 0528 38309FE5 		ldr	r3, .L44+8
+ 2872 052c 0020A0E3 		mov	r2, #0
+ 2873 0530 0020C3E5 		strb	r2, [r3, #0]
+ 312:../multitasking/cyclic.c ****         uart0_puts( "  (Task 5) Tecla pulsada: " );
+ 2874              		.loc 1 312 0
+ 2875 0534 30009FE5 		ldr	r0, .L44+12
+ 2876 0538 FEFFFFEB 		bl	uart0_puts
+ 313:../multitasking/cyclic.c ****         uart0_puthex( scancode );
+ 2877              		.loc 1 313 0
+ 2878 053c 2C309FE5 		ldr	r3, .L44+16
+ 2879 0540 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2880 0544 0300A0E1 		mov	r0, r3
+ 2881 0548 FEFFFFEB 		bl	uart0_puthex
+ 314:../multitasking/cyclic.c ****         uart0_puts( "\n" );
+ 2882              		.loc 1 314 0
+ 2883 054c 20009FE5 		ldr	r0, .L44+20
+ 2884 0550 FEFFFFEB 		bl	uart0_puts
+ 2885              	.L41:
+ 315:../multitasking/cyclic.c ****     }
+ 316:../multitasking/cyclic.c **** }
+ 2886              		.loc 1 316 0
+ 2887 0554 0CD04BE2 		sub	sp, fp, #12
+ 2888 0558 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2889 055c 1EFF2FE1 		bx	lr
+ 2890              	.L45:
+ 2891              		.align	2
+ 2892              	.L44:
+ 2893 0560 02000000 		.word	init.4197
+ 2894 0564 FC030000 		.word	.LC9
+ 2895 0568 00000000 		.word	flagTask5
+ 2896 056c 10040000 		.word	.LC10
+ 2897 0570 00000000 		.word	scancode
+ 2898 0574 D0030000 		.word	.LC6
+ 2899              		.cfi_endproc
+ 2900              	.LFE10:
+ 2902              		.section	.rodata
+ 2903 042b 00       		.align	2
+ 2904              	.LC11:
+ 2905 042c 20546173 		.ascii	" Task 6: iniciada.\012\000"
+ 2905      6B20363A 
+ 2905      20696E69 
+ 2905      63696164 
+ 2905      612E0A00 
+ 2906              		.text
+ 2907              		.align	2
+ 2908              		.global	Task6
+ 2910              	Task6:
+ 2911              	.LFB11:
+ 317:../multitasking/cyclic.c **** 
+ 318:../multitasking/cyclic.c **** void Task6( void )  /* Cada vez que reciba un scancode lo muestra por los 7 segmentos */
+ 319:../multitasking/cyclic.c **** {
+ 2912              		.loc 1 319 0
+ 2913              		.cfi_startproc
+ 2914              		@ Function supports interworking.
+ 2915              		@ args = 0, pretend = 0, frame = 0
+ 2916              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2917 0578 0DC0A0E1 		mov	ip, sp
+ 2918              	.LCFI22:
+ 2919              		.cfi_def_cfa_register 12
+ 2920 057c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2921 0580 04B04CE2 		sub	fp, ip, #4
+ 2922              		.cfi_offset 14, -8
+ 2923              		.cfi_offset 13, -12
+ 2924              		.cfi_offset 11, -16
+ 2925              	.LCFI23:
+ 2926              		.cfi_def_cfa 11, 4
+ 320:../multitasking/cyclic.c ****     static boolean init = TRUE;
+ 321:../multitasking/cyclic.c **** 
+ 322:../multitasking/cyclic.c ****     if( init )
+ 2927              		.loc 1 322 0
+ 2928 0584 58309FE5 		ldr	r3, .L49
+ 2929 0588 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2930 058c 000053E3 		cmp	r3, #0
+ 2931 0590 0500000A 		beq	.L47
+ 323:../multitasking/cyclic.c ****     {
+ 324:../multitasking/cyclic.c ****         init = FALSE;
+ 2932              		.loc 1 324 0
+ 2933 0594 48309FE5 		ldr	r3, .L49
+ 2934 0598 0020A0E3 		mov	r2, #0
+ 2935 059c 0020C3E5 		strb	r2, [r3, #0]
+ 325:../multitasking/cyclic.c ****         uart0_puts( " Task 6: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 2936              		.loc 1 325 0
+ 2937 05a0 40009FE5 		ldr	r0, .L49+4
+ 2938 05a4 FEFFFFEB 		bl	uart0_puts
+ 2939 05a8 0A0000EA 		b	.L46
+ 2940              	.L47:
+ 326:../multitasking/cyclic.c ****     }
+ 327:../multitasking/cyclic.c ****     else if( flagTask6 )
+ 2941              		.loc 1 327 0
+ 2942 05ac 38309FE5 		ldr	r3, .L49+8
+ 2943 05b0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2944 05b4 000053E3 		cmp	r3, #0
+ 2945 05b8 0600000A 		beq	.L46
+ 328:../multitasking/cyclic.c ****     {
+ 329:../multitasking/cyclic.c ****         flagTask6 = FALSE;
+ 2946              		.loc 1 329 0
+ 2947 05bc 28309FE5 		ldr	r3, .L49+8
+ 2948 05c0 0020A0E3 		mov	r2, #0
+ 2949 05c4 0020C3E5 		strb	r2, [r3, #0]
+ 330:../multitasking/cyclic.c ****         D8Led_digit( scancode );
+ 2950              		.loc 1 330 0
+ 2951 05c8 20309FE5 		ldr	r3, .L49+12
+ 2952 05cc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2953 05d0 0300A0E1 		mov	r0, r3
+ 2954 05d4 FEFFFFEB 		bl	D8Led_digit
+ 2955              	.L46:
+ 331:../multitasking/cyclic.c ****     }
+ 332:../multitasking/cyclic.c **** }
+ 2956              		.loc 1 332 0
+ 2957 05d8 0CD04BE2 		sub	sp, fp, #12
+ 2958 05dc 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2959 05e0 1EFF2FE1 		bx	lr
+ 2960              	.L50:
+ 2961              		.align	2
+ 2962              	.L49:
+ 2963 05e4 01000000 		.word	init.4201
+ 2964 05e8 2C040000 		.word	.LC11
+ 2965 05ec 00000000 		.word	flagTask6
+ 2966 05f0 00000000 		.word	scancode
+ 2967              		.cfi_endproc
+ 2968              	.LFE11:
+ 2970              		.section	.rodata
+ 2971              		.align	2
+ 2972              	.LC12:
+ 2973 0440 20546173 		.ascii	" Task 7: iniciada.\012\000"
+ 2973      6B20373A 
+ 2973      20696E69 
+ 2973      63696164 
+ 2973      612E0A00 
+ 2974              		.align	2
+ 2975              	.LC13:
+ 2976 0454 20202854 		.ascii	"  (Task 7) Se ha pulsado alg\372n pushbutton...\012"
+ 2976      61736B20 
+ 2976      37292053 
+ 2976      65206861 
+ 2976      2070756C 
+ 2977 0481 00       		.ascii	"\000"
+ 2978 0482 0000     		.text
+ 2979              		.align	2
+ 2980              		.global	Task7
+ 2982              	Task7:
+ 2983              	.LFB12:
+ 333:../multitasking/cyclic.c **** 
+ 334:../multitasking/cyclic.c **** void Task7( void )  /* Cada vez que se presione un pulsador lo avisa por la UART0 */
+ 335:../multitasking/cyclic.c **** {
+ 2984              		.loc 1 335 0
+ 2985              		.cfi_startproc
+ 2986              		@ Function supports interworking.
+ 2987              		@ args = 0, pretend = 0, frame = 0
+ 2988              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2989 05f4 0DC0A0E1 		mov	ip, sp
+ 2990              	.LCFI24:
+ 2991              		.cfi_def_cfa_register 12
+ 2992 05f8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2993 05fc 04B04CE2 		sub	fp, ip, #4
+ 2994              		.cfi_offset 14, -8
+ 2995              		.cfi_offset 13, -12
+ 2996              		.cfi_offset 11, -16
+ 2997              	.LCFI25:
+ 2998              		.cfi_def_cfa 11, 4
+ 336:../multitasking/cyclic.c ****     static boolean init = TRUE;
+ 337:../multitasking/cyclic.c **** 
+ 338:../multitasking/cyclic.c ****     if( init )
+ 2999              		.loc 1 338 0
+ 3000 0600 54309FE5 		ldr	r3, .L54
+ 3001 0604 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3002 0608 000053E3 		cmp	r3, #0
+ 3003 060c 0500000A 		beq	.L52
+ 339:../multitasking/cyclic.c ****     {
+ 340:../multitasking/cyclic.c ****         init = FALSE;
+ 3004              		.loc 1 340 0
+ 3005 0610 44309FE5 		ldr	r3, .L54
+ 3006 0614 0020A0E3 		mov	r2, #0
+ 3007 0618 0020C3E5 		strb	r2, [r3, #0]
+ 341:../multitasking/cyclic.c ****         uart0_puts( " Task 7: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es nec
+ 3008              		.loc 1 341 0
+ 3009 061c 3C009FE5 		ldr	r0, .L54+4
+ 3010 0620 FEFFFFEB 		bl	uart0_puts
+ 3011 0624 090000EA 		b	.L51
+ 3012              	.L52:
+ 342:../multitasking/cyclic.c ****     }
+ 343:../multitasking/cyclic.c ****     else if( flagPb )
+ 3013              		.loc 1 343 0
+ 3014 0628 34309FE5 		ldr	r3, .L54+8
+ 3015 062c 0030D3E5 		ldrb	r3, [r3, #0]
+ 3016 0630 FF3003E2 		and	r3, r3, #255
+ 3017 0634 000053E3 		cmp	r3, #0
+ 3018 0638 0400000A 		beq	.L51
+ 344:../multitasking/cyclic.c ****     {
+ 345:../multitasking/cyclic.c ****         flagPb = FALSE;
+ 3019              		.loc 1 345 0
+ 3020 063c 20309FE5 		ldr	r3, .L54+8
+ 3021 0640 0020A0E3 		mov	r2, #0
+ 3022 0644 0020C3E5 		strb	r2, [r3, #0]
+ 346:../multitasking/cyclic.c ****         uart0_puts( "  (Task 7) Se ha pulsado algún pushbutton...\n" );
+ 3023              		.loc 1 346 0
+ 3024 0648 18009FE5 		ldr	r0, .L54+12
+ 3025 064c FEFFFFEB 		bl	uart0_puts
+ 3026              	.L51:
+ 347:../multitasking/cyclic.c ****     }
+ 348:../multitasking/cyclic.c **** }
+ 3027              		.loc 1 348 0
+ 3028 0650 0CD04BE2 		sub	sp, fp, #12
+ 3029 0654 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3030 0658 1EFF2FE1 		bx	lr
+ 3031              	.L55:
+ 3032              		.align	2
+ 3033              	.L54:
+ 3034 065c 00000000 		.word	init.4205
+ 3035 0660 40040000 		.word	.LC12
+ 3036 0664 00000000 		.word	flagPb
+ 3037 0668 54040000 		.word	.LC13
+ 3038              		.cfi_endproc
+ 3039              	.LFE12:
+ 3041              		.align	2
+ 3042              		.global	isr_pb
+ 3044              	isr_pb:
+ 3045              	.LFB13:
+ 349:../multitasking/cyclic.c **** 
+ 350:../multitasking/cyclic.c **** /*******************************************************************/
+ 351:../multitasking/cyclic.c **** 
+ 352:../multitasking/cyclic.c **** void isr_pb( void )
+ 353:../multitasking/cyclic.c **** {
+ 3046              		.loc 1 353 0
+ 3047              		.cfi_startproc
+ 3048              		@ Interrupt Service Routine.
+ 3049              		@ args = 0, pretend = 0, frame = 0
+ 3050              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3051 066c 04C02DE5 		str	ip, [sp, #-4]!
+ 3052 0670 0DC0A0E1 		mov	ip, sp
+ 3053              	.LCFI26:
+ 3054              		.cfi_def_cfa_register 12
+ 3055 0674 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 3056 0678 04B04CE2 		sub	fp, ip, #4
+ 3057              		.cfi_offset 14, -8
+ 3058              		.cfi_offset 13, -12
+ 3059              		.cfi_offset 11, -16
+ 3060              		.cfi_offset 3, -20
+ 3061              		.cfi_offset 2, -24
+ 3062              		.cfi_offset 1, -28
+ 3063              		.cfi_offset 0, -32
+ 3064              	.LCFI27:
+ 3065              		.cfi_def_cfa 11, 4
+ 354:../multitasking/cyclic.c ****     flagPb = TRUE;
+ 3066              		.loc 1 354 0
+ 3067 067c 28309FE5 		ldr	r3, .L57
+ 3068 0680 0120A0E3 		mov	r2, #1
+ 3069 0684 0020C3E5 		strb	r2, [r3, #0]
+ 355:../multitasking/cyclic.c ****     rEXTINTPND = (1 << 2) | (1 << 3);
+ 3070              		.loc 1 355 0
+ 3071 0688 20309FE5 		ldr	r3, .L57+4
+ 3072 068c 0C20A0E3 		mov	r2, #12
+ 3073 0690 002083E5 		str	r2, [r3, #0]
+ 356:../multitasking/cyclic.c **** 	ic_cleanflag(INT_EINT4567);
+ 3074              		.loc 1 356 0
+ 3075 0694 1500A0E3 		mov	r0, #21
+ 3076 0698 FEFFFFEB 		bl	ic_cleanflag
+ 357:../multitasking/cyclic.c **** }
+ 3077              		.loc 1 357 0
+ 3078 069c 1CD04BE2 		sub	sp, fp, #28
+ 3079 06a0 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 3080 06a4 04C09DE4 		ldmfd	sp!, {ip}
+ 3081 06a8 04F05EE2 		subs	pc, lr, #4
+ 3082              	.L58:
+ 3083              		.align	2
+ 3084              	.L57:
+ 3085 06ac 00000000 		.word	flagPb
+ 3086 06b0 5400D201 		.word	30539860
+ 3087              		.cfi_endproc
+ 3088              	.LFE13:
+ 3090              		.align	2
+ 3091              		.global	isr_tick
+ 3093              	isr_tick:
+ 3094              	.LFB14:
+ 358:../multitasking/cyclic.c **** 
+ 359:../multitasking/cyclic.c **** void isr_tick( void )
+ 360:../multitasking/cyclic.c **** {
+ 3095              		.loc 1 360 0
+ 3096              		.cfi_startproc
+ 3097              		@ Interrupt Service Routine.
+ 3098              		@ args = 0, pretend = 0, frame = 0
+ 3099              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3100 06b4 04C02DE5 		str	ip, [sp, #-4]!
+ 3101 06b8 0DC0A0E1 		mov	ip, sp
+ 3102              	.LCFI28:
+ 3103              		.cfi_def_cfa_register 12
+ 3104 06bc 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 3105 06c0 04B04CE2 		sub	fp, ip, #4
+ 3106              		.cfi_offset 14, -8
+ 3107              		.cfi_offset 13, -12
+ 3108              		.cfi_offset 11, -16
+ 3109              		.cfi_offset 3, -20
+ 3110              		.cfi_offset 2, -24
+ 3111              		.cfi_offset 1, -28
+ 3112              		.cfi_offset 0, -32
+ 3113              	.LCFI29:
+ 3114              		.cfi_def_cfa 11, 4
+ 361:../multitasking/cyclic.c ****     flagTimer = TRUE;
+ 3115              		.loc 1 361 0
+ 3116 06c4 1C309FE5 		ldr	r3, .L60
+ 3117 06c8 0120A0E3 		mov	r2, #1
+ 3118 06cc 0020C3E5 		strb	r2, [r3, #0]
+ 362:../multitasking/cyclic.c ****     ic_cleanflag(INT_TIMER0);
+ 3119              		.loc 1 362 0
+ 3120 06d0 0D00A0E3 		mov	r0, #13
+ 3121 06d4 FEFFFFEB 		bl	ic_cleanflag
+ 363:../multitasking/cyclic.c **** };
+ 3122              		.loc 1 363 0
+ 3123 06d8 1CD04BE2 		sub	sp, fp, #28
+ 3124 06dc 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 3125 06e0 04C09DE4 		ldmfd	sp!, {ip}
+ 3126 06e4 04F05EE2 		subs	pc, lr, #4
+ 3127              	.L61:
+ 3128              		.align	2
+ 3129              	.L60:
+ 3130 06e8 00000000 		.word	flagTimer
+ 3131              		.cfi_endproc
+ 3132              	.LFE14:
+ 3134              		.data
+ 3137              	init.4205:
+ 3138 0000 01       		.byte	1
+ 3141              	init.4201:
+ 3142 0001 01       		.byte	1
+ 3145              	init.4197:
+ 3146 0002 01       		.byte	1
+ 3149              	init.4192:
+ 3150 0003 01       		.byte	1
+ 3151              		.bss
+ 3152              		.align	2
+ 3153              	ticks.4193:
+ 3154 0000 00000000 		.space	4
+ 3155              		.data
+ 3158              	init.4187:
+ 3159 0004 01       		.byte	1
+ 3162              	init.4174:
+ 3163 0005 01       		.byte	1
+ 3164              		.bss
+ 3165              	state.4179:
+ 3166 0004 00       		.space	1
+ 3167 0005 000000   		.data
+ 3170              	init.4170:
+ 3171 0006 01       		.byte	1
+ 3172              		.text
+ 3173              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 cyclic.c
+                            *COM*:00000001 scancode
+                            *COM*:00000001 flagTask5
+                            *COM*:00000001 flagTask6
+                            *COM*:00000001 flagPb
+                            *COM*:00000001 flagTimer
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:1929   .rodata:00000000 pjobs
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:1926   .rodata:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2294   .text:00000170 JobA
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2325   .text:00000190 JobB
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2360   .text:000001b8 JobC
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2397   .text:000001e4 JobD
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2436   .text:00000214 JobE
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2139   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2142   .text:00000000 cyclic
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2482   .text:00000248 Task1
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2542   .text:000002a0 Task2
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2669   .text:000003ac Task3
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2755   .text:00000450 Task4
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2834   .text:000004e4 Task5
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2910   .text:00000578 Task6
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2982   .text:000005f4 Task7
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2276   .text:00000140 $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3044   .text:0000066c isr_pb
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3093   .text:000006b4 isr_tick
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2291   .text:00000170 $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2529   .text:00000298 $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3170   .data:00000006 init.4170
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2539   .text:000002a0 $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2646   .text:00000394 $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3162   .data:00000005 init.4174
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3165   .bss:00000004 state.4179
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2666   .text:000003ac $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2737   .text:00000440 $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3158   .data:00000004 init.4187
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2752   .text:00000450 $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2815   .text:000004d0 $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3149   .data:00000003 init.4192
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3153   .bss:00000000 ticks.4193
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2831   .text:000004e4 $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2893   .text:00000560 $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3145   .data:00000002 init.4197
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2907   .text:00000578 $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2963   .text:000005e4 $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3141   .data:00000001 init.4201
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:2979   .text:000005f4 $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3034   .text:0000065c $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3137   .data:00000000 init.4205
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3041   .text:0000066c $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3085   .text:000006ac $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3090   .text:000006b4 $a
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3130   .text:000006e8 $d
+C:\Users\Pedro\AppData\Local\Temp\ccpgvYdI.s:3152   .bss:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+uart0_puts
+ic_enable
+tmr_set_mode
+tmr_set_prescaler
+tmr_set_divider
+tmr_set_count
+tmr_update
+tmr_start
+sleep
+led1_on
+led2_off
+led1_switch
+led2_switch
+kb_scan
+rtc_gettime
+uart0_putint
+uart0_putchar
+uart0_puthex
+D8Led_digit
+ic_cleanflag

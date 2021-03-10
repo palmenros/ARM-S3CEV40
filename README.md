@@ -11,3 +11,4 @@ Projects using ARM-S3CEV40 Embest Prototyping Board with an ARM7TDMI processor.
 - `prac7a`: I2C controller, AT24C04 EEPROM (random and sequential).
 - `prac8a`: DMA controller, L3 software driver, I2S sound driver, uda1341 driver (polling and DMA sound), WAV file reproduction, microphone and sound effects (volume, speed, echo, ...).
 - `prac9a`: Analog to Digital Converter (polling and interrupt), touch screen (calibration, polling, interrupt).
+- `prac10a`: Mutex implementation, sleep to low power (wake up from interrupts), three multitasking systems (foreground-background, function queue and cyclic executive)
