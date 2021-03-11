@@ -1,0 +1,3360 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"os_task.c"
+  21              	.Ltext0:
+  22              		.file 1 "../kernel/os_core/os_task.c"
+ 1630              		.align	2
+ 1631              		.global	OSTaskChangePrio
+ 1633              	OSTaskChangePrio:
+ 1634              	.LFB0:
+   1:../kernel/os_core/os_task.c **** /*
+   2:../kernel/os_core/os_task.c **** ***************************************************************************************************
+   3:../kernel/os_core/os_task.c **** *                                                uC/OS-II
+   4:../kernel/os_core/os_task.c **** *                                          The Real-Time Kernel
+   5:../kernel/os_core/os_task.c **** *                                            TASK MANAGEMENT
+   6:../kernel/os_core/os_task.c **** *
+   7:../kernel/os_core/os_task.c **** *                          (c) Copyright 1992-2003, Jean J. Labrosse, Weston, FL
+   8:../kernel/os_core/os_task.c **** *                                           All Rights Reserved
+   9:../kernel/os_core/os_task.c **** *
+  10:../kernel/os_core/os_task.c **** * File    : OS_TASK.C
+  11:../kernel/os_core/os_task.c **** * By      : Jean J. Labrosse
+  12:../kernel/os_core/os_task.c **** * Version : V2.76
+  13:../kernel/os_core/os_task.c **** ***************************************************************************************************
+  14:../kernel/os_core/os_task.c **** */
+  15:../kernel/os_core/os_task.c **** 
+  16:../kernel/os_core/os_task.c **** #ifndef  OS_MASTER_FILE
+  17:../kernel/os_core/os_task.c **** #include "ucos_ii.h"
+  18:../kernel/os_core/os_task.c **** #endif
+  19:../kernel/os_core/os_task.c **** 
+  20:../kernel/os_core/os_task.c **** /*
+  21:../kernel/os_core/os_task.c **** ***************************************************************************************************
+  22:../kernel/os_core/os_task.c **** *                                        CHANGE PRIORITY OF A TASK
+  23:../kernel/os_core/os_task.c **** *
+  24:../kernel/os_core/os_task.c **** * Description: This function allows you to change the priority of a task dynamically.  Note that th
+  25:../kernel/os_core/os_task.c **** *              priority MUST be available.
+  26:../kernel/os_core/os_task.c **** *
+  27:../kernel/os_core/os_task.c **** * Arguments  : oldp     is the old priority
+  28:../kernel/os_core/os_task.c **** *
+  29:../kernel/os_core/os_task.c **** *              newp     is the new priority
+  30:../kernel/os_core/os_task.c **** *
+  31:../kernel/os_core/os_task.c **** * Returns    : OS_NO_ERR          is the call was successful
+  32:../kernel/os_core/os_task.c **** *              OS_PRIO_INVALID    if the priority you specify is higher that the maximum allowed
+  33:../kernel/os_core/os_task.c **** *                                 (i.e. >= OS_LOWEST_PRIO)
+  34:../kernel/os_core/os_task.c **** *              OS_PRIO_EXIST      if the new priority already exist.
+  35:../kernel/os_core/os_task.c **** *              OS_PRIO_ERR        there is no task with the specified OLD priority (i.e. the OLD ta
+  36:../kernel/os_core/os_task.c **** *                                 not exist.
+  37:../kernel/os_core/os_task.c **** *              OS_TASK_NOT_EXIST  if the task is assigned to a Mutex PIP.
+  38:../kernel/os_core/os_task.c **** ***************************************************************************************************
+  39:../kernel/os_core/os_task.c **** */
+  40:../kernel/os_core/os_task.c **** 
+  41:../kernel/os_core/os_task.c **** #if OS_TASK_CHANGE_PRIO_EN > 0
+  42:../kernel/os_core/os_task.c **** INT8U  OSTaskChangePrio (INT8U oldprio, INT8U newprio)
+  43:../kernel/os_core/os_task.c **** {
+ 1635              		.loc 1 43 0
+ 1636              		.cfi_startproc
+ 1637              		@ Function supports interworking.
+ 1638              		@ args = 0, pretend = 0, frame = 24
+ 1639              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1640 0000 0DC0A0E1 		mov	ip, sp
+ 1641              	.LCFI0:
+ 1642              		.cfi_def_cfa_register 12
+ 1643 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1644 0008 04B04CE2 		sub	fp, ip, #4
+ 1645              		.cfi_offset 14, -8
+ 1646              		.cfi_offset 13, -12
+ 1647              		.cfi_offset 11, -16
+ 1648              	.LCFI1:
+ 1649              		.cfi_def_cfa 11, 4
+ 1650 000c 18D04DE2 		sub	sp, sp, #24
+ 1651 0010 0020A0E1 		mov	r2, r0
+ 1652 0014 0130A0E1 		mov	r3, r1
+ 1653 0018 1D204BE5 		strb	r2, [fp, #-29]
+ 1654 001c 1E304BE5 		strb	r3, [fp, #-30]
+  44:../kernel/os_core/os_task.c **** #if OS_EVENT_EN
+  45:../kernel/os_core/os_task.c ****     OS_EVENT    *pevent;
+  46:../kernel/os_core/os_task.c **** #endif
+  47:../kernel/os_core/os_task.c ****     OS_TCB      *ptcb;
+  48:../kernel/os_core/os_task.c ****     INT8U        x;
+  49:../kernel/os_core/os_task.c ****     INT8U        y;
+  50:../kernel/os_core/os_task.c ****     INT8U        bitx;
+  51:../kernel/os_core/os_task.c ****     INT8U        bity;
+  52:../kernel/os_core/os_task.c ****     INT8U        y_old;
+  53:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                                     
+  54:../kernel/os_core/os_task.c ****     OS_CPU_SR    cpu_sr;                                        /* Storage for CPU status register 
+  55:../kernel/os_core/os_task.c **** 
+  56:../kernel/os_core/os_task.c **** 
+  57:../kernel/os_core/os_task.c **** 
+  58:../kernel/os_core/os_task.c ****     cpu_sr = 0;                                                 /* Prevent compiler warning        
+  59:../kernel/os_core/os_task.c **** #endif    
+  60:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+  61:../kernel/os_core/os_task.c ****     if (oldprio >= OS_LOWEST_PRIO) {
+ 1655              		.loc 1 61 0
+ 1656 0020 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 1657 0024 3E0053E3 		cmp	r3, #62
+ 1658 0028 0400009A 		bls	.L2
+  62:../kernel/os_core/os_task.c **** 	    if (oldprio != OS_PRIO_SELF) {
+ 1659              		.loc 1 62 0
+ 1660 002c 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 1661 0030 FF0053E3 		cmp	r3, #255
+ 1662 0034 0100000A 		beq	.L2
+  63:../kernel/os_core/os_task.c ****             return (OS_PRIO_INVALID);
+ 1663              		.loc 1 63 0
+ 1664 0038 2A30A0E3 		mov	r3, #42
+ 1665 003c D70000EA 		b	.L3
+ 1666              	.L2:
+  64:../kernel/os_core/os_task.c **** 		}
+  65:../kernel/os_core/os_task.c **** 	}
+  66:../kernel/os_core/os_task.c ****     if (newprio >= OS_LOWEST_PRIO) {
+ 1667              		.loc 1 66 0
+ 1668 0040 1E305BE5 		ldrb	r3, [fp, #-30]	@ zero_extendqisi2
+ 1669 0044 3E0053E3 		cmp	r3, #62
+ 1670 0048 0100009A 		bls	.L4
+  67:../kernel/os_core/os_task.c ****         return (OS_PRIO_INVALID);
+ 1671              		.loc 1 67 0
+ 1672 004c 2A30A0E3 		mov	r3, #42
+ 1673 0050 D20000EA 		b	.L3
+ 1674              	.L4:
+  68:../kernel/os_core/os_task.c ****     }
+  69:../kernel/os_core/os_task.c **** #endif
+  70:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 1675              		.loc 1 70 0
+ 1676              	@ 70 "../kernel/os_core/os_task.c" 1
+ 1677 0054 00000FE1 		mrs   r0, cpsr
+ 1678              	@ 0 "" 2
+ 1679              	@ 70 "../kernel/os_core/os_task.c" 1
+ 1680 0058 04002DE5 		stmfd sp!, {r0}
+ 1681              	@ 0 "" 2
+ 1682              	@ 70 "../kernel/os_core/os_task.c" 1
+ 1683 005c C00080E3 		orr   r0, r0, #0b11000000
+ 1684              	@ 0 "" 2
+ 1685              	@ 70 "../kernel/os_core/os_task.c" 1
+ 1686 0060 00F021E1 		msr   cpsr_c, r0
+ 1687              	@ 0 "" 2
+  71:../kernel/os_core/os_task.c ****     if (OSTCBPrioTbl[newprio] != (OS_TCB *)0) {                 /* New priority must not already ex
+ 1688              		.loc 1 71 0
+ 1689 0064 1E205BE5 		ldrb	r2, [fp, #-30]	@ zero_extendqisi2
+ 1690 0068 40339FE5 		ldr	r3, .L13
+ 1691 006c 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 1692 0070 000053E3 		cmp	r3, #0
+ 1693 0074 0300000A 		beq	.L5
+  72:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 1694              		.loc 1 72 0
+ 1695              	@ 72 "../kernel/os_core/os_task.c" 1
+ 1696 0078 04009DE4 		ldmfd sp!, {r0}
+ 1697              	@ 0 "" 2
+ 1698              	@ 72 "../kernel/os_core/os_task.c" 1
+ 1699 007c 00F021E1 		msr   cpsr_c, r0
+ 1700              	@ 0 "" 2
+  73:../kernel/os_core/os_task.c ****         return (OS_PRIO_EXIST);
+ 1701              		.loc 1 73 0
+ 1702 0080 2830A0E3 		mov	r3, #40
+ 1703 0084 C50000EA 		b	.L3
+ 1704              	.L5:
+  74:../kernel/os_core/os_task.c ****     } 
+  75:../kernel/os_core/os_task.c ****     if (oldprio == OS_PRIO_SELF) {                              /* See if changing self            
+ 1705              		.loc 1 75 0
+ 1706 0088 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 1707 008c FF0053E3 		cmp	r3, #255
+ 1708 0090 0300001A 		bne	.L6
+  76:../kernel/os_core/os_task.c ****         oldprio = OSTCBCur->OSTCBPrio;                          /* Yes, get priority               
+ 1709              		.loc 1 76 0
+ 1710 0094 18339FE5 		ldr	r3, .L13+4
+ 1711 0098 003093E5 		ldr	r3, [r3, #0]
+ 1712 009c 2E30D3E5 		ldrb	r3, [r3, #46]
+ 1713 00a0 1D304BE5 		strb	r3, [fp, #-29]
+ 1714              	.L6:
+  77:../kernel/os_core/os_task.c ****     }
+  78:../kernel/os_core/os_task.c ****     ptcb = OSTCBPrioTbl[oldprio];
+ 1715              		.loc 1 78 0
+ 1716 00a4 1D205BE5 		ldrb	r2, [fp, #-29]	@ zero_extendqisi2
+ 1717 00a8 00339FE5 		ldr	r3, .L13
+ 1718 00ac 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 1719 00b0 10300BE5 		str	r3, [fp, #-16]
+  79:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)0) {                                  /* Does task to change exist?      
+ 1720              		.loc 1 79 0
+ 1721 00b4 10301BE5 		ldr	r3, [fp, #-16]
+ 1722 00b8 000053E3 		cmp	r3, #0
+ 1723 00bc 0300001A 		bne	.L7
+  80:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();                                     /* No, can't change its priority!  
+ 1724              		.loc 1 80 0
+ 1725              	@ 80 "../kernel/os_core/os_task.c" 1
+ 1726 00c0 04009DE4 		ldmfd sp!, {r0}
+ 1727              	@ 0 "" 2
+ 1728              	@ 80 "../kernel/os_core/os_task.c" 1
+ 1729 00c4 00F021E1 		msr   cpsr_c, r0
+ 1730              	@ 0 "" 2
+  81:../kernel/os_core/os_task.c ****         return (OS_PRIO_ERR);
+ 1731              		.loc 1 81 0
+ 1732 00c8 2930A0E3 		mov	r3, #41
+ 1733 00cc B30000EA 		b	.L3
+ 1734              	.L7:
+  82:../kernel/os_core/os_task.c ****     }                                       
+  83:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)1) {                                  /* Is task assigned to Mutex       
+ 1735              		.loc 1 83 0
+ 1736 00d0 10301BE5 		ldr	r3, [fp, #-16]
+ 1737 00d4 010053E3 		cmp	r3, #1
+ 1738 00d8 0300001A 		bne	.L8
+  84:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();                                     /* No, can't change its priority!  
+ 1739              		.loc 1 84 0
+ 1740              	@ 84 "../kernel/os_core/os_task.c" 1
+ 1741 00dc 04009DE4 		ldmfd sp!, {r0}
+ 1742              	@ 0 "" 2
+ 1743              	@ 84 "../kernel/os_core/os_task.c" 1
+ 1744 00e0 00F021E1 		msr   cpsr_c, r0
+ 1745              	@ 0 "" 2
+  85:../kernel/os_core/os_task.c ****         return (OS_TASK_NOT_EXIST);
+ 1746              		.loc 1 85 0
+ 1747 00e4 0B30A0E3 		mov	r3, #11
+ 1748 00e8 AC0000EA 		b	.L3
+ 1749              	.L8:
+  86:../kernel/os_core/os_task.c ****     }                                       
+  87:../kernel/os_core/os_task.c ****     y                     = newprio >> 3;                       /* Yes, compute new TCB fields     
+ 1750              		.loc 1 87 0
+ 1751 00ec 1E305BE5 		ldrb	r3, [fp, #-30]	@ zero_extendqisi2
+ 1752 00f0 A331A0E1 		mov	r3, r3, lsr #3
+ 1753 00f4 11304BE5 		strb	r3, [fp, #-17]
+  88:../kernel/os_core/os_task.c ****     bity                  = OSMapTbl[y];
+ 1754              		.loc 1 88 0
+ 1755 00f8 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 1756 00fc B4229FE5 		ldr	r2, .L13+8
+ 1757 0100 0330D2E7 		ldrb	r3, [r2, r3]
+ 1758 0104 12304BE5 		strb	r3, [fp, #-18]
+  89:../kernel/os_core/os_task.c ****     x                     = newprio & 0x07;
+ 1759              		.loc 1 89 0
+ 1760 0108 1E305BE5 		ldrb	r3, [fp, #-30]
+ 1761 010c 073003E2 		and	r3, r3, #7
+ 1762 0110 13304BE5 		strb	r3, [fp, #-19]
+  90:../kernel/os_core/os_task.c ****     bitx                  = OSMapTbl[x];
+ 1763              		.loc 1 90 0
+ 1764 0114 13305BE5 		ldrb	r3, [fp, #-19]	@ zero_extendqisi2
+ 1765 0118 98229FE5 		ldr	r2, .L13+8
+ 1766 011c 0330D2E7 		ldrb	r3, [r2, r3]
+ 1767 0120 14304BE5 		strb	r3, [fp, #-20]
+  91:../kernel/os_core/os_task.c ****     OSTCBPrioTbl[oldprio] = (OS_TCB *)0;                        /* Remove TCB from old priority    
+ 1768              		.loc 1 91 0
+ 1769 0124 1D205BE5 		ldrb	r2, [fp, #-29]	@ zero_extendqisi2
+ 1770 0128 80329FE5 		ldr	r3, .L13
+ 1771 012c 0010A0E3 		mov	r1, #0
+ 1772 0130 021183E7 		str	r1, [r3, r2, asl #2]
+  92:../kernel/os_core/os_task.c ****     OSTCBPrioTbl[newprio] = ptcb;                               /* Place pointer to TCB @ new prior
+ 1773              		.loc 1 92 0
+ 1774 0134 1E205BE5 		ldrb	r2, [fp, #-30]	@ zero_extendqisi2
+ 1775 0138 70329FE5 		ldr	r3, .L13
+ 1776 013c 10101BE5 		ldr	r1, [fp, #-16]
+ 1777 0140 021183E7 		str	r1, [r3, r2, asl #2]
+  93:../kernel/os_core/os_task.c ****     y_old                 = ptcb->OSTCBY;
+ 1778              		.loc 1 93 0
+ 1779 0144 10301BE5 		ldr	r3, [fp, #-16]
+ 1780 0148 3030D3E5 		ldrb	r3, [r3, #48]
+ 1781 014c 15304BE5 		strb	r3, [fp, #-21]
+  94:../kernel/os_core/os_task.c ****     if ((OSRdyTbl[y_old] & ptcb->OSTCBBitX) != 0x00) {          /* If task is ready make it not    
+ 1782              		.loc 1 94 0
+ 1783 0150 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 1784 0154 60229FE5 		ldr	r2, .L13+12
+ 1785 0158 0320D2E7 		ldrb	r2, [r2, r3]	@ zero_extendqisi2
+ 1786 015c 10301BE5 		ldr	r3, [fp, #-16]
+ 1787 0160 3130D3E5 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 1788 0164 033002E0 		and	r3, r2, r3
+ 1789 0168 FF3003E2 		and	r3, r3, #255
+ 1790 016c 000053E3 		cmp	r3, #0
+ 1791 0170 3100000A 		beq	.L9
+  95:../kernel/os_core/os_task.c ****         OSRdyTbl[y_old] &= ~ptcb->OSTCBBitX;
+ 1792              		.loc 1 95 0
+ 1793 0174 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 1794 0178 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 1795 017c 38129FE5 		ldr	r1, .L13+12
+ 1796 0180 0220D1E7 		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 1797 0184 FF1002E2 		and	r1, r2, #255
+ 1798 0188 10201BE5 		ldr	r2, [fp, #-16]
+ 1799 018c 3120D2E5 		ldrb	r2, [r2, #49]	@ zero_extendqisi2
+ 1800 0190 FF2002E2 		and	r2, r2, #255
+ 1801 0194 0220E0E1 		mvn	r2, r2
+ 1802 0198 FF2002E2 		and	r2, r2, #255
+ 1803 019c 022001E0 		and	r2, r1, r2
+ 1804 01a0 FF2002E2 		and	r2, r2, #255
+ 1805 01a4 FF1002E2 		and	r1, r2, #255
+ 1806 01a8 0C229FE5 		ldr	r2, .L13+12
+ 1807 01ac 0310C2E7 		strb	r1, [r2, r3]
+  96:../kernel/os_core/os_task.c ****         if (OSRdyTbl[y_old] == 0x00) {
+ 1808              		.loc 1 96 0
+ 1809 01b0 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 1810 01b4 00229FE5 		ldr	r2, .L13+12
+ 1811 01b8 0330D2E7 		ldrb	r3, [r2, r3]	@ zero_extendqisi2
+ 1812 01bc 000053E3 		cmp	r3, #0
+ 1813 01c0 0C00001A 		bne	.L10
+  97:../kernel/os_core/os_task.c ****             OSRdyGrp &= ~ptcb->OSTCBBitY;
+ 1814              		.loc 1 97 0
+ 1815 01c4 10301BE5 		ldr	r3, [fp, #-16]
+ 1816 01c8 3230D3E5 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 1817 01cc FF3003E2 		and	r3, r3, #255
+ 1818 01d0 0330E0E1 		mvn	r3, r3
+ 1819 01d4 FF2003E2 		and	r2, r3, #255
+ 1820 01d8 E0319FE5 		ldr	r3, .L13+16
+ 1821 01dc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1822 01e0 FF3003E2 		and	r3, r3, #255
+ 1823 01e4 033002E0 		and	r3, r2, r3
+ 1824 01e8 FF3003E2 		and	r3, r3, #255
+ 1825 01ec FF2003E2 		and	r2, r3, #255
+ 1826 01f0 C8319FE5 		ldr	r3, .L13+16
+ 1827 01f4 0020C3E5 		strb	r2, [r3, #0]
+ 1828              	.L10:
+  98:../kernel/os_core/os_task.c ****         }
+  99:../kernel/os_core/os_task.c ****         OSRdyGrp    |= bity;                                    /* Make new priority ready to run  
+ 1829              		.loc 1 99 0
+ 1830 01f8 C0319FE5 		ldr	r3, .L13+16
+ 1831 01fc 0020D3E5 		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 1832 0200 12305BE5 		ldrb	r3, [fp, #-18]
+ 1833 0204 033082E1 		orr	r3, r2, r3
+ 1834 0208 FF2003E2 		and	r2, r3, #255
+ 1835 020c AC319FE5 		ldr	r3, .L13+16
+ 1836 0210 0020C3E5 		strb	r2, [r3, #0]
+ 100:../kernel/os_core/os_task.c ****         OSRdyTbl[y] |= bitx;
+ 1837              		.loc 1 100 0
+ 1838 0214 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 1839 0218 11205BE5 		ldrb	r2, [fp, #-17]	@ zero_extendqisi2
+ 1840 021c 98119FE5 		ldr	r1, .L13+12
+ 1841 0220 0210D1E7 		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 1842 0224 14205BE5 		ldrb	r2, [fp, #-20]
+ 1843 0228 022081E1 		orr	r2, r1, r2
+ 1844 022c FF1002E2 		and	r1, r2, #255
+ 1845 0230 84219FE5 		ldr	r2, .L13+12
+ 1846 0234 0310C2E7 		strb	r1, [r2, r3]
+ 1847 0238 450000EA 		b	.L11
+ 1848              	.L9:
+ 101:../kernel/os_core/os_task.c **** #if OS_EVENT_EN
+ 102:../kernel/os_core/os_task.c ****     } else {                                                    /* Task was not ready ...          
+ 103:../kernel/os_core/os_task.c ****         pevent = ptcb->OSTCBEventPtr;
+ 1849              		.loc 1 103 0
+ 1850 023c 10301BE5 		ldr	r3, [fp, #-16]
+ 1851 0240 1C3093E5 		ldr	r3, [r3, #28]
+ 1852 0244 1C300BE5 		str	r3, [fp, #-28]
+ 104:../kernel/os_core/os_task.c ****         if (pevent != (OS_EVENT *)0) {                          /* ... remove from event wait list 
+ 1853              		.loc 1 104 0
+ 1854 0248 1C301BE5 		ldr	r3, [fp, #-28]
+ 1855 024c 000053E3 		cmp	r3, #0
+ 1856 0250 3F00000A 		beq	.L11
+ 105:../kernel/os_core/os_task.c ****             pevent->OSEventTbl[y_old] &= ~ptcb->OSTCBBitX;
+ 1857              		.loc 1 105 0
+ 1858 0254 15105BE5 		ldrb	r1, [fp, #-21]	@ zero_extendqisi2
+ 1859 0258 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 1860 025c 1C001BE5 		ldr	r0, [fp, #-28]
+ 1861 0260 0830A0E3 		mov	r3, #8
+ 1862 0264 022080E0 		add	r2, r0, r2
+ 1863 0268 033082E0 		add	r3, r2, r3
+ 1864 026c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1865 0270 FF2003E2 		and	r2, r3, #255
+ 1866 0274 10301BE5 		ldr	r3, [fp, #-16]
+ 1867 0278 3130D3E5 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 1868 027c FF3003E2 		and	r3, r3, #255
+ 1869 0280 0330E0E1 		mvn	r3, r3
+ 1870 0284 FF3003E2 		and	r3, r3, #255
+ 1871 0288 033002E0 		and	r3, r2, r3
+ 1872 028c FF3003E2 		and	r3, r3, #255
+ 1873 0290 FF2003E2 		and	r2, r3, #255
+ 1874 0294 1C001BE5 		ldr	r0, [fp, #-28]
+ 1875 0298 0830A0E3 		mov	r3, #8
+ 1876 029c 011080E0 		add	r1, r0, r1
+ 1877 02a0 033081E0 		add	r3, r1, r3
+ 1878 02a4 0020C3E5 		strb	r2, [r3, #0]
+ 106:../kernel/os_core/os_task.c ****             if (pevent->OSEventTbl[y_old] == 0) {
+ 1879              		.loc 1 106 0
+ 1880 02a8 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 1881 02ac 1C101BE5 		ldr	r1, [fp, #-28]
+ 1882 02b0 0830A0E3 		mov	r3, #8
+ 1883 02b4 022081E0 		add	r2, r1, r2
+ 1884 02b8 033082E0 		add	r3, r2, r3
+ 1885 02bc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1886 02c0 000053E3 		cmp	r3, #0
+ 1887 02c4 0C00001A 		bne	.L12
+ 107:../kernel/os_core/os_task.c ****                 pevent->OSEventGrp &= ~ptcb->OSTCBBitY;
+ 1888              		.loc 1 107 0
+ 1889 02c8 1C301BE5 		ldr	r3, [fp, #-28]
+ 1890 02cc 0130D3E5 		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1891 02d0 FF2003E2 		and	r2, r3, #255
+ 1892 02d4 10301BE5 		ldr	r3, [fp, #-16]
+ 1893 02d8 3230D3E5 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 1894 02dc FF3003E2 		and	r3, r3, #255
+ 1895 02e0 0330E0E1 		mvn	r3, r3
+ 1896 02e4 FF3003E2 		and	r3, r3, #255
+ 1897 02e8 033002E0 		and	r3, r2, r3
+ 1898 02ec FF3003E2 		and	r3, r3, #255
+ 1899 02f0 FF2003E2 		and	r2, r3, #255
+ 1900 02f4 1C301BE5 		ldr	r3, [fp, #-28]
+ 1901 02f8 0120C3E5 		strb	r2, [r3, #1]
+ 1902              	.L12:
+ 108:../kernel/os_core/os_task.c ****             }
+ 109:../kernel/os_core/os_task.c ****             pevent->OSEventGrp    |= bity;                      /* Add new priority to wait list   
+ 1903              		.loc 1 109 0
+ 1904 02fc 1C301BE5 		ldr	r3, [fp, #-28]
+ 1905 0300 0120D3E5 		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 1906 0304 12305BE5 		ldrb	r3, [fp, #-18]
+ 1907 0308 033082E1 		orr	r3, r2, r3
+ 1908 030c FF2003E2 		and	r2, r3, #255
+ 1909 0310 1C301BE5 		ldr	r3, [fp, #-28]
+ 1910 0314 0120C3E5 		strb	r2, [r3, #1]
+ 110:../kernel/os_core/os_task.c ****             pevent->OSEventTbl[y] |= bitx;
+ 1911              		.loc 1 110 0
+ 1912 0318 11105BE5 		ldrb	r1, [fp, #-17]	@ zero_extendqisi2
+ 1913 031c 11205BE5 		ldrb	r2, [fp, #-17]	@ zero_extendqisi2
+ 1914 0320 1C001BE5 		ldr	r0, [fp, #-28]
+ 1915 0324 0830A0E3 		mov	r3, #8
+ 1916 0328 022080E0 		add	r2, r0, r2
+ 1917 032c 033082E0 		add	r3, r2, r3
+ 1918 0330 0020D3E5 		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 1919 0334 14305BE5 		ldrb	r3, [fp, #-20]
+ 1920 0338 033082E1 		orr	r3, r2, r3
+ 1921 033c FF2003E2 		and	r2, r3, #255
+ 1922 0340 1C001BE5 		ldr	r0, [fp, #-28]
+ 1923 0344 0830A0E3 		mov	r3, #8
+ 1924 0348 011080E0 		add	r1, r0, r1
+ 1925 034c 033081E0 		add	r3, r1, r3
+ 1926 0350 0020C3E5 		strb	r2, [r3, #0]
+ 1927              	.L11:
+ 111:../kernel/os_core/os_task.c ****         }
+ 112:../kernel/os_core/os_task.c **** #endif
+ 113:../kernel/os_core/os_task.c ****     }
+ 114:../kernel/os_core/os_task.c ****     ptcb->OSTCBPrio = newprio;                                  /* Set new task priority           
+ 1928              		.loc 1 114 0
+ 1929 0354 10301BE5 		ldr	r3, [fp, #-16]
+ 1930 0358 1E205BE5 		ldrb	r2, [fp, #-30]
+ 1931 035c 2E20C3E5 		strb	r2, [r3, #46]
+ 115:../kernel/os_core/os_task.c ****     ptcb->OSTCBY    = y;
+ 1932              		.loc 1 115 0
+ 1933 0360 10301BE5 		ldr	r3, [fp, #-16]
+ 1934 0364 11205BE5 		ldrb	r2, [fp, #-17]
+ 1935 0368 3020C3E5 		strb	r2, [r3, #48]
+ 116:../kernel/os_core/os_task.c ****     ptcb->OSTCBX    = x;
+ 1936              		.loc 1 116 0
+ 1937 036c 10301BE5 		ldr	r3, [fp, #-16]
+ 1938 0370 13205BE5 		ldrb	r2, [fp, #-19]
+ 1939 0374 2F20C3E5 		strb	r2, [r3, #47]
+ 117:../kernel/os_core/os_task.c ****     ptcb->OSTCBBitY = bity;
+ 1940              		.loc 1 117 0
+ 1941 0378 10301BE5 		ldr	r3, [fp, #-16]
+ 1942 037c 12205BE5 		ldrb	r2, [fp, #-18]
+ 1943 0380 3220C3E5 		strb	r2, [r3, #50]
+ 118:../kernel/os_core/os_task.c ****     ptcb->OSTCBBitX = bitx;
+ 1944              		.loc 1 118 0
+ 1945 0384 10301BE5 		ldr	r3, [fp, #-16]
+ 1946 0388 14205BE5 		ldrb	r2, [fp, #-20]
+ 1947 038c 3120C3E5 		strb	r2, [r3, #49]
+ 119:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 1948              		.loc 1 119 0
+ 1949              	@ 119 "../kernel/os_core/os_task.c" 1
+ 1950 0390 04009DE4 		ldmfd sp!, {r0}
+ 1951              	@ 0 "" 2
+ 1952              	@ 119 "../kernel/os_core/os_task.c" 1
+ 1953 0394 00F021E1 		msr   cpsr_c, r0
+ 1954              	@ 0 "" 2
+ 120:../kernel/os_core/os_task.c ****     OS_Sched();                                                 /* Run highest priority task ready 
+ 1955              		.loc 1 120 0
+ 1956 0398 FEFFFFEB 		bl	OS_Sched
+ 121:../kernel/os_core/os_task.c ****     return (OS_NO_ERR);
+ 1957              		.loc 1 121 0
+ 1958 039c 0030A0E3 		mov	r3, #0
+ 1959              	.L3:
+ 122:../kernel/os_core/os_task.c **** }
+ 1960              		.loc 1 122 0
+ 1961 03a0 0300A0E1 		mov	r0, r3
+ 1962 03a4 0CD04BE2 		sub	sp, fp, #12
+ 1963 03a8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1964 03ac 1EFF2FE1 		bx	lr
+ 1965              	.L14:
+ 1966              		.align	2
+ 1967              	.L13:
+ 1968 03b0 00000000 		.word	OSTCBPrioTbl
+ 1969 03b4 00000000 		.word	OSTCBCur
+ 1970 03b8 00000000 		.word	OSMapTbl
+ 1971 03bc 00000000 		.word	OSRdyTbl
+ 1972 03c0 00000000 		.word	OSRdyGrp
+ 1973              		.cfi_endproc
+ 1974              	.LFE0:
+ 1976              		.align	2
+ 1977              		.global	OSTaskCreate
+ 1979              	OSTaskCreate:
+ 1980              	.LFB1:
+ 123:../kernel/os_core/os_task.c **** #endif
+ 124:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 125:../kernel/os_core/os_task.c **** /*
+ 126:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 127:../kernel/os_core/os_task.c **** *                                            CREATE A TASK
+ 128:../kernel/os_core/os_task.c **** *
+ 129:../kernel/os_core/os_task.c **** * Description: This function is used to have uC/OS-II manage the execution of a task.  Tasks can ei
+ 130:../kernel/os_core/os_task.c **** *              be created prior to the start of multitasking or by a running task.  A task cannot b
+ 131:../kernel/os_core/os_task.c **** *              created by an ISR.
+ 132:../kernel/os_core/os_task.c **** *
+ 133:../kernel/os_core/os_task.c **** * Arguments  : task     is a pointer to the task's code
+ 134:../kernel/os_core/os_task.c **** *
+ 135:../kernel/os_core/os_task.c **** *              p_arg    is a pointer to an optional data area which can be used to pass parameters 
+ 136:../kernel/os_core/os_task.c **** *                       the task when the task first executes.  Where the task is concerned it thin
+ 137:../kernel/os_core/os_task.c **** *                       it was invoked and passed the argument 'p_arg' as follows:
+ 138:../kernel/os_core/os_task.c **** *
+ 139:../kernel/os_core/os_task.c **** *                           void Task (void *p_arg)
+ 140:../kernel/os_core/os_task.c **** *                           {
+ 141:../kernel/os_core/os_task.c **** *                               for (;;) {
+ 142:../kernel/os_core/os_task.c **** *                                   Task code;
+ 143:../kernel/os_core/os_task.c **** *                               }
+ 144:../kernel/os_core/os_task.c **** *                           }
+ 145:../kernel/os_core/os_task.c **** *
+ 146:../kernel/os_core/os_task.c **** *              ptos     is a pointer to the task's top of stack.  If the configuration constant
+ 147:../kernel/os_core/os_task.c **** *                       OS_STK_GROWTH is set to 1, the stack is assumed to grow downward (i.e. from
+ 148:../kernel/os_core/os_task.c **** *                       memory to low memory).  'pstk' will thus point to the highest (valid) memor
+ 149:../kernel/os_core/os_task.c **** *                       location of the stack.  If OS_STK_GROWTH is set to 0, 'pstk' will point to 
+ 150:../kernel/os_core/os_task.c **** *                       lowest memory location of the stack and the stack will grow with increasing
+ 151:../kernel/os_core/os_task.c **** *                       memory locations.
+ 152:../kernel/os_core/os_task.c **** *
+ 153:../kernel/os_core/os_task.c **** *              prio     is the task's priority.  A unique priority MUST be assigned to each task an
+ 154:../kernel/os_core/os_task.c **** *                       lower the number, the higher the priority.
+ 155:../kernel/os_core/os_task.c **** *
+ 156:../kernel/os_core/os_task.c **** * Returns    : OS_NO_ERR               if the function was successful.
+ 157:../kernel/os_core/os_task.c **** *              OS_PRIO_EXIT            if the task priority already exist
+ 158:../kernel/os_core/os_task.c **** *                                      (each task MUST have a unique priority).
+ 159:../kernel/os_core/os_task.c **** *              OS_PRIO_INVALID         if the priority you specify is higher that the maximum allow
+ 160:../kernel/os_core/os_task.c **** *                                      (i.e. >= OS_LOWEST_PRIO)
+ 161:../kernel/os_core/os_task.c **** *              OS_ERR_TASK_CREATE_ISR  if you tried to create a task from an ISR.
+ 162:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 163:../kernel/os_core/os_task.c **** */
+ 164:../kernel/os_core/os_task.c **** 
+ 165:../kernel/os_core/os_task.c **** #if OS_TASK_CREATE_EN > 0
+ 166:../kernel/os_core/os_task.c **** INT8U  OSTaskCreate (void (*task)(void *pd), void *p_arg, OS_STK *ptos, INT8U prio)
+ 167:../kernel/os_core/os_task.c **** {
+ 1981              		.loc 1 167 0
+ 1982              		.cfi_startproc
+ 1983              		@ Function supports interworking.
+ 1984              		@ args = 0, pretend = 0, frame = 24
+ 1985              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1986 03c4 0DC0A0E1 		mov	ip, sp
+ 1987              	.LCFI2:
+ 1988              		.cfi_def_cfa_register 12
+ 1989 03c8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1990 03cc 04B04CE2 		sub	fp, ip, #4
+ 1991              		.cfi_offset 14, -8
+ 1992              		.cfi_offset 13, -12
+ 1993              		.cfi_offset 11, -16
+ 1994              	.LCFI3:
+ 1995              		.cfi_def_cfa 11, 4
+ 1996 03d0 28D04DE2 		sub	sp, sp, #40
+ 1997 03d4 18000BE5 		str	r0, [fp, #-24]
+ 1998 03d8 1C100BE5 		str	r1, [fp, #-28]
+ 1999 03dc 20200BE5 		str	r2, [fp, #-32]
+ 2000 03e0 21304BE5 		strb	r3, [fp, #-33]
+ 168:../kernel/os_core/os_task.c ****     OS_STK    *psp;
+ 169:../kernel/os_core/os_task.c ****     INT8U      err;
+ 170:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                  /* Allocate storage for CPU status register           
+ 171:../kernel/os_core/os_task.c ****     OS_CPU_SR  cpu_sr;
+ 172:../kernel/os_core/os_task.c **** 
+ 173:../kernel/os_core/os_task.c **** 
+ 174:../kernel/os_core/os_task.c **** 
+ 175:../kernel/os_core/os_task.c ****     cpu_sr = 0;                              /* Prevent compiler warning                           
+ 176:../kernel/os_core/os_task.c **** #endif    
+ 177:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 178:../kernel/os_core/os_task.c ****     if (prio > OS_LOWEST_PRIO) {             /* Make sure priority is within allowable range       
+ 2001              		.loc 1 178 0
+ 2002 03e4 21305BE5 		ldrb	r3, [fp, #-33]	@ zero_extendqisi2
+ 2003 03e8 3F0053E3 		cmp	r3, #63
+ 2004 03ec 0100009A 		bls	.L16
+ 179:../kernel/os_core/os_task.c ****         return (OS_PRIO_INVALID);
+ 2005              		.loc 1 179 0
+ 2006 03f0 2A30A0E3 		mov	r3, #42
+ 2007 03f4 420000EA 		b	.L17
+ 2008              	.L16:
+ 180:../kernel/os_core/os_task.c ****     }
+ 181:../kernel/os_core/os_task.c **** #endif
+ 182:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 2009              		.loc 1 182 0
+ 2010              	@ 182 "../kernel/os_core/os_task.c" 1
+ 2011 03f8 00000FE1 		mrs   r0, cpsr
+ 2012              	@ 0 "" 2
+ 2013              	@ 182 "../kernel/os_core/os_task.c" 1
+ 2014 03fc 04002DE5 		stmfd sp!, {r0}
+ 2015              	@ 0 "" 2
+ 2016              	@ 182 "../kernel/os_core/os_task.c" 1
+ 2017 0400 C00080E3 		orr   r0, r0, #0b11000000
+ 2018              	@ 0 "" 2
+ 2019              	@ 182 "../kernel/os_core/os_task.c" 1
+ 2020 0404 00F021E1 		msr   cpsr_c, r0
+ 2021              	@ 0 "" 2
+ 183:../kernel/os_core/os_task.c ****     if (OSIntNesting > 0) {                  /* Make sure we don't create the task from within an I
+ 2022              		.loc 1 183 0
+ 2023 0408 04319FE5 		ldr	r3, .L22
+ 2024 040c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2025 0410 000053E3 		cmp	r3, #0
+ 2026 0414 0300000A 		beq	.L18
+ 184:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 2027              		.loc 1 184 0
+ 2028              	@ 184 "../kernel/os_core/os_task.c" 1
+ 2029 0418 04009DE4 		ldmfd sp!, {r0}
+ 2030              	@ 0 "" 2
+ 2031              	@ 184 "../kernel/os_core/os_task.c" 1
+ 2032 041c 00F021E1 		msr   cpsr_c, r0
+ 2033              	@ 0 "" 2
+ 185:../kernel/os_core/os_task.c ****         return (OS_ERR_TASK_CREATE_ISR);
+ 2034              		.loc 1 185 0
+ 2035 0420 1030A0E3 		mov	r3, #16
+ 2036 0424 360000EA 		b	.L17
+ 2037              	.L18:
+ 186:../kernel/os_core/os_task.c ****     }
+ 187:../kernel/os_core/os_task.c ****     if (OSTCBPrioTbl[prio] == (OS_TCB *)0) { /* Make sure task doesn't already exist at this priori
+ 2038              		.loc 1 187 0
+ 2039 0428 21205BE5 		ldrb	r2, [fp, #-33]	@ zero_extendqisi2
+ 2040 042c E4309FE5 		ldr	r3, .L22+4
+ 2041 0430 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 2042 0434 000053E3 		cmp	r3, #0
+ 2043 0438 2E00001A 		bne	.L19
+ 188:../kernel/os_core/os_task.c ****         OSTCBPrioTbl[prio] = (OS_TCB *)1;    /* Reserve the priority to prevent others from doing .
+ 2044              		.loc 1 188 0
+ 2045 043c 21205BE5 		ldrb	r2, [fp, #-33]	@ zero_extendqisi2
+ 2046 0440 D0309FE5 		ldr	r3, .L22+4
+ 2047 0444 0110A0E3 		mov	r1, #1
+ 2048 0448 021183E7 		str	r1, [r3, r2, asl #2]
+ 189:../kernel/os_core/os_task.c ****                                              /* ... the same thing until task is created.          
+ 190:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 2049              		.loc 1 190 0
+ 2050              	@ 190 "../kernel/os_core/os_task.c" 1
+ 2051 044c 04009DE4 		ldmfd sp!, {r0}
+ 2052              	@ 0 "" 2
+ 2053              	@ 190 "../kernel/os_core/os_task.c" 1
+ 2054 0450 00F021E1 		msr   cpsr_c, r0
+ 2055              	@ 0 "" 2
+ 191:../kernel/os_core/os_task.c ****         psp = (OS_STK *)OSTaskStkInit(task, p_arg, ptos, 0);    /* Initialize the task's stack     
+ 2056              		.loc 1 191 0
+ 2057 0454 18001BE5 		ldr	r0, [fp, #-24]
+ 2058 0458 1C101BE5 		ldr	r1, [fp, #-28]
+ 2059 045c 20201BE5 		ldr	r2, [fp, #-32]
+ 2060 0460 0030A0E3 		mov	r3, #0
+ 2061 0464 FEFFFFEB 		bl	OSTaskStkInit
+ 2062 0468 10000BE5 		str	r0, [fp, #-16]
+ 192:../kernel/os_core/os_task.c ****         err = OS_TCBInit(prio, psp, (OS_STK *)0, 0, 0, (void *)0, 0);
+ 2063              		.loc 1 192 0
+ 2064 046c 21305BE5 		ldrb	r3, [fp, #-33]	@ zero_extendqisi2
+ 2065 0470 0020A0E3 		mov	r2, #0
+ 2066 0474 00208DE5 		str	r2, [sp, #0]
+ 2067 0478 0020A0E3 		mov	r2, #0
+ 2068 047c 04208DE5 		str	r2, [sp, #4]
+ 2069 0480 0020A0E3 		mov	r2, #0
+ 2070 0484 08208DE5 		str	r2, [sp, #8]
+ 2071 0488 0300A0E1 		mov	r0, r3
+ 2072 048c 10101BE5 		ldr	r1, [fp, #-16]
+ 2073 0490 0020A0E3 		mov	r2, #0
+ 2074 0494 0030A0E3 		mov	r3, #0
+ 2075 0498 FEFFFFEB 		bl	OS_TCBInit
+ 2076 049c 0030A0E1 		mov	r3, r0
+ 2077 04a0 11304BE5 		strb	r3, [fp, #-17]
+ 193:../kernel/os_core/os_task.c ****         if (err == OS_NO_ERR) {
+ 2078              		.loc 1 193 0
+ 2079 04a4 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2080 04a8 000053E3 		cmp	r3, #0
+ 2081 04ac 0500001A 		bne	.L20
+ 194:../kernel/os_core/os_task.c ****             if (OSRunning == TRUE) {         /* Find highest priority task if multitasking has star
+ 2082              		.loc 1 194 0
+ 2083 04b0 64309FE5 		ldr	r3, .L22+8
+ 2084 04b4 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2085 04b8 010053E3 		cmp	r3, #1
+ 2086 04bc 0B00001A 		bne	.L21
+ 195:../kernel/os_core/os_task.c ****                 OS_Sched();
+ 2087              		.loc 1 195 0
+ 2088 04c0 FEFFFFEB 		bl	OS_Sched
+ 2089 04c4 090000EA 		b	.L21
+ 2090              	.L20:
+ 196:../kernel/os_core/os_task.c ****             }
+ 197:../kernel/os_core/os_task.c ****         } else {
+ 198:../kernel/os_core/os_task.c ****             OS_ENTER_CRITICAL();
+ 2091              		.loc 1 198 0
+ 2092              	@ 198 "../kernel/os_core/os_task.c" 1
+ 2093 04c8 00000FE1 		mrs   r0, cpsr
+ 2094              	@ 0 "" 2
+ 2095              	@ 198 "../kernel/os_core/os_task.c" 1
+ 2096 04cc 04002DE5 		stmfd sp!, {r0}
+ 2097              	@ 0 "" 2
+ 2098              	@ 198 "../kernel/os_core/os_task.c" 1
+ 2099 04d0 C00080E3 		orr   r0, r0, #0b11000000
+ 2100              	@ 0 "" 2
+ 2101              	@ 198 "../kernel/os_core/os_task.c" 1
+ 2102 04d4 00F021E1 		msr   cpsr_c, r0
+ 2103              	@ 0 "" 2
+ 199:../kernel/os_core/os_task.c ****             OSTCBPrioTbl[prio] = (OS_TCB *)0;/* Make this priority available to others             
+ 2104              		.loc 1 199 0
+ 2105 04d8 21205BE5 		ldrb	r2, [fp, #-33]	@ zero_extendqisi2
+ 2106 04dc 34309FE5 		ldr	r3, .L22+4
+ 2107 04e0 0010A0E3 		mov	r1, #0
+ 2108 04e4 021183E7 		str	r1, [r3, r2, asl #2]
+ 200:../kernel/os_core/os_task.c ****             OS_EXIT_CRITICAL();
+ 2109              		.loc 1 200 0
+ 2110              	@ 200 "../kernel/os_core/os_task.c" 1
+ 2111 04e8 04009DE4 		ldmfd sp!, {r0}
+ 2112              	@ 0 "" 2
+ 2113              	@ 200 "../kernel/os_core/os_task.c" 1
+ 2114 04ec 00F021E1 		msr   cpsr_c, r0
+ 2115              	@ 0 "" 2
+ 2116              	.L21:
+ 201:../kernel/os_core/os_task.c ****         }
+ 202:../kernel/os_core/os_task.c ****         return (err);
+ 2117              		.loc 1 202 0
+ 2118 04f0 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2119 04f4 020000EA 		b	.L17
+ 2120              	.L19:
+ 203:../kernel/os_core/os_task.c ****     }
+ 204:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 2121              		.loc 1 204 0
+ 2122              	@ 204 "../kernel/os_core/os_task.c" 1
+ 2123 04f8 04009DE4 		ldmfd sp!, {r0}
+ 2124              	@ 0 "" 2
+ 2125              	@ 204 "../kernel/os_core/os_task.c" 1
+ 2126 04fc 00F021E1 		msr   cpsr_c, r0
+ 2127              	@ 0 "" 2
+ 205:../kernel/os_core/os_task.c ****     return (OS_PRIO_EXIST);
+ 2128              		.loc 1 205 0
+ 2129 0500 2830A0E3 		mov	r3, #40
+ 2130              	.L17:
+ 206:../kernel/os_core/os_task.c **** }
+ 2131              		.loc 1 206 0
+ 2132 0504 0300A0E1 		mov	r0, r3
+ 2133 0508 0CD04BE2 		sub	sp, fp, #12
+ 2134 050c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2135 0510 1EFF2FE1 		bx	lr
+ 2136              	.L23:
+ 2137              		.align	2
+ 2138              	.L22:
+ 2139 0514 00000000 		.word	OSIntNesting
+ 2140 0518 00000000 		.word	OSTCBPrioTbl
+ 2141 051c 00000000 		.word	OSRunning
+ 2142              		.cfi_endproc
+ 2143              	.LFE1:
+ 2145              		.align	2
+ 2146              		.global	OSTaskCreateExt
+ 2148              	OSTaskCreateExt:
+ 2149              	.LFB2:
+ 207:../kernel/os_core/os_task.c **** #endif
+ 208:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 209:../kernel/os_core/os_task.c **** /*
+ 210:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 211:../kernel/os_core/os_task.c **** *                                     CREATE A TASK (Extended Version)
+ 212:../kernel/os_core/os_task.c **** *
+ 213:../kernel/os_core/os_task.c **** * Description: This function is used to have uC/OS-II manage the execution of a task.  Tasks can ei
+ 214:../kernel/os_core/os_task.c **** *              be created prior to the start of multitasking or by a running task.  A task cannot b
+ 215:../kernel/os_core/os_task.c **** *              created by an ISR.  This function is similar to OSTaskCreate() except that it allows
+ 216:../kernel/os_core/os_task.c **** *              additional information about a task to be specified.
+ 217:../kernel/os_core/os_task.c **** *
+ 218:../kernel/os_core/os_task.c **** * Arguments  : task      is a pointer to the task's code
+ 219:../kernel/os_core/os_task.c **** *
+ 220:../kernel/os_core/os_task.c **** *              p_arg     is a pointer to an optional data area which can be used to pass parameters
+ 221:../kernel/os_core/os_task.c **** *                        the task when the task first executes.  Where the task is concerned it thi
+ 222:../kernel/os_core/os_task.c **** *                        it was invoked and passed the argument 'p_arg' as follows:
+ 223:../kernel/os_core/os_task.c **** *
+ 224:../kernel/os_core/os_task.c **** *                            void Task (void *p_arg)
+ 225:../kernel/os_core/os_task.c **** *                            {
+ 226:../kernel/os_core/os_task.c **** *                                for (;;) {
+ 227:../kernel/os_core/os_task.c **** *                                    Task code;
+ 228:../kernel/os_core/os_task.c **** *                                }
+ 229:../kernel/os_core/os_task.c **** *                            }
+ 230:../kernel/os_core/os_task.c **** *
+ 231:../kernel/os_core/os_task.c **** *              ptos      is a pointer to the task's top of stack.  If the configuration constant
+ 232:../kernel/os_core/os_task.c **** *                        OS_STK_GROWTH is set to 1, the stack is assumed to grow downward (i.e. fro
+ 233:../kernel/os_core/os_task.c **** *                        memory to low memory).  'ptos' will thus point to the highest (valid) memo
+ 234:../kernel/os_core/os_task.c **** *                        location of the stack.  If OS_STK_GROWTH is set to 0, 'ptos' will point to
+ 235:../kernel/os_core/os_task.c **** *                        lowest memory location of the stack and the stack will grow with increasin
+ 236:../kernel/os_core/os_task.c **** *                        memory locations.  'ptos' MUST point to a valid 'free' data item.
+ 237:../kernel/os_core/os_task.c **** *
+ 238:../kernel/os_core/os_task.c **** *              prio      is the task's priority.  A unique priority MUST be assigned to each task a
+ 239:../kernel/os_core/os_task.c **** *                        lower the number, the higher the priority.
+ 240:../kernel/os_core/os_task.c **** *
+ 241:../kernel/os_core/os_task.c **** *              id        is the task's ID (0..65535)
+ 242:../kernel/os_core/os_task.c **** *
+ 243:../kernel/os_core/os_task.c **** *              pbos      is a pointer to the task's bottom of stack.  If the configuration constant
+ 244:../kernel/os_core/os_task.c **** *                        OS_STK_GROWTH is set to 1, the stack is assumed to grow downward (i.e. fro
+ 245:../kernel/os_core/os_task.c **** *                        memory to low memory).  'pbos' will thus point to the LOWEST (valid) memor
+ 246:../kernel/os_core/os_task.c **** *                        location of the stack.  If OS_STK_GROWTH is set to 0, 'pbos' will point to
+ 247:../kernel/os_core/os_task.c **** *                        HIGHEST memory location of the stack and the stack will grow with increasi
+ 248:../kernel/os_core/os_task.c **** *                        memory locations.  'pbos' MUST point to a valid 'free' data item.
+ 249:../kernel/os_core/os_task.c **** *
+ 250:../kernel/os_core/os_task.c **** *              stk_size  is the size of the stack in number of elements.  If OS_STK is set to INT8U
+ 251:../kernel/os_core/os_task.c **** *                        'stk_size' corresponds to the number of bytes available.  If OS_STK is set
+ 252:../kernel/os_core/os_task.c **** *                        INT16U, 'stk_size' contains the number of 16-bit entries available.  Final
+ 253:../kernel/os_core/os_task.c **** *                        OS_STK is set to INT32U, 'stk_size' contains the number of 32-bit entries
+ 254:../kernel/os_core/os_task.c **** *                        available on the stack.
+ 255:../kernel/os_core/os_task.c **** *
+ 256:../kernel/os_core/os_task.c **** *              pext      is a pointer to a user supplied memory location which is used as a TCB ext
+ 257:../kernel/os_core/os_task.c **** *                        For example, this user memory can hold the contents of floating-point regi
+ 258:../kernel/os_core/os_task.c **** *                        during a context switch, the time each task takes to execute, the number o
+ 259:../kernel/os_core/os_task.c **** *                        the task has been switched-in, etc.
+ 260:../kernel/os_core/os_task.c **** *
+ 261:../kernel/os_core/os_task.c **** *              opt       contains additional information (or options) about the behavior of the tas
+ 262:../kernel/os_core/os_task.c **** *                        LOWER 8-bits are reserved by uC/OS-II while the upper 8 bits can be applic
+ 263:../kernel/os_core/os_task.c **** *                        specific.  See OS_TASK_OPT_??? in uCOS-II.H.  Current choices are:
+ 264:../kernel/os_core/os_task.c **** *
+ 265:../kernel/os_core/os_task.c **** *                        OS_TASK_OPT_STK_CHK      Stack checking to be allowed for the task
+ 266:../kernel/os_core/os_task.c **** *                        OS_TASK_OPT_STK_CLR      Clear the stack when the task is created
+ 267:../kernel/os_core/os_task.c **** *                        OS_TASK_OPT_SAVE_FP      If the CPU has floating-point registers, save the
+ 268:../kernel/os_core/os_task.c **** *                                                 during a context switch.
+ 269:../kernel/os_core/os_task.c **** *
+ 270:../kernel/os_core/os_task.c **** * Returns    : OS_NO_ERR               if the function was successful.
+ 271:../kernel/os_core/os_task.c **** *              OS_PRIO_EXIT            if the task priority already exist
+ 272:../kernel/os_core/os_task.c **** *                                      (each task MUST have a unique priority).
+ 273:../kernel/os_core/os_task.c **** *              OS_PRIO_INVALID         if the priority you specify is higher that the maximum allow
+ 274:../kernel/os_core/os_task.c **** *                                      (i.e. > OS_LOWEST_PRIO)
+ 275:../kernel/os_core/os_task.c **** *              OS_ERR_TASK_CREATE_ISR  if you tried to create a task from an ISR.
+ 276:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 277:../kernel/os_core/os_task.c **** */
+ 278:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 279:../kernel/os_core/os_task.c **** #if OS_TASK_CREATE_EXT_EN > 0
+ 280:../kernel/os_core/os_task.c **** INT8U  OSTaskCreateExt (void   (*task)(void *pd),
+ 281:../kernel/os_core/os_task.c ****                         void    *p_arg,
+ 282:../kernel/os_core/os_task.c ****                         OS_STK  *ptos,
+ 283:../kernel/os_core/os_task.c ****                         INT8U    prio,
+ 284:../kernel/os_core/os_task.c ****                         INT16U   id,
+ 285:../kernel/os_core/os_task.c ****                         OS_STK  *pbos,
+ 286:../kernel/os_core/os_task.c ****                         INT32U   stk_size,
+ 287:../kernel/os_core/os_task.c ****                         void    *pext,
+ 288:../kernel/os_core/os_task.c ****                         INT16U   opt)
+ 289:../kernel/os_core/os_task.c **** {
+ 2150              		.loc 1 289 0
+ 2151              		.cfi_startproc
+ 2152              		@ Function supports interworking.
+ 2153              		@ args = 20, pretend = 0, frame = 24
+ 2154              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2155 0520 0DC0A0E1 		mov	ip, sp
+ 2156              	.LCFI4:
+ 2157              		.cfi_def_cfa_register 12
+ 2158 0524 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2159 0528 04B04CE2 		sub	fp, ip, #4
+ 2160              		.cfi_offset 14, -8
+ 2161              		.cfi_offset 13, -12
+ 2162              		.cfi_offset 11, -16
+ 2163              	.LCFI5:
+ 2164              		.cfi_def_cfa 11, 4
+ 2165 052c 28D04DE2 		sub	sp, sp, #40
+ 2166 0530 18000BE5 		str	r0, [fp, #-24]
+ 2167 0534 1C100BE5 		str	r1, [fp, #-28]
+ 2168 0538 20200BE5 		str	r2, [fp, #-32]
+ 2169 053c 21304BE5 		strb	r3, [fp, #-33]
+ 290:../kernel/os_core/os_task.c ****     OS_STK    *psp;
+ 291:../kernel/os_core/os_task.c ****     INT8U      err;
+ 292:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                  /* Allocate storage for CPU status register           
+ 293:../kernel/os_core/os_task.c ****     OS_CPU_SR  cpu_sr;
+ 294:../kernel/os_core/os_task.c **** 
+ 295:../kernel/os_core/os_task.c **** 
+ 296:../kernel/os_core/os_task.c **** 
+ 297:../kernel/os_core/os_task.c ****     cpu_sr = 0;                              /* Prevent compiler warning                           
+ 298:../kernel/os_core/os_task.c **** #endif    
+ 299:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 300:../kernel/os_core/os_task.c ****     if (prio > OS_LOWEST_PRIO) {             /* Make sure priority is within allowable range       
+ 2170              		.loc 1 300 0
+ 2171 0540 21305BE5 		ldrb	r3, [fp, #-33]	@ zero_extendqisi2
+ 2172 0544 3F0053E3 		cmp	r3, #63
+ 2173 0548 0100009A 		bls	.L25
+ 301:../kernel/os_core/os_task.c ****         return (OS_PRIO_INVALID);
+ 2174              		.loc 1 301 0
+ 2175 054c 2A30A0E3 		mov	r3, #42
+ 2176 0550 470000EA 		b	.L26
+ 2177              	.L25:
+ 302:../kernel/os_core/os_task.c ****     }
+ 303:../kernel/os_core/os_task.c **** #endif
+ 304:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 2178              		.loc 1 304 0
+ 2179              	@ 304 "../kernel/os_core/os_task.c" 1
+ 2180 0554 00000FE1 		mrs   r0, cpsr
+ 2181              	@ 0 "" 2
+ 2182              	@ 304 "../kernel/os_core/os_task.c" 1
+ 2183 0558 04002DE5 		stmfd sp!, {r0}
+ 2184              	@ 0 "" 2
+ 2185              	@ 304 "../kernel/os_core/os_task.c" 1
+ 2186 055c C00080E3 		orr   r0, r0, #0b11000000
+ 2187              	@ 0 "" 2
+ 2188              	@ 304 "../kernel/os_core/os_task.c" 1
+ 2189 0560 00F021E1 		msr   cpsr_c, r0
+ 2190              	@ 0 "" 2
+ 305:../kernel/os_core/os_task.c ****     if (OSIntNesting > 0) {                  /* Make sure we don't create the task from within an I
+ 2191              		.loc 1 305 0
+ 2192 0564 18319FE5 		ldr	r3, .L31
+ 2193 0568 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2194 056c 000053E3 		cmp	r3, #0
+ 2195 0570 0300000A 		beq	.L27
+ 306:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 2196              		.loc 1 306 0
+ 2197              	@ 306 "../kernel/os_core/os_task.c" 1
+ 2198 0574 04009DE4 		ldmfd sp!, {r0}
+ 2199              	@ 0 "" 2
+ 2200              	@ 306 "../kernel/os_core/os_task.c" 1
+ 2201 0578 00F021E1 		msr   cpsr_c, r0
+ 2202              	@ 0 "" 2
+ 307:../kernel/os_core/os_task.c ****         return (OS_ERR_TASK_CREATE_ISR);
+ 2203              		.loc 1 307 0
+ 2204 057c 1030A0E3 		mov	r3, #16
+ 2205 0580 3B0000EA 		b	.L26
+ 2206              	.L27:
+ 308:../kernel/os_core/os_task.c ****     }
+ 309:../kernel/os_core/os_task.c ****     if (OSTCBPrioTbl[prio] == (OS_TCB *)0) { /* Make sure task doesn't already exist at this priori
+ 2207              		.loc 1 309 0
+ 2208 0584 21205BE5 		ldrb	r2, [fp, #-33]	@ zero_extendqisi2
+ 2209 0588 F8309FE5 		ldr	r3, .L31+4
+ 2210 058c 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 2211 0590 000053E3 		cmp	r3, #0
+ 2212 0594 3300001A 		bne	.L28
+ 310:../kernel/os_core/os_task.c ****         OSTCBPrioTbl[prio] = (OS_TCB *)1;    /* Reserve the priority to prevent others from doing .
+ 2213              		.loc 1 310 0
+ 2214 0598 21205BE5 		ldrb	r2, [fp, #-33]	@ zero_extendqisi2
+ 2215 059c E4309FE5 		ldr	r3, .L31+4
+ 2216 05a0 0110A0E3 		mov	r1, #1
+ 2217 05a4 021183E7 		str	r1, [r3, r2, asl #2]
+ 311:../kernel/os_core/os_task.c ****                                              /* ... the same thing until task is created.          
+ 312:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 2218              		.loc 1 312 0
+ 2219              	@ 312 "../kernel/os_core/os_task.c" 1
+ 2220 05a8 04009DE4 		ldmfd sp!, {r0}
+ 2221              	@ 0 "" 2
+ 2222              	@ 312 "../kernel/os_core/os_task.c" 1
+ 2223 05ac 00F021E1 		msr   cpsr_c, r0
+ 2224              	@ 0 "" 2
+ 313:../kernel/os_core/os_task.c **** 
+ 314:../kernel/os_core/os_task.c ****         OS_TaskStkClr(pbos, stk_size, opt);                    /* Clear the task stack (if needed) 
+ 2225              		.loc 1 314 0
+ 2226 05b0 B431DBE1 		ldrh	r3, [fp, #20]
+ 2227 05b4 08009BE5 		ldr	r0, [fp, #8]
+ 2228 05b8 0C109BE5 		ldr	r1, [fp, #12]
+ 2229 05bc 0320A0E1 		mov	r2, r3
+ 2230 05c0 FEFFFFEB 		bl	OS_TaskStkClr
+ 315:../kernel/os_core/os_task.c **** 
+ 316:../kernel/os_core/os_task.c ****         psp = (OS_STK *)OSTaskStkInit(task, p_arg, ptos, opt); /* Initialize the task's stack      
+ 2231              		.loc 1 316 0
+ 2232 05c4 B431DBE1 		ldrh	r3, [fp, #20]
+ 2233 05c8 18001BE5 		ldr	r0, [fp, #-24]
+ 2234 05cc 1C101BE5 		ldr	r1, [fp, #-28]
+ 2235 05d0 20201BE5 		ldr	r2, [fp, #-32]
+ 2236 05d4 FEFFFFEB 		bl	OSTaskStkInit
+ 2237 05d8 10000BE5 		str	r0, [fp, #-16]
+ 317:../kernel/os_core/os_task.c ****         err = OS_TCBInit(prio, psp, pbos, id, stk_size, pext, opt);
+ 2238              		.loc 1 317 0
+ 2239 05dc 21205BE5 		ldrb	r2, [fp, #-33]	@ zero_extendqisi2
+ 2240 05e0 B430DBE1 		ldrh	r3, [fp, #4]
+ 2241 05e4 0C109BE5 		ldr	r1, [fp, #12]
+ 2242 05e8 00108DE5 		str	r1, [sp, #0]
+ 2243 05ec 10109BE5 		ldr	r1, [fp, #16]
+ 2244 05f0 04108DE5 		str	r1, [sp, #4]
+ 2245 05f4 B411DBE1 		ldrh	r1, [fp, #20]
+ 2246 05f8 08108DE5 		str	r1, [sp, #8]
+ 2247 05fc 0200A0E1 		mov	r0, r2
+ 2248 0600 10101BE5 		ldr	r1, [fp, #-16]
+ 2249 0604 08209BE5 		ldr	r2, [fp, #8]
+ 2250 0608 FEFFFFEB 		bl	OS_TCBInit
+ 2251 060c 0030A0E1 		mov	r3, r0
+ 2252 0610 11304BE5 		strb	r3, [fp, #-17]
+ 318:../kernel/os_core/os_task.c ****         if (err == OS_NO_ERR) {
+ 2253              		.loc 1 318 0
+ 2254 0614 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2255 0618 000053E3 		cmp	r3, #0
+ 2256 061c 0500001A 		bne	.L29
+ 319:../kernel/os_core/os_task.c ****             if (OSRunning == TRUE) {                           /* Find HPT if multitasking has star
+ 2257              		.loc 1 319 0
+ 2258 0620 64309FE5 		ldr	r3, .L31+8
+ 2259 0624 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2260 0628 010053E3 		cmp	r3, #1
+ 2261 062c 0B00001A 		bne	.L30
+ 320:../kernel/os_core/os_task.c ****                 OS_Sched();
+ 2262              		.loc 1 320 0
+ 2263 0630 FEFFFFEB 		bl	OS_Sched
+ 2264 0634 090000EA 		b	.L30
+ 2265              	.L29:
+ 321:../kernel/os_core/os_task.c ****             }
+ 322:../kernel/os_core/os_task.c ****         } else {
+ 323:../kernel/os_core/os_task.c ****             OS_ENTER_CRITICAL();
+ 2266              		.loc 1 323 0
+ 2267              	@ 323 "../kernel/os_core/os_task.c" 1
+ 2268 0638 00000FE1 		mrs   r0, cpsr
+ 2269              	@ 0 "" 2
+ 2270              	@ 323 "../kernel/os_core/os_task.c" 1
+ 2271 063c 04002DE5 		stmfd sp!, {r0}
+ 2272              	@ 0 "" 2
+ 2273              	@ 323 "../kernel/os_core/os_task.c" 1
+ 2274 0640 C00080E3 		orr   r0, r0, #0b11000000
+ 2275              	@ 0 "" 2
+ 2276              	@ 323 "../kernel/os_core/os_task.c" 1
+ 2277 0644 00F021E1 		msr   cpsr_c, r0
+ 2278              	@ 0 "" 2
+ 324:../kernel/os_core/os_task.c ****             OSTCBPrioTbl[prio] = (OS_TCB *)0;                  /* Make this priority avail. to othe
+ 2279              		.loc 1 324 0
+ 2280 0648 21205BE5 		ldrb	r2, [fp, #-33]	@ zero_extendqisi2
+ 2281 064c 34309FE5 		ldr	r3, .L31+4
+ 2282 0650 0010A0E3 		mov	r1, #0
+ 2283 0654 021183E7 		str	r1, [r3, r2, asl #2]
+ 325:../kernel/os_core/os_task.c ****             OS_EXIT_CRITICAL();
+ 2284              		.loc 1 325 0
+ 2285              	@ 325 "../kernel/os_core/os_task.c" 1
+ 2286 0658 04009DE4 		ldmfd sp!, {r0}
+ 2287              	@ 0 "" 2
+ 2288              	@ 325 "../kernel/os_core/os_task.c" 1
+ 2289 065c 00F021E1 		msr   cpsr_c, r0
+ 2290              	@ 0 "" 2
+ 2291              	.L30:
+ 326:../kernel/os_core/os_task.c ****         }
+ 327:../kernel/os_core/os_task.c ****         return (err);
+ 2292              		.loc 1 327 0
+ 2293 0660 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2294 0664 020000EA 		b	.L26
+ 2295              	.L28:
+ 328:../kernel/os_core/os_task.c ****     }
+ 329:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 2296              		.loc 1 329 0
+ 2297              	@ 329 "../kernel/os_core/os_task.c" 1
+ 2298 0668 04009DE4 		ldmfd sp!, {r0}
+ 2299              	@ 0 "" 2
+ 2300              	@ 329 "../kernel/os_core/os_task.c" 1
+ 2301 066c 00F021E1 		msr   cpsr_c, r0
+ 2302              	@ 0 "" 2
+ 330:../kernel/os_core/os_task.c ****     return (OS_PRIO_EXIST);
+ 2303              		.loc 1 330 0
+ 2304 0670 2830A0E3 		mov	r3, #40
+ 2305              	.L26:
+ 331:../kernel/os_core/os_task.c **** }
+ 2306              		.loc 1 331 0
+ 2307 0674 0300A0E1 		mov	r0, r3
+ 2308 0678 0CD04BE2 		sub	sp, fp, #12
+ 2309 067c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2310 0680 1EFF2FE1 		bx	lr
+ 2311              	.L32:
+ 2312              		.align	2
+ 2313              	.L31:
+ 2314 0684 00000000 		.word	OSIntNesting
+ 2315 0688 00000000 		.word	OSTCBPrioTbl
+ 2316 068c 00000000 		.word	OSRunning
+ 2317              		.cfi_endproc
+ 2318              	.LFE2:
+ 2320              		.align	2
+ 2321              		.global	OSTaskDel
+ 2323              	OSTaskDel:
+ 2324              	.LFB3:
+ 332:../kernel/os_core/os_task.c **** #endif
+ 333:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 334:../kernel/os_core/os_task.c **** /*
+ 335:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 336:../kernel/os_core/os_task.c **** *                                            DELETE A TASK
+ 337:../kernel/os_core/os_task.c **** *
+ 338:../kernel/os_core/os_task.c **** * Description: This function allows you to delete a task.  The calling task can delete itself by
+ 339:../kernel/os_core/os_task.c **** *              its own priority number.  The deleted task is returned to the dormant state and can 
+ 340:../kernel/os_core/os_task.c **** *              re-activated by creating the deleted task again.
+ 341:../kernel/os_core/os_task.c **** *
+ 342:../kernel/os_core/os_task.c **** * Arguments  : prio    is the priority of the task to delete.  Note that you can explicitely delete
+ 343:../kernel/os_core/os_task.c **** *                      the current task without knowing its priority level by setting 'prio' to
+ 344:../kernel/os_core/os_task.c **** *                      OS_PRIO_SELF.
+ 345:../kernel/os_core/os_task.c **** *
+ 346:../kernel/os_core/os_task.c **** * Returns    : OS_NO_ERR           if the call is successful
+ 347:../kernel/os_core/os_task.c **** *              OS_TASK_DEL_IDLE    if you attempted to delete uC/OS-II's idle task
+ 348:../kernel/os_core/os_task.c **** *              OS_PRIO_INVALID     if the priority you specify is higher that the maximum allowed
+ 349:../kernel/os_core/os_task.c **** *                                  (i.e. >= OS_LOWEST_PRIO) or, you have not specified OS_PRIO_SELF
+ 350:../kernel/os_core/os_task.c **** *              OS_TASK_DEL_ERR     if the task you want to delete does not exist.
+ 351:../kernel/os_core/os_task.c **** *              OS_TASK_NOT_EXIST   if the task is assigned to a Mutex PIP.
+ 352:../kernel/os_core/os_task.c **** *              OS_TASK_DEL_ISR     if you tried to delete a task from an ISR
+ 353:../kernel/os_core/os_task.c **** *
+ 354:../kernel/os_core/os_task.c **** * Notes      : 1) To reduce interrupt latency, OSTaskDel() 'disables' the task:
+ 355:../kernel/os_core/os_task.c **** *                    a) by making it not ready
+ 356:../kernel/os_core/os_task.c **** *                    b) by removing it from any wait lists
+ 357:../kernel/os_core/os_task.c **** *                    c) by preventing OSTimeTick() from making the task ready to run.
+ 358:../kernel/os_core/os_task.c **** *                 The task can then be 'unlinked' from the miscellaneous structures in uC/OS-II.
+ 359:../kernel/os_core/os_task.c **** *              2) The function OS_Dummy() is called after OS_EXIT_CRITICAL() because, on most proce
+ 360:../kernel/os_core/os_task.c **** *                 the next instruction following the enable interrupt instruction is ignored.  
+ 361:../kernel/os_core/os_task.c **** *              3) An ISR cannot delete a task.
+ 362:../kernel/os_core/os_task.c **** *              4) The lock nesting counter is incremented because, for a brief instant, if the curr
+ 363:../kernel/os_core/os_task.c **** *                 task is being deleted, the current task would not be able to be rescheduled becau
+ 364:../kernel/os_core/os_task.c **** *                 is removed from the ready list.  Incrementing the nesting counter prevents anothe
+ 365:../kernel/os_core/os_task.c **** *                 from being schedule.  This means that an ISR would return to the current task whi
+ 366:../kernel/os_core/os_task.c **** *                 being deleted.  The rest of the deletion would thus be able to be completed.
+ 367:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 368:../kernel/os_core/os_task.c **** */
+ 369:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 370:../kernel/os_core/os_task.c **** #if OS_TASK_DEL_EN > 0
+ 371:../kernel/os_core/os_task.c **** INT8U  OSTaskDel (INT8U prio)
+ 372:../kernel/os_core/os_task.c **** {
+ 2325              		.loc 1 372 0
+ 2326              		.cfi_startproc
+ 2327              		@ Function supports interworking.
+ 2328              		@ args = 0, pretend = 0, frame = 24
+ 2329              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2330 0690 0DC0A0E1 		mov	ip, sp
+ 2331              	.LCFI6:
+ 2332              		.cfi_def_cfa_register 12
+ 2333 0694 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2334 0698 04B04CE2 		sub	fp, ip, #4
+ 2335              		.cfi_offset 14, -8
+ 2336              		.cfi_offset 13, -12
+ 2337              		.cfi_offset 11, -16
+ 2338              	.LCFI7:
+ 2339              		.cfi_def_cfa 11, 4
+ 2340 069c 18D04DE2 		sub	sp, sp, #24
+ 2341 06a0 0030A0E1 		mov	r3, r0
+ 2342 06a4 1D304BE5 		strb	r3, [fp, #-29]
+ 373:../kernel/os_core/os_task.c **** #if OS_EVENT_EN
+ 374:../kernel/os_core/os_task.c ****     OS_EVENT     *pevent;
+ 375:../kernel/os_core/os_task.c **** #endif    
+ 376:../kernel/os_core/os_task.c **** #if (OS_VERSION >= 251) && (OS_FLAG_EN > 0) && (OS_MAX_FLAGS > 0)
+ 377:../kernel/os_core/os_task.c ****     OS_FLAG_NODE *pnode;
+ 378:../kernel/os_core/os_task.c **** #endif
+ 379:../kernel/os_core/os_task.c ****     OS_TCB       *ptcb;
+ 380:../kernel/os_core/os_task.c **** 	INT8U         y;
+ 381:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                      /* Allocate storage for CPU status register       
+ 382:../kernel/os_core/os_task.c ****     OS_CPU_SR     cpu_sr;
+ 383:../kernel/os_core/os_task.c **** 
+ 384:../kernel/os_core/os_task.c **** 
+ 385:../kernel/os_core/os_task.c **** 
+ 386:../kernel/os_core/os_task.c ****     cpu_sr = 0;                                                 /* Prevent compiler warning        
+ 387:../kernel/os_core/os_task.c **** #endif    
+ 388:../kernel/os_core/os_task.c ****     if (OSIntNesting > 0) {                                     /* See if trying to delete from ISR
+ 2343              		.loc 1 388 0
+ 2344 06a8 98339FE5 		ldr	r3, .L48
+ 2345 06ac 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2346 06b0 000053E3 		cmp	r3, #0
+ 2347 06b4 0100000A 		beq	.L34
+ 389:../kernel/os_core/os_task.c ****         return (OS_TASK_DEL_ISR);
+ 2348              		.loc 1 389 0
+ 2349 06b8 3F30A0E3 		mov	r3, #63
+ 2350 06bc DD0000EA 		b	.L35
+ 2351              	.L34:
+ 390:../kernel/os_core/os_task.c ****     }
+ 391:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 392:../kernel/os_core/os_task.c ****     if (prio == OS_IDLE_PRIO) {                                 /* Not allowed to delete idle task 
+ 2352              		.loc 1 392 0
+ 2353 06c0 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 2354 06c4 3F0053E3 		cmp	r3, #63
+ 2355 06c8 0100001A 		bne	.L36
+ 393:../kernel/os_core/os_task.c ****         return (OS_TASK_DEL_IDLE);
+ 2356              		.loc 1 393 0
+ 2357 06cc 3D30A0E3 		mov	r3, #61
+ 2358 06d0 D80000EA 		b	.L35
+ 2359              	.L36:
+ 394:../kernel/os_core/os_task.c ****     }
+ 395:../kernel/os_core/os_task.c ****     if (prio >= OS_LOWEST_PRIO) {                               /* Task priority valid ?           
+ 2360              		.loc 1 395 0
+ 2361 06d4 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 2362 06d8 3E0053E3 		cmp	r3, #62
+ 2363 06dc 0400009A 		bls	.L37
+ 396:../kernel/os_core/os_task.c ****         if (prio != OS_PRIO_SELF) {       
+ 2364              		.loc 1 396 0
+ 2365 06e0 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 2366 06e4 FF0053E3 		cmp	r3, #255
+ 2367 06e8 0100000A 		beq	.L37
+ 397:../kernel/os_core/os_task.c ****             return (OS_PRIO_INVALID);
+ 2368              		.loc 1 397 0
+ 2369 06ec 2A30A0E3 		mov	r3, #42
+ 2370 06f0 D00000EA 		b	.L35
+ 2371              	.L37:
+ 398:../kernel/os_core/os_task.c ****         }
+ 399:../kernel/os_core/os_task.c ****     }
+ 400:../kernel/os_core/os_task.c **** #endif
+ 401:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 2372              		.loc 1 401 0
+ 2373              	@ 401 "../kernel/os_core/os_task.c" 1
+ 2374 06f4 00000FE1 		mrs   r0, cpsr
+ 2375              	@ 0 "" 2
+ 2376              	@ 401 "../kernel/os_core/os_task.c" 1
+ 2377 06f8 04002DE5 		stmfd sp!, {r0}
+ 2378              	@ 0 "" 2
+ 2379              	@ 401 "../kernel/os_core/os_task.c" 1
+ 2380 06fc C00080E3 		orr   r0, r0, #0b11000000
+ 2381              	@ 0 "" 2
+ 2382              	@ 401 "../kernel/os_core/os_task.c" 1
+ 2383 0700 00F021E1 		msr   cpsr_c, r0
+ 2384              	@ 0 "" 2
+ 402:../kernel/os_core/os_task.c ****     if (prio == OS_PRIO_SELF) {                                 /* See if requesting to delete self
+ 2385              		.loc 1 402 0
+ 2386 0704 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 2387 0708 FF0053E3 		cmp	r3, #255
+ 2388 070c 0300001A 		bne	.L38
+ 403:../kernel/os_core/os_task.c ****         prio = OSTCBCur->OSTCBPrio;                             /* Set priority to delete to curren
+ 2389              		.loc 1 403 0
+ 2390 0710 34339FE5 		ldr	r3, .L48+4
+ 2391 0714 003093E5 		ldr	r3, [r3, #0]
+ 2392 0718 2E30D3E5 		ldrb	r3, [r3, #46]
+ 2393 071c 1D304BE5 		strb	r3, [fp, #-29]
+ 2394              	.L38:
+ 404:../kernel/os_core/os_task.c ****     }
+ 405:../kernel/os_core/os_task.c ****     ptcb = OSTCBPrioTbl[prio];
+ 2395              		.loc 1 405 0
+ 2396 0720 1D205BE5 		ldrb	r2, [fp, #-29]	@ zero_extendqisi2
+ 2397 0724 24339FE5 		ldr	r3, .L48+8
+ 2398 0728 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 2399 072c 10300BE5 		str	r3, [fp, #-16]
+ 406:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)0) {                                  /* Task to delete must exist       
+ 2400              		.loc 1 406 0
+ 2401 0730 10301BE5 		ldr	r3, [fp, #-16]
+ 2402 0734 000053E3 		cmp	r3, #0
+ 2403 0738 0300001A 		bne	.L39
+ 407:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 2404              		.loc 1 407 0
+ 2405              	@ 407 "../kernel/os_core/os_task.c" 1
+ 2406 073c 04009DE4 		ldmfd sp!, {r0}
+ 2407              	@ 0 "" 2
+ 2408              	@ 407 "../kernel/os_core/os_task.c" 1
+ 2409 0740 00F021E1 		msr   cpsr_c, r0
+ 2410              	@ 0 "" 2
+ 408:../kernel/os_core/os_task.c ****         return (OS_TASK_DEL_ERR);
+ 2411              		.loc 1 408 0
+ 2412 0744 3C30A0E3 		mov	r3, #60
+ 2413 0748 BA0000EA 		b	.L35
+ 2414              	.L39:
+ 409:../kernel/os_core/os_task.c ****     }
+ 410:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)1) {                                  /* Must not be assigned to Mutex   
+ 2415              		.loc 1 410 0
+ 2416 074c 10301BE5 		ldr	r3, [fp, #-16]
+ 2417 0750 010053E3 		cmp	r3, #1
+ 2418 0754 0300001A 		bne	.L40
+ 411:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 2419              		.loc 1 411 0
+ 2420              	@ 411 "../kernel/os_core/os_task.c" 1
+ 2421 0758 04009DE4 		ldmfd sp!, {r0}
+ 2422              	@ 0 "" 2
+ 2423              	@ 411 "../kernel/os_core/os_task.c" 1
+ 2424 075c 00F021E1 		msr   cpsr_c, r0
+ 2425              	@ 0 "" 2
+ 412:../kernel/os_core/os_task.c ****         return (OS_TASK_NOT_EXIST);
+ 2426              		.loc 1 412 0
+ 2427 0760 0B30A0E3 		mov	r3, #11
+ 2428 0764 B30000EA 		b	.L35
+ 2429              	.L40:
+ 413:../kernel/os_core/os_task.c ****     }
+ 414:../kernel/os_core/os_task.c **** 	y            =  ptcb->OSTCBY;
+ 2430              		.loc 1 414 0
+ 2431 0768 10301BE5 		ldr	r3, [fp, #-16]
+ 2432 076c 3030D3E5 		ldrb	r3, [r3, #48]
+ 2433 0770 11304BE5 		strb	r3, [fp, #-17]
+ 415:../kernel/os_core/os_task.c **** 	OSRdyTbl[y] &= ~ptcb->OSTCBBitX;
+ 2434              		.loc 1 415 0
+ 2435 0774 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2436 0778 11205BE5 		ldrb	r2, [fp, #-17]	@ zero_extendqisi2
+ 2437 077c D0129FE5 		ldr	r1, .L48+12
+ 2438 0780 0220D1E7 		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 2439 0784 FF1002E2 		and	r1, r2, #255
+ 2440 0788 10201BE5 		ldr	r2, [fp, #-16]
+ 2441 078c 3120D2E5 		ldrb	r2, [r2, #49]	@ zero_extendqisi2
+ 2442 0790 FF2002E2 		and	r2, r2, #255
+ 2443 0794 0220E0E1 		mvn	r2, r2
+ 2444 0798 FF2002E2 		and	r2, r2, #255
+ 2445 079c 022001E0 		and	r2, r1, r2
+ 2446 07a0 FF2002E2 		and	r2, r2, #255
+ 2447 07a4 FF1002E2 		and	r1, r2, #255
+ 2448 07a8 A4229FE5 		ldr	r2, .L48+12
+ 2449 07ac 0310C2E7 		strb	r1, [r2, r3]
+ 416:../kernel/os_core/os_task.c ****     if (OSRdyTbl[y] == 0x00) {                                  /* Make task not ready             
+ 2450              		.loc 1 416 0
+ 2451 07b0 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2452 07b4 98229FE5 		ldr	r2, .L48+12
+ 2453 07b8 0330D2E7 		ldrb	r3, [r2, r3]	@ zero_extendqisi2
+ 2454 07bc 000053E3 		cmp	r3, #0
+ 2455 07c0 0C00001A 		bne	.L41
+ 417:../kernel/os_core/os_task.c ****         OSRdyGrp &= ~ptcb->OSTCBBitY;
+ 2456              		.loc 1 417 0
+ 2457 07c4 10301BE5 		ldr	r3, [fp, #-16]
+ 2458 07c8 3230D3E5 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 2459 07cc FF3003E2 		and	r3, r3, #255
+ 2460 07d0 0330E0E1 		mvn	r3, r3
+ 2461 07d4 FF2003E2 		and	r2, r3, #255
+ 2462 07d8 78329FE5 		ldr	r3, .L48+16
+ 2463 07dc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2464 07e0 FF3003E2 		and	r3, r3, #255
+ 2465 07e4 033002E0 		and	r3, r2, r3
+ 2466 07e8 FF3003E2 		and	r3, r3, #255
+ 2467 07ec FF2003E2 		and	r2, r3, #255
+ 2468 07f0 60329FE5 		ldr	r3, .L48+16
+ 2469 07f4 0020C3E5 		strb	r2, [r3, #0]
+ 2470              	.L41:
+ 418:../kernel/os_core/os_task.c ****     }
+ 419:../kernel/os_core/os_task.c **** #if OS_EVENT_EN
+ 420:../kernel/os_core/os_task.c ****     pevent = ptcb->OSTCBEventPtr;
+ 2471              		.loc 1 420 0
+ 2472 07f8 10301BE5 		ldr	r3, [fp, #-16]
+ 2473 07fc 1C3093E5 		ldr	r3, [r3, #28]
+ 2474 0800 18300BE5 		str	r3, [fp, #-24]
+ 421:../kernel/os_core/os_task.c ****     if (pevent != (OS_EVENT *)0) {                              /* If task is waiting on event     
+ 2475              		.loc 1 421 0
+ 2476 0804 18301BE5 		ldr	r3, [fp, #-24]
+ 2477 0808 000053E3 		cmp	r3, #0
+ 2478 080c 2900000A 		beq	.L42
+ 422:../kernel/os_core/os_task.c **** 	    pevent->OSEventTbl[y] &= ~ptcb->OSTCBBitX;
+ 2479              		.loc 1 422 0
+ 2480 0810 11105BE5 		ldrb	r1, [fp, #-17]	@ zero_extendqisi2
+ 2481 0814 11205BE5 		ldrb	r2, [fp, #-17]	@ zero_extendqisi2
+ 2482 0818 18001BE5 		ldr	r0, [fp, #-24]
+ 2483 081c 0830A0E3 		mov	r3, #8
+ 2484 0820 022080E0 		add	r2, r0, r2
+ 2485 0824 033082E0 		add	r3, r2, r3
+ 2486 0828 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2487 082c FF2003E2 		and	r2, r3, #255
+ 2488 0830 10301BE5 		ldr	r3, [fp, #-16]
+ 2489 0834 3130D3E5 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 2490 0838 FF3003E2 		and	r3, r3, #255
+ 2491 083c 0330E0E1 		mvn	r3, r3
+ 2492 0840 FF3003E2 		and	r3, r3, #255
+ 2493 0844 033002E0 		and	r3, r2, r3
+ 2494 0848 FF3003E2 		and	r3, r3, #255
+ 2495 084c FF2003E2 		and	r2, r3, #255
+ 2496 0850 18001BE5 		ldr	r0, [fp, #-24]
+ 2497 0854 0830A0E3 		mov	r3, #8
+ 2498 0858 011080E0 		add	r1, r0, r1
+ 2499 085c 033081E0 		add	r3, r1, r3
+ 2500 0860 0020C3E5 		strb	r2, [r3, #0]
+ 423:../kernel/os_core/os_task.c ****         if (pevent->OSEventTbl[y] == 0) {                       /* ... remove task from ...        
+ 2501              		.loc 1 423 0
+ 2502 0864 11205BE5 		ldrb	r2, [fp, #-17]	@ zero_extendqisi2
+ 2503 0868 18101BE5 		ldr	r1, [fp, #-24]
+ 2504 086c 0830A0E3 		mov	r3, #8
+ 2505 0870 022081E0 		add	r2, r1, r2
+ 2506 0874 033082E0 		add	r3, r2, r3
+ 2507 0878 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2508 087c 000053E3 		cmp	r3, #0
+ 2509 0880 0C00001A 		bne	.L42
+ 424:../kernel/os_core/os_task.c ****             pevent->OSEventGrp &= ~ptcb->OSTCBBitY;             /* ... event ctrl block            
+ 2510              		.loc 1 424 0
+ 2511 0884 18301BE5 		ldr	r3, [fp, #-24]
+ 2512 0888 0130D3E5 		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 2513 088c FF2003E2 		and	r2, r3, #255
+ 2514 0890 10301BE5 		ldr	r3, [fp, #-16]
+ 2515 0894 3230D3E5 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 2516 0898 FF3003E2 		and	r3, r3, #255
+ 2517 089c 0330E0E1 		mvn	r3, r3
+ 2518 08a0 FF3003E2 		and	r3, r3, #255
+ 2519 08a4 033002E0 		and	r3, r2, r3
+ 2520 08a8 FF3003E2 		and	r3, r3, #255
+ 2521 08ac FF2003E2 		and	r2, r3, #255
+ 2522 08b0 18301BE5 		ldr	r3, [fp, #-24]
+ 2523 08b4 0120C3E5 		strb	r2, [r3, #1]
+ 2524              	.L42:
+ 425:../kernel/os_core/os_task.c ****         }
+ 426:../kernel/os_core/os_task.c ****     }
+ 427:../kernel/os_core/os_task.c **** #endif
+ 428:../kernel/os_core/os_task.c **** #if (OS_VERSION >= 251) && (OS_FLAG_EN > 0) && (OS_MAX_FLAGS > 0)
+ 429:../kernel/os_core/os_task.c ****     pnode = ptcb->OSTCBFlagNode;
+ 2525              		.loc 1 429 0
+ 2526 08b8 10301BE5 		ldr	r3, [fp, #-16]
+ 2527 08bc 243093E5 		ldr	r3, [r3, #36]
+ 2528 08c0 1C300BE5 		str	r3, [fp, #-28]
+ 430:../kernel/os_core/os_task.c ****     if (pnode != (OS_FLAG_NODE *)0) {                           /* If task is waiting on event flag
+ 2529              		.loc 1 430 0
+ 2530 08c4 1C301BE5 		ldr	r3, [fp, #-28]
+ 2531 08c8 000053E3 		cmp	r3, #0
+ 2532 08cc 0100000A 		beq	.L43
+ 431:../kernel/os_core/os_task.c ****         OS_FlagUnlink(pnode);                                   /* Remove from wait list           
+ 2533              		.loc 1 431 0
+ 2534 08d0 1C001BE5 		ldr	r0, [fp, #-28]
+ 2535 08d4 FEFFFFEB 		bl	OS_FlagUnlink
+ 2536              	.L43:
+ 432:../kernel/os_core/os_task.c ****     }
+ 433:../kernel/os_core/os_task.c **** #endif
+ 434:../kernel/os_core/os_task.c ****     ptcb->OSTCBDly    = 0;                                      /* Prevent OSTimeTick() from updati
+ 2537              		.loc 1 434 0
+ 2538 08d8 10301BE5 		ldr	r3, [fp, #-16]
+ 2539 08dc 0020A0E3 		mov	r2, #0
+ 2540 08e0 BA22C3E1 		strh	r2, [r3, #42]	@ movhi
+ 435:../kernel/os_core/os_task.c ****     ptcb->OSTCBStat   = OS_STAT_RDY;                            /* Prevent task from being resumed 
+ 2541              		.loc 1 435 0
+ 2542 08e4 10301BE5 		ldr	r3, [fp, #-16]
+ 2543 08e8 0020A0E3 		mov	r2, #0
+ 2544 08ec 2C20C3E5 		strb	r2, [r3, #44]
+ 436:../kernel/os_core/os_task.c ****     ptcb->OSTCBPendTO = FALSE;
+ 2545              		.loc 1 436 0
+ 2546 08f0 10301BE5 		ldr	r3, [fp, #-16]
+ 2547 08f4 0020A0E3 		mov	r2, #0
+ 2548 08f8 2D20C3E5 		strb	r2, [r3, #45]
+ 437:../kernel/os_core/os_task.c **** 	if (OSLockNesting < 255u) {                                 /* Make sure we don't context switch  
+ 2549              		.loc 1 437 0
+ 2550 08fc 58319FE5 		ldr	r3, .L48+20
+ 2551 0900 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2552 0904 FF0053E3 		cmp	r3, #255
+ 2553 0908 0500000A 		beq	.L44
+ 438:../kernel/os_core/os_task.c ****         OSLockNesting++;
+ 2554              		.loc 1 438 0
+ 2555 090c 48319FE5 		ldr	r3, .L48+20
+ 2556 0910 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2557 0914 013083E2 		add	r3, r3, #1
+ 2558 0918 FF2003E2 		and	r2, r3, #255
+ 2559 091c 38319FE5 		ldr	r3, .L48+20
+ 2560 0920 0020C3E5 		strb	r2, [r3, #0]
+ 2561              	.L44:
+ 439:../kernel/os_core/os_task.c **** 	}
+ 440:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();                                         /* Enabling INT. ignores next instr
+ 2562              		.loc 1 440 0
+ 2563              	@ 440 "../kernel/os_core/os_task.c" 1
+ 2564 0924 04009DE4 		ldmfd sp!, {r0}
+ 2565              	@ 0 "" 2
+ 2566              	@ 440 "../kernel/os_core/os_task.c" 1
+ 2567 0928 00F021E1 		msr   cpsr_c, r0
+ 2568              	@ 0 "" 2
+ 441:../kernel/os_core/os_task.c ****     OS_Dummy();                                                 /* ... Dummy ensures that INTs will
+ 2569              		.loc 1 441 0
+ 2570 092c FEFFFFEB 		bl	OS_Dummy
+ 442:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();                                        /* ... disabled HERE!              
+ 2571              		.loc 1 442 0
+ 2572              	@ 442 "../kernel/os_core/os_task.c" 1
+ 2573 0930 00000FE1 		mrs   r0, cpsr
+ 2574              	@ 0 "" 2
+ 2575              	@ 442 "../kernel/os_core/os_task.c" 1
+ 2576 0934 04002DE5 		stmfd sp!, {r0}
+ 2577              	@ 0 "" 2
+ 2578              	@ 442 "../kernel/os_core/os_task.c" 1
+ 2579 0938 C00080E3 		orr   r0, r0, #0b11000000
+ 2580              	@ 0 "" 2
+ 2581              	@ 442 "../kernel/os_core/os_task.c" 1
+ 2582 093c 00F021E1 		msr   cpsr_c, r0
+ 2583              	@ 0 "" 2
+ 443:../kernel/os_core/os_task.c **** 	if (OSLockNesting > 0) {                                    /* Remove context switch lock         
+ 2584              		.loc 1 443 0
+ 2585 0940 14319FE5 		ldr	r3, .L48+20
+ 2586 0944 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2587 0948 000053E3 		cmp	r3, #0
+ 2588 094c 0500000A 		beq	.L45
+ 444:../kernel/os_core/os_task.c ****         OSLockNesting--;
+ 2589              		.loc 1 444 0
+ 2590 0950 04319FE5 		ldr	r3, .L48+20
+ 2591 0954 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2592 0958 013043E2 		sub	r3, r3, #1
+ 2593 095c FF2003E2 		and	r2, r3, #255
+ 2594 0960 F4309FE5 		ldr	r3, .L48+20
+ 2595 0964 0020C3E5 		strb	r2, [r3, #0]
+ 2596              	.L45:
+ 445:../kernel/os_core/os_task.c **** 	}
+ 446:../kernel/os_core/os_task.c ****     OSTaskDelHook(ptcb);                                        /* Call user defined hook          
+ 2597              		.loc 1 446 0
+ 2598 0968 10001BE5 		ldr	r0, [fp, #-16]
+ 2599 096c FEFFFFEB 		bl	OSTaskDelHook
+ 447:../kernel/os_core/os_task.c ****     OSTaskCtr--;                                                /* One less task being managed     
+ 2600              		.loc 1 447 0
+ 2601 0970 E8309FE5 		ldr	r3, .L48+24
+ 2602 0974 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2603 0978 013043E2 		sub	r3, r3, #1
+ 2604 097c FF2003E2 		and	r2, r3, #255
+ 2605 0980 D8309FE5 		ldr	r3, .L48+24
+ 2606 0984 0020C3E5 		strb	r2, [r3, #0]
+ 448:../kernel/os_core/os_task.c ****     OSTCBPrioTbl[prio] = (OS_TCB *)0;                           /* Clear old priority entry        
+ 2607              		.loc 1 448 0
+ 2608 0988 1D205BE5 		ldrb	r2, [fp, #-29]	@ zero_extendqisi2
+ 2609 098c BC309FE5 		ldr	r3, .L48+8
+ 2610 0990 0010A0E3 		mov	r1, #0
+ 2611 0994 021183E7 		str	r1, [r3, r2, asl #2]
+ 449:../kernel/os_core/os_task.c ****     if (ptcb->OSTCBPrev == (OS_TCB *)0) {                       /* Remove from TCB chain           
+ 2612              		.loc 1 449 0
+ 2613 0998 10301BE5 		ldr	r3, [fp, #-16]
+ 2614 099c 183093E5 		ldr	r3, [r3, #24]
+ 2615 09a0 000053E3 		cmp	r3, #0
+ 2616 09a4 0800001A 		bne	.L46
+ 450:../kernel/os_core/os_task.c ****         ptcb->OSTCBNext->OSTCBPrev = (OS_TCB *)0;
+ 2617              		.loc 1 450 0
+ 2618 09a8 10301BE5 		ldr	r3, [fp, #-16]
+ 2619 09ac 143093E5 		ldr	r3, [r3, #20]
+ 2620 09b0 0020A0E3 		mov	r2, #0
+ 2621 09b4 182083E5 		str	r2, [r3, #24]
+ 451:../kernel/os_core/os_task.c ****         OSTCBList                  = ptcb->OSTCBNext;
+ 2622              		.loc 1 451 0
+ 2623 09b8 10301BE5 		ldr	r3, [fp, #-16]
+ 2624 09bc 142093E5 		ldr	r2, [r3, #20]
+ 2625 09c0 9C309FE5 		ldr	r3, .L48+28
+ 2626 09c4 002083E5 		str	r2, [r3, #0]
+ 2627 09c8 090000EA 		b	.L47
+ 2628              	.L46:
+ 452:../kernel/os_core/os_task.c ****     } else {
+ 453:../kernel/os_core/os_task.c ****         ptcb->OSTCBPrev->OSTCBNext = ptcb->OSTCBNext;
+ 2629              		.loc 1 453 0
+ 2630 09cc 10301BE5 		ldr	r3, [fp, #-16]
+ 2631 09d0 183093E5 		ldr	r3, [r3, #24]
+ 2632 09d4 10201BE5 		ldr	r2, [fp, #-16]
+ 2633 09d8 142092E5 		ldr	r2, [r2, #20]
+ 2634 09dc 142083E5 		str	r2, [r3, #20]
+ 454:../kernel/os_core/os_task.c ****         ptcb->OSTCBNext->OSTCBPrev = ptcb->OSTCBPrev;
+ 2635              		.loc 1 454 0
+ 2636 09e0 10301BE5 		ldr	r3, [fp, #-16]
+ 2637 09e4 143093E5 		ldr	r3, [r3, #20]
+ 2638 09e8 10201BE5 		ldr	r2, [fp, #-16]
+ 2639 09ec 182092E5 		ldr	r2, [r2, #24]
+ 2640 09f0 182083E5 		str	r2, [r3, #24]
+ 2641              	.L47:
+ 455:../kernel/os_core/os_task.c ****     }
+ 456:../kernel/os_core/os_task.c ****     ptcb->OSTCBNext   = OSTCBFreeList;                          /* Return TCB to free TCB list     
+ 2642              		.loc 1 456 0
+ 2643 09f4 6C309FE5 		ldr	r3, .L48+32
+ 2644 09f8 002093E5 		ldr	r2, [r3, #0]
+ 2645 09fc 10301BE5 		ldr	r3, [fp, #-16]
+ 2646 0a00 142083E5 		str	r2, [r3, #20]
+ 457:../kernel/os_core/os_task.c ****     OSTCBFreeList     = ptcb;
+ 2647              		.loc 1 457 0
+ 2648 0a04 5C309FE5 		ldr	r3, .L48+32
+ 2649 0a08 10201BE5 		ldr	r2, [fp, #-16]
+ 2650 0a0c 002083E5 		str	r2, [r3, #0]
+ 458:../kernel/os_core/os_task.c **** #if OS_TASK_NAME_SIZE > 1
+ 459:../kernel/os_core/os_task.c ****     ptcb->OSTCBTaskName[0] = '?';                               /* Unknown name                    
+ 2651              		.loc 1 459 0
+ 2652 0a10 10301BE5 		ldr	r3, [fp, #-16]
+ 2653 0a14 3F20A0E3 		mov	r2, #63
+ 2654 0a18 4820C3E5 		strb	r2, [r3, #72]
+ 460:../kernel/os_core/os_task.c ****     ptcb->OSTCBTaskName[1] = OS_ASCII_NUL;
+ 2655              		.loc 1 460 0
+ 2656 0a1c 10301BE5 		ldr	r3, [fp, #-16]
+ 2657 0a20 0020A0E3 		mov	r2, #0
+ 2658 0a24 4920C3E5 		strb	r2, [r3, #73]
+ 461:../kernel/os_core/os_task.c **** #endif
+ 462:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 2659              		.loc 1 462 0
+ 2660              	@ 462 "../kernel/os_core/os_task.c" 1
+ 2661 0a28 04009DE4 		ldmfd sp!, {r0}
+ 2662              	@ 0 "" 2
+ 2663              	@ 462 "../kernel/os_core/os_task.c" 1
+ 2664 0a2c 00F021E1 		msr   cpsr_c, r0
+ 2665              	@ 0 "" 2
+ 463:../kernel/os_core/os_task.c ****     OS_Sched();                                                 /* Find new highest priority task  
+ 2666              		.loc 1 463 0
+ 2667 0a30 FEFFFFEB 		bl	OS_Sched
+ 464:../kernel/os_core/os_task.c ****     return (OS_NO_ERR);
+ 2668              		.loc 1 464 0
+ 2669 0a34 0030A0E3 		mov	r3, #0
+ 2670              	.L35:
+ 465:../kernel/os_core/os_task.c **** }
+ 2671              		.loc 1 465 0
+ 2672 0a38 0300A0E1 		mov	r0, r3
+ 2673 0a3c 0CD04BE2 		sub	sp, fp, #12
+ 2674 0a40 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2675 0a44 1EFF2FE1 		bx	lr
+ 2676              	.L49:
+ 2677              		.align	2
+ 2678              	.L48:
+ 2679 0a48 00000000 		.word	OSIntNesting
+ 2680 0a4c 00000000 		.word	OSTCBCur
+ 2681 0a50 00000000 		.word	OSTCBPrioTbl
+ 2682 0a54 00000000 		.word	OSRdyTbl
+ 2683 0a58 00000000 		.word	OSRdyGrp
+ 2684 0a5c 00000000 		.word	OSLockNesting
+ 2685 0a60 00000000 		.word	OSTaskCtr
+ 2686 0a64 00000000 		.word	OSTCBList
+ 2687 0a68 00000000 		.word	OSTCBFreeList
+ 2688              		.cfi_endproc
+ 2689              	.LFE3:
+ 2691              		.align	2
+ 2692              		.global	OSTaskDelReq
+ 2694              	OSTaskDelReq:
+ 2695              	.LFB4:
+ 466:../kernel/os_core/os_task.c **** #endif
+ 467:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 468:../kernel/os_core/os_task.c **** /*
+ 469:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 470:../kernel/os_core/os_task.c **** *                                    REQUEST THAT A TASK DELETE ITSELF
+ 471:../kernel/os_core/os_task.c **** *
+ 472:../kernel/os_core/os_task.c **** * Description: This function is used to:
+ 473:../kernel/os_core/os_task.c **** *                   a) notify a task to delete itself.
+ 474:../kernel/os_core/os_task.c **** *                   b) to see if a task requested that the current task delete itself.
+ 475:../kernel/os_core/os_task.c **** *              This function is a little tricky to understand.  Basically, you have a task that nee
+ 476:../kernel/os_core/os_task.c **** *              to be deleted however, this task has resources that it has allocated (memory buffers
+ 477:../kernel/os_core/os_task.c **** *              semaphores, mailboxes, queues etc.).  The task cannot be deleted otherwise these
+ 478:../kernel/os_core/os_task.c **** *              resources would not be freed.  The requesting task calls OSTaskDelReq() to indicate 
+ 479:../kernel/os_core/os_task.c **** *              the task needs to be deleted.  Deleting of the task is however, deferred to the task
+ 480:../kernel/os_core/os_task.c **** *              be deleted.  For example, suppose that task #10 needs to be deleted.  The requesting
+ 481:../kernel/os_core/os_task.c **** *              example, task #5, would call OSTaskDelReq(10).  When task #10 gets to execute, it ca
+ 482:../kernel/os_core/os_task.c **** *              this function by specifying OS_PRIO_SELF and monitors the returned value.  If the re
+ 483:../kernel/os_core/os_task.c **** *              value is OS_TASK_DEL_REQ, another task requested a task delete.  Task #10 would look
+ 484:../kernel/os_core/os_task.c **** *              this:
+ 485:../kernel/os_core/os_task.c **** *
+ 486:../kernel/os_core/os_task.c **** *                   void Task(void *p_arg)
+ 487:../kernel/os_core/os_task.c **** *                   {
+ 488:../kernel/os_core/os_task.c **** *                       .
+ 489:../kernel/os_core/os_task.c **** *                       .
+ 490:../kernel/os_core/os_task.c **** *                       while (1) {
+ 491:../kernel/os_core/os_task.c **** *                           OSTimeDly(1);
+ 492:../kernel/os_core/os_task.c **** *                           if (OSTaskDelReq(OS_PRIO_SELF) == OS_TASK_DEL_REQ) {
+ 493:../kernel/os_core/os_task.c **** *                               Release any owned resources;
+ 494:../kernel/os_core/os_task.c **** *                               De-allocate any dynamic memory;
+ 495:../kernel/os_core/os_task.c **** *                               OSTaskDel(OS_PRIO_SELF);
+ 496:../kernel/os_core/os_task.c **** *                           }
+ 497:../kernel/os_core/os_task.c **** *                       }
+ 498:../kernel/os_core/os_task.c **** *                   }
+ 499:../kernel/os_core/os_task.c **** *
+ 500:../kernel/os_core/os_task.c **** * Arguments  : prio    is the priority of the task to request the delete from
+ 501:../kernel/os_core/os_task.c **** *
+ 502:../kernel/os_core/os_task.c **** * Returns    : OS_NO_ERR          if the task exist and the request has been registered
+ 503:../kernel/os_core/os_task.c **** *              OS_TASK_NOT_EXIST  if the task has been deleted.  This allows the caller to know whe
+ 504:../kernel/os_core/os_task.c **** *                                 the request has been executed.
+ 505:../kernel/os_core/os_task.c **** *              OS_TASK_DEL_ERR    if the task is assigned to a Mutex.
+ 506:../kernel/os_core/os_task.c **** *              OS_TASK_DEL_IDLE   if you requested to delete uC/OS-II's idle task
+ 507:../kernel/os_core/os_task.c **** *              OS_PRIO_INVALID    if the priority you specify is higher that the maximum allowed
+ 508:../kernel/os_core/os_task.c **** *                                 (i.e. >= OS_LOWEST_PRIO) or, you have not specified OS_PRIO_SELF.
+ 509:../kernel/os_core/os_task.c **** *              OS_TASK_DEL_REQ    if a task (possibly another task) requested that the running task
+ 510:../kernel/os_core/os_task.c **** *                                 deleted.
+ 511:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 512:../kernel/os_core/os_task.c **** */
+ 513:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 514:../kernel/os_core/os_task.c **** #if OS_TASK_DEL_EN > 0
+ 515:../kernel/os_core/os_task.c **** INT8U  OSTaskDelReq (INT8U prio)
+ 516:../kernel/os_core/os_task.c **** {
+ 2696              		.loc 1 516 0
+ 2697              		.cfi_startproc
+ 2698              		@ Function supports interworking.
+ 2699              		@ args = 0, pretend = 0, frame = 16
+ 2700              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2701 0a6c 0DC0A0E1 		mov	ip, sp
+ 2702              	.LCFI8:
+ 2703              		.cfi_def_cfa_register 12
+ 2704 0a70 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2705 0a74 04B04CE2 		sub	fp, ip, #4
+ 2706              		.cfi_offset 14, -8
+ 2707              		.cfi_offset 13, -12
+ 2708              		.cfi_offset 11, -16
+ 2709              	.LCFI9:
+ 2710              		.cfi_def_cfa 11, 4
+ 2711 0a78 10D04DE2 		sub	sp, sp, #16
+ 2712 0a7c 0030A0E1 		mov	r3, r0
+ 2713 0a80 15304BE5 		strb	r3, [fp, #-21]
+ 517:../kernel/os_core/os_task.c ****     INT8U      stat;
+ 518:../kernel/os_core/os_task.c ****     OS_TCB    *ptcb;
+ 519:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                      /* Allocate storage for CPU status register       
+ 520:../kernel/os_core/os_task.c ****     OS_CPU_SR  cpu_sr;
+ 521:../kernel/os_core/os_task.c **** 
+ 522:../kernel/os_core/os_task.c **** 
+ 523:../kernel/os_core/os_task.c **** 
+ 524:../kernel/os_core/os_task.c ****     cpu_sr = 0;                                                 /* Prevent compiler warning        
+ 525:../kernel/os_core/os_task.c **** #endif    
+ 526:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 527:../kernel/os_core/os_task.c ****     if (prio == OS_IDLE_PRIO) {                                 /* Not allowed to delete idle task 
+ 2714              		.loc 1 527 0
+ 2715 0a84 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2716 0a88 3F0053E3 		cmp	r3, #63
+ 2717 0a8c 0100001A 		bne	.L51
+ 528:../kernel/os_core/os_task.c ****         return (OS_TASK_DEL_IDLE);
+ 2718              		.loc 1 528 0
+ 2719 0a90 3D30A0E3 		mov	r3, #61
+ 2720 0a94 320000EA 		b	.L52
+ 2721              	.L51:
+ 529:../kernel/os_core/os_task.c ****     }
+ 530:../kernel/os_core/os_task.c ****     if (prio >= OS_LOWEST_PRIO) {						        /* Task priority valid ?               */
+ 2722              		.loc 1 530 0
+ 2723 0a98 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2724 0a9c 3E0053E3 		cmp	r3, #62
+ 2725 0aa0 0400009A 		bls	.L53
+ 531:../kernel/os_core/os_task.c ****         if (prio != OS_PRIO_SELF) {                       
+ 2726              		.loc 1 531 0
+ 2727 0aa4 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2728 0aa8 FF0053E3 		cmp	r3, #255
+ 2729 0aac 0100000A 		beq	.L53
+ 532:../kernel/os_core/os_task.c ****             return (OS_PRIO_INVALID);
+ 2730              		.loc 1 532 0
+ 2731 0ab0 2A30A0E3 		mov	r3, #42
+ 2732 0ab4 2A0000EA 		b	.L52
+ 2733              	.L53:
+ 533:../kernel/os_core/os_task.c **** 		}
+ 534:../kernel/os_core/os_task.c ****     }
+ 535:../kernel/os_core/os_task.c **** #endif
+ 536:../kernel/os_core/os_task.c ****     if (prio == OS_PRIO_SELF) {                                 /* See if a task is requesting to .
+ 2734              		.loc 1 536 0
+ 2735 0ab8 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2736 0abc FF0053E3 		cmp	r3, #255
+ 2737 0ac0 0B00001A 		bne	.L54
+ 537:../kernel/os_core/os_task.c ****         OS_ENTER_CRITICAL();                                    /* ... this task to delete itself  
+ 2738              		.loc 1 537 0
+ 2739              	@ 537 "../kernel/os_core/os_task.c" 1
+ 2740 0ac4 00000FE1 		mrs   r0, cpsr
+ 2741              	@ 0 "" 2
+ 2742              	@ 537 "../kernel/os_core/os_task.c" 1
+ 2743 0ac8 04002DE5 		stmfd sp!, {r0}
+ 2744              	@ 0 "" 2
+ 2745              	@ 537 "../kernel/os_core/os_task.c" 1
+ 2746 0acc C00080E3 		orr   r0, r0, #0b11000000
+ 2747              	@ 0 "" 2
+ 2748              	@ 537 "../kernel/os_core/os_task.c" 1
+ 2749 0ad0 00F021E1 		msr   cpsr_c, r0
+ 2750              	@ 0 "" 2
+ 538:../kernel/os_core/os_task.c ****         stat = OSTCBCur->OSTCBDelReq;                           /* Return request status to caller 
+ 2751              		.loc 1 538 0
+ 2752 0ad4 98309FE5 		ldr	r3, .L57
+ 2753 0ad8 003093E5 		ldr	r3, [r3, #0]
+ 2754 0adc 3330D3E5 		ldrb	r3, [r3, #51]
+ 2755 0ae0 0D304BE5 		strb	r3, [fp, #-13]
+ 539:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 2756              		.loc 1 539 0
+ 2757              	@ 539 "../kernel/os_core/os_task.c" 1
+ 2758 0ae4 04009DE4 		ldmfd sp!, {r0}
+ 2759              	@ 0 "" 2
+ 2760              	@ 539 "../kernel/os_core/os_task.c" 1
+ 2761 0ae8 00F021E1 		msr   cpsr_c, r0
+ 2762              	@ 0 "" 2
+ 540:../kernel/os_core/os_task.c ****         return (stat);
+ 2763              		.loc 1 540 0
+ 2764 0aec 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2765 0af0 1B0000EA 		b	.L52
+ 2766              	.L54:
+ 541:../kernel/os_core/os_task.c ****     }
+ 542:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 2767              		.loc 1 542 0
+ 2768              	@ 542 "../kernel/os_core/os_task.c" 1
+ 2769 0af4 00000FE1 		mrs   r0, cpsr
+ 2770              	@ 0 "" 2
+ 2771              	@ 542 "../kernel/os_core/os_task.c" 1
+ 2772 0af8 04002DE5 		stmfd sp!, {r0}
+ 2773              	@ 0 "" 2
+ 2774              	@ 542 "../kernel/os_core/os_task.c" 1
+ 2775 0afc C00080E3 		orr   r0, r0, #0b11000000
+ 2776              	@ 0 "" 2
+ 2777              	@ 542 "../kernel/os_core/os_task.c" 1
+ 2778 0b00 00F021E1 		msr   cpsr_c, r0
+ 2779              	@ 0 "" 2
+ 543:../kernel/os_core/os_task.c ****     ptcb = OSTCBPrioTbl[prio];
+ 2780              		.loc 1 543 0
+ 2781 0b04 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 2782 0b08 68309FE5 		ldr	r3, .L57+4
+ 2783 0b0c 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 2784 0b10 14300BE5 		str	r3, [fp, #-20]
+ 544:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)0) {                                  /* Task to delete must exist       
+ 2785              		.loc 1 544 0
+ 2786 0b14 14301BE5 		ldr	r3, [fp, #-20]
+ 2787 0b18 000053E3 		cmp	r3, #0
+ 2788 0b1c 0300001A 		bne	.L55
+ 545:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 2789              		.loc 1 545 0
+ 2790              	@ 545 "../kernel/os_core/os_task.c" 1
+ 2791 0b20 04009DE4 		ldmfd sp!, {r0}
+ 2792              	@ 0 "" 2
+ 2793              	@ 545 "../kernel/os_core/os_task.c" 1
+ 2794 0b24 00F021E1 		msr   cpsr_c, r0
+ 2795              	@ 0 "" 2
+ 546:../kernel/os_core/os_task.c ****         return (OS_TASK_NOT_EXIST);                             /* Task must already be deleted    
+ 2796              		.loc 1 546 0
+ 2797 0b28 0B30A0E3 		mov	r3, #11
+ 2798 0b2c 0C0000EA 		b	.L52
+ 2799              	.L55:
+ 547:../kernel/os_core/os_task.c ****     }
+ 548:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)1) {                                  /* Must NOT be assigned to a Mutex 
+ 2800              		.loc 1 548 0
+ 2801 0b30 14301BE5 		ldr	r3, [fp, #-20]
+ 2802 0b34 010053E3 		cmp	r3, #1
+ 2803 0b38 0300001A 		bne	.L56
+ 549:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 2804              		.loc 1 549 0
+ 2805              	@ 549 "../kernel/os_core/os_task.c" 1
+ 2806 0b3c 04009DE4 		ldmfd sp!, {r0}
+ 2807              	@ 0 "" 2
+ 2808              	@ 549 "../kernel/os_core/os_task.c" 1
+ 2809 0b40 00F021E1 		msr   cpsr_c, r0
+ 2810              	@ 0 "" 2
+ 550:../kernel/os_core/os_task.c ****         return (OS_TASK_DEL_ERR);
+ 2811              		.loc 1 550 0
+ 2812 0b44 3C30A0E3 		mov	r3, #60
+ 2813 0b48 050000EA 		b	.L52
+ 2814              	.L56:
+ 551:../kernel/os_core/os_task.c ****     }
+ 552:../kernel/os_core/os_task.c ****     ptcb->OSTCBDelReq = OS_TASK_DEL_REQ;                        /* Set flag indicating task to be D
+ 2815              		.loc 1 552 0
+ 2816 0b4c 14301BE5 		ldr	r3, [fp, #-20]
+ 2817 0b50 3E20A0E3 		mov	r2, #62
+ 2818 0b54 3320C3E5 		strb	r2, [r3, #51]
+ 553:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 2819              		.loc 1 553 0
+ 2820              	@ 553 "../kernel/os_core/os_task.c" 1
+ 2821 0b58 04009DE4 		ldmfd sp!, {r0}
+ 2822              	@ 0 "" 2
+ 2823              	@ 553 "../kernel/os_core/os_task.c" 1
+ 2824 0b5c 00F021E1 		msr   cpsr_c, r0
+ 2825              	@ 0 "" 2
+ 554:../kernel/os_core/os_task.c ****     return (OS_NO_ERR);
+ 2826              		.loc 1 554 0
+ 2827 0b60 0030A0E3 		mov	r3, #0
+ 2828              	.L52:
+ 555:../kernel/os_core/os_task.c **** }
+ 2829              		.loc 1 555 0
+ 2830 0b64 0300A0E1 		mov	r0, r3
+ 2831 0b68 0CD04BE2 		sub	sp, fp, #12
+ 2832 0b6c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2833 0b70 1EFF2FE1 		bx	lr
+ 2834              	.L58:
+ 2835              		.align	2
+ 2836              	.L57:
+ 2837 0b74 00000000 		.word	OSTCBCur
+ 2838 0b78 00000000 		.word	OSTCBPrioTbl
+ 2839              		.cfi_endproc
+ 2840              	.LFE4:
+ 2842              		.align	2
+ 2843              		.global	OSTaskNameGet
+ 2845              	OSTaskNameGet:
+ 2846              	.LFB5:
+ 556:../kernel/os_core/os_task.c **** #endif
+ 557:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 558:../kernel/os_core/os_task.c **** /*
+ 559:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 560:../kernel/os_core/os_task.c **** *                                        GET THE NAME OF A TASK
+ 561:../kernel/os_core/os_task.c **** *
+ 562:../kernel/os_core/os_task.c **** * Description: This function is called to obtain the name of a task.
+ 563:../kernel/os_core/os_task.c **** *
+ 564:../kernel/os_core/os_task.c **** * Arguments  : prio      is the priority of the task that you want to obtain the name from.
+ 565:../kernel/os_core/os_task.c **** *
+ 566:../kernel/os_core/os_task.c **** *              pname     is a pointer to an ASCII string that will receive the name of the task.  T
+ 567:../kernel/os_core/os_task.c **** *                        string must be able to hold at least OS_TASK_NAME_SIZE characters.
+ 568:../kernel/os_core/os_task.c **** *
+ 569:../kernel/os_core/os_task.c **** *              err       is a pointer to an error code that can contain one of the following values
+ 570:../kernel/os_core/os_task.c **** *
+ 571:../kernel/os_core/os_task.c **** *                        OS_NO_ERR                  if the requested task is resumed
+ 572:../kernel/os_core/os_task.c **** *                        OS_TASK_NOT_EXIST          if the task has not been created or is assigned
+ 573:../kernel/os_core/os_task.c **** *                        OS_PRIO_INVALID            if you specified an invalid priority:
+ 574:../kernel/os_core/os_task.c **** *                                                   A higher value than the idle task or not OS_PRI
+ 575:../kernel/os_core/os_task.c **** *                        OS_ERR_PNAME_NULL          You passed a NULL pointer for 'pname'
+ 576:../kernel/os_core/os_task.c **** *
+ 577:../kernel/os_core/os_task.c **** * Returns    : The length of the string or 0 if the task does not exist.
+ 578:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 579:../kernel/os_core/os_task.c **** */
+ 580:../kernel/os_core/os_task.c **** 
+ 581:../kernel/os_core/os_task.c **** #if OS_TASK_NAME_SIZE > 1
+ 582:../kernel/os_core/os_task.c **** INT8U  OSTaskNameGet (INT8U prio, char *pname, INT8U *err)
+ 583:../kernel/os_core/os_task.c **** {
+ 2847              		.loc 1 583 0
+ 2848              		.cfi_startproc
+ 2849              		@ Function supports interworking.
+ 2850              		@ args = 0, pretend = 0, frame = 24
+ 2851              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2852 0b7c 0DC0A0E1 		mov	ip, sp
+ 2853              	.LCFI10:
+ 2854              		.cfi_def_cfa_register 12
+ 2855 0b80 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2856 0b84 04B04CE2 		sub	fp, ip, #4
+ 2857              		.cfi_offset 14, -8
+ 2858              		.cfi_offset 13, -12
+ 2859              		.cfi_offset 11, -16
+ 2860              	.LCFI11:
+ 2861              		.cfi_def_cfa 11, 4
+ 2862 0b88 18D04DE2 		sub	sp, sp, #24
+ 2863 0b8c 0030A0E1 		mov	r3, r0
+ 2864 0b90 1C100BE5 		str	r1, [fp, #-28]
+ 2865 0b94 20200BE5 		str	r2, [fp, #-32]
+ 2866 0b98 15304BE5 		strb	r3, [fp, #-21]
+ 584:../kernel/os_core/os_task.c ****     OS_TCB    *ptcb;
+ 585:../kernel/os_core/os_task.c ****     INT8U      len;
+ 586:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                              /* Allocate storage for CPU status registe
+ 587:../kernel/os_core/os_task.c ****     OS_CPU_SR  cpu_sr;
+ 588:../kernel/os_core/os_task.c **** 
+ 589:../kernel/os_core/os_task.c **** 
+ 590:../kernel/os_core/os_task.c **** 
+ 591:../kernel/os_core/os_task.c ****     cpu_sr = 0;                                          /* Prevent compiler warning               
+ 592:../kernel/os_core/os_task.c **** #endif    
+ 593:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 594:../kernel/os_core/os_task.c ****     if (prio > OS_LOWEST_PRIO) {                         /* Task priority valid ?                  
+ 2867              		.loc 1 594 0
+ 2868 0b9c 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2869 0ba0 3F0053E3 		cmp	r3, #63
+ 2870 0ba4 0700009A 		bls	.L60
+ 595:../kernel/os_core/os_task.c ****         if (prio != OS_PRIO_SELF) { 
+ 2871              		.loc 1 595 0
+ 2872 0ba8 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2873 0bac FF0053E3 		cmp	r3, #255
+ 2874 0bb0 0400000A 		beq	.L60
+ 596:../kernel/os_core/os_task.c ****             *err = OS_PRIO_INVALID;                      /* No                                     
+ 2875              		.loc 1 596 0
+ 2876 0bb4 20301BE5 		ldr	r3, [fp, #-32]
+ 2877 0bb8 2A20A0E3 		mov	r2, #42
+ 2878 0bbc 0020C3E5 		strb	r2, [r3, #0]
+ 597:../kernel/os_core/os_task.c ****             return (0);
+ 2879              		.loc 1 597 0
+ 2880 0bc0 0030A0E3 		mov	r3, #0
+ 2881 0bc4 370000EA 		b	.L61
+ 2882              	.L60:
+ 598:../kernel/os_core/os_task.c ****         }
+ 599:../kernel/os_core/os_task.c ****     }
+ 600:../kernel/os_core/os_task.c ****     if (pname == (char *)0) {                             /* Is 'pname' a NULL pointer?            
+ 2883              		.loc 1 600 0
+ 2884 0bc8 1C301BE5 		ldr	r3, [fp, #-28]
+ 2885 0bcc 000053E3 		cmp	r3, #0
+ 2886 0bd0 0400001A 		bne	.L62
+ 601:../kernel/os_core/os_task.c ****         *err = OS_ERR_PNAME_NULL;						  /* Yes                                       */
+ 2887              		.loc 1 601 0
+ 2888 0bd4 20301BE5 		ldr	r3, [fp, #-32]
+ 2889 0bd8 0F20A0E3 		mov	r2, #15
+ 2890 0bdc 0020C3E5 		strb	r2, [r3, #0]
+ 602:../kernel/os_core/os_task.c ****         return (0);
+ 2891              		.loc 1 602 0
+ 2892 0be0 0030A0E3 		mov	r3, #0
+ 2893 0be4 2F0000EA 		b	.L61
+ 2894              	.L62:
+ 603:../kernel/os_core/os_task.c ****     }
+ 604:../kernel/os_core/os_task.c **** #endif
+ 605:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 2895              		.loc 1 605 0
+ 2896              	@ 605 "../kernel/os_core/os_task.c" 1
+ 2897 0be8 00000FE1 		mrs   r0, cpsr
+ 2898              	@ 0 "" 2
+ 2899              	@ 605 "../kernel/os_core/os_task.c" 1
+ 2900 0bec 04002DE5 		stmfd sp!, {r0}
+ 2901              	@ 0 "" 2
+ 2902              	@ 605 "../kernel/os_core/os_task.c" 1
+ 2903 0bf0 C00080E3 		orr   r0, r0, #0b11000000
+ 2904              	@ 0 "" 2
+ 2905              	@ 605 "../kernel/os_core/os_task.c" 1
+ 2906 0bf4 00F021E1 		msr   cpsr_c, r0
+ 2907              	@ 0 "" 2
+ 606:../kernel/os_core/os_task.c ****     if (prio == OS_PRIO_SELF) {                           /* See if caller desires it's own name   
+ 2908              		.loc 1 606 0
+ 2909 0bf8 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2910 0bfc FF0053E3 		cmp	r3, #255
+ 2911 0c00 0300001A 		bne	.L63
+ 607:../kernel/os_core/os_task.c ****         prio = OSTCBCur->OSTCBPrio;
+ 2912              		.loc 1 607 0
+ 2913 0c04 AC309FE5 		ldr	r3, .L66
+ 2914 0c08 003093E5 		ldr	r3, [r3, #0]
+ 2915 0c0c 2E30D3E5 		ldrb	r3, [r3, #46]
+ 2916 0c10 15304BE5 		strb	r3, [fp, #-21]
+ 2917              	.L63:
+ 608:../kernel/os_core/os_task.c ****     }
+ 609:../kernel/os_core/os_task.c ****     ptcb = OSTCBPrioTbl[prio];
+ 2918              		.loc 1 609 0
+ 2919 0c14 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 2920 0c18 9C309FE5 		ldr	r3, .L66+4
+ 2921 0c1c 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 2922 0c20 10300BE5 		str	r3, [fp, #-16]
+ 610:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)0) {                            /* Does task exist?                      
+ 2923              		.loc 1 610 0
+ 2924 0c24 10301BE5 		ldr	r3, [fp, #-16]
+ 2925 0c28 000053E3 		cmp	r3, #0
+ 2926 0c2c 0600001A 		bne	.L64
+ 611:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();                               /* No                                    
+ 2927              		.loc 1 611 0
+ 2928              	@ 611 "../kernel/os_core/os_task.c" 1
+ 2929 0c30 04009DE4 		ldmfd sp!, {r0}
+ 2930              	@ 0 "" 2
+ 2931              	@ 611 "../kernel/os_core/os_task.c" 1
+ 2932 0c34 00F021E1 		msr   cpsr_c, r0
+ 2933              	@ 0 "" 2
+ 612:../kernel/os_core/os_task.c ****         *err = OS_TASK_NOT_EXIST;
+ 2934              		.loc 1 612 0
+ 2935 0c38 20301BE5 		ldr	r3, [fp, #-32]
+ 2936 0c3c 0B20A0E3 		mov	r2, #11
+ 2937 0c40 0020C3E5 		strb	r2, [r3, #0]
+ 613:../kernel/os_core/os_task.c ****         return (0);
+ 2938              		.loc 1 613 0
+ 2939 0c44 0030A0E3 		mov	r3, #0
+ 2940 0c48 160000EA 		b	.L61
+ 2941              	.L64:
+ 614:../kernel/os_core/os_task.c ****     }
+ 615:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)1) {                            /* Task assigned to a Mutex?             
+ 2942              		.loc 1 615 0
+ 2943 0c4c 10301BE5 		ldr	r3, [fp, #-16]
+ 2944 0c50 010053E3 		cmp	r3, #1
+ 2945 0c54 0600001A 		bne	.L65
+ 616:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();                               /* Yes                                   
+ 2946              		.loc 1 616 0
+ 2947              	@ 616 "../kernel/os_core/os_task.c" 1
+ 2948 0c58 04009DE4 		ldmfd sp!, {r0}
+ 2949              	@ 0 "" 2
+ 2950              	@ 616 "../kernel/os_core/os_task.c" 1
+ 2951 0c5c 00F021E1 		msr   cpsr_c, r0
+ 2952              	@ 0 "" 2
+ 617:../kernel/os_core/os_task.c ****         *err = OS_TASK_NOT_EXIST;
+ 2953              		.loc 1 617 0
+ 2954 0c60 20301BE5 		ldr	r3, [fp, #-32]
+ 2955 0c64 0B20A0E3 		mov	r2, #11
+ 2956 0c68 0020C3E5 		strb	r2, [r3, #0]
+ 618:../kernel/os_core/os_task.c ****         return (0);
+ 2957              		.loc 1 618 0
+ 2958 0c6c 0030A0E3 		mov	r3, #0
+ 2959 0c70 0C0000EA 		b	.L61
+ 2960              	.L65:
+ 619:../kernel/os_core/os_task.c ****     }
+ 620:../kernel/os_core/os_task.c ****     len  = OS_StrCopy(pname, ptcb->OSTCBTaskName);        /* Yes, copy name from TCB               
+ 2961              		.loc 1 620 0
+ 2962 0c74 10301BE5 		ldr	r3, [fp, #-16]
+ 2963 0c78 483083E2 		add	r3, r3, #72
+ 2964 0c7c 1C001BE5 		ldr	r0, [fp, #-28]
+ 2965 0c80 0310A0E1 		mov	r1, r3
+ 2966 0c84 FEFFFFEB 		bl	OS_StrCopy
+ 2967 0c88 0030A0E1 		mov	r3, r0
+ 2968 0c8c 11304BE5 		strb	r3, [fp, #-17]
+ 621:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 2969              		.loc 1 621 0
+ 2970              	@ 621 "../kernel/os_core/os_task.c" 1
+ 2971 0c90 04009DE4 		ldmfd sp!, {r0}
+ 2972              	@ 0 "" 2
+ 2973              	@ 621 "../kernel/os_core/os_task.c" 1
+ 2974 0c94 00F021E1 		msr   cpsr_c, r0
+ 2975              	@ 0 "" 2
+ 622:../kernel/os_core/os_task.c ****     *err = OS_NO_ERR;
+ 2976              		.loc 1 622 0
+ 2977 0c98 20301BE5 		ldr	r3, [fp, #-32]
+ 2978 0c9c 0020A0E3 		mov	r2, #0
+ 2979 0ca0 0020C3E5 		strb	r2, [r3, #0]
+ 623:../kernel/os_core/os_task.c ****     return (len);
+ 2980              		.loc 1 623 0
+ 2981 0ca4 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2982              	.L61:
+ 624:../kernel/os_core/os_task.c **** }
+ 2983              		.loc 1 624 0
+ 2984 0ca8 0300A0E1 		mov	r0, r3
+ 2985 0cac 0CD04BE2 		sub	sp, fp, #12
+ 2986 0cb0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2987 0cb4 1EFF2FE1 		bx	lr
+ 2988              	.L67:
+ 2989              		.align	2
+ 2990              	.L66:
+ 2991 0cb8 00000000 		.word	OSTCBCur
+ 2992 0cbc 00000000 		.word	OSTCBPrioTbl
+ 2993              		.cfi_endproc
+ 2994              	.LFE5:
+ 2996              		.align	2
+ 2997              		.global	OSTaskNameSet
+ 2999              	OSTaskNameSet:
+ 3000              	.LFB6:
+ 625:../kernel/os_core/os_task.c **** #endif
+ 626:../kernel/os_core/os_task.c **** 
+ 627:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 628:../kernel/os_core/os_task.c **** /*
+ 629:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 630:../kernel/os_core/os_task.c **** *                                        ASSIGN A NAME TO A TASK
+ 631:../kernel/os_core/os_task.c **** *
+ 632:../kernel/os_core/os_task.c **** * Description: This function is used to set the name of a task.
+ 633:../kernel/os_core/os_task.c **** *
+ 634:../kernel/os_core/os_task.c **** * Arguments  : prio      is the priority of the task that you want the assign a name to.
+ 635:../kernel/os_core/os_task.c **** *
+ 636:../kernel/os_core/os_task.c **** *              pname     is a pointer to an ASCII string that contains the name of the task.  The A
+ 637:../kernel/os_core/os_task.c **** *                        string must be NUL terminated.
+ 638:../kernel/os_core/os_task.c **** *
+ 639:../kernel/os_core/os_task.c **** *              err       is a pointer to an error code that can contain one of the following values
+ 640:../kernel/os_core/os_task.c **** *
+ 641:../kernel/os_core/os_task.c **** *                        OS_NO_ERR                  if the requested task is resumed
+ 642:../kernel/os_core/os_task.c **** *                        OS_TASK_NOT_EXIST          if the task has not been created or is assigned
+ 643:../kernel/os_core/os_task.c **** *                        OS_ERR_TASK_NAME_TOO_LONG  if the name you are giving to the task exceeds 
+ 644:../kernel/os_core/os_task.c **** *                                                   storage capacity of a task name as specified by
+ 645:../kernel/os_core/os_task.c **** *                                                   OS_TASK_NAME_SIZE.
+ 646:../kernel/os_core/os_task.c **** *                        OS_ERR_PNAME_NULL          You passed a NULL pointer for 'pname'
+ 647:../kernel/os_core/os_task.c **** *                        OS_PRIO_INVALID            if you specified an invalid priority:
+ 648:../kernel/os_core/os_task.c **** *                                                   A higher value than the idle task or not OS_PRI
+ 649:../kernel/os_core/os_task.c **** *
+ 650:../kernel/os_core/os_task.c **** * Returns    : None
+ 651:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 652:../kernel/os_core/os_task.c **** */
+ 653:../kernel/os_core/os_task.c **** #if OS_TASK_NAME_SIZE > 1
+ 654:../kernel/os_core/os_task.c **** void  OSTaskNameSet (INT8U prio, char *pname, INT8U *err)
+ 655:../kernel/os_core/os_task.c **** {
+ 3001              		.loc 1 655 0
+ 3002              		.cfi_startproc
+ 3003              		@ Function supports interworking.
+ 3004              		@ args = 0, pretend = 0, frame = 24
+ 3005              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3006 0cc0 0DC0A0E1 		mov	ip, sp
+ 3007              	.LCFI12:
+ 3008              		.cfi_def_cfa_register 12
+ 3009 0cc4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3010 0cc8 04B04CE2 		sub	fp, ip, #4
+ 3011              		.cfi_offset 14, -8
+ 3012              		.cfi_offset 13, -12
+ 3013              		.cfi_offset 11, -16
+ 3014              	.LCFI13:
+ 3015              		.cfi_def_cfa 11, 4
+ 3016 0ccc 18D04DE2 		sub	sp, sp, #24
+ 3017 0cd0 0030A0E1 		mov	r3, r0
+ 3018 0cd4 1C100BE5 		str	r1, [fp, #-28]
+ 3019 0cd8 20200BE5 		str	r2, [fp, #-32]
+ 3020 0cdc 15304BE5 		strb	r3, [fp, #-21]
+ 656:../kernel/os_core/os_task.c ****     INT8U      len;
+ 657:../kernel/os_core/os_task.c ****     OS_TCB    *ptcb;
+ 658:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                          /* Allocate storage for CPU status register   
+ 659:../kernel/os_core/os_task.c ****     OS_CPU_SR  cpu_sr;
+ 660:../kernel/os_core/os_task.c **** 
+ 661:../kernel/os_core/os_task.c **** 
+ 662:../kernel/os_core/os_task.c **** 
+ 663:../kernel/os_core/os_task.c ****     cpu_sr = 0;                                      /* Prevent compiler warning                   
+ 664:../kernel/os_core/os_task.c **** #endif    
+ 665:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 666:../kernel/os_core/os_task.c ****     if (prio > OS_LOWEST_PRIO) {                     /* Task priority valid ?                      
+ 3021              		.loc 1 666 0
+ 3022 0ce0 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3023 0ce4 3F0053E3 		cmp	r3, #63
+ 3024 0ce8 0600009A 		bls	.L69
+ 667:../kernel/os_core/os_task.c ****         if (prio != OS_PRIO_SELF) {              
+ 3025              		.loc 1 667 0
+ 3026 0cec 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3027 0cf0 FF0053E3 		cmp	r3, #255
+ 3028 0cf4 0300000A 		beq	.L69
+ 668:../kernel/os_core/os_task.c ****             *err = OS_PRIO_INVALID;                  /* No                                         
+ 3029              		.loc 1 668 0
+ 3030 0cf8 20301BE5 		ldr	r3, [fp, #-32]
+ 3031 0cfc 2A20A0E3 		mov	r2, #42
+ 3032 0d00 0020C3E5 		strb	r2, [r3, #0]
+ 669:../kernel/os_core/os_task.c ****             return;
+ 3033              		.loc 1 669 0
+ 3034 0d04 3E0000EA 		b	.L68
+ 3035              	.L69:
+ 670:../kernel/os_core/os_task.c ****         }
+ 671:../kernel/os_core/os_task.c ****     }
+ 672:../kernel/os_core/os_task.c ****     if (pname == (char *)0) {                        /* Is 'pname' a NULL pointer?                 
+ 3036              		.loc 1 672 0
+ 3037 0d08 1C301BE5 		ldr	r3, [fp, #-28]
+ 3038 0d0c 000053E3 		cmp	r3, #0
+ 3039 0d10 0300001A 		bne	.L71
+ 673:../kernel/os_core/os_task.c ****         *err = OS_ERR_PNAME_NULL;					 /* Yes                                            */
+ 3040              		.loc 1 673 0
+ 3041 0d14 20301BE5 		ldr	r3, [fp, #-32]
+ 3042 0d18 0F20A0E3 		mov	r2, #15
+ 3043 0d1c 0020C3E5 		strb	r2, [r3, #0]
+ 674:../kernel/os_core/os_task.c ****         return;
+ 3044              		.loc 1 674 0
+ 3045 0d20 370000EA 		b	.L68
+ 3046              	.L71:
+ 675:../kernel/os_core/os_task.c ****     }
+ 676:../kernel/os_core/os_task.c **** #endif
+ 677:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 3047              		.loc 1 677 0
+ 3048              	@ 677 "../kernel/os_core/os_task.c" 1
+ 3049 0d24 00000FE1 		mrs   r0, cpsr
+ 3050              	@ 0 "" 2
+ 3051              	@ 677 "../kernel/os_core/os_task.c" 1
+ 3052 0d28 04002DE5 		stmfd sp!, {r0}
+ 3053              	@ 0 "" 2
+ 3054              	@ 677 "../kernel/os_core/os_task.c" 1
+ 3055 0d2c C00080E3 		orr   r0, r0, #0b11000000
+ 3056              	@ 0 "" 2
+ 3057              	@ 677 "../kernel/os_core/os_task.c" 1
+ 3058 0d30 00F021E1 		msr   cpsr_c, r0
+ 3059              	@ 0 "" 2
+ 678:../kernel/os_core/os_task.c ****     if (prio == OS_PRIO_SELF) {                      /* See if caller desires to set it's own name 
+ 3060              		.loc 1 678 0
+ 3061 0d34 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3062 0d38 FF0053E3 		cmp	r3, #255
+ 3063 0d3c 0300001A 		bne	.L72
+ 679:../kernel/os_core/os_task.c ****         prio = OSTCBCur->OSTCBPrio;
+ 3064              		.loc 1 679 0
+ 3065 0d40 C8309FE5 		ldr	r3, .L76
+ 3066 0d44 003093E5 		ldr	r3, [r3, #0]
+ 3067 0d48 2E30D3E5 		ldrb	r3, [r3, #46]
+ 3068 0d4c 15304BE5 		strb	r3, [fp, #-21]
+ 3069              	.L72:
+ 680:../kernel/os_core/os_task.c ****     }
+ 681:../kernel/os_core/os_task.c ****     ptcb = OSTCBPrioTbl[prio];
+ 3070              		.loc 1 681 0
+ 3071 0d50 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 3072 0d54 B8309FE5 		ldr	r3, .L76+4
+ 3073 0d58 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 3074 0d5c 10300BE5 		str	r3, [fp, #-16]
+ 682:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)0) {                       /* Does task exist?                           
+ 3075              		.loc 1 682 0
+ 3076 0d60 10301BE5 		ldr	r3, [fp, #-16]
+ 3077 0d64 000053E3 		cmp	r3, #0
+ 3078 0d68 0500001A 		bne	.L73
+ 683:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();                          /* No                                         
+ 3079              		.loc 1 683 0
+ 3080              	@ 683 "../kernel/os_core/os_task.c" 1
+ 3081 0d6c 04009DE4 		ldmfd sp!, {r0}
+ 3082              	@ 0 "" 2
+ 3083              	@ 683 "../kernel/os_core/os_task.c" 1
+ 3084 0d70 00F021E1 		msr   cpsr_c, r0
+ 3085              	@ 0 "" 2
+ 684:../kernel/os_core/os_task.c ****         *err = OS_TASK_NOT_EXIST;
+ 3086              		.loc 1 684 0
+ 3087 0d74 20301BE5 		ldr	r3, [fp, #-32]
+ 3088 0d78 0B20A0E3 		mov	r2, #11
+ 3089 0d7c 0020C3E5 		strb	r2, [r3, #0]
+ 685:../kernel/os_core/os_task.c ****         return;
+ 3090              		.loc 1 685 0
+ 3091 0d80 1F0000EA 		b	.L68
+ 3092              	.L73:
+ 686:../kernel/os_core/os_task.c ****     }
+ 687:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)1) {                       /* Task assigned to a Mutex?                  
+ 3093              		.loc 1 687 0
+ 3094 0d84 10301BE5 		ldr	r3, [fp, #-16]
+ 3095 0d88 010053E3 		cmp	r3, #1
+ 3096 0d8c 0500001A 		bne	.L74
+ 688:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();                          /* Yes                                        
+ 3097              		.loc 1 688 0
+ 3098              	@ 688 "../kernel/os_core/os_task.c" 1
+ 3099 0d90 04009DE4 		ldmfd sp!, {r0}
+ 3100              	@ 0 "" 2
+ 3101              	@ 688 "../kernel/os_core/os_task.c" 1
+ 3102 0d94 00F021E1 		msr   cpsr_c, r0
+ 3103              	@ 0 "" 2
+ 689:../kernel/os_core/os_task.c ****         *err = OS_TASK_NOT_EXIST;
+ 3104              		.loc 1 689 0
+ 3105 0d98 20301BE5 		ldr	r3, [fp, #-32]
+ 3106 0d9c 0B20A0E3 		mov	r2, #11
+ 3107 0da0 0020C3E5 		strb	r2, [r3, #0]
+ 690:../kernel/os_core/os_task.c ****         return;
+ 3108              		.loc 1 690 0
+ 3109 0da4 160000EA 		b	.L68
+ 3110              	.L74:
+ 691:../kernel/os_core/os_task.c ****     }
+ 692:../kernel/os_core/os_task.c ****     len = OS_StrLen(pname);                          /* Yes, Can we fit the string in the TCB?     
+ 3111              		.loc 1 692 0
+ 3112 0da8 1C001BE5 		ldr	r0, [fp, #-28]
+ 3113 0dac FEFFFFEB 		bl	OS_StrLen
+ 3114 0db0 0030A0E1 		mov	r3, r0
+ 3115 0db4 11304BE5 		strb	r3, [fp, #-17]
+ 693:../kernel/os_core/os_task.c ****     if (len > (OS_TASK_NAME_SIZE - 1)) {             /*      No                                    
+ 3116              		.loc 1 693 0
+ 3117 0db8 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 3118 0dbc 1F0053E3 		cmp	r3, #31
+ 3119 0dc0 0500009A 		bls	.L75
+ 694:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3120              		.loc 1 694 0
+ 3121              	@ 694 "../kernel/os_core/os_task.c" 1
+ 3122 0dc4 04009DE4 		ldmfd sp!, {r0}
+ 3123              	@ 0 "" 2
+ 3124              	@ 694 "../kernel/os_core/os_task.c" 1
+ 3125 0dc8 00F021E1 		msr   cpsr_c, r0
+ 3126              	@ 0 "" 2
+ 695:../kernel/os_core/os_task.c ****         *err = OS_ERR_TASK_NAME_TOO_LONG;
+ 3127              		.loc 1 695 0
+ 3128 0dcc 20301BE5 		ldr	r3, [fp, #-32]
+ 3129 0dd0 0E20A0E3 		mov	r2, #14
+ 3130 0dd4 0020C3E5 		strb	r2, [r3, #0]
+ 696:../kernel/os_core/os_task.c ****         return;
+ 3131              		.loc 1 696 0
+ 3132 0dd8 090000EA 		b	.L68
+ 3133              	.L75:
+ 697:../kernel/os_core/os_task.c ****     } 
+ 698:../kernel/os_core/os_task.c ****     (void)OS_StrCopy(ptcb->OSTCBTaskName, pname);    /*      Yes, copy to TCB                      
+ 3134              		.loc 1 698 0
+ 3135 0ddc 10301BE5 		ldr	r3, [fp, #-16]
+ 3136 0de0 483083E2 		add	r3, r3, #72
+ 3137 0de4 0300A0E1 		mov	r0, r3
+ 3138 0de8 1C101BE5 		ldr	r1, [fp, #-28]
+ 3139 0dec FEFFFFEB 		bl	OS_StrCopy
+ 699:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 3140              		.loc 1 699 0
+ 3141              	@ 699 "../kernel/os_core/os_task.c" 1
+ 3142 0df0 04009DE4 		ldmfd sp!, {r0}
+ 3143              	@ 0 "" 2
+ 3144              	@ 699 "../kernel/os_core/os_task.c" 1
+ 3145 0df4 00F021E1 		msr   cpsr_c, r0
+ 3146              	@ 0 "" 2
+ 700:../kernel/os_core/os_task.c ****     *err = OS_NO_ERR;
+ 3147              		.loc 1 700 0
+ 3148 0df8 20301BE5 		ldr	r3, [fp, #-32]
+ 3149 0dfc 0020A0E3 		mov	r2, #0
+ 3150 0e00 0020C3E5 		strb	r2, [r3, #0]
+ 3151              	.L68:
+ 701:../kernel/os_core/os_task.c **** }
+ 3152              		.loc 1 701 0
+ 3153 0e04 0CD04BE2 		sub	sp, fp, #12
+ 3154 0e08 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3155 0e0c 1EFF2FE1 		bx	lr
+ 3156              	.L77:
+ 3157              		.align	2
+ 3158              	.L76:
+ 3159 0e10 00000000 		.word	OSTCBCur
+ 3160 0e14 00000000 		.word	OSTCBPrioTbl
+ 3161              		.cfi_endproc
+ 3162              	.LFE6:
+ 3164              		.align	2
+ 3165              		.global	OSTaskResume
+ 3167              	OSTaskResume:
+ 3168              	.LFB7:
+ 702:../kernel/os_core/os_task.c **** #endif
+ 703:../kernel/os_core/os_task.c **** 
+ 704:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 705:../kernel/os_core/os_task.c **** /*
+ 706:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 707:../kernel/os_core/os_task.c **** *                                        RESUME A SUSPENDED TASK
+ 708:../kernel/os_core/os_task.c **** *
+ 709:../kernel/os_core/os_task.c **** * Description: This function is called to resume a previously suspended task.  This is the only cal
+ 710:../kernel/os_core/os_task.c **** *              will remove an explicit task suspension.
+ 711:../kernel/os_core/os_task.c **** *
+ 712:../kernel/os_core/os_task.c **** * Arguments  : prio     is the priority of the task to resume.
+ 713:../kernel/os_core/os_task.c **** *
+ 714:../kernel/os_core/os_task.c **** * Returns    : OS_NO_ERR                if the requested task is resumed
+ 715:../kernel/os_core/os_task.c **** *              OS_PRIO_INVALID          if the priority you specify is higher that the maximum allo
+ 716:../kernel/os_core/os_task.c **** *                                       (i.e. >= OS_LOWEST_PRIO)
+ 717:../kernel/os_core/os_task.c **** *              OS_TASK_RESUME_PRIO      if the task to resume does not exist
+ 718:../kernel/os_core/os_task.c **** *              OS_TASK_NOT_EXIST        if the task is assigned to a Mutex PIP
+ 719:../kernel/os_core/os_task.c **** *              OS_TASK_NOT_SUSPENDED    if the task to resume has not been suspended
+ 720:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 721:../kernel/os_core/os_task.c **** */
+ 722:../kernel/os_core/os_task.c **** 
+ 723:../kernel/os_core/os_task.c **** #if OS_TASK_SUSPEND_EN > 0
+ 724:../kernel/os_core/os_task.c **** INT8U  OSTaskResume (INT8U prio)
+ 725:../kernel/os_core/os_task.c **** {
+ 3169              		.loc 1 725 0
+ 3170              		.cfi_startproc
+ 3171              		@ Function supports interworking.
+ 3172              		@ args = 0, pretend = 0, frame = 16
+ 3173              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3174 0e18 0DC0A0E1 		mov	ip, sp
+ 3175              	.LCFI14:
+ 3176              		.cfi_def_cfa_register 12
+ 3177 0e1c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3178 0e20 04B04CE2 		sub	fp, ip, #4
+ 3179              		.cfi_offset 14, -8
+ 3180              		.cfi_offset 13, -12
+ 3181              		.cfi_offset 11, -16
+ 3182              	.LCFI15:
+ 3183              		.cfi_def_cfa 11, 4
+ 3184 0e24 10D04DE2 		sub	sp, sp, #16
+ 3185 0e28 0030A0E1 		mov	r3, r0
+ 3186 0e2c 15304BE5 		strb	r3, [fp, #-21]
+ 726:../kernel/os_core/os_task.c ****     OS_TCB    *ptcb;
+ 727:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                                   /* Storage for CPU status register   
+ 728:../kernel/os_core/os_task.c ****     OS_CPU_SR  cpu_sr;
+ 729:../kernel/os_core/os_task.c **** 
+ 730:../kernel/os_core/os_task.c **** 
+ 731:../kernel/os_core/os_task.c **** 
+ 732:../kernel/os_core/os_task.c ****     cpu_sr = 0;                                               /* Prevent compiler warning          
+ 733:../kernel/os_core/os_task.c **** #endif    
+ 734:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 735:../kernel/os_core/os_task.c ****     if (prio >= OS_LOWEST_PRIO) {                             /* Make sure task priority is valid  
+ 3187              		.loc 1 735 0
+ 3188 0e30 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3189 0e34 3E0053E3 		cmp	r3, #62
+ 3190 0e38 0100009A 		bls	.L79
+ 736:../kernel/os_core/os_task.c ****         return (OS_PRIO_INVALID);
+ 3191              		.loc 1 736 0
+ 3192 0e3c 2A30A0E3 		mov	r3, #42
+ 3193 0e40 4A0000EA 		b	.L80
+ 3194              	.L79:
+ 737:../kernel/os_core/os_task.c ****     }
+ 738:../kernel/os_core/os_task.c **** #endif
+ 739:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 3195              		.loc 1 739 0
+ 3196              	@ 739 "../kernel/os_core/os_task.c" 1
+ 3197 0e44 00000FE1 		mrs   r0, cpsr
+ 3198              	@ 0 "" 2
+ 3199              	@ 739 "../kernel/os_core/os_task.c" 1
+ 3200 0e48 04002DE5 		stmfd sp!, {r0}
+ 3201              	@ 0 "" 2
+ 3202              	@ 739 "../kernel/os_core/os_task.c" 1
+ 3203 0e4c C00080E3 		orr   r0, r0, #0b11000000
+ 3204              	@ 0 "" 2
+ 3205              	@ 739 "../kernel/os_core/os_task.c" 1
+ 3206 0e50 00F021E1 		msr   cpsr_c, r0
+ 3207              	@ 0 "" 2
+ 740:../kernel/os_core/os_task.c ****     ptcb = OSTCBPrioTbl[prio];
+ 3208              		.loc 1 740 0
+ 3209 0e54 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 3210 0e58 20319FE5 		ldr	r3, .L87
+ 3211 0e5c 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 3212 0e60 10300BE5 		str	r3, [fp, #-16]
+ 741:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)0) {                                /* Task to suspend must exist        
+ 3213              		.loc 1 741 0
+ 3214 0e64 10301BE5 		ldr	r3, [fp, #-16]
+ 3215 0e68 000053E3 		cmp	r3, #0
+ 3216 0e6c 0300001A 		bne	.L81
+ 742:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3217              		.loc 1 742 0
+ 3218              	@ 742 "../kernel/os_core/os_task.c" 1
+ 3219 0e70 04009DE4 		ldmfd sp!, {r0}
+ 3220              	@ 0 "" 2
+ 3221              	@ 742 "../kernel/os_core/os_task.c" 1
+ 3222 0e74 00F021E1 		msr   cpsr_c, r0
+ 3223              	@ 0 "" 2
+ 743:../kernel/os_core/os_task.c ****         return (OS_TASK_RESUME_PRIO);
+ 3224              		.loc 1 743 0
+ 3225 0e78 6430A0E3 		mov	r3, #100
+ 3226 0e7c 3B0000EA 		b	.L80
+ 3227              	.L81:
+ 744:../kernel/os_core/os_task.c ****     }
+ 745:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)1) {                                /* See if assigned to Mutex          
+ 3228              		.loc 1 745 0
+ 3229 0e80 10301BE5 		ldr	r3, [fp, #-16]
+ 3230 0e84 010053E3 		cmp	r3, #1
+ 3231 0e88 0300001A 		bne	.L82
+ 746:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3232              		.loc 1 746 0
+ 3233              	@ 746 "../kernel/os_core/os_task.c" 1
+ 3234 0e8c 04009DE4 		ldmfd sp!, {r0}
+ 3235              	@ 0 "" 2
+ 3236              	@ 746 "../kernel/os_core/os_task.c" 1
+ 3237 0e90 00F021E1 		msr   cpsr_c, r0
+ 3238              	@ 0 "" 2
+ 747:../kernel/os_core/os_task.c ****         return (OS_TASK_NOT_EXIST);
+ 3239              		.loc 1 747 0
+ 3240 0e94 0B30A0E3 		mov	r3, #11
+ 3241 0e98 340000EA 		b	.L80
+ 3242              	.L82:
+ 748:../kernel/os_core/os_task.c ****     }
+ 749:../kernel/os_core/os_task.c ****     if ((ptcb->OSTCBStat & OS_STAT_SUSPEND) != OS_STAT_RDY) { /* Task must be suspended            
+ 3243              		.loc 1 749 0
+ 3244 0e9c 10301BE5 		ldr	r3, [fp, #-16]
+ 3245 0ea0 2C30D3E5 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 3246 0ea4 083003E2 		and	r3, r3, #8
+ 3247 0ea8 000053E3 		cmp	r3, #0
+ 3248 0eac 2C00000A 		beq	.L83
+ 750:../kernel/os_core/os_task.c ****         ptcb->OSTCBStat &= ~OS_STAT_SUSPEND;				  /* Remove suspension                     */
+ 3249              		.loc 1 750 0
+ 3250 0eb0 10301BE5 		ldr	r3, [fp, #-16]
+ 3251 0eb4 2C30D3E5 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 3252 0eb8 0830C3E3 		bic	r3, r3, #8
+ 3253 0ebc FF2003E2 		and	r2, r3, #255
+ 3254 0ec0 10301BE5 		ldr	r3, [fp, #-16]
+ 3255 0ec4 2C20C3E5 		strb	r2, [r3, #44]
+ 751:../kernel/os_core/os_task.c ****         if (ptcb->OSTCBStat == OS_STAT_RDY) {                 /* See if task is now ready          
+ 3256              		.loc 1 751 0
+ 3257 0ec8 10301BE5 		ldr	r3, [fp, #-16]
+ 3258 0ecc 2C30D3E5 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 3259 0ed0 000053E3 		cmp	r3, #0
+ 3260 0ed4 1E00001A 		bne	.L84
+ 752:../kernel/os_core/os_task.c ****             if (ptcb->OSTCBDly == 0) {
+ 3261              		.loc 1 752 0
+ 3262 0ed8 10301BE5 		ldr	r3, [fp, #-16]
+ 3263 0edc BA32D3E1 		ldrh	r3, [r3, #42]
+ 3264 0ee0 000053E3 		cmp	r3, #0
+ 3265 0ee4 1700001A 		bne	.L85
+ 753:../kernel/os_core/os_task.c ****                 OSRdyGrp               |= ptcb->OSTCBBitY;    /* Yes, Make task ready to run       
+ 3266              		.loc 1 753 0
+ 3267 0ee8 10301BE5 		ldr	r3, [fp, #-16]
+ 3268 0eec 3220D3E5 		ldrb	r2, [r3, #50]	@ zero_extendqisi2
+ 3269 0ef0 8C309FE5 		ldr	r3, .L87+4
+ 3270 0ef4 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3271 0ef8 033082E1 		orr	r3, r2, r3
+ 3272 0efc FF2003E2 		and	r2, r3, #255
+ 3273 0f00 7C309FE5 		ldr	r3, .L87+4
+ 3274 0f04 0020C3E5 		strb	r2, [r3, #0]
+ 754:../kernel/os_core/os_task.c ****                 OSRdyTbl[ptcb->OSTCBY] |= ptcb->OSTCBBitX;
+ 3275              		.loc 1 754 0
+ 3276 0f08 10301BE5 		ldr	r3, [fp, #-16]
+ 3277 0f0c 3030D3E5 		ldrb	r3, [r3, #48]	@ zero_extendqisi2
+ 3278 0f10 10201BE5 		ldr	r2, [fp, #-16]
+ 3279 0f14 3020D2E5 		ldrb	r2, [r2, #48]	@ zero_extendqisi2
+ 3280 0f18 68109FE5 		ldr	r1, .L87+8
+ 3281 0f1c 0210D1E7 		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 3282 0f20 10201BE5 		ldr	r2, [fp, #-16]
+ 3283 0f24 3120D2E5 		ldrb	r2, [r2, #49]	@ zero_extendqisi2
+ 3284 0f28 022081E1 		orr	r2, r1, r2
+ 3285 0f2c FF1002E2 		and	r1, r2, #255
+ 3286 0f30 50209FE5 		ldr	r2, .L87+8
+ 3287 0f34 0310C2E7 		strb	r1, [r2, r3]
+ 755:../kernel/os_core/os_task.c ****                 OS_EXIT_CRITICAL();
+ 3288              		.loc 1 755 0
+ 3289              	@ 755 "../kernel/os_core/os_task.c" 1
+ 3290 0f38 04009DE4 		ldmfd sp!, {r0}
+ 3291              	@ 0 "" 2
+ 3292              	@ 755 "../kernel/os_core/os_task.c" 1
+ 3293 0f3c 00F021E1 		msr   cpsr_c, r0
+ 3294              	@ 0 "" 2
+ 756:../kernel/os_core/os_task.c ****                 OS_Sched();
+ 3295              		.loc 1 756 0
+ 3296 0f40 FEFFFFEB 		bl	OS_Sched
+ 3297 0f44 040000EA 		b	.L86
+ 3298              	.L85:
+ 757:../kernel/os_core/os_task.c ****             } else {
+ 758:../kernel/os_core/os_task.c ****                 OS_EXIT_CRITICAL();
+ 3299              		.loc 1 758 0
+ 3300              	@ 758 "../kernel/os_core/os_task.c" 1
+ 3301 0f48 04009DE4 		ldmfd sp!, {r0}
+ 3302              	@ 0 "" 2
+ 3303              	@ 758 "../kernel/os_core/os_task.c" 1
+ 3304 0f4c 00F021E1 		msr   cpsr_c, r0
+ 3305              	@ 0 "" 2
+ 3306 0f50 010000EA 		b	.L86
+ 3307              	.L84:
+ 759:../kernel/os_core/os_task.c ****             }
+ 760:../kernel/os_core/os_task.c ****         } else {                                              /* Must be pending on event          
+ 761:../kernel/os_core/os_task.c **** 		    OS_EXIT_CRITICAL();
+ 3308              		.loc 1 761 0
+ 3309              	@ 761 "../kernel/os_core/os_task.c" 1
+ 3310 0f54 04009DE4 		ldmfd sp!, {r0}
+ 3311              	@ 0 "" 2
+ 3312              	@ 761 "../kernel/os_core/os_task.c" 1
+ 3313 0f58 00F021E1 		msr   cpsr_c, r0
+ 3314              	@ 0 "" 2
+ 3315              	.L86:
+ 762:../kernel/os_core/os_task.c ****         }
+ 763:../kernel/os_core/os_task.c ****         return (OS_NO_ERR);
+ 3316              		.loc 1 763 0
+ 3317 0f5c 0030A0E3 		mov	r3, #0
+ 3318 0f60 020000EA 		b	.L80
+ 3319              	.L83:
+ 764:../kernel/os_core/os_task.c ****     }
+ 765:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 3320              		.loc 1 765 0
+ 3321              	@ 765 "../kernel/os_core/os_task.c" 1
+ 3322 0f64 04009DE4 		ldmfd sp!, {r0}
+ 3323              	@ 0 "" 2
+ 3324              	@ 765 "../kernel/os_core/os_task.c" 1
+ 3325 0f68 00F021E1 		msr   cpsr_c, r0
+ 3326              	@ 0 "" 2
+ 766:../kernel/os_core/os_task.c ****     return (OS_TASK_NOT_SUSPENDED);
+ 3327              		.loc 1 766 0
+ 3328 0f6c 6530A0E3 		mov	r3, #101
+ 3329              	.L80:
+ 767:../kernel/os_core/os_task.c **** }
+ 3330              		.loc 1 767 0
+ 3331 0f70 0300A0E1 		mov	r0, r3
+ 3332 0f74 0CD04BE2 		sub	sp, fp, #12
+ 3333 0f78 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3334 0f7c 1EFF2FE1 		bx	lr
+ 3335              	.L88:
+ 3336              		.align	2
+ 3337              	.L87:
+ 3338 0f80 00000000 		.word	OSTCBPrioTbl
+ 3339 0f84 00000000 		.word	OSRdyGrp
+ 3340 0f88 00000000 		.word	OSRdyTbl
+ 3341              		.cfi_endproc
+ 3342              	.LFE7:
+ 3344              		.align	2
+ 3345              		.global	OSTaskStkChk
+ 3347              	OSTaskStkChk:
+ 3348              	.LFB8:
+ 768:../kernel/os_core/os_task.c **** #endif
+ 769:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 770:../kernel/os_core/os_task.c **** /*
+ 771:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 772:../kernel/os_core/os_task.c **** *                                             STACK CHECKING
+ 773:../kernel/os_core/os_task.c **** *
+ 774:../kernel/os_core/os_task.c **** * Description: This function is called to check the amount of free memory left on the specified tas
+ 775:../kernel/os_core/os_task.c **** *              stack.
+ 776:../kernel/os_core/os_task.c **** *
+ 777:../kernel/os_core/os_task.c **** * Arguments  : prio          is the task priority
+ 778:../kernel/os_core/os_task.c **** *
+ 779:../kernel/os_core/os_task.c **** *              p_stk_data    is a pointer to a data structure of type OS_STK_DATA.
+ 780:../kernel/os_core/os_task.c **** *
+ 781:../kernel/os_core/os_task.c **** * Returns    : OS_NO_ERR           upon success
+ 782:../kernel/os_core/os_task.c **** *              OS_PRIO_INVALID     if the priority you specify is higher that the maximum allowed
+ 783:../kernel/os_core/os_task.c **** *                                  (i.e. > OS_LOWEST_PRIO) or, you have not specified OS_PRIO_SELF.
+ 784:../kernel/os_core/os_task.c **** *              OS_TASK_NOT_EXIST   if the desired task has not been created or is assigned to a Mut
+ 785:../kernel/os_core/os_task.c **** *              OS_TASK_OPT_ERR     if you did NOT specified OS_TASK_OPT_STK_CHK when the task was c
+ 786:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 787:../kernel/os_core/os_task.c **** */
+ 788:../kernel/os_core/os_task.c **** #if OS_TASK_CREATE_EXT_EN > 0
+ 789:../kernel/os_core/os_task.c **** INT8U  OSTaskStkChk (INT8U prio, OS_STK_DATA *p_stk_data)
+ 790:../kernel/os_core/os_task.c **** {
+ 3349              		.loc 1 790 0
+ 3350              		.cfi_startproc
+ 3351              		@ Function supports interworking.
+ 3352              		@ args = 0, pretend = 0, frame = 24
+ 3353              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3354 0f8c 0DC0A0E1 		mov	ip, sp
+ 3355              	.LCFI16:
+ 3356              		.cfi_def_cfa_register 12
+ 3357 0f90 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3358 0f94 04B04CE2 		sub	fp, ip, #4
+ 3359              		.cfi_offset 14, -8
+ 3360              		.cfi_offset 13, -12
+ 3361              		.cfi_offset 11, -16
+ 3362              	.LCFI17:
+ 3363              		.cfi_def_cfa 11, 4
+ 3364 0f98 18D04DE2 		sub	sp, sp, #24
+ 3365 0f9c 0030A0E1 		mov	r3, r0
+ 3366 0fa0 24100BE5 		str	r1, [fp, #-36]
+ 3367 0fa4 1D304BE5 		strb	r3, [fp, #-29]
+ 791:../kernel/os_core/os_task.c ****     OS_TCB    *ptcb;
+ 792:../kernel/os_core/os_task.c ****     OS_STK    *pchk;
+ 793:../kernel/os_core/os_task.c ****     INT32U     free;
+ 794:../kernel/os_core/os_task.c ****     INT32U     size;
+ 795:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                            /* Allocate storage for CPU status register 
+ 796:../kernel/os_core/os_task.c ****     OS_CPU_SR  cpu_sr;
+ 797:../kernel/os_core/os_task.c **** 
+ 798:../kernel/os_core/os_task.c **** 
+ 799:../kernel/os_core/os_task.c **** 
+ 800:../kernel/os_core/os_task.c ****     cpu_sr = 0;                                        /* Prevent compiler warning                 
+ 801:../kernel/os_core/os_task.c **** #endif    
+ 802:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 803:../kernel/os_core/os_task.c ****     if (prio > OS_LOWEST_PRIO) {					   /* Make sure task priority is valid             */
+ 3368              		.loc 1 803 0
+ 3369 0fa8 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 3370 0fac 3F0053E3 		cmp	r3, #63
+ 3371 0fb0 0400009A 		bls	.L90
+ 804:../kernel/os_core/os_task.c ****         if (prio != OS_PRIO_SELF) {        
+ 3372              		.loc 1 804 0
+ 3373 0fb4 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 3374 0fb8 FF0053E3 		cmp	r3, #255
+ 3375 0fbc 0100000A 		beq	.L90
+ 805:../kernel/os_core/os_task.c ****             return (OS_PRIO_INVALID);
+ 3376              		.loc 1 805 0
+ 3377 0fc0 2A30A0E3 		mov	r3, #42
+ 3378 0fc4 4F0000EA 		b	.L91
+ 3379              	.L90:
+ 806:../kernel/os_core/os_task.c ****         }
+ 807:../kernel/os_core/os_task.c ****     }
+ 808:../kernel/os_core/os_task.c **** #endif
+ 809:../kernel/os_core/os_task.c ****     p_stk_data->OSFree = 0;                            /* Assume failure, set to 0 size            
+ 3380              		.loc 1 809 0
+ 3381 0fc8 24301BE5 		ldr	r3, [fp, #-36]
+ 3382 0fcc 0020A0E3 		mov	r2, #0
+ 3383 0fd0 002083E5 		str	r2, [r3, #0]
+ 810:../kernel/os_core/os_task.c ****     p_stk_data->OSUsed = 0;
+ 3384              		.loc 1 810 0
+ 3385 0fd4 24301BE5 		ldr	r3, [fp, #-36]
+ 3386 0fd8 0020A0E3 		mov	r2, #0
+ 3387 0fdc 042083E5 		str	r2, [r3, #4]
+ 811:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 3388              		.loc 1 811 0
+ 3389              	@ 811 "../kernel/os_core/os_task.c" 1
+ 3390 0fe0 00000FE1 		mrs   r0, cpsr
+ 3391              	@ 0 "" 2
+ 3392              	@ 811 "../kernel/os_core/os_task.c" 1
+ 3393 0fe4 04002DE5 		stmfd sp!, {r0}
+ 3394              	@ 0 "" 2
+ 3395              	@ 811 "../kernel/os_core/os_task.c" 1
+ 3396 0fe8 C00080E3 		orr   r0, r0, #0b11000000
+ 3397              	@ 0 "" 2
+ 3398              	@ 811 "../kernel/os_core/os_task.c" 1
+ 3399 0fec 00F021E1 		msr   cpsr_c, r0
+ 3400              	@ 0 "" 2
+ 812:../kernel/os_core/os_task.c ****     if (prio == OS_PRIO_SELF) {                        /* See if check for SELF                    
+ 3401              		.loc 1 812 0
+ 3402 0ff0 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 3403 0ff4 FF0053E3 		cmp	r3, #255
+ 3404 0ff8 0300001A 		bne	.L92
+ 813:../kernel/os_core/os_task.c ****         prio = OSTCBCur->OSTCBPrio;
+ 3405              		.loc 1 813 0
+ 3406 0ffc 14319FE5 		ldr	r3, .L98
+ 3407 1000 003093E5 		ldr	r3, [r3, #0]
+ 3408 1004 2E30D3E5 		ldrb	r3, [r3, #46]
+ 3409 1008 1D304BE5 		strb	r3, [fp, #-29]
+ 3410              	.L92:
+ 814:../kernel/os_core/os_task.c ****     }
+ 815:../kernel/os_core/os_task.c ****     ptcb = OSTCBPrioTbl[prio];
+ 3411              		.loc 1 815 0
+ 3412 100c 1D205BE5 		ldrb	r2, [fp, #-29]	@ zero_extendqisi2
+ 3413 1010 04319FE5 		ldr	r3, .L98+4
+ 3414 1014 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 3415 1018 18300BE5 		str	r3, [fp, #-24]
+ 816:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)0) {                         /* Make sure task exist                     
+ 3416              		.loc 1 816 0
+ 3417 101c 18301BE5 		ldr	r3, [fp, #-24]
+ 3418 1020 000053E3 		cmp	r3, #0
+ 3419 1024 0300001A 		bne	.L93
+ 817:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3420              		.loc 1 817 0
+ 3421              	@ 817 "../kernel/os_core/os_task.c" 1
+ 3422 1028 04009DE4 		ldmfd sp!, {r0}
+ 3423              	@ 0 "" 2
+ 3424              	@ 817 "../kernel/os_core/os_task.c" 1
+ 3425 102c 00F021E1 		msr   cpsr_c, r0
+ 3426              	@ 0 "" 2
+ 818:../kernel/os_core/os_task.c ****         return (OS_TASK_NOT_EXIST);
+ 3427              		.loc 1 818 0
+ 3428 1030 0B30A0E3 		mov	r3, #11
+ 3429 1034 330000EA 		b	.L91
+ 3430              	.L93:
+ 819:../kernel/os_core/os_task.c ****     }
+ 820:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)1) {
+ 3431              		.loc 1 820 0
+ 3432 1038 18301BE5 		ldr	r3, [fp, #-24]
+ 3433 103c 010053E3 		cmp	r3, #1
+ 3434 1040 0300001A 		bne	.L94
+ 821:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3435              		.loc 1 821 0
+ 3436              	@ 821 "../kernel/os_core/os_task.c" 1
+ 3437 1044 04009DE4 		ldmfd sp!, {r0}
+ 3438              	@ 0 "" 2
+ 3439              	@ 821 "../kernel/os_core/os_task.c" 1
+ 3440 1048 00F021E1 		msr   cpsr_c, r0
+ 3441              	@ 0 "" 2
+ 822:../kernel/os_core/os_task.c ****         return (OS_TASK_NOT_EXIST);
+ 3442              		.loc 1 822 0
+ 3443 104c 0B30A0E3 		mov	r3, #11
+ 3444 1050 2C0000EA 		b	.L91
+ 3445              	.L94:
+ 823:../kernel/os_core/os_task.c ****     }  
+ 824:../kernel/os_core/os_task.c ****     if ((ptcb->OSTCBOpt & OS_TASK_OPT_STK_CHK) == 0) { /* Make sure stack checking option is set   
+ 3446              		.loc 1 824 0
+ 3447 1054 18301BE5 		ldr	r3, [fp, #-24]
+ 3448 1058 B031D3E1 		ldrh	r3, [r3, #16]
+ 3449 105c 013003E2 		and	r3, r3, #1
+ 3450 1060 000053E3 		cmp	r3, #0
+ 3451 1064 0300001A 		bne	.L95
+ 825:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3452              		.loc 1 825 0
+ 3453              	@ 825 "../kernel/os_core/os_task.c" 1
+ 3454 1068 04009DE4 		ldmfd sp!, {r0}
+ 3455              	@ 0 "" 2
+ 3456              	@ 825 "../kernel/os_core/os_task.c" 1
+ 3457 106c 00F021E1 		msr   cpsr_c, r0
+ 3458              	@ 0 "" 2
+ 826:../kernel/os_core/os_task.c ****         return (OS_TASK_OPT_ERR);
+ 3459              		.loc 1 826 0
+ 3460 1070 8230A0E3 		mov	r3, #130
+ 3461 1074 230000EA 		b	.L91
+ 3462              	.L95:
+ 827:../kernel/os_core/os_task.c ****     }
+ 828:../kernel/os_core/os_task.c ****     free = 0;
+ 3463              		.loc 1 828 0
+ 3464 1078 0030A0E3 		mov	r3, #0
+ 3465 107c 14300BE5 		str	r3, [fp, #-20]
+ 829:../kernel/os_core/os_task.c ****     size = ptcb->OSTCBStkSize;
+ 3466              		.loc 1 829 0
+ 3467 1080 18301BE5 		ldr	r3, [fp, #-24]
+ 3468 1084 0C3093E5 		ldr	r3, [r3, #12]
+ 3469 1088 1C300BE5 		str	r3, [fp, #-28]
+ 830:../kernel/os_core/os_task.c ****     pchk = ptcb->OSTCBStkBottom;
+ 3470              		.loc 1 830 0
+ 3471 108c 18301BE5 		ldr	r3, [fp, #-24]
+ 3472 1090 083093E5 		ldr	r3, [r3, #8]
+ 3473 1094 10300BE5 		str	r3, [fp, #-16]
+ 831:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 3474              		.loc 1 831 0
+ 3475              	@ 831 "../kernel/os_core/os_task.c" 1
+ 3476 1098 04009DE4 		ldmfd sp!, {r0}
+ 3477              	@ 0 "" 2
+ 3478              	@ 831 "../kernel/os_core/os_task.c" 1
+ 3479 109c 00F021E1 		msr   cpsr_c, r0
+ 3480              	@ 0 "" 2
+ 832:../kernel/os_core/os_task.c **** #if OS_STK_GROWTH == 1
+ 833:../kernel/os_core/os_task.c ****     while (*pchk++ == (OS_STK)0) {                    /* Compute the number of zero entries on the 
+ 3481              		.loc 1 833 0
+ 3482 10a0 020000EA 		b	.L96
+ 3483              	.L97:
+ 834:../kernel/os_core/os_task.c ****         free++;
+ 3484              		.loc 1 834 0
+ 3485 10a4 14301BE5 		ldr	r3, [fp, #-20]
+ 3486 10a8 013083E2 		add	r3, r3, #1
+ 3487 10ac 14300BE5 		str	r3, [fp, #-20]
+ 3488              	.L96:
+ 833:../kernel/os_core/os_task.c ****     while (*pchk++ == (OS_STK)0) {                    /* Compute the number of zero entries on the 
+ 3489              		.loc 1 833 0 discriminator 1
+ 3490 10b0 10301BE5 		ldr	r3, [fp, #-16]
+ 3491 10b4 003093E5 		ldr	r3, [r3, #0]
+ 3492 10b8 000053E3 		cmp	r3, #0
+ 3493 10bc 0030A013 		movne	r3, #0
+ 3494 10c0 0130A003 		moveq	r3, #1
+ 3495 10c4 FF3003E2 		and	r3, r3, #255
+ 3496 10c8 10201BE5 		ldr	r2, [fp, #-16]
+ 3497 10cc 042082E2 		add	r2, r2, #4
+ 3498 10d0 10200BE5 		str	r2, [fp, #-16]
+ 3499 10d4 000053E3 		cmp	r3, #0
+ 3500 10d8 F1FFFF1A 		bne	.L97
+ 835:../kernel/os_core/os_task.c ****     }
+ 836:../kernel/os_core/os_task.c **** #else
+ 837:../kernel/os_core/os_task.c ****     while (*pchk-- == (OS_STK)0) {
+ 838:../kernel/os_core/os_task.c ****         free++;
+ 839:../kernel/os_core/os_task.c ****     }
+ 840:../kernel/os_core/os_task.c **** #endif
+ 841:../kernel/os_core/os_task.c ****     p_stk_data->OSFree = free * sizeof(OS_STK);           /* Compute number of free bytes on the st
+ 3501              		.loc 1 841 0
+ 3502 10dc 14301BE5 		ldr	r3, [fp, #-20]
+ 3503 10e0 0321A0E1 		mov	r2, r3, asl #2
+ 3504 10e4 24301BE5 		ldr	r3, [fp, #-36]
+ 3505 10e8 002083E5 		str	r2, [r3, #0]
+ 842:../kernel/os_core/os_task.c ****     p_stk_data->OSUsed = (size - free) * sizeof(OS_STK);  /* Compute number of bytes used on the st
+ 3506              		.loc 1 842 0
+ 3507 10ec 1C201BE5 		ldr	r2, [fp, #-28]
+ 3508 10f0 14301BE5 		ldr	r3, [fp, #-20]
+ 3509 10f4 023063E0 		rsb	r3, r3, r2
+ 3510 10f8 0321A0E1 		mov	r2, r3, asl #2
+ 3511 10fc 24301BE5 		ldr	r3, [fp, #-36]
+ 3512 1100 042083E5 		str	r2, [r3, #4]
+ 843:../kernel/os_core/os_task.c ****     return (OS_NO_ERR);
+ 3513              		.loc 1 843 0
+ 3514 1104 0030A0E3 		mov	r3, #0
+ 3515              	.L91:
+ 844:../kernel/os_core/os_task.c **** }
+ 3516              		.loc 1 844 0
+ 3517 1108 0300A0E1 		mov	r0, r3
+ 3518 110c 0CD04BE2 		sub	sp, fp, #12
+ 3519 1110 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3520 1114 1EFF2FE1 		bx	lr
+ 3521              	.L99:
+ 3522              		.align	2
+ 3523              	.L98:
+ 3524 1118 00000000 		.word	OSTCBCur
+ 3525 111c 00000000 		.word	OSTCBPrioTbl
+ 3526              		.cfi_endproc
+ 3527              	.LFE8:
+ 3529              		.align	2
+ 3530              		.global	OSTaskSuspend
+ 3532              	OSTaskSuspend:
+ 3533              	.LFB9:
+ 845:../kernel/os_core/os_task.c **** #endif
+ 846:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 847:../kernel/os_core/os_task.c **** /*
+ 848:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 849:../kernel/os_core/os_task.c **** *                                            SUSPEND A TASK
+ 850:../kernel/os_core/os_task.c **** *
+ 851:../kernel/os_core/os_task.c **** * Description: This function is called to suspend a task.  The task can be the calling task if the
+ 852:../kernel/os_core/os_task.c **** *              priority passed to OSTaskSuspend() is the priority of the calling task or OS_PRIO_SE
+ 853:../kernel/os_core/os_task.c **** *
+ 854:../kernel/os_core/os_task.c **** * Arguments  : prio     is the priority of the task to suspend.  If you specify OS_PRIO_SELF, the
+ 855:../kernel/os_core/os_task.c **** *                       calling task will suspend itself and rescheduling will occur.
+ 856:../kernel/os_core/os_task.c **** *
+ 857:../kernel/os_core/os_task.c **** * Returns    : OS_NO_ERR                if the requested task is suspended
+ 858:../kernel/os_core/os_task.c **** *              OS_TASK_SUSPEND_IDLE     if you attempted to suspend the idle task which is not allo
+ 859:../kernel/os_core/os_task.c **** *              OS_PRIO_INVALID          if the priority you specify is higher that the maximum allo
+ 860:../kernel/os_core/os_task.c **** *                                       (i.e. >= OS_LOWEST_PRIO) or, you have not specified OS_PRIO
+ 861:../kernel/os_core/os_task.c **** *              OS_TASK_SUSPEND_PRIO     if the task to suspend does not exist
+ 862:../kernel/os_core/os_task.c **** *              OS_TASK_NOT_EXITS        if the task is assigned to a Mutex PIP
+ 863:../kernel/os_core/os_task.c **** *
+ 864:../kernel/os_core/os_task.c **** * Note       : You should use this function with great care.  If you suspend a task that is waiting
+ 865:../kernel/os_core/os_task.c **** *              an event (i.e. a message, a semaphore, a queue ...) you will prevent this task from
+ 866:../kernel/os_core/os_task.c **** *              running when the event arrives.
+ 867:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 868:../kernel/os_core/os_task.c **** */
+ 869:../kernel/os_core/os_task.c **** 
+ 870:../kernel/os_core/os_task.c **** #if OS_TASK_SUSPEND_EN > 0
+ 871:../kernel/os_core/os_task.c **** INT8U  OSTaskSuspend (INT8U prio)
+ 872:../kernel/os_core/os_task.c **** {
+ 3534              		.loc 1 872 0
+ 3535              		.cfi_startproc
+ 3536              		@ Function supports interworking.
+ 3537              		@ args = 0, pretend = 0, frame = 24
+ 3538              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3539 1120 0DC0A0E1 		mov	ip, sp
+ 3540              	.LCFI18:
+ 3541              		.cfi_def_cfa_register 12
+ 3542 1124 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3543 1128 04B04CE2 		sub	fp, ip, #4
+ 3544              		.cfi_offset 14, -8
+ 3545              		.cfi_offset 13, -12
+ 3546              		.cfi_offset 11, -16
+ 3547              	.LCFI19:
+ 3548              		.cfi_def_cfa 11, 4
+ 3549 112c 18D04DE2 		sub	sp, sp, #24
+ 3550 1130 0030A0E1 		mov	r3, r0
+ 3551 1134 1D304BE5 		strb	r3, [fp, #-29]
+ 873:../kernel/os_core/os_task.c ****     BOOLEAN    self;
+ 874:../kernel/os_core/os_task.c ****     OS_TCB    *ptcb;
+ 875:../kernel/os_core/os_task.c **** 	INT8U      y;
+ 876:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                      /* Allocate storage for CPU status register       
+ 877:../kernel/os_core/os_task.c ****     OS_CPU_SR  cpu_sr;
+ 878:../kernel/os_core/os_task.c **** 
+ 879:../kernel/os_core/os_task.c **** 
+ 880:../kernel/os_core/os_task.c **** 
+ 881:../kernel/os_core/os_task.c ****     cpu_sr = 0;                                                 /* Prevent compiler warning        
+ 882:../kernel/os_core/os_task.c **** #endif    
+ 883:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 884:../kernel/os_core/os_task.c ****     if (prio == OS_IDLE_PRIO) {                                 /* Not allowed to suspend idle task
+ 3552              		.loc 1 884 0
+ 3553 1138 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 3554 113c 3F0053E3 		cmp	r3, #63
+ 3555 1140 0100001A 		bne	.L101
+ 885:../kernel/os_core/os_task.c ****         return (OS_TASK_SUSPEND_IDLE);
+ 3556              		.loc 1 885 0
+ 3557 1144 5B30A0E3 		mov	r3, #91
+ 3558 1148 630000EA 		b	.L102
+ 3559              	.L101:
+ 886:../kernel/os_core/os_task.c ****     }
+ 887:../kernel/os_core/os_task.c ****     if (prio >= OS_LOWEST_PRIO) {								/* Task priority valid ?               */
+ 3560              		.loc 1 887 0
+ 3561 114c 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 3562 1150 3E0053E3 		cmp	r3, #62
+ 3563 1154 0400009A 		bls	.L103
+ 888:../kernel/os_core/os_task.c ****         if (prio != OS_PRIO_SELF) {
+ 3564              		.loc 1 888 0
+ 3565 1158 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 3566 115c FF0053E3 		cmp	r3, #255
+ 3567 1160 0100000A 		beq	.L103
+ 889:../kernel/os_core/os_task.c ****             return (OS_PRIO_INVALID);
+ 3568              		.loc 1 889 0
+ 3569 1164 2A30A0E3 		mov	r3, #42
+ 3570 1168 5B0000EA 		b	.L102
+ 3571              	.L103:
+ 890:../kernel/os_core/os_task.c ****         }
+ 891:../kernel/os_core/os_task.c ****     }
+ 892:../kernel/os_core/os_task.c **** #endif
+ 893:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 3572              		.loc 1 893 0
+ 3573              	@ 893 "../kernel/os_core/os_task.c" 1
+ 3574 116c 00000FE1 		mrs   r0, cpsr
+ 3575              	@ 0 "" 2
+ 3576              	@ 893 "../kernel/os_core/os_task.c" 1
+ 3577 1170 04002DE5 		stmfd sp!, {r0}
+ 3578              	@ 0 "" 2
+ 3579              	@ 893 "../kernel/os_core/os_task.c" 1
+ 3580 1174 C00080E3 		orr   r0, r0, #0b11000000
+ 3581              	@ 0 "" 2
+ 3582              	@ 893 "../kernel/os_core/os_task.c" 1
+ 3583 1178 00F021E1 		msr   cpsr_c, r0
+ 3584              	@ 0 "" 2
+ 894:../kernel/os_core/os_task.c ****     if (prio == OS_PRIO_SELF) {                                 /* See if suspend SELF             
+ 3585              		.loc 1 894 0
+ 3586 117c 1D305BE5 		ldrb	r3, [fp, #-29]	@ zero_extendqisi2
+ 3587 1180 FF0053E3 		cmp	r3, #255
+ 3588 1184 0600001A 		bne	.L104
+ 895:../kernel/os_core/os_task.c ****         prio = OSTCBCur->OSTCBPrio;
+ 3589              		.loc 1 895 0
+ 3590 1188 5C319FE5 		ldr	r3, .L111
+ 3591 118c 003093E5 		ldr	r3, [r3, #0]
+ 3592 1190 2E30D3E5 		ldrb	r3, [r3, #46]
+ 3593 1194 1D304BE5 		strb	r3, [fp, #-29]
+ 896:../kernel/os_core/os_task.c ****         self = TRUE;
+ 3594              		.loc 1 896 0
+ 3595 1198 0130A0E3 		mov	r3, #1
+ 3596 119c 0D304BE5 		strb	r3, [fp, #-13]
+ 3597 11a0 0A0000EA 		b	.L105
+ 3598              	.L104:
+ 897:../kernel/os_core/os_task.c ****     } else if (prio == OSTCBCur->OSTCBPrio) {                   /* See if suspending self          
+ 3599              		.loc 1 897 0
+ 3600 11a4 40319FE5 		ldr	r3, .L111
+ 3601 11a8 003093E5 		ldr	r3, [r3, #0]
+ 3602 11ac 2E30D3E5 		ldrb	r3, [r3, #46]	@ zero_extendqisi2
+ 3603 11b0 1D205BE5 		ldrb	r2, [fp, #-29]	@ zero_extendqisi2
+ 3604 11b4 030052E1 		cmp	r2, r3
+ 3605 11b8 0200001A 		bne	.L106
+ 898:../kernel/os_core/os_task.c ****         self = TRUE;
+ 3606              		.loc 1 898 0
+ 3607 11bc 0130A0E3 		mov	r3, #1
+ 3608 11c0 0D304BE5 		strb	r3, [fp, #-13]
+ 3609 11c4 010000EA 		b	.L105
+ 3610              	.L106:
+ 899:../kernel/os_core/os_task.c ****     } else {
+ 900:../kernel/os_core/os_task.c ****         self = FALSE;                                           /* No suspending another task      
+ 3611              		.loc 1 900 0
+ 3612 11c8 0030A0E3 		mov	r3, #0
+ 3613 11cc 0D304BE5 		strb	r3, [fp, #-13]
+ 3614              	.L105:
+ 901:../kernel/os_core/os_task.c ****     }
+ 902:../kernel/os_core/os_task.c ****     ptcb = OSTCBPrioTbl[prio];
+ 3615              		.loc 1 902 0
+ 3616 11d0 1D205BE5 		ldrb	r2, [fp, #-29]	@ zero_extendqisi2
+ 3617 11d4 14319FE5 		ldr	r3, .L111+4
+ 3618 11d8 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 3619 11dc 14300BE5 		str	r3, [fp, #-20]
+ 903:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)0) {                                  /* Task to suspend must exist      
+ 3620              		.loc 1 903 0
+ 3621 11e0 14301BE5 		ldr	r3, [fp, #-20]
+ 3622 11e4 000053E3 		cmp	r3, #0
+ 3623 11e8 0300001A 		bne	.L107
+ 904:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3624              		.loc 1 904 0
+ 3625              	@ 904 "../kernel/os_core/os_task.c" 1
+ 3626 11ec 04009DE4 		ldmfd sp!, {r0}
+ 3627              	@ 0 "" 2
+ 3628              	@ 904 "../kernel/os_core/os_task.c" 1
+ 3629 11f0 00F021E1 		msr   cpsr_c, r0
+ 3630              	@ 0 "" 2
+ 905:../kernel/os_core/os_task.c ****         return (OS_TASK_SUSPEND_PRIO);
+ 3631              		.loc 1 905 0
+ 3632 11f4 5A30A0E3 		mov	r3, #90
+ 3633 11f8 370000EA 		b	.L102
+ 3634              	.L107:
+ 906:../kernel/os_core/os_task.c ****     }
+ 907:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)1) {                                  /* See if assigned to Mutex        
+ 3635              		.loc 1 907 0
+ 3636 11fc 14301BE5 		ldr	r3, [fp, #-20]
+ 3637 1200 010053E3 		cmp	r3, #1
+ 3638 1204 0300001A 		bne	.L108
+ 908:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3639              		.loc 1 908 0
+ 3640              	@ 908 "../kernel/os_core/os_task.c" 1
+ 3641 1208 04009DE4 		ldmfd sp!, {r0}
+ 3642              	@ 0 "" 2
+ 3643              	@ 908 "../kernel/os_core/os_task.c" 1
+ 3644 120c 00F021E1 		msr   cpsr_c, r0
+ 3645              	@ 0 "" 2
+ 909:../kernel/os_core/os_task.c ****         return (OS_TASK_NOT_EXIST);
+ 3646              		.loc 1 909 0
+ 3647 1210 0B30A0E3 		mov	r3, #11
+ 3648 1214 300000EA 		b	.L102
+ 3649              	.L108:
+ 910:../kernel/os_core/os_task.c ****     }
+ 911:../kernel/os_core/os_task.c **** 	y            = ptcb->OSTCBY;
+ 3650              		.loc 1 911 0
+ 3651 1218 14301BE5 		ldr	r3, [fp, #-20]
+ 3652 121c 3030D3E5 		ldrb	r3, [r3, #48]
+ 3653 1220 15304BE5 		strb	r3, [fp, #-21]
+ 912:../kernel/os_core/os_task.c **** 	OSRdyTbl[y] &= ~ptcb->OSTCBBitX;							/* Make task not ready                 */
+ 3654              		.loc 1 912 0
+ 3655 1224 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3656 1228 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 3657 122c C0109FE5 		ldr	r1, .L111+8
+ 3658 1230 0220D1E7 		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 3659 1234 FF1002E2 		and	r1, r2, #255
+ 3660 1238 14201BE5 		ldr	r2, [fp, #-20]
+ 3661 123c 3120D2E5 		ldrb	r2, [r2, #49]	@ zero_extendqisi2
+ 3662 1240 FF2002E2 		and	r2, r2, #255
+ 3663 1244 0220E0E1 		mvn	r2, r2
+ 3664 1248 FF2002E2 		and	r2, r2, #255
+ 3665 124c 022001E0 		and	r2, r1, r2
+ 3666 1250 FF2002E2 		and	r2, r2, #255
+ 3667 1254 FF1002E2 		and	r1, r2, #255
+ 3668 1258 94209FE5 		ldr	r2, .L111+8
+ 3669 125c 0310C2E7 		strb	r1, [r2, r3]
+ 913:../kernel/os_core/os_task.c ****     if (OSRdyTbl[y] == 0x00) { 
+ 3670              		.loc 1 913 0
+ 3671 1260 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3672 1264 88209FE5 		ldr	r2, .L111+8
+ 3673 1268 0330D2E7 		ldrb	r3, [r2, r3]	@ zero_extendqisi2
+ 3674 126c 000053E3 		cmp	r3, #0
+ 3675 1270 0C00001A 		bne	.L109
+ 914:../kernel/os_core/os_task.c ****         OSRdyGrp &= ~ptcb->OSTCBBitY;
+ 3676              		.loc 1 914 0
+ 3677 1274 14301BE5 		ldr	r3, [fp, #-20]
+ 3678 1278 3230D3E5 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 3679 127c FF3003E2 		and	r3, r3, #255
+ 3680 1280 0330E0E1 		mvn	r3, r3
+ 3681 1284 FF2003E2 		and	r2, r3, #255
+ 3682 1288 68309FE5 		ldr	r3, .L111+12
+ 3683 128c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3684 1290 FF3003E2 		and	r3, r3, #255
+ 3685 1294 033002E0 		and	r3, r2, r3
+ 3686 1298 FF3003E2 		and	r3, r3, #255
+ 3687 129c FF2003E2 		and	r2, r3, #255
+ 3688 12a0 50309FE5 		ldr	r3, .L111+12
+ 3689 12a4 0020C3E5 		strb	r2, [r3, #0]
+ 3690              	.L109:
+ 915:../kernel/os_core/os_task.c ****     }
+ 916:../kernel/os_core/os_task.c ****     ptcb->OSTCBStat |= OS_STAT_SUSPEND;                         /* Status of task is 'SUSPENDED'   
+ 3691              		.loc 1 916 0
+ 3692 12a8 14301BE5 		ldr	r3, [fp, #-20]
+ 3693 12ac 2C30D3E5 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 3694 12b0 083083E3 		orr	r3, r3, #8
+ 3695 12b4 FF2003E2 		and	r2, r3, #255
+ 3696 12b8 14301BE5 		ldr	r3, [fp, #-20]
+ 3697 12bc 2C20C3E5 		strb	r2, [r3, #44]
+ 917:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 3698              		.loc 1 917 0
+ 3699              	@ 917 "../kernel/os_core/os_task.c" 1
+ 3700 12c0 04009DE4 		ldmfd sp!, {r0}
+ 3701              	@ 0 "" 2
+ 3702              	@ 917 "../kernel/os_core/os_task.c" 1
+ 3703 12c4 00F021E1 		msr   cpsr_c, r0
+ 3704              	@ 0 "" 2
+ 918:../kernel/os_core/os_task.c ****     if (self == TRUE) {                                         /* Context switch only if SELF     
+ 3705              		.loc 1 918 0
+ 3706 12c8 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 3707 12cc 010053E3 		cmp	r3, #1
+ 3708 12d0 0000001A 		bne	.L110
+ 919:../kernel/os_core/os_task.c ****         OS_Sched();
+ 3709              		.loc 1 919 0
+ 3710 12d4 FEFFFFEB 		bl	OS_Sched
+ 3711              	.L110:
+ 920:../kernel/os_core/os_task.c ****     }
+ 921:../kernel/os_core/os_task.c ****     return (OS_NO_ERR);
+ 3712              		.loc 1 921 0
+ 3713 12d8 0030A0E3 		mov	r3, #0
+ 3714              	.L102:
+ 922:../kernel/os_core/os_task.c **** }
+ 3715              		.loc 1 922 0
+ 3716 12dc 0300A0E1 		mov	r0, r3
+ 3717 12e0 0CD04BE2 		sub	sp, fp, #12
+ 3718 12e4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3719 12e8 1EFF2FE1 		bx	lr
+ 3720              	.L112:
+ 3721              		.align	2
+ 3722              	.L111:
+ 3723 12ec 00000000 		.word	OSTCBCur
+ 3724 12f0 00000000 		.word	OSTCBPrioTbl
+ 3725 12f4 00000000 		.word	OSRdyTbl
+ 3726 12f8 00000000 		.word	OSRdyGrp
+ 3727              		.cfi_endproc
+ 3728              	.LFE9:
+ 3730              		.align	2
+ 3731              		.global	OSTaskQuery
+ 3733              	OSTaskQuery:
+ 3734              	.LFB10:
+ 923:../kernel/os_core/os_task.c **** #endif
+ 924:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 925:../kernel/os_core/os_task.c **** /*
+ 926:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 927:../kernel/os_core/os_task.c **** *                                            QUERY A TASK
+ 928:../kernel/os_core/os_task.c **** *
+ 929:../kernel/os_core/os_task.c **** * Description: This function is called to obtain a copy of the desired task's TCB.
+ 930:../kernel/os_core/os_task.c **** *
+ 931:../kernel/os_core/os_task.c **** * Arguments  : prio         is the priority of the task to obtain information from.
+ 932:../kernel/os_core/os_task.c **** *
+ 933:../kernel/os_core/os_task.c **** *              p_task_data  is a pointer to where the desired task's OS_TCB will be stored.
+ 934:../kernel/os_core/os_task.c **** *
+ 935:../kernel/os_core/os_task.c **** * Returns    : OS_NO_ERR          if the requested task is suspended
+ 936:../kernel/os_core/os_task.c **** *              OS_PRIO_INVALID    if the priority you specify is higher that the maximum allowed
+ 937:../kernel/os_core/os_task.c **** *                                 (i.e. > OS_LOWEST_PRIO) or, you have not specified OS_PRIO_SELF.
+ 938:../kernel/os_core/os_task.c **** *              OS_PRIO_ERR        if the desired task has not been created
+ 939:../kernel/os_core/os_task.c **** *              OS_TASK_NOT_EXIST  if the task is assigned to a Mutex PIP
+ 940:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 941:../kernel/os_core/os_task.c **** */
+ 942:../kernel/os_core/os_task.c **** 
+ 943:../kernel/os_core/os_task.c **** #if OS_TASK_QUERY_EN > 0
+ 944:../kernel/os_core/os_task.c **** INT8U  OSTaskQuery (INT8U prio, OS_TCB *p_task_data)
+ 945:../kernel/os_core/os_task.c **** {
+ 3735              		.loc 1 945 0
+ 3736              		.cfi_startproc
+ 3737              		@ Function supports interworking.
+ 3738              		@ args = 0, pretend = 0, frame = 16
+ 3739              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3740 12fc 0DC0A0E1 		mov	ip, sp
+ 3741              	.LCFI20:
+ 3742              		.cfi_def_cfa_register 12
+ 3743 1300 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3744 1304 04B04CE2 		sub	fp, ip, #4
+ 3745              		.cfi_offset 14, -8
+ 3746              		.cfi_offset 13, -12
+ 3747              		.cfi_offset 11, -16
+ 3748              	.LCFI21:
+ 3749              		.cfi_def_cfa 11, 4
+ 3750 1308 10D04DE2 		sub	sp, sp, #16
+ 3751 130c 0030A0E1 		mov	r3, r0
+ 3752 1310 1C100BE5 		str	r1, [fp, #-28]
+ 3753 1314 15304BE5 		strb	r3, [fp, #-21]
+ 946:../kernel/os_core/os_task.c ****     OS_TCB    *ptcb;
+ 947:../kernel/os_core/os_task.c **** #if OS_CRITICAL_METHOD == 3                      /* Allocate storage for CPU status register       
+ 948:../kernel/os_core/os_task.c ****     OS_CPU_SR  cpu_sr;
+ 949:../kernel/os_core/os_task.c **** 
+ 950:../kernel/os_core/os_task.c **** 
+ 951:../kernel/os_core/os_task.c **** 
+ 952:../kernel/os_core/os_task.c ****     cpu_sr = 0;                                  /* Prevent compiler warning                       
+ 953:../kernel/os_core/os_task.c **** #endif    
+ 954:../kernel/os_core/os_task.c **** #if OS_ARG_CHK_EN > 0
+ 955:../kernel/os_core/os_task.c ****     if (prio > OS_LOWEST_PRIO) {				 /* Task priority valid ?    	                       */
+ 3754              		.loc 1 955 0
+ 3755 1318 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3756 131c 3F0053E3 		cmp	r3, #63
+ 3757 1320 0400009A 		bls	.L114
+ 956:../kernel/os_core/os_task.c ****         if (prio != OS_PRIO_SELF) {   
+ 3758              		.loc 1 956 0
+ 3759 1324 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3760 1328 FF0053E3 		cmp	r3, #255
+ 3761 132c 0100000A 		beq	.L114
+ 957:../kernel/os_core/os_task.c ****             return (OS_PRIO_INVALID);
+ 3762              		.loc 1 957 0
+ 3763 1330 2A30A0E3 		mov	r3, #42
+ 3764 1334 250000EA 		b	.L115
+ 3765              	.L114:
+ 958:../kernel/os_core/os_task.c ****         }
+ 959:../kernel/os_core/os_task.c ****     }
+ 960:../kernel/os_core/os_task.c **** #endif
+ 961:../kernel/os_core/os_task.c ****     OS_ENTER_CRITICAL();
+ 3766              		.loc 1 961 0
+ 3767              	@ 961 "../kernel/os_core/os_task.c" 1
+ 3768 1338 00000FE1 		mrs   r0, cpsr
+ 3769              	@ 0 "" 2
+ 3770              	@ 961 "../kernel/os_core/os_task.c" 1
+ 3771 133c 04002DE5 		stmfd sp!, {r0}
+ 3772              	@ 0 "" 2
+ 3773              	@ 961 "../kernel/os_core/os_task.c" 1
+ 3774 1340 C00080E3 		orr   r0, r0, #0b11000000
+ 3775              	@ 0 "" 2
+ 3776              	@ 961 "../kernel/os_core/os_task.c" 1
+ 3777 1344 00F021E1 		msr   cpsr_c, r0
+ 3778              	@ 0 "" 2
+ 962:../kernel/os_core/os_task.c ****     if (prio == OS_PRIO_SELF) {                  /* See if suspend SELF                            
+ 3779              		.loc 1 962 0
+ 3780 1348 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3781 134c FF0053E3 		cmp	r3, #255
+ 3782 1350 0300001A 		bne	.L116
+ 963:../kernel/os_core/os_task.c ****         prio = OSTCBCur->OSTCBPrio;
+ 3783              		.loc 1 963 0
+ 3784 1354 84309FE5 		ldr	r3, .L119
+ 3785 1358 003093E5 		ldr	r3, [r3, #0]
+ 3786 135c 2E30D3E5 		ldrb	r3, [r3, #46]
+ 3787 1360 15304BE5 		strb	r3, [fp, #-21]
+ 3788              	.L116:
+ 964:../kernel/os_core/os_task.c ****     }
+ 965:../kernel/os_core/os_task.c ****     ptcb = OSTCBPrioTbl[prio];
+ 3789              		.loc 1 965 0
+ 3790 1364 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 3791 1368 74309FE5 		ldr	r3, .L119+4
+ 3792 136c 023193E7 		ldr	r3, [r3, r2, asl #2]
+ 3793 1370 10300BE5 		str	r3, [fp, #-16]
+ 966:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)0) {                   /* Task to query must exist                       
+ 3794              		.loc 1 966 0
+ 3795 1374 10301BE5 		ldr	r3, [fp, #-16]
+ 3796 1378 000053E3 		cmp	r3, #0
+ 3797 137c 0300001A 		bne	.L117
+ 967:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3798              		.loc 1 967 0
+ 3799              	@ 967 "../kernel/os_core/os_task.c" 1
+ 3800 1380 04009DE4 		ldmfd sp!, {r0}
+ 3801              	@ 0 "" 2
+ 3802              	@ 967 "../kernel/os_core/os_task.c" 1
+ 3803 1384 00F021E1 		msr   cpsr_c, r0
+ 3804              	@ 0 "" 2
+ 968:../kernel/os_core/os_task.c ****         return (OS_PRIO_ERR);
+ 3805              		.loc 1 968 0
+ 3806 1388 2930A0E3 		mov	r3, #41
+ 3807 138c 0F0000EA 		b	.L115
+ 3808              	.L117:
+ 969:../kernel/os_core/os_task.c ****     }
+ 970:../kernel/os_core/os_task.c ****     if (ptcb == (OS_TCB *)1) {                   /* Task to query must not be assigned to a Mutex  
+ 3809              		.loc 1 970 0
+ 3810 1390 10301BE5 		ldr	r3, [fp, #-16]
+ 3811 1394 010053E3 		cmp	r3, #1
+ 3812 1398 0300001A 		bne	.L118
+ 971:../kernel/os_core/os_task.c ****         OS_EXIT_CRITICAL();
+ 3813              		.loc 1 971 0
+ 3814              	@ 971 "../kernel/os_core/os_task.c" 1
+ 3815 139c 04009DE4 		ldmfd sp!, {r0}
+ 3816              	@ 0 "" 2
+ 3817              	@ 971 "../kernel/os_core/os_task.c" 1
+ 3818 13a0 00F021E1 		msr   cpsr_c, r0
+ 3819              	@ 0 "" 2
+ 972:../kernel/os_core/os_task.c ****         return (OS_TASK_NOT_EXIST);
+ 3820              		.loc 1 972 0
+ 3821 13a4 0B30A0E3 		mov	r3, #11
+ 3822 13a8 080000EA 		b	.L115
+ 3823              	.L118:
+ 973:../kernel/os_core/os_task.c ****     }
+ 974:../kernel/os_core/os_task.c ****                                                  /* Copy TCB into user storage area                
+ 975:../kernel/os_core/os_task.c ****     OS_MemCopy((INT8U *)p_task_data, (INT8U *)ptcb, sizeof(OS_TCB));  
+ 3824              		.loc 1 975 0
+ 3825 13ac 1C201BE5 		ldr	r2, [fp, #-28]
+ 3826 13b0 10301BE5 		ldr	r3, [fp, #-16]
+ 3827 13b4 0200A0E1 		mov	r0, r2
+ 3828 13b8 0310A0E1 		mov	r1, r3
+ 3829 13bc 6820A0E3 		mov	r2, #104
+ 3830 13c0 FEFFFFEB 		bl	OS_MemCopy
+ 976:../kernel/os_core/os_task.c ****     OS_EXIT_CRITICAL();
+ 3831              		.loc 1 976 0
+ 3832              	@ 976 "../kernel/os_core/os_task.c" 1
+ 3833 13c4 04009DE4 		ldmfd sp!, {r0}
+ 3834              	@ 0 "" 2
+ 3835              	@ 976 "../kernel/os_core/os_task.c" 1
+ 3836 13c8 00F021E1 		msr   cpsr_c, r0
+ 3837              	@ 0 "" 2
+ 977:../kernel/os_core/os_task.c ****     return (OS_NO_ERR);
+ 3838              		.loc 1 977 0
+ 3839 13cc 0030A0E3 		mov	r3, #0
+ 3840              	.L115:
+ 978:../kernel/os_core/os_task.c **** }
+ 3841              		.loc 1 978 0
+ 3842 13d0 0300A0E1 		mov	r0, r3
+ 3843 13d4 0CD04BE2 		sub	sp, fp, #12
+ 3844 13d8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3845 13dc 1EFF2FE1 		bx	lr
+ 3846              	.L120:
+ 3847              		.align	2
+ 3848              	.L119:
+ 3849 13e0 00000000 		.word	OSTCBCur
+ 3850 13e4 00000000 		.word	OSTCBPrioTbl
+ 3851              		.cfi_endproc
+ 3852              	.LFE10:
+ 3854              		.align	2
+ 3855              		.global	OS_TaskStkClr
+ 3857              	OS_TaskStkClr:
+ 3858              	.LFB11:
+ 979:../kernel/os_core/os_task.c **** #endif
+ 980:../kernel/os_core/os_task.c **** /*$PAGE*/
+ 981:../kernel/os_core/os_task.c **** /*
+ 982:../kernel/os_core/os_task.c **** ***************************************************************************************************
+ 983:../kernel/os_core/os_task.c **** *                                        CLEAR TASK STACK
+ 984:../kernel/os_core/os_task.c **** *
+ 985:../kernel/os_core/os_task.c **** * Description: This function is used to clear the stack of a task (i.e. write all zeros)
+ 986:../kernel/os_core/os_task.c **** *
+ 987:../kernel/os_core/os_task.c **** * Arguments  : pbos     is a pointer to the task's bottom of stack.  If the configuration constant
+ 988:../kernel/os_core/os_task.c **** *                       OS_STK_GROWTH is set to 1, the stack is assumed to grow downward (i.e. from
+ 989:../kernel/os_core/os_task.c **** *                       memory to low memory).  'pbos' will thus point to the lowest (valid) memory
+ 990:../kernel/os_core/os_task.c **** *                       location of the stack.  If OS_STK_GROWTH is set to 0, 'pbos' will point to 
+ 991:../kernel/os_core/os_task.c **** *                       highest memory location of the stack and the stack will grow with increasin
+ 992:../kernel/os_core/os_task.c **** *                       memory locations.  'pbos' MUST point to a valid 'free' data item.
+ 993:../kernel/os_core/os_task.c **** *
+ 994:../kernel/os_core/os_task.c **** *              size     is the number of 'stack elements' to clear.
+ 995:../kernel/os_core/os_task.c **** *
+ 996:../kernel/os_core/os_task.c **** *              opt      contains additional information (or options) about the behavior of the task
+ 997:../kernel/os_core/os_task.c **** *                       LOWER 8-bits are reserved by uC/OS-II while the upper 8 bits can be applica
+ 998:../kernel/os_core/os_task.c **** *                       specific.  See OS_TASK_OPT_??? in uCOS-II.H.
+ 999:../kernel/os_core/os_task.c **** *
+1000:../kernel/os_core/os_task.c **** * Returns    : none
+1001:../kernel/os_core/os_task.c **** ***************************************************************************************************
+1002:../kernel/os_core/os_task.c **** */
+1003:../kernel/os_core/os_task.c **** #if OS_TASK_CREATE_EXT_EN > 0
+1004:../kernel/os_core/os_task.c **** void  OS_TaskStkClr (OS_STK *pbos, INT32U size, INT16U opt)
+1005:../kernel/os_core/os_task.c **** {
+ 3859              		.loc 1 1005 0
+ 3860              		.cfi_startproc
+ 3861              		@ Function supports interworking.
+ 3862              		@ args = 0, pretend = 0, frame = 16
+ 3863              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3864 13e8 0DC0A0E1 		mov	ip, sp
+ 3865              	.LCFI22:
+ 3866              		.cfi_def_cfa_register 12
+ 3867 13ec 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3868 13f0 04B04CE2 		sub	fp, ip, #4
+ 3869              		.cfi_offset 14, -8
+ 3870              		.cfi_offset 13, -12
+ 3871              		.cfi_offset 11, -16
+ 3872              	.LCFI23:
+ 3873              		.cfi_def_cfa 11, 4
+ 3874 13f4 10D04DE2 		sub	sp, sp, #16
+ 3875 13f8 10000BE5 		str	r0, [fp, #-16]
+ 3876 13fc 14100BE5 		str	r1, [fp, #-20]
+ 3877 1400 0230A0E1 		mov	r3, r2
+ 3878 1404 B6314BE1 		strh	r3, [fp, #-22]	@ movhi
+1006:../kernel/os_core/os_task.c ****     if ((opt & OS_TASK_OPT_STK_CHK) != 0x0000) {       /* See if stack checking has been enabled   
+ 3879              		.loc 1 1006 0
+ 3880 1408 B6315BE1 		ldrh	r3, [fp, #-22]
+ 3881 140c 013003E2 		and	r3, r3, #1
+ 3882 1410 FF3003E2 		and	r3, r3, #255
+ 3883 1414 000053E3 		cmp	r3, #0
+ 3884 1418 1000000A 		beq	.L121
+1007:../kernel/os_core/os_task.c ****         if ((opt & OS_TASK_OPT_STK_CLR) != 0x0000) {   /* See if stack needs to be cleared         
+ 3885              		.loc 1 1007 0
+ 3886 141c B6315BE1 		ldrh	r3, [fp, #-22]
+ 3887 1420 023003E2 		and	r3, r3, #2
+ 3888 1424 000053E3 		cmp	r3, #0
+ 3889 1428 0C00000A 		beq	.L121
+1008:../kernel/os_core/os_task.c **** #if OS_STK_GROWTH == 1                     
+1009:../kernel/os_core/os_task.c ****             while (size > 0) {                         /* Stack grows from HIGH to LOW memory      
+ 3890              		.loc 1 1009 0
+ 3891 142c 080000EA 		b	.L123
+ 3892              	.L124:
+1010:../kernel/os_core/os_task.c ****                 size--;
+ 3893              		.loc 1 1010 0
+ 3894 1430 14301BE5 		ldr	r3, [fp, #-20]
+ 3895 1434 013043E2 		sub	r3, r3, #1
+ 3896 1438 14300BE5 		str	r3, [fp, #-20]
+1011:../kernel/os_core/os_task.c ****                 *pbos++ = (OS_STK)0;                   /* Clear from bottom of stack and up!       
+ 3897              		.loc 1 1011 0
+ 3898 143c 10301BE5 		ldr	r3, [fp, #-16]
+ 3899 1440 0020A0E3 		mov	r2, #0
+ 3900 1444 002083E5 		str	r2, [r3, #0]
+ 3901 1448 10301BE5 		ldr	r3, [fp, #-16]
+ 3902 144c 043083E2 		add	r3, r3, #4
+ 3903 1450 10300BE5 		str	r3, [fp, #-16]
+ 3904              	.L123:
+1009:../kernel/os_core/os_task.c ****             while (size > 0) {                         /* Stack grows from HIGH to LOW memory      
+ 3905              		.loc 1 1009 0 discriminator 1
+ 3906 1454 14301BE5 		ldr	r3, [fp, #-20]
+ 3907 1458 000053E3 		cmp	r3, #0
+ 3908 145c F3FFFF1A 		bne	.L124
+ 3909              	.L121:
+1012:../kernel/os_core/os_task.c ****             }
+1013:../kernel/os_core/os_task.c **** #else
+1014:../kernel/os_core/os_task.c ****             while (size > 0) {                         /* Stack grows from LOW to HIGH memory      
+1015:../kernel/os_core/os_task.c ****                 size--;
+1016:../kernel/os_core/os_task.c ****                 *pbos-- = (OS_STK)0;                   /* Clear from bottom of stack and down      
+1017:../kernel/os_core/os_task.c ****             }
+1018:../kernel/os_core/os_task.c **** #endif
+1019:../kernel/os_core/os_task.c ****         }
+1020:../kernel/os_core/os_task.c ****     }
+1021:../kernel/os_core/os_task.c **** }
+ 3910              		.loc 1 1021 0
+ 3911 1460 0CD04BE2 		sub	sp, fp, #12
+ 3912 1464 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3913 1468 1EFF2FE1 		bx	lr
+ 3914              		.cfi_endproc
+ 3915              	.LFE11:
+ 3917              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 os_task.c
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:1630   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:1633   .text:00000000 OSTaskChangePrio
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:1968   .text:000003b0 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:1976   .text:000003c4 $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:1979   .text:000003c4 OSTaskCreate
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2139   .text:00000514 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2145   .text:00000520 $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2148   .text:00000520 OSTaskCreateExt
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3857   .text:000013e8 OS_TaskStkClr
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2314   .text:00000684 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2320   .text:00000690 $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2323   .text:00000690 OSTaskDel
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2679   .text:00000a48 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2691   .text:00000a6c $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2694   .text:00000a6c OSTaskDelReq
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2837   .text:00000b74 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2842   .text:00000b7c $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2845   .text:00000b7c OSTaskNameGet
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2991   .text:00000cb8 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2996   .text:00000cc0 $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:2999   .text:00000cc0 OSTaskNameSet
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3159   .text:00000e10 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3164   .text:00000e18 $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3167   .text:00000e18 OSTaskResume
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3338   .text:00000f80 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3344   .text:00000f8c $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3347   .text:00000f8c OSTaskStkChk
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3524   .text:00001118 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3529   .text:00001120 $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3532   .text:00001120 OSTaskSuspend
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3723   .text:000012ec $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3730   .text:000012fc $a
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3733   .text:000012fc OSTaskQuery
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3849   .text:000013e0 $d
+C:\Users\Pedro\AppData\Local\Temp\cctPz9Bj.s:3854   .text:000013e8 $a
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+OS_Sched
+OSTCBPrioTbl
+OSTCBCur
+OSMapTbl
+OSRdyTbl
+OSRdyGrp
+OSTaskStkInit
+OS_TCBInit
+OSIntNesting
+OSRunning
+OS_FlagUnlink
+OS_Dummy
+OSTaskDelHook
+OSLockNesting
+OSTaskCtr
+OSTCBList
+OSTCBFreeList
+OS_StrCopy
+OS_StrLen
+OS_MemCopy

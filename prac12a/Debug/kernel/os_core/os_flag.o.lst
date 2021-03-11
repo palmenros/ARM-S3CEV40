@@ -1,0 +1,3633 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"os_flag.c"
+  21              	.Ltext0:
+  22              		.file 1 "../kernel/os_core/os_flag.c"
+ 1630              		.align	2
+ 1631              		.global	OSFlagAccept
+ 1633              	OSFlagAccept:
+ 1634              	.LFB0:
+   1:../kernel/os_core/os_flag.c **** /*
+   2:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+   3:../kernel/os_core/os_flag.c **** *                                                uC/OS-II
+   4:../kernel/os_core/os_flag.c **** *                                          The Real-Time Kernel
+   5:../kernel/os_core/os_flag.c **** *                                         EVENT FLAG  MANAGEMENT
+   6:../kernel/os_core/os_flag.c **** *
+   7:../kernel/os_core/os_flag.c **** *                          (c) Copyright 2001-2003, Jean J. Labrosse, Weston, FL
+   8:../kernel/os_core/os_flag.c **** *                                           All Rights Reserved
+   9:../kernel/os_core/os_flag.c **** *
+  10:../kernel/os_core/os_flag.c **** * File    : OS_FLAG.C
+  11:../kernel/os_core/os_flag.c **** * By      : Jean J. Labrosse
+  12:../kernel/os_core/os_flag.c **** * Version : V2.76
+  13:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+  14:../kernel/os_core/os_flag.c **** */
+  15:../kernel/os_core/os_flag.c **** 
+  16:../kernel/os_core/os_flag.c **** #ifndef  OS_MASTER_FILE
+  17:../kernel/os_core/os_flag.c **** #include "ucos_ii.h"
+  18:../kernel/os_core/os_flag.c **** #endif
+  19:../kernel/os_core/os_flag.c **** 
+  20:../kernel/os_core/os_flag.c **** #if (OS_VERSION >= 251) && (OS_FLAG_EN > 0) && (OS_MAX_FLAGS > 0)
+  21:../kernel/os_core/os_flag.c **** /*
+  22:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+  23:../kernel/os_core/os_flag.c **** *                                            LOCAL PROTOTYPES
+  24:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+  25:../kernel/os_core/os_flag.c **** */
+  26:../kernel/os_core/os_flag.c **** 
+  27:../kernel/os_core/os_flag.c **** static  void     OS_FlagBlock(OS_FLAG_GRP *pgrp, OS_FLAG_NODE *pnode, OS_FLAGS flags, INT8U wait_ty
+  28:../kernel/os_core/os_flag.c **** static  BOOLEAN  OS_FlagTaskRdy(OS_FLAG_NODE *pnode, OS_FLAGS flags_rdy);
+  29:../kernel/os_core/os_flag.c **** 
+  30:../kernel/os_core/os_flag.c **** /*$PAGE*/
+  31:../kernel/os_core/os_flag.c **** /*
+  32:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+  33:../kernel/os_core/os_flag.c **** *                              CHECK THE STATUS OF FLAGS IN AN EVENT FLAG GROUP
+  34:../kernel/os_core/os_flag.c **** *
+  35:../kernel/os_core/os_flag.c **** * Description: This function is called to check the status of a combination of bits to be set or cl
+  36:../kernel/os_core/os_flag.c **** *              in an event flag group.  Your application can check for ANY bit to be set/cleared or
+  37:../kernel/os_core/os_flag.c **** *              bits to be set/cleared.
+  38:../kernel/os_core/os_flag.c **** *
+  39:../kernel/os_core/os_flag.c **** *              This call does not block if the desired flags are not present.
+  40:../kernel/os_core/os_flag.c **** *
+  41:../kernel/os_core/os_flag.c **** * Arguments  : pgrp          is a pointer to the desired event flag group.
+  42:../kernel/os_core/os_flag.c **** *
+  43:../kernel/os_core/os_flag.c **** *              flags         Is a bit pattern indicating which bit(s) (i.e. flags) you wish to chec
+  44:../kernel/os_core/os_flag.c **** *                            The bits you want are specified by setting the corresponding bits in
+  45:../kernel/os_core/os_flag.c **** *                            'flags'.  e.g. if your application wants to wait for bits 0 and 1 then
+  46:../kernel/os_core/os_flag.c **** *                            'flags' would contain 0x03.
+  47:../kernel/os_core/os_flag.c **** *
+  48:../kernel/os_core/os_flag.c **** *              wait_type     specifies whether you want ALL bits to be set/cleared or ANY of the bi
+  49:../kernel/os_core/os_flag.c **** *                            to be set/cleared.
+  50:../kernel/os_core/os_flag.c **** *                            You can specify the following argument:
+  51:../kernel/os_core/os_flag.c **** *
+  52:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_CLR_ALL   You will check ALL bits in 'flags' to be clear 
+  53:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_CLR_ANY   You will check ANY bit  in 'flags' to be clear 
+  54:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_SET_ALL   You will check ALL bits in 'flags' to be set   
+  55:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_SET_ANY   You will check ANY bit  in 'flags' to be set   
+  56:../kernel/os_core/os_flag.c **** *
+  57:../kernel/os_core/os_flag.c **** *                            NOTE: Add OS_FLAG_CONSUME if you want the event flag to be 'consumed' 
+  58:../kernel/os_core/os_flag.c **** *                                  the call.  Example, to wait for any flag in a group AND then cle
+  59:../kernel/os_core/os_flag.c **** *                                  the flags that are present, set 'wait_type' to:
+  60:../kernel/os_core/os_flag.c **** *
+  61:../kernel/os_core/os_flag.c **** *                                  OS_FLAG_WAIT_SET_ANY + OS_FLAG_CONSUME
+  62:../kernel/os_core/os_flag.c **** *
+  63:../kernel/os_core/os_flag.c **** *              err           is a pointer to an error code and can be:
+  64:../kernel/os_core/os_flag.c **** *                            OS_NO_ERR              No error
+  65:../kernel/os_core/os_flag.c **** *                            OS_ERR_EVENT_TYPE      You are not pointing to an event flag group
+  66:../kernel/os_core/os_flag.c **** *                            OS_FLAG_ERR_WAIT_TYPE  You didn't specify a proper 'wait_type' argumen
+  67:../kernel/os_core/os_flag.c **** *                            OS_FLAG_INVALID_PGRP   You passed a NULL pointer instead of the event 
+  68:../kernel/os_core/os_flag.c **** *                                                   group handle.
+  69:../kernel/os_core/os_flag.c **** *                            OS_FLAG_ERR_NOT_RDY    The desired flags you are waiting for are not
+  70:../kernel/os_core/os_flag.c **** *                                                   available.
+  71:../kernel/os_core/os_flag.c **** *
+  72:../kernel/os_core/os_flag.c **** * Returns    : The flags in the event flag group that made the task ready or, 0 if a timeout or an 
+  73:../kernel/os_core/os_flag.c **** *              occurred.
+  74:../kernel/os_core/os_flag.c **** *
+  75:../kernel/os_core/os_flag.c **** * Called from: Task or ISR
+  76:../kernel/os_core/os_flag.c **** *
+  77:../kernel/os_core/os_flag.c **** * Note(s)    : 1) IMPORTANT, the behavior of this function has changed from PREVIOUS versions.  The
+  78:../kernel/os_core/os_flag.c **** *                 function NOW returns the flags that were ready INSTEAD of the current state of th
+  79:../kernel/os_core/os_flag.c **** *                 event flags.
+  80:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+  81:../kernel/os_core/os_flag.c **** */
+  82:../kernel/os_core/os_flag.c **** 
+  83:../kernel/os_core/os_flag.c **** #if OS_FLAG_ACCEPT_EN > 0
+  84:../kernel/os_core/os_flag.c **** OS_FLAGS  OSFlagAccept (OS_FLAG_GRP *pgrp, OS_FLAGS flags, INT8U wait_type, INT8U *err)
+  85:../kernel/os_core/os_flag.c **** {
+ 1635              		.loc 1 85 0
+ 1636              		.cfi_startproc
+ 1637              		@ Function supports interworking.
+ 1638              		@ args = 0, pretend = 0, frame = 24
+ 1639              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1640 0000 0DC0A0E1 		mov	ip, sp
+ 1641              	.LCFI0:
+ 1642              		.cfi_def_cfa_register 12
+ 1643 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1644 0008 04B04CE2 		sub	fp, ip, #4
+ 1645              		.cfi_offset 14, -8
+ 1646              		.cfi_offset 13, -12
+ 1647              		.cfi_offset 11, -16
+ 1648              	.LCFI1:
+ 1649              		.cfi_def_cfa 11, 4
+ 1650 000c 18D04DE2 		sub	sp, sp, #24
+ 1651 0010 18000BE5 		str	r0, [fp, #-24]
+ 1652 0014 20300BE5 		str	r3, [fp, #-32]
+ 1653 0018 BA114BE1 		strh	r1, [fp, #-26]	@ movhi
+ 1654 001c 0230A0E1 		mov	r3, r2
+ 1655 0020 1B304BE5 		strb	r3, [fp, #-27]
+  86:../kernel/os_core/os_flag.c ****     OS_FLAGS      flags_rdy;
+  87:../kernel/os_core/os_flag.c ****     BOOLEAN       consume;
+  88:../kernel/os_core/os_flag.c **** #if OS_CRITICAL_METHOD == 3                                /* Allocate storage for CPU status regis
+  89:../kernel/os_core/os_flag.c ****     OS_CPU_SR     cpu_sr;
+  90:../kernel/os_core/os_flag.c **** 
+  91:../kernel/os_core/os_flag.c **** 
+  92:../kernel/os_core/os_flag.c **** 
+  93:../kernel/os_core/os_flag.c ****     cpu_sr = 0;                                            /* Prevent compiler warning             
+  94:../kernel/os_core/os_flag.c **** #endif    
+  95:../kernel/os_core/os_flag.c **** #if OS_ARG_CHK_EN > 0
+  96:../kernel/os_core/os_flag.c ****     if (pgrp == (OS_FLAG_GRP *)0) {                        /* Validate 'pgrp'                      
+ 1656              		.loc 1 96 0
+ 1657 0024 18301BE5 		ldr	r3, [fp, #-24]
+ 1658 0028 000053E3 		cmp	r3, #0
+ 1659 002c 0400001A 		bne	.L2
+  97:../kernel/os_core/os_flag.c ****         *err = OS_FLAG_INVALID_PGRP;
+ 1660              		.loc 1 97 0
+ 1661 0030 20301BE5 		ldr	r3, [fp, #-32]
+ 1662 0034 6920E0E3 		mvn	r2, #105
+ 1663 0038 0020C3E5 		strb	r2, [r3, #0]
+  98:../kernel/os_core/os_flag.c ****         return ((OS_FLAGS)0);
+ 1664              		.loc 1 98 0
+ 1665 003c 0030A0E3 		mov	r3, #0
+ 1666 0040 B30000EA 		b	.L3
+ 1667              	.L2:
+  99:../kernel/os_core/os_flag.c ****     }
+ 100:../kernel/os_core/os_flag.c **** #endif
+ 101:../kernel/os_core/os_flag.c ****     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {          /* Validate event block type            
+ 1668              		.loc 1 101 0
+ 1669 0044 18301BE5 		ldr	r3, [fp, #-24]
+ 1670 0048 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1671 004c 050053E3 		cmp	r3, #5
+ 1672 0050 0400000A 		beq	.L4
+ 102:../kernel/os_core/os_flag.c ****         *err = OS_ERR_EVENT_TYPE;
+ 1673              		.loc 1 102 0
+ 1674 0054 20301BE5 		ldr	r3, [fp, #-32]
+ 1675 0058 0120A0E3 		mov	r2, #1
+ 1676 005c 0020C3E5 		strb	r2, [r3, #0]
+ 103:../kernel/os_core/os_flag.c ****         return ((OS_FLAGS)0);
+ 1677              		.loc 1 103 0
+ 1678 0060 0030A0E3 		mov	r3, #0
+ 1679 0064 AA0000EA 		b	.L3
+ 1680              	.L4:
+ 104:../kernel/os_core/os_flag.c ****     }
+ 105:../kernel/os_core/os_flag.c ****     if (wait_type & OS_FLAG_CONSUME) {                     /* See if we need to consume the flags  
+ 1681              		.loc 1 105 0
+ 1682 0068 1B305BE5 		ldrb	r3, [fp, #-27]	@ zero_extendqisi2
+ 1683 006c 033CA0E1 		mov	r3, r3, asl #24
+ 1684 0070 433CA0E1 		mov	r3, r3, asr #24
+ 1685 0074 000053E3 		cmp	r3, #0
+ 1686 0078 050000AA 		bge	.L5
+ 106:../kernel/os_core/os_flag.c ****         wait_type &= ~OS_FLAG_CONSUME;
+ 1687              		.loc 1 106 0
+ 1688 007c 1B305BE5 		ldrb	r3, [fp, #-27]
+ 1689 0080 7F3003E2 		and	r3, r3, #127
+ 1690 0084 1B304BE5 		strb	r3, [fp, #-27]
+ 107:../kernel/os_core/os_flag.c ****         consume    = TRUE;
+ 1691              		.loc 1 107 0
+ 1692 0088 0130A0E3 		mov	r3, #1
+ 1693 008c 0F304BE5 		strb	r3, [fp, #-15]
+ 1694 0090 010000EA 		b	.L6
+ 1695              	.L5:
+ 108:../kernel/os_core/os_flag.c ****     } else {
+ 109:../kernel/os_core/os_flag.c ****         consume    = FALSE;
+ 1696              		.loc 1 109 0
+ 1697 0094 0030A0E3 		mov	r3, #0
+ 1698 0098 0F304BE5 		strb	r3, [fp, #-15]
+ 1699              	.L6:
+ 110:../kernel/os_core/os_flag.c ****     }
+ 111:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 112:../kernel/os_core/os_flag.c ****     *err = OS_NO_ERR;                                      /* Assume NO error until proven otherwis
+ 1700              		.loc 1 112 0
+ 1701 009c 20301BE5 		ldr	r3, [fp, #-32]
+ 1702 00a0 0020A0E3 		mov	r2, #0
+ 1703 00a4 0020C3E5 		strb	r2, [r3, #0]
+ 113:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 1704              		.loc 1 113 0
+ 1705              	@ 113 "../kernel/os_core/os_flag.c" 1
+ 1706 00a8 00000FE1 		mrs   r0, cpsr
+ 1707              	@ 0 "" 2
+ 1708              	@ 113 "../kernel/os_core/os_flag.c" 1
+ 1709 00ac 04002DE5 		stmfd sp!, {r0}
+ 1710              	@ 0 "" 2
+ 1711              	@ 113 "../kernel/os_core/os_flag.c" 1
+ 1712 00b0 C00080E3 		orr   r0, r0, #0b11000000
+ 1713              	@ 0 "" 2
+ 1714              	@ 113 "../kernel/os_core/os_flag.c" 1
+ 1715 00b4 00F021E1 		msr   cpsr_c, r0
+ 1716              	@ 0 "" 2
+ 114:../kernel/os_core/os_flag.c ****     switch (wait_type) {
+ 1717              		.loc 1 114 0
+ 1718 00b8 1B305BE5 		ldrb	r3, [fp, #-27]	@ zero_extendqisi2
+ 1719 00bc 030053E3 		cmp	r3, #3
+ 1720 00c0 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 1721 00c4 890000EA 		b	.L7
+ 1722              	.L12:
+ 1723 00c8 E4010000 		.word	.L8
+ 1724 00cc 6C020000 		.word	.L9
+ 1725 00d0 D8000000 		.word	.L10
+ 1726 00d4 60010000 		.word	.L11
+ 1727              	.L10:
+ 115:../kernel/os_core/os_flag.c ****         case OS_FLAG_WAIT_SET_ALL:                         /* See if all required flags are set    
+ 116:../kernel/os_core/os_flag.c ****              flags_rdy = pgrp->OSFlagFlags & flags;        /* Extract only the bits we want        
+ 1728              		.loc 1 116 0
+ 1729 00d8 18301BE5 		ldr	r3, [fp, #-24]
+ 1730 00dc B820D3E1 		ldrh	r2, [r3, #8]
+ 1731 00e0 BA315BE1 		ldrh	r3, [fp, #-26]	@ movhi
+ 1732 00e4 033002E0 		and	r3, r2, r3
+ 1733 00e8 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 117:../kernel/os_core/os_flag.c ****              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want 
+ 1734              		.loc 1 117 0
+ 1735 00ec BE205BE1 		ldrh	r2, [fp, #-14]
+ 1736 00f0 BA315BE1 		ldrh	r3, [fp, #-26]
+ 1737 00f4 030052E1 		cmp	r2, r3
+ 1738 00f8 1200001A 		bne	.L13
+ 118:../kernel/os_core/os_flag.c ****                  if (consume == TRUE) {                    /* See if we need to consume the flags  
+ 1739              		.loc 1 118 0
+ 1740 00fc 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 1741 0100 010053E3 		cmp	r3, #1
+ 1742 0104 1200001A 		bne	.L14
+ 119:../kernel/os_core/os_flag.c ****                      pgrp->OSFlagFlags &= ~flags_rdy;      /* Clear ONLY the flags that we wanted  
+ 1743              		.loc 1 119 0
+ 1744 0108 18301BE5 		ldr	r3, [fp, #-24]
+ 1745 010c B830D3E1 		ldrh	r3, [r3, #8]
+ 1746 0110 0338A0E1 		mov	r3, r3, asl #16
+ 1747 0114 2328A0E1 		mov	r2, r3, lsr #16
+ 1748 0118 BE305BE1 		ldrh	r3, [fp, #-14]
+ 1749 011c 0330E0E1 		mvn	r3, r3
+ 1750 0120 0338A0E1 		mov	r3, r3, asl #16
+ 1751 0124 2338A0E1 		mov	r3, r3, lsr #16
+ 1752 0128 033002E0 		and	r3, r2, r3
+ 1753 012c 0338A0E1 		mov	r3, r3, asl #16
+ 1754 0130 2338A0E1 		mov	r3, r3, lsr #16
+ 1755 0134 0338A0E1 		mov	r3, r3, asl #16
+ 1756 0138 2328A0E1 		mov	r2, r3, lsr #16
+ 1757 013c 18301BE5 		ldr	r3, [fp, #-24]
+ 1758 0140 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 1759 0144 020000EA 		b	.L14
+ 1760              	.L13:
+ 120:../kernel/os_core/os_flag.c ****                  }
+ 121:../kernel/os_core/os_flag.c ****              } else {
+ 122:../kernel/os_core/os_flag.c ****                  *err  = OS_FLAG_ERR_NOT_RDY;
+ 1761              		.loc 1 122 0
+ 1762 0148 20301BE5 		ldr	r3, [fp, #-32]
+ 1763 014c 6720E0E3 		mvn	r2, #103
+ 1764 0150 0020C3E5 		strb	r2, [r3, #0]
+ 1765              	.L14:
+ 123:../kernel/os_core/os_flag.c ****              }
+ 124:../kernel/os_core/os_flag.c ****              OS_EXIT_CRITICAL();
+ 1766              		.loc 1 124 0
+ 1767              	@ 124 "../kernel/os_core/os_flag.c" 1
+ 1768 0154 04009DE4 		ldmfd sp!, {r0}
+ 1769              	@ 0 "" 2
+ 1770              	@ 124 "../kernel/os_core/os_flag.c" 1
+ 1771 0158 00F021E1 		msr   cpsr_c, r0
+ 1772              	@ 0 "" 2
+ 125:../kernel/os_core/os_flag.c ****              break;
+ 1773              		.loc 1 125 0
+ 1774 015c 6B0000EA 		b	.L15
+ 1775              	.L11:
+ 126:../kernel/os_core/os_flag.c **** 
+ 127:../kernel/os_core/os_flag.c ****         case OS_FLAG_WAIT_SET_ANY:
+ 128:../kernel/os_core/os_flag.c ****              flags_rdy = pgrp->OSFlagFlags & flags;        /* Extract only the bits we want        
+ 1776              		.loc 1 128 0
+ 1777 0160 18301BE5 		ldr	r3, [fp, #-24]
+ 1778 0164 B820D3E1 		ldrh	r2, [r3, #8]
+ 1779 0168 BA315BE1 		ldrh	r3, [fp, #-26]	@ movhi
+ 1780 016c 033002E0 		and	r3, r2, r3
+ 1781 0170 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 129:../kernel/os_core/os_flag.c ****              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag set                  
+ 1782              		.loc 1 129 0
+ 1783 0174 BE305BE1 		ldrh	r3, [fp, #-14]
+ 1784 0178 000053E3 		cmp	r3, #0
+ 1785 017c 1200000A 		beq	.L16
+ 130:../kernel/os_core/os_flag.c ****                  if (consume == TRUE) {                    /* See if we need to consume the flags  
+ 1786              		.loc 1 130 0
+ 1787 0180 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 1788 0184 010053E3 		cmp	r3, #1
+ 1789 0188 1200001A 		bne	.L17
+ 131:../kernel/os_core/os_flag.c ****                      pgrp->OSFlagFlags &= ~flags_rdy;      /* Clear ONLY the flags that we got     
+ 1790              		.loc 1 131 0
+ 1791 018c 18301BE5 		ldr	r3, [fp, #-24]
+ 1792 0190 B830D3E1 		ldrh	r3, [r3, #8]
+ 1793 0194 0338A0E1 		mov	r3, r3, asl #16
+ 1794 0198 2328A0E1 		mov	r2, r3, lsr #16
+ 1795 019c BE305BE1 		ldrh	r3, [fp, #-14]
+ 1796 01a0 0330E0E1 		mvn	r3, r3
+ 1797 01a4 0338A0E1 		mov	r3, r3, asl #16
+ 1798 01a8 2338A0E1 		mov	r3, r3, lsr #16
+ 1799 01ac 033002E0 		and	r3, r2, r3
+ 1800 01b0 0338A0E1 		mov	r3, r3, asl #16
+ 1801 01b4 2338A0E1 		mov	r3, r3, lsr #16
+ 1802 01b8 0338A0E1 		mov	r3, r3, asl #16
+ 1803 01bc 2328A0E1 		mov	r2, r3, lsr #16
+ 1804 01c0 18301BE5 		ldr	r3, [fp, #-24]
+ 1805 01c4 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 1806 01c8 020000EA 		b	.L17
+ 1807              	.L16:
+ 132:../kernel/os_core/os_flag.c ****                  }
+ 133:../kernel/os_core/os_flag.c ****              } else {
+ 134:../kernel/os_core/os_flag.c ****                  *err  = OS_FLAG_ERR_NOT_RDY;
+ 1808              		.loc 1 134 0
+ 1809 01cc 20301BE5 		ldr	r3, [fp, #-32]
+ 1810 01d0 6720E0E3 		mvn	r2, #103
+ 1811 01d4 0020C3E5 		strb	r2, [r3, #0]
+ 1812              	.L17:
+ 135:../kernel/os_core/os_flag.c ****              }
+ 136:../kernel/os_core/os_flag.c ****              OS_EXIT_CRITICAL();
+ 1813              		.loc 1 136 0
+ 1814              	@ 136 "../kernel/os_core/os_flag.c" 1
+ 1815 01d8 04009DE4 		ldmfd sp!, {r0}
+ 1816              	@ 0 "" 2
+ 1817              	@ 136 "../kernel/os_core/os_flag.c" 1
+ 1818 01dc 00F021E1 		msr   cpsr_c, r0
+ 1819              	@ 0 "" 2
+ 137:../kernel/os_core/os_flag.c ****              break;
+ 1820              		.loc 1 137 0
+ 1821 01e0 4A0000EA 		b	.L15
+ 1822              	.L8:
+ 138:../kernel/os_core/os_flag.c **** 
+ 139:../kernel/os_core/os_flag.c **** #if OS_FLAG_WAIT_CLR_EN > 0
+ 140:../kernel/os_core/os_flag.c ****         case OS_FLAG_WAIT_CLR_ALL:                         /* See if all required flags are cleared
+ 141:../kernel/os_core/os_flag.c ****              flags_rdy = ~pgrp->OSFlagFlags & flags;       /* Extract only the bits we want        
+ 1823              		.loc 1 141 0
+ 1824 01e4 18301BE5 		ldr	r3, [fp, #-24]
+ 1825 01e8 B830D3E1 		ldrh	r3, [r3, #8]
+ 1826 01ec 0338A0E1 		mov	r3, r3, asl #16
+ 1827 01f0 2338A0E1 		mov	r3, r3, lsr #16
+ 1828 01f4 0330E0E1 		mvn	r3, r3
+ 1829 01f8 0338A0E1 		mov	r3, r3, asl #16
+ 1830 01fc 2328A0E1 		mov	r2, r3, lsr #16
+ 1831 0200 BA315BE1 		ldrh	r3, [fp, #-26]
+ 1832 0204 033002E0 		and	r3, r2, r3
+ 1833 0208 0338A0E1 		mov	r3, r3, asl #16
+ 1834 020c 2338A0E1 		mov	r3, r3, lsr #16
+ 1835 0210 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 142:../kernel/os_core/os_flag.c ****              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want 
+ 1836              		.loc 1 142 0
+ 1837 0214 BE205BE1 		ldrh	r2, [fp, #-14]
+ 1838 0218 BA315BE1 		ldrh	r3, [fp, #-26]
+ 1839 021c 030052E1 		cmp	r2, r3
+ 1840 0220 0B00001A 		bne	.L18
+ 143:../kernel/os_core/os_flag.c ****                  if (consume == TRUE) {                    /* See if we need to consume the flags  
+ 1841              		.loc 1 143 0
+ 1842 0224 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 1843 0228 010053E3 		cmp	r3, #1
+ 1844 022c 0B00001A 		bne	.L19
+ 144:../kernel/os_core/os_flag.c ****                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we wanted    
+ 1845              		.loc 1 144 0
+ 1846 0230 18301BE5 		ldr	r3, [fp, #-24]
+ 1847 0234 B820D3E1 		ldrh	r2, [r3, #8]
+ 1848 0238 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 1849 023c 033082E1 		orr	r3, r2, r3
+ 1850 0240 0338A0E1 		mov	r3, r3, asl #16
+ 1851 0244 2328A0E1 		mov	r2, r3, lsr #16
+ 1852 0248 18301BE5 		ldr	r3, [fp, #-24]
+ 1853 024c B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 1854 0250 020000EA 		b	.L19
+ 1855              	.L18:
+ 145:../kernel/os_core/os_flag.c ****                  }
+ 146:../kernel/os_core/os_flag.c ****              } else {
+ 147:../kernel/os_core/os_flag.c ****                  *err  = OS_FLAG_ERR_NOT_RDY;
+ 1856              		.loc 1 147 0
+ 1857 0254 20301BE5 		ldr	r3, [fp, #-32]
+ 1858 0258 6720E0E3 		mvn	r2, #103
+ 1859 025c 0020C3E5 		strb	r2, [r3, #0]
+ 1860              	.L19:
+ 148:../kernel/os_core/os_flag.c ****              }
+ 149:../kernel/os_core/os_flag.c ****              OS_EXIT_CRITICAL();
+ 1861              		.loc 1 149 0
+ 1862              	@ 149 "../kernel/os_core/os_flag.c" 1
+ 1863 0260 04009DE4 		ldmfd sp!, {r0}
+ 1864              	@ 0 "" 2
+ 1865              	@ 149 "../kernel/os_core/os_flag.c" 1
+ 1866 0264 00F021E1 		msr   cpsr_c, r0
+ 1867              	@ 0 "" 2
+ 150:../kernel/os_core/os_flag.c ****              break;
+ 1868              		.loc 1 150 0
+ 1869 0268 280000EA 		b	.L15
+ 1870              	.L9:
+ 151:../kernel/os_core/os_flag.c **** 
+ 152:../kernel/os_core/os_flag.c ****         case OS_FLAG_WAIT_CLR_ANY:
+ 153:../kernel/os_core/os_flag.c ****              flags_rdy = ~pgrp->OSFlagFlags & flags;       /* Extract only the bits we want        
+ 1871              		.loc 1 153 0
+ 1872 026c 18301BE5 		ldr	r3, [fp, #-24]
+ 1873 0270 B830D3E1 		ldrh	r3, [r3, #8]
+ 1874 0274 0338A0E1 		mov	r3, r3, asl #16
+ 1875 0278 2338A0E1 		mov	r3, r3, lsr #16
+ 1876 027c 0330E0E1 		mvn	r3, r3
+ 1877 0280 0338A0E1 		mov	r3, r3, asl #16
+ 1878 0284 2328A0E1 		mov	r2, r3, lsr #16
+ 1879 0288 BA315BE1 		ldrh	r3, [fp, #-26]
+ 1880 028c 033002E0 		and	r3, r2, r3
+ 1881 0290 0338A0E1 		mov	r3, r3, asl #16
+ 1882 0294 2338A0E1 		mov	r3, r3, lsr #16
+ 1883 0298 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 154:../kernel/os_core/os_flag.c ****              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag cleared              
+ 1884              		.loc 1 154 0
+ 1885 029c BE305BE1 		ldrh	r3, [fp, #-14]
+ 1886 02a0 000053E3 		cmp	r3, #0
+ 1887 02a4 0B00000A 		beq	.L20
+ 155:../kernel/os_core/os_flag.c ****                  if (consume == TRUE) {                    /* See if we need to consume the flags  
+ 1888              		.loc 1 155 0
+ 1889 02a8 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 1890 02ac 010053E3 		cmp	r3, #1
+ 1891 02b0 0B00001A 		bne	.L21
+ 156:../kernel/os_core/os_flag.c ****                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we got       
+ 1892              		.loc 1 156 0
+ 1893 02b4 18301BE5 		ldr	r3, [fp, #-24]
+ 1894 02b8 B820D3E1 		ldrh	r2, [r3, #8]
+ 1895 02bc BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 1896 02c0 033082E1 		orr	r3, r2, r3
+ 1897 02c4 0338A0E1 		mov	r3, r3, asl #16
+ 1898 02c8 2328A0E1 		mov	r2, r3, lsr #16
+ 1899 02cc 18301BE5 		ldr	r3, [fp, #-24]
+ 1900 02d0 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 1901 02d4 020000EA 		b	.L21
+ 1902              	.L20:
+ 157:../kernel/os_core/os_flag.c ****                  }
+ 158:../kernel/os_core/os_flag.c ****              } else {
+ 159:../kernel/os_core/os_flag.c ****                  *err  = OS_FLAG_ERR_NOT_RDY;
+ 1903              		.loc 1 159 0
+ 1904 02d8 20301BE5 		ldr	r3, [fp, #-32]
+ 1905 02dc 6720E0E3 		mvn	r2, #103
+ 1906 02e0 0020C3E5 		strb	r2, [r3, #0]
+ 1907              	.L21:
+ 160:../kernel/os_core/os_flag.c ****              }
+ 161:../kernel/os_core/os_flag.c ****              OS_EXIT_CRITICAL();
+ 1908              		.loc 1 161 0
+ 1909              	@ 161 "../kernel/os_core/os_flag.c" 1
+ 1910 02e4 04009DE4 		ldmfd sp!, {r0}
+ 1911              	@ 0 "" 2
+ 1912              	@ 161 "../kernel/os_core/os_flag.c" 1
+ 1913 02e8 00F021E1 		msr   cpsr_c, r0
+ 1914              	@ 0 "" 2
+ 162:../kernel/os_core/os_flag.c ****              break;
+ 1915              		.loc 1 162 0
+ 1916 02ec 070000EA 		b	.L15
+ 1917              	.L7:
+ 163:../kernel/os_core/os_flag.c **** #endif
+ 164:../kernel/os_core/os_flag.c **** 
+ 165:../kernel/os_core/os_flag.c ****         default:
+ 166:../kernel/os_core/os_flag.c ****              OS_EXIT_CRITICAL();
+ 1918              		.loc 1 166 0
+ 1919              	@ 166 "../kernel/os_core/os_flag.c" 1
+ 1920 02f0 04009DE4 		ldmfd sp!, {r0}
+ 1921              	@ 0 "" 2
+ 1922              	@ 166 "../kernel/os_core/os_flag.c" 1
+ 1923 02f4 00F021E1 		msr   cpsr_c, r0
+ 1924              	@ 0 "" 2
+ 167:../kernel/os_core/os_flag.c ****              flags_rdy = (OS_FLAGS)0;
+ 1925              		.loc 1 167 0
+ 1926 02f8 0030A0E3 		mov	r3, #0
+ 1927 02fc BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 168:../kernel/os_core/os_flag.c ****              *err      = OS_FLAG_ERR_WAIT_TYPE;
+ 1928              		.loc 1 168 0
+ 1929 0300 20301BE5 		ldr	r3, [fp, #-32]
+ 1930 0304 6820E0E3 		mvn	r2, #104
+ 1931 0308 0020C3E5 		strb	r2, [r3, #0]
+ 169:../kernel/os_core/os_flag.c ****              break;
+ 1932              		.loc 1 169 0
+ 1933 030c 0000A0E1 		mov	r0, r0	@ nop
+ 1934              	.L15:
+ 170:../kernel/os_core/os_flag.c ****     }
+ 171:../kernel/os_core/os_flag.c ****     return (flags_rdy);
+ 1935              		.loc 1 171 0
+ 1936 0310 BE305BE1 		ldrh	r3, [fp, #-14]
+ 1937              	.L3:
+ 172:../kernel/os_core/os_flag.c **** }
+ 1938              		.loc 1 172 0
+ 1939 0314 0300A0E1 		mov	r0, r3
+ 1940 0318 0CD04BE2 		sub	sp, fp, #12
+ 1941 031c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1942 0320 1EFF2FE1 		bx	lr
+ 1943              		.cfi_endproc
+ 1944              	.LFE0:
+ 1946              		.align	2
+ 1947              		.global	OSFlagCreate
+ 1949              	OSFlagCreate:
+ 1950              	.LFB1:
+ 173:../kernel/os_core/os_flag.c **** #endif
+ 174:../kernel/os_core/os_flag.c **** 
+ 175:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 176:../kernel/os_core/os_flag.c **** /*
+ 177:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 178:../kernel/os_core/os_flag.c **** *                                           CREATE AN EVENT FLAG
+ 179:../kernel/os_core/os_flag.c **** *
+ 180:../kernel/os_core/os_flag.c **** * Description: This function is called to create an event flag group.
+ 181:../kernel/os_core/os_flag.c **** *
+ 182:../kernel/os_core/os_flag.c **** * Arguments  : flags         Contains the initial value to store in the event flag group.
+ 183:../kernel/os_core/os_flag.c **** *
+ 184:../kernel/os_core/os_flag.c **** *              err           is a pointer to an error code which will be returned to your applicati
+ 185:../kernel/os_core/os_flag.c **** *                               OS_NO_ERR                if the call was successful.
+ 186:../kernel/os_core/os_flag.c **** *                               OS_ERR_CREATE_ISR        if you attempted to create an Event Flag f
+ 187:../kernel/os_core/os_flag.c **** *                                                        ISR.
+ 188:../kernel/os_core/os_flag.c **** *                               OS_FLAG_GRP_DEPLETED     if there are no more event flag groups
+ 189:../kernel/os_core/os_flag.c **** *
+ 190:../kernel/os_core/os_flag.c **** * Returns    : A pointer to an event flag group or a NULL pointer if no more groups are available.
+ 191:../kernel/os_core/os_flag.c **** *
+ 192:../kernel/os_core/os_flag.c **** * Called from: Task ONLY
+ 193:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 194:../kernel/os_core/os_flag.c **** */
+ 195:../kernel/os_core/os_flag.c **** 
+ 196:../kernel/os_core/os_flag.c **** OS_FLAG_GRP  *OSFlagCreate (OS_FLAGS flags, INT8U *err)
+ 197:../kernel/os_core/os_flag.c **** {
+ 1951              		.loc 1 197 0
+ 1952              		.cfi_startproc
+ 1953              		@ Function supports interworking.
+ 1954              		@ args = 0, pretend = 0, frame = 16
+ 1955              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1956 0324 0DC0A0E1 		mov	ip, sp
+ 1957              	.LCFI2:
+ 1958              		.cfi_def_cfa_register 12
+ 1959 0328 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1960 032c 04B04CE2 		sub	fp, ip, #4
+ 1961              		.cfi_offset 14, -8
+ 1962              		.cfi_offset 13, -12
+ 1963              		.cfi_offset 11, -16
+ 1964              	.LCFI3:
+ 1965              		.cfi_def_cfa 11, 4
+ 1966 0330 10D04DE2 		sub	sp, sp, #16
+ 1967 0334 0030A0E1 		mov	r3, r0
+ 1968 0338 1C100BE5 		str	r1, [fp, #-28]
+ 1969 033c B6314BE1 		strh	r3, [fp, #-22]	@ movhi
+ 198:../kernel/os_core/os_flag.c ****     OS_FLAG_GRP *pgrp;
+ 199:../kernel/os_core/os_flag.c **** #if OS_CRITICAL_METHOD == 3                         /* Allocate storage for CPU status register    
+ 200:../kernel/os_core/os_flag.c ****     OS_CPU_SR    cpu_sr;
+ 201:../kernel/os_core/os_flag.c **** 
+ 202:../kernel/os_core/os_flag.c **** 
+ 203:../kernel/os_core/os_flag.c **** 
+ 204:../kernel/os_core/os_flag.c ****     cpu_sr = 0;                                     /* Prevent compiler warning                    
+ 205:../kernel/os_core/os_flag.c **** #endif    
+ 206:../kernel/os_core/os_flag.c ****     if (OSIntNesting > 0) {                         /* See if called from ISR ...                  
+ 1970              		.loc 1 206 0
+ 1971 0340 D8309FE5 		ldr	r3, .L27
+ 1972 0344 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1973 0348 000053E3 		cmp	r3, #0
+ 1974 034c 0400000A 		beq	.L23
+ 207:../kernel/os_core/os_flag.c ****         *err = OS_ERR_CREATE_ISR;                   /* ... can't CREATE from an ISR                
+ 1975              		.loc 1 207 0
+ 1976 0350 1C301BE5 		ldr	r3, [fp, #-28]
+ 1977 0354 7220E0E3 		mvn	r2, #114
+ 1978 0358 0020C3E5 		strb	r2, [r3, #0]
+ 208:../kernel/os_core/os_flag.c ****         return ((OS_FLAG_GRP *)0);
+ 1979              		.loc 1 208 0
+ 1980 035c 0030A0E3 		mov	r3, #0
+ 1981 0360 2A0000EA 		b	.L24
+ 1982              	.L23:
+ 209:../kernel/os_core/os_flag.c ****     }
+ 210:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 1983              		.loc 1 210 0
+ 1984              	@ 210 "../kernel/os_core/os_flag.c" 1
+ 1985 0364 00000FE1 		mrs   r0, cpsr
+ 1986              	@ 0 "" 2
+ 1987              	@ 210 "../kernel/os_core/os_flag.c" 1
+ 1988 0368 04002DE5 		stmfd sp!, {r0}
+ 1989              	@ 0 "" 2
+ 1990              	@ 210 "../kernel/os_core/os_flag.c" 1
+ 1991 036c C00080E3 		orr   r0, r0, #0b11000000
+ 1992              	@ 0 "" 2
+ 1993              	@ 210 "../kernel/os_core/os_flag.c" 1
+ 1994 0370 00F021E1 		msr   cpsr_c, r0
+ 1995              	@ 0 "" 2
+ 211:../kernel/os_core/os_flag.c ****     pgrp = OSFlagFreeList;                          /* Get next free event flag                    
+ 1996              		.loc 1 211 0
+ 1997 0374 A8309FE5 		ldr	r3, .L27+4
+ 1998 0378 003093E5 		ldr	r3, [r3, #0]
+ 1999 037c 10300BE5 		str	r3, [fp, #-16]
+ 212:../kernel/os_core/os_flag.c ****     if (pgrp != (OS_FLAG_GRP *)0) {                 /* See if we have event flag groups available  
+ 2000              		.loc 1 212 0
+ 2001 0380 10301BE5 		ldr	r3, [fp, #-16]
+ 2002 0384 000053E3 		cmp	r3, #0
+ 2003 0388 1A00000A 		beq	.L25
+ 213:../kernel/os_core/os_flag.c ****                                                     /* Adjust free list                            
+ 214:../kernel/os_core/os_flag.c ****         OSFlagFreeList       = (OS_FLAG_GRP *)OSFlagFreeList->OSFlagWaitList;
+ 2004              		.loc 1 214 0
+ 2005 038c 90309FE5 		ldr	r3, .L27+4
+ 2006 0390 003093E5 		ldr	r3, [r3, #0]
+ 2007 0394 043093E5 		ldr	r3, [r3, #4]
+ 2008 0398 0320A0E1 		mov	r2, r3
+ 2009 039c 80309FE5 		ldr	r3, .L27+4
+ 2010 03a0 002083E5 		str	r2, [r3, #0]
+ 215:../kernel/os_core/os_flag.c ****         pgrp->OSFlagType     = OS_EVENT_TYPE_FLAG;  /* Set to event flag group type                
+ 2011              		.loc 1 215 0
+ 2012 03a4 10301BE5 		ldr	r3, [fp, #-16]
+ 2013 03a8 0520A0E3 		mov	r2, #5
+ 2014 03ac 0020C3E5 		strb	r2, [r3, #0]
+ 216:../kernel/os_core/os_flag.c ****         pgrp->OSFlagFlags    = flags;               /* Set to desired initial value                
+ 2015              		.loc 1 216 0
+ 2016 03b0 10301BE5 		ldr	r3, [fp, #-16]
+ 2017 03b4 B6215BE1 		ldrh	r2, [fp, #-22]	@ movhi
+ 2018 03b8 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 217:../kernel/os_core/os_flag.c ****         pgrp->OSFlagWaitList = (void *)0;           /* Clear list of tasks waiting on flags        
+ 2019              		.loc 1 217 0
+ 2020 03bc 10301BE5 		ldr	r3, [fp, #-16]
+ 2021 03c0 0020A0E3 		mov	r2, #0
+ 2022 03c4 042083E5 		str	r2, [r3, #4]
+ 218:../kernel/os_core/os_flag.c **** #if OS_FLAG_NAME_SIZE > 1
+ 219:../kernel/os_core/os_flag.c ****         pgrp->OSFlagName[0]  = '?';
+ 2023              		.loc 1 219 0
+ 2024 03c8 10301BE5 		ldr	r3, [fp, #-16]
+ 2025 03cc 3F20A0E3 		mov	r2, #63
+ 2026 03d0 0A20C3E5 		strb	r2, [r3, #10]
+ 220:../kernel/os_core/os_flag.c ****         pgrp->OSFlagName[1]  = OS_ASCII_NUL;
+ 2027              		.loc 1 220 0
+ 2028 03d4 10301BE5 		ldr	r3, [fp, #-16]
+ 2029 03d8 0020A0E3 		mov	r2, #0
+ 2030 03dc 0B20C3E5 		strb	r2, [r3, #11]
+ 221:../kernel/os_core/os_flag.c **** #endif
+ 222:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();
+ 2031              		.loc 1 222 0
+ 2032              	@ 222 "../kernel/os_core/os_flag.c" 1
+ 2033 03e0 04009DE4 		ldmfd sp!, {r0}
+ 2034              	@ 0 "" 2
+ 2035              	@ 222 "../kernel/os_core/os_flag.c" 1
+ 2036 03e4 00F021E1 		msr   cpsr_c, r0
+ 2037              	@ 0 "" 2
+ 223:../kernel/os_core/os_flag.c ****         *err                 = OS_NO_ERR;
+ 2038              		.loc 1 223 0
+ 2039 03e8 1C301BE5 		ldr	r3, [fp, #-28]
+ 2040 03ec 0020A0E3 		mov	r2, #0
+ 2041 03f0 0020C3E5 		strb	r2, [r3, #0]
+ 2042 03f4 040000EA 		b	.L26
+ 2043              	.L25:
+ 224:../kernel/os_core/os_flag.c ****     } else {
+ 225:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();
+ 2044              		.loc 1 225 0
+ 2045              	@ 225 "../kernel/os_core/os_flag.c" 1
+ 2046 03f8 04009DE4 		ldmfd sp!, {r0}
+ 2047              	@ 0 "" 2
+ 2048              	@ 225 "../kernel/os_core/os_flag.c" 1
+ 2049 03fc 00F021E1 		msr   cpsr_c, r0
+ 2050              	@ 0 "" 2
+ 226:../kernel/os_core/os_flag.c ****         *err                 = OS_FLAG_GRP_DEPLETED;
+ 2051              		.loc 1 226 0
+ 2052 0400 1C301BE5 		ldr	r3, [fp, #-28]
+ 2053 0404 6520E0E3 		mvn	r2, #101
+ 2054 0408 0020C3E5 		strb	r2, [r3, #0]
+ 2055              	.L26:
+ 227:../kernel/os_core/os_flag.c ****     }
+ 228:../kernel/os_core/os_flag.c ****     return (pgrp);                                  /* Return pointer to event flag group          
+ 2056              		.loc 1 228 0
+ 2057 040c 10301BE5 		ldr	r3, [fp, #-16]
+ 2058              	.L24:
+ 229:../kernel/os_core/os_flag.c **** }
+ 2059              		.loc 1 229 0
+ 2060 0410 0300A0E1 		mov	r0, r3
+ 2061 0414 0CD04BE2 		sub	sp, fp, #12
+ 2062 0418 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2063 041c 1EFF2FE1 		bx	lr
+ 2064              	.L28:
+ 2065              		.align	2
+ 2066              	.L27:
+ 2067 0420 00000000 		.word	OSIntNesting
+ 2068 0424 00000000 		.word	OSFlagFreeList
+ 2069              		.cfi_endproc
+ 2070              	.LFE1:
+ 2072              		.align	2
+ 2073              		.global	OSFlagDel
+ 2075              	OSFlagDel:
+ 2076              	.LFB2:
+ 230:../kernel/os_core/os_flag.c **** 
+ 231:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 232:../kernel/os_core/os_flag.c **** /*
+ 233:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 234:../kernel/os_core/os_flag.c **** *                                     DELETE AN EVENT FLAG GROUP
+ 235:../kernel/os_core/os_flag.c **** *
+ 236:../kernel/os_core/os_flag.c **** * Description: This function deletes an event flag group and readies all tasks pending on the event
+ 237:../kernel/os_core/os_flag.c **** *              group.
+ 238:../kernel/os_core/os_flag.c **** *
+ 239:../kernel/os_core/os_flag.c **** * Arguments  : pgrp          is a pointer to the desired event flag group.
+ 240:../kernel/os_core/os_flag.c **** *
+ 241:../kernel/os_core/os_flag.c **** *              opt           determines delete options as follows:
+ 242:../kernel/os_core/os_flag.c **** *                            opt == OS_DEL_NO_PEND   Deletes the event flag group ONLY if no task p
+ 243:../kernel/os_core/os_flag.c **** *                            opt == OS_DEL_ALWAYS    Deletes the event flag group even if tasks are
+ 244:../kernel/os_core/os_flag.c **** *                                                    waiting.  In this case, all the tasks pending 
+ 245:../kernel/os_core/os_flag.c **** *                                                    readied.
+ 246:../kernel/os_core/os_flag.c **** *
+ 247:../kernel/os_core/os_flag.c **** *              err           is a pointer to an error code that can contain one of the following va
+ 248:../kernel/os_core/os_flag.c **** *                            OS_NO_ERR               The call was successful and the event flag gro
+ 249:../kernel/os_core/os_flag.c **** *                                                    deleted
+ 250:../kernel/os_core/os_flag.c **** *                            OS_ERR_DEL_ISR          If you attempted to delete the event flag grou
+ 251:../kernel/os_core/os_flag.c **** *                                                    an ISR
+ 252:../kernel/os_core/os_flag.c **** *                            OS_FLAG_INVALID_PGRP    If 'pgrp' is a NULL pointer.
+ 253:../kernel/os_core/os_flag.c **** *                            OS_ERR_EVENT_TYPE       If you didn't pass a pointer to an event flag 
+ 254:../kernel/os_core/os_flag.c **** *                            OS_ERR_INVALID_OPT      An invalid option was specified
+ 255:../kernel/os_core/os_flag.c **** *                            OS_ERR_TASK_WAITING     One or more tasks were waiting on the event fl
+ 256:../kernel/os_core/os_flag.c **** *                                                    group.
+ 257:../kernel/os_core/os_flag.c **** *
+ 258:../kernel/os_core/os_flag.c **** * Returns    : pevent        upon error
+ 259:../kernel/os_core/os_flag.c **** *              (OS_EVENT *)0 if the semaphore was successfully deleted.
+ 260:../kernel/os_core/os_flag.c **** *
+ 261:../kernel/os_core/os_flag.c **** * Note(s)    : 1) This function must be used with care.  Tasks that would normally expect the prese
+ 262:../kernel/os_core/os_flag.c **** *                 the event flag group MUST check the return code of OSFlagAccept() and OSFlagPend(
+ 263:../kernel/os_core/os_flag.c **** *              2) This call can potentially disable interrupts for a long time.  The interrupt disa
+ 264:../kernel/os_core/os_flag.c **** *                 time is directly proportional to the number of tasks waiting on the event flag gr
+ 265:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 266:../kernel/os_core/os_flag.c **** */
+ 267:../kernel/os_core/os_flag.c **** 
+ 268:../kernel/os_core/os_flag.c **** #if OS_FLAG_DEL_EN > 0
+ 269:../kernel/os_core/os_flag.c **** OS_FLAG_GRP  *OSFlagDel (OS_FLAG_GRP *pgrp, INT8U opt, INT8U *err)
+ 270:../kernel/os_core/os_flag.c **** {
+ 2077              		.loc 1 270 0
+ 2078              		.cfi_startproc
+ 2079              		@ Function supports interworking.
+ 2080              		@ args = 0, pretend = 0, frame = 24
+ 2081              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2082 0428 0DC0A0E1 		mov	ip, sp
+ 2083              	.LCFI4:
+ 2084              		.cfi_def_cfa_register 12
+ 2085 042c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2086 0430 04B04CE2 		sub	fp, ip, #4
+ 2087              		.cfi_offset 14, -8
+ 2088              		.cfi_offset 13, -12
+ 2089              		.cfi_offset 11, -16
+ 2090              	.LCFI5:
+ 2091              		.cfi_def_cfa 11, 4
+ 2092 0434 18D04DE2 		sub	sp, sp, #24
+ 2093 0438 18000BE5 		str	r0, [fp, #-24]
+ 2094 043c 0130A0E1 		mov	r3, r1
+ 2095 0440 20200BE5 		str	r2, [fp, #-32]
+ 2096 0444 19304BE5 		strb	r3, [fp, #-25]
+ 271:../kernel/os_core/os_flag.c ****     BOOLEAN       tasks_waiting;
+ 272:../kernel/os_core/os_flag.c ****     OS_FLAG_NODE *pnode;
+ 273:../kernel/os_core/os_flag.c **** #if OS_CRITICAL_METHOD == 3                                /* Allocate storage for CPU status regis
+ 274:../kernel/os_core/os_flag.c ****     OS_CPU_SR     cpu_sr;
+ 275:../kernel/os_core/os_flag.c **** 
+ 276:../kernel/os_core/os_flag.c **** 
+ 277:../kernel/os_core/os_flag.c **** 
+ 278:../kernel/os_core/os_flag.c ****     cpu_sr = 0;                                            /* Prevent compiler warning             
+ 279:../kernel/os_core/os_flag.c **** #endif    
+ 280:../kernel/os_core/os_flag.c ****     if (OSIntNesting > 0) {                                /* See if called from ISR ...           
+ 2097              		.loc 1 280 0
+ 2098 0448 10329FE5 		ldr	r3, .L44
+ 2099 044c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2100 0450 000053E3 		cmp	r3, #0
+ 2101 0454 0400000A 		beq	.L30
+ 281:../kernel/os_core/os_flag.c ****         *err = OS_ERR_DEL_ISR;                             /* ... can't DELETE from an ISR         
+ 2102              		.loc 1 281 0
+ 2103 0458 20301BE5 		ldr	r3, [fp, #-32]
+ 2104 045c 7320E0E3 		mvn	r2, #115
+ 2105 0460 0020C3E5 		strb	r2, [r3, #0]
+ 282:../kernel/os_core/os_flag.c ****         return (pgrp);
+ 2106              		.loc 1 282 0
+ 2107 0464 18301BE5 		ldr	r3, [fp, #-24]
+ 2108 0468 780000EA 		b	.L31
+ 2109              	.L30:
+ 283:../kernel/os_core/os_flag.c ****     }
+ 284:../kernel/os_core/os_flag.c **** #if OS_ARG_CHK_EN > 0
+ 285:../kernel/os_core/os_flag.c ****     if (pgrp == (OS_FLAG_GRP *)0) {                        /* Validate 'pgrp'                      
+ 2110              		.loc 1 285 0
+ 2111 046c 18301BE5 		ldr	r3, [fp, #-24]
+ 2112 0470 000053E3 		cmp	r3, #0
+ 2113 0474 0400001A 		bne	.L32
+ 286:../kernel/os_core/os_flag.c ****         *err = OS_FLAG_INVALID_PGRP;
+ 2114              		.loc 1 286 0
+ 2115 0478 20301BE5 		ldr	r3, [fp, #-32]
+ 2116 047c 6920E0E3 		mvn	r2, #105
+ 2117 0480 0020C3E5 		strb	r2, [r3, #0]
+ 287:../kernel/os_core/os_flag.c ****         return (pgrp);
+ 2118              		.loc 1 287 0
+ 2119 0484 18301BE5 		ldr	r3, [fp, #-24]
+ 2120 0488 700000EA 		b	.L31
+ 2121              	.L32:
+ 288:../kernel/os_core/os_flag.c ****     }
+ 289:../kernel/os_core/os_flag.c **** #endif
+ 290:../kernel/os_core/os_flag.c ****     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {          /* Validate event group type            
+ 2122              		.loc 1 290 0
+ 2123 048c 18301BE5 		ldr	r3, [fp, #-24]
+ 2124 0490 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2125 0494 050053E3 		cmp	r3, #5
+ 2126 0498 0400000A 		beq	.L33
+ 291:../kernel/os_core/os_flag.c ****         *err = OS_ERR_EVENT_TYPE;
+ 2127              		.loc 1 291 0
+ 2128 049c 20301BE5 		ldr	r3, [fp, #-32]
+ 2129 04a0 0120A0E3 		mov	r2, #1
+ 2130 04a4 0020C3E5 		strb	r2, [r3, #0]
+ 292:../kernel/os_core/os_flag.c ****         return (pgrp);
+ 2131              		.loc 1 292 0
+ 2132 04a8 18301BE5 		ldr	r3, [fp, #-24]
+ 2133 04ac 670000EA 		b	.L31
+ 2134              	.L33:
+ 293:../kernel/os_core/os_flag.c ****     }
+ 294:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 2135              		.loc 1 294 0
+ 2136              	@ 294 "../kernel/os_core/os_flag.c" 1
+ 2137 04b0 00000FE1 		mrs   r0, cpsr
+ 2138              	@ 0 "" 2
+ 2139              	@ 294 "../kernel/os_core/os_flag.c" 1
+ 2140 04b4 04002DE5 		stmfd sp!, {r0}
+ 2141              	@ 0 "" 2
+ 2142              	@ 294 "../kernel/os_core/os_flag.c" 1
+ 2143 04b8 C00080E3 		orr   r0, r0, #0b11000000
+ 2144              	@ 0 "" 2
+ 2145              	@ 294 "../kernel/os_core/os_flag.c" 1
+ 2146 04bc 00F021E1 		msr   cpsr_c, r0
+ 2147              	@ 0 "" 2
+ 295:../kernel/os_core/os_flag.c ****     if (pgrp->OSFlagWaitList != (void *)0) {               /* See if any tasks waiting on event fla
+ 2148              		.loc 1 295 0
+ 2149 04c0 18301BE5 		ldr	r3, [fp, #-24]
+ 2150 04c4 043093E5 		ldr	r3, [r3, #4]
+ 2151 04c8 000053E3 		cmp	r3, #0
+ 2152 04cc 0200000A 		beq	.L34
+ 296:../kernel/os_core/os_flag.c ****         tasks_waiting = TRUE;                              /* Yes                                  
+ 2153              		.loc 1 296 0
+ 2154 04d0 0130A0E3 		mov	r3, #1
+ 2155 04d4 0D304BE5 		strb	r3, [fp, #-13]
+ 2156 04d8 010000EA 		b	.L35
+ 2157              	.L34:
+ 297:../kernel/os_core/os_flag.c ****     } else {
+ 298:../kernel/os_core/os_flag.c ****         tasks_waiting = FALSE;                             /* No                                   
+ 2158              		.loc 1 298 0
+ 2159 04dc 0030A0E3 		mov	r3, #0
+ 2160 04e0 0D304BE5 		strb	r3, [fp, #-13]
+ 2161              	.L35:
+ 299:../kernel/os_core/os_flag.c ****     }
+ 300:../kernel/os_core/os_flag.c ****     switch (opt) {
+ 2162              		.loc 1 300 0
+ 2163 04e4 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 2164 04e8 000053E3 		cmp	r3, #0
+ 2165 04ec 0200000A 		beq	.L37
+ 2166 04f0 010053E3 		cmp	r3, #1
+ 2167 04f4 2400000A 		beq	.L38
+ 2168 04f8 4E0000EA 		b	.L43
+ 2169              	.L37:
+ 301:../kernel/os_core/os_flag.c ****         case OS_DEL_NO_PEND:                               /* Delete group if no task waiting      
+ 302:../kernel/os_core/os_flag.c ****              if (tasks_waiting == FALSE) {
+ 2170              		.loc 1 302 0
+ 2171 04fc 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2172 0500 000053E3 		cmp	r3, #0
+ 2173 0504 1900001A 		bne	.L39
+ 303:../kernel/os_core/os_flag.c **** #if OS_FLAG_NAME_SIZE > 1
+ 304:../kernel/os_core/os_flag.c ****                  pgrp->OSFlagName[0]  = '?';               /* Unknown name                         
+ 2174              		.loc 1 304 0
+ 2175 0508 18301BE5 		ldr	r3, [fp, #-24]
+ 2176 050c 3F20A0E3 		mov	r2, #63
+ 2177 0510 0A20C3E5 		strb	r2, [r3, #10]
+ 305:../kernel/os_core/os_flag.c ****                  pgrp->OSFlagName[1]  = OS_ASCII_NUL;
+ 2178              		.loc 1 305 0
+ 2179 0514 18301BE5 		ldr	r3, [fp, #-24]
+ 2180 0518 0020A0E3 		mov	r2, #0
+ 2181 051c 0B20C3E5 		strb	r2, [r3, #11]
+ 306:../kernel/os_core/os_flag.c **** #endif
+ 307:../kernel/os_core/os_flag.c ****                  pgrp->OSFlagType     = OS_EVENT_TYPE_UNUSED;
+ 2182              		.loc 1 307 0
+ 2183 0520 18301BE5 		ldr	r3, [fp, #-24]
+ 2184 0524 0020A0E3 		mov	r2, #0
+ 2185 0528 0020C3E5 		strb	r2, [r3, #0]
+ 308:../kernel/os_core/os_flag.c ****                  pgrp->OSFlagWaitList = (void *)OSFlagFreeList; /* Return group to free list       
+ 2186              		.loc 1 308 0
+ 2187 052c 30319FE5 		ldr	r3, .L44+4
+ 2188 0530 002093E5 		ldr	r2, [r3, #0]
+ 2189 0534 18301BE5 		ldr	r3, [fp, #-24]
+ 2190 0538 042083E5 		str	r2, [r3, #4]
+ 309:../kernel/os_core/os_flag.c ****                  pgrp->OSFlagFlags    = (OS_FLAGS)0;
+ 2191              		.loc 1 309 0
+ 2192 053c 18301BE5 		ldr	r3, [fp, #-24]
+ 2193 0540 0020A0E3 		mov	r2, #0
+ 2194 0544 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 310:../kernel/os_core/os_flag.c ****                  OSFlagFreeList       = pgrp;
+ 2195              		.loc 1 310 0
+ 2196 0548 14319FE5 		ldr	r3, .L44+4
+ 2197 054c 18201BE5 		ldr	r2, [fp, #-24]
+ 2198 0550 002083E5 		str	r2, [r3, #0]
+ 311:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();
+ 2199              		.loc 1 311 0
+ 2200              	@ 311 "../kernel/os_core/os_flag.c" 1
+ 2201 0554 04009DE4 		ldmfd sp!, {r0}
+ 2202              	@ 0 "" 2
+ 2203              	@ 311 "../kernel/os_core/os_flag.c" 1
+ 2204 0558 00F021E1 		msr   cpsr_c, r0
+ 2205              	@ 0 "" 2
+ 312:../kernel/os_core/os_flag.c ****                  *err                 = OS_NO_ERR;
+ 2206              		.loc 1 312 0
+ 2207 055c 20301BE5 		ldr	r3, [fp, #-32]
+ 2208 0560 0020A0E3 		mov	r2, #0
+ 2209 0564 0020C3E5 		strb	r2, [r3, #0]
+ 313:../kernel/os_core/os_flag.c ****                  return ((OS_FLAG_GRP *)0);                /* Event Flag Group has been deleted    
+ 2210              		.loc 1 313 0
+ 2211 0568 0030A0E3 		mov	r3, #0
+ 2212 056c 370000EA 		b	.L31
+ 2213              	.L39:
+ 314:../kernel/os_core/os_flag.c ****              } else {
+ 315:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();
+ 2214              		.loc 1 315 0
+ 2215              	@ 315 "../kernel/os_core/os_flag.c" 1
+ 2216 0570 04009DE4 		ldmfd sp!, {r0}
+ 2217              	@ 0 "" 2
+ 2218              	@ 315 "../kernel/os_core/os_flag.c" 1
+ 2219 0574 00F021E1 		msr   cpsr_c, r0
+ 2220              	@ 0 "" 2
+ 316:../kernel/os_core/os_flag.c ****                  *err                 = OS_ERR_TASK_WAITING;
+ 2221              		.loc 1 316 0
+ 2222 0578 20301BE5 		ldr	r3, [fp, #-32]
+ 2223 057c 0820A0E3 		mov	r2, #8
+ 2224 0580 0020C3E5 		strb	r2, [r3, #0]
+ 317:../kernel/os_core/os_flag.c ****                  return (pgrp);
+ 2225              		.loc 1 317 0
+ 2226 0584 18301BE5 		ldr	r3, [fp, #-24]
+ 2227 0588 300000EA 		b	.L31
+ 2228              	.L38:
+ 318:../kernel/os_core/os_flag.c ****              }
+ 319:../kernel/os_core/os_flag.c **** 
+ 320:../kernel/os_core/os_flag.c ****         case OS_DEL_ALWAYS:                                /* Always delete the event flag group   
+ 321:../kernel/os_core/os_flag.c ****              pnode = (OS_FLAG_NODE *)pgrp->OSFlagWaitList;
+ 2229              		.loc 1 321 0
+ 2230 058c 18301BE5 		ldr	r3, [fp, #-24]
+ 2231 0590 043093E5 		ldr	r3, [r3, #4]
+ 2232 0594 14300BE5 		str	r3, [fp, #-20]
+ 322:../kernel/os_core/os_flag.c ****              while (pnode != (OS_FLAG_NODE *)0) {          /* Ready ALL tasks waiting for flags    
+ 2233              		.loc 1 322 0
+ 2234 0598 050000EA 		b	.L40
+ 2235              	.L41:
+ 323:../kernel/os_core/os_flag.c ****                  (void)OS_FlagTaskRdy(pnode, (OS_FLAGS)0);
+ 2236              		.loc 1 323 0
+ 2237 059c 14001BE5 		ldr	r0, [fp, #-20]
+ 2238 05a0 0010A0E3 		mov	r1, #0
+ 2239 05a4 DC0300EB 		bl	OS_FlagTaskRdy
+ 324:../kernel/os_core/os_flag.c ****                  pnode = (OS_FLAG_NODE *)pnode->OSFlagNodeNext;
+ 2240              		.loc 1 324 0
+ 2241 05a8 14301BE5 		ldr	r3, [fp, #-20]
+ 2242 05ac 003093E5 		ldr	r3, [r3, #0]
+ 2243 05b0 14300BE5 		str	r3, [fp, #-20]
+ 2244              	.L40:
+ 322:../kernel/os_core/os_flag.c ****              while (pnode != (OS_FLAG_NODE *)0) {          /* Ready ALL tasks waiting for flags    
+ 2245              		.loc 1 322 0 discriminator 1
+ 2246 05b4 14301BE5 		ldr	r3, [fp, #-20]
+ 2247 05b8 000053E3 		cmp	r3, #0
+ 2248 05bc F6FFFF1A 		bne	.L41
+ 325:../kernel/os_core/os_flag.c ****              }
+ 326:../kernel/os_core/os_flag.c **** #if OS_EVENT_NAME_SIZE > 1
+ 327:../kernel/os_core/os_flag.c ****              pgrp->OSFlagName[0]  = '?';                   /* Unknown name                         
+ 2249              		.loc 1 327 0
+ 2250 05c0 18301BE5 		ldr	r3, [fp, #-24]
+ 2251 05c4 3F20A0E3 		mov	r2, #63
+ 2252 05c8 0A20C3E5 		strb	r2, [r3, #10]
+ 328:../kernel/os_core/os_flag.c ****              pgrp->OSFlagName[1]  = OS_ASCII_NUL;
+ 2253              		.loc 1 328 0
+ 2254 05cc 18301BE5 		ldr	r3, [fp, #-24]
+ 2255 05d0 0020A0E3 		mov	r2, #0
+ 2256 05d4 0B20C3E5 		strb	r2, [r3, #11]
+ 329:../kernel/os_core/os_flag.c **** #endif
+ 330:../kernel/os_core/os_flag.c ****              pgrp->OSFlagType     = OS_EVENT_TYPE_UNUSED;
+ 2257              		.loc 1 330 0
+ 2258 05d8 18301BE5 		ldr	r3, [fp, #-24]
+ 2259 05dc 0020A0E3 		mov	r2, #0
+ 2260 05e0 0020C3E5 		strb	r2, [r3, #0]
+ 331:../kernel/os_core/os_flag.c ****              pgrp->OSFlagWaitList = (void *)OSFlagFreeList;/* Return group to free list            
+ 2261              		.loc 1 331 0
+ 2262 05e4 78309FE5 		ldr	r3, .L44+4
+ 2263 05e8 002093E5 		ldr	r2, [r3, #0]
+ 2264 05ec 18301BE5 		ldr	r3, [fp, #-24]
+ 2265 05f0 042083E5 		str	r2, [r3, #4]
+ 332:../kernel/os_core/os_flag.c ****              pgrp->OSFlagFlags    = (OS_FLAGS)0;
+ 2266              		.loc 1 332 0
+ 2267 05f4 18301BE5 		ldr	r3, [fp, #-24]
+ 2268 05f8 0020A0E3 		mov	r2, #0
+ 2269 05fc B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 333:../kernel/os_core/os_flag.c ****              OSFlagFreeList       = pgrp;
+ 2270              		.loc 1 333 0
+ 2271 0600 5C309FE5 		ldr	r3, .L44+4
+ 2272 0604 18201BE5 		ldr	r2, [fp, #-24]
+ 2273 0608 002083E5 		str	r2, [r3, #0]
+ 334:../kernel/os_core/os_flag.c ****              OS_EXIT_CRITICAL();
+ 2274              		.loc 1 334 0
+ 2275              	@ 334 "../kernel/os_core/os_flag.c" 1
+ 2276 060c 04009DE4 		ldmfd sp!, {r0}
+ 2277              	@ 0 "" 2
+ 2278              	@ 334 "../kernel/os_core/os_flag.c" 1
+ 2279 0610 00F021E1 		msr   cpsr_c, r0
+ 2280              	@ 0 "" 2
+ 335:../kernel/os_core/os_flag.c ****              if (tasks_waiting == TRUE) {                  /* Reschedule only if task(s) were waiti
+ 2281              		.loc 1 335 0
+ 2282 0614 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2283 0618 010053E3 		cmp	r3, #1
+ 2284 061c 0000001A 		bne	.L42
+ 336:../kernel/os_core/os_flag.c ****                  OS_Sched();                               /* Find highest priority task ready to r
+ 2285              		.loc 1 336 0
+ 2286 0620 FEFFFFEB 		bl	OS_Sched
+ 2287              	.L42:
+ 337:../kernel/os_core/os_flag.c ****              }
+ 338:../kernel/os_core/os_flag.c ****              *err = OS_NO_ERR;
+ 2288              		.loc 1 338 0
+ 2289 0624 20301BE5 		ldr	r3, [fp, #-32]
+ 2290 0628 0020A0E3 		mov	r2, #0
+ 2291 062c 0020C3E5 		strb	r2, [r3, #0]
+ 339:../kernel/os_core/os_flag.c ****              return ((OS_FLAG_GRP *)0);                    /* Event Flag Group has been deleted    
+ 2292              		.loc 1 339 0
+ 2293 0630 0030A0E3 		mov	r3, #0
+ 2294 0634 050000EA 		b	.L31
+ 2295              	.L43:
+ 340:../kernel/os_core/os_flag.c **** 
+ 341:../kernel/os_core/os_flag.c ****         default:
+ 342:../kernel/os_core/os_flag.c ****              OS_EXIT_CRITICAL();
+ 2296              		.loc 1 342 0
+ 2297              	@ 342 "../kernel/os_core/os_flag.c" 1
+ 2298 0638 04009DE4 		ldmfd sp!, {r0}
+ 2299              	@ 0 "" 2
+ 2300              	@ 342 "../kernel/os_core/os_flag.c" 1
+ 2301 063c 00F021E1 		msr   cpsr_c, r0
+ 2302              	@ 0 "" 2
+ 343:../kernel/os_core/os_flag.c ****              *err = OS_ERR_INVALID_OPT;
+ 2303              		.loc 1 343 0
+ 2304 0640 20301BE5 		ldr	r3, [fp, #-32]
+ 2305 0644 0720A0E3 		mov	r2, #7
+ 2306 0648 0020C3E5 		strb	r2, [r3, #0]
+ 344:../kernel/os_core/os_flag.c ****              return (pgrp);
+ 2307              		.loc 1 344 0
+ 2308 064c 18301BE5 		ldr	r3, [fp, #-24]
+ 2309              	.L31:
+ 345:../kernel/os_core/os_flag.c ****     }
+ 346:../kernel/os_core/os_flag.c **** }
+ 2310              		.loc 1 346 0
+ 2311 0650 0300A0E1 		mov	r0, r3
+ 2312 0654 0CD04BE2 		sub	sp, fp, #12
+ 2313 0658 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2314 065c 1EFF2FE1 		bx	lr
+ 2315              	.L45:
+ 2316              		.align	2
+ 2317              	.L44:
+ 2318 0660 00000000 		.word	OSIntNesting
+ 2319 0664 00000000 		.word	OSFlagFreeList
+ 2320              		.cfi_endproc
+ 2321              	.LFE2:
+ 2323              		.align	2
+ 2324              		.global	OSFlagNameGet
+ 2326              	OSFlagNameGet:
+ 2327              	.LFB3:
+ 347:../kernel/os_core/os_flag.c **** #endif
+ 348:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 349:../kernel/os_core/os_flag.c **** /*
+ 350:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 351:../kernel/os_core/os_flag.c **** *                                 GET THE NAME OF AN EVENT FLAG GROUP
+ 352:../kernel/os_core/os_flag.c **** *
+ 353:../kernel/os_core/os_flag.c **** * Description: This function is used to obtain the name assigned to an event flag group
+ 354:../kernel/os_core/os_flag.c **** *
+ 355:../kernel/os_core/os_flag.c **** * Arguments  : pgrp      is a pointer to the event flag group.
+ 356:../kernel/os_core/os_flag.c **** *
+ 357:../kernel/os_core/os_flag.c **** *              pname     is a pointer to an ASCII string that will receive the name of the event fl
+ 358:../kernel/os_core/os_flag.c **** *                        group.  The string must be able to hold at least OS_FLAG_NAME_SIZE charact
+ 359:../kernel/os_core/os_flag.c **** *
+ 360:../kernel/os_core/os_flag.c **** *              err       is a pointer to an error code that can contain one of the following values
+ 361:../kernel/os_core/os_flag.c **** *
+ 362:../kernel/os_core/os_flag.c **** *                        OS_NO_ERR                  if the requested task is resumed
+ 363:../kernel/os_core/os_flag.c **** *                        OS_ERR_EVENT_TYPE          if 'pevent' is not pointing to an event flag gr
+ 364:../kernel/os_core/os_flag.c **** *                        OS_ERR_PNAME_NULL          You passed a NULL pointer for 'pname'
+ 365:../kernel/os_core/os_flag.c **** *                        OS_FLAG_INVALID_PGRP       if you passed a NULL pointer for 'pgrp'
+ 366:../kernel/os_core/os_flag.c **** *
+ 367:../kernel/os_core/os_flag.c **** * Returns    : The length of the string or 0 if the 'pgrp' is a NULL pointer.
+ 368:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 369:../kernel/os_core/os_flag.c **** */
+ 370:../kernel/os_core/os_flag.c **** 
+ 371:../kernel/os_core/os_flag.c **** #if OS_FLAG_NAME_SIZE > 1
+ 372:../kernel/os_core/os_flag.c **** INT8U  OSFlagNameGet (OS_FLAG_GRP *pgrp, char *pname, INT8U *err)
+ 373:../kernel/os_core/os_flag.c **** {
+ 2328              		.loc 1 373 0
+ 2329              		.cfi_startproc
+ 2330              		@ Function supports interworking.
+ 2331              		@ args = 0, pretend = 0, frame = 24
+ 2332              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2333 0668 0DC0A0E1 		mov	ip, sp
+ 2334              	.LCFI6:
+ 2335              		.cfi_def_cfa_register 12
+ 2336 066c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2337 0670 04B04CE2 		sub	fp, ip, #4
+ 2338              		.cfi_offset 14, -8
+ 2339              		.cfi_offset 13, -12
+ 2340              		.cfi_offset 11, -16
+ 2341              	.LCFI7:
+ 2342              		.cfi_def_cfa 11, 4
+ 2343 0674 18D04DE2 		sub	sp, sp, #24
+ 2344 0678 18000BE5 		str	r0, [fp, #-24]
+ 2345 067c 1C100BE5 		str	r1, [fp, #-28]
+ 2346 0680 20200BE5 		str	r2, [fp, #-32]
+ 374:../kernel/os_core/os_flag.c ****     INT8U      len;
+ 375:../kernel/os_core/os_flag.c **** #if OS_CRITICAL_METHOD == 3                      /* Allocate storage for CPU status register       
+ 376:../kernel/os_core/os_flag.c ****     OS_CPU_SR  cpu_sr;
+ 377:../kernel/os_core/os_flag.c **** 
+ 378:../kernel/os_core/os_flag.c **** 
+ 379:../kernel/os_core/os_flag.c **** 
+ 380:../kernel/os_core/os_flag.c ****     cpu_sr = 0;                                  /* Prevent compiler warning                       
+ 381:../kernel/os_core/os_flag.c **** #endif    
+ 382:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 2347              		.loc 1 382 0
+ 2348              	@ 382 "../kernel/os_core/os_flag.c" 1
+ 2349 0684 00000FE1 		mrs   r0, cpsr
+ 2350              	@ 0 "" 2
+ 2351              	@ 382 "../kernel/os_core/os_flag.c" 1
+ 2352 0688 04002DE5 		stmfd sp!, {r0}
+ 2353              	@ 0 "" 2
+ 2354              	@ 382 "../kernel/os_core/os_flag.c" 1
+ 2355 068c C00080E3 		orr   r0, r0, #0b11000000
+ 2356              	@ 0 "" 2
+ 2357              	@ 382 "../kernel/os_core/os_flag.c" 1
+ 2358 0690 00F021E1 		msr   cpsr_c, r0
+ 2359              	@ 0 "" 2
+ 383:../kernel/os_core/os_flag.c **** #if OS_ARG_CHK_EN > 0
+ 384:../kernel/os_core/os_flag.c ****     if (pgrp == (OS_FLAG_GRP *)0) {              /* Is 'pgrp' a NULL pointer?                      
+ 2360              		.loc 1 384 0
+ 2361 0694 18301BE5 		ldr	r3, [fp, #-24]
+ 2362 0698 000053E3 		cmp	r3, #0
+ 2363 069c 0600001A 		bne	.L47
+ 385:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();                      /* Yes                                            
+ 2364              		.loc 1 385 0
+ 2365              	@ 385 "../kernel/os_core/os_flag.c" 1
+ 2366 06a0 04009DE4 		ldmfd sp!, {r0}
+ 2367              	@ 0 "" 2
+ 2368              	@ 385 "../kernel/os_core/os_flag.c" 1
+ 2369 06a4 00F021E1 		msr   cpsr_c, r0
+ 2370              	@ 0 "" 2
+ 386:../kernel/os_core/os_flag.c ****         *err = OS_FLAG_INVALID_PGRP;
+ 2371              		.loc 1 386 0
+ 2372 06a8 20301BE5 		ldr	r3, [fp, #-32]
+ 2373 06ac 6920E0E3 		mvn	r2, #105
+ 2374 06b0 0020C3E5 		strb	r2, [r3, #0]
+ 387:../kernel/os_core/os_flag.c ****         return (0);
+ 2375              		.loc 1 387 0
+ 2376 06b4 0030A0E3 		mov	r3, #0
+ 2377 06b8 210000EA 		b	.L48
+ 2378              	.L47:
+ 388:../kernel/os_core/os_flag.c ****     }
+ 389:../kernel/os_core/os_flag.c ****     if (pname == (char *)0) {                    /* Is 'pname' a NULL pointer?                     
+ 2379              		.loc 1 389 0
+ 2380 06bc 1C301BE5 		ldr	r3, [fp, #-28]
+ 2381 06c0 000053E3 		cmp	r3, #0
+ 2382 06c4 0600001A 		bne	.L49
+ 390:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();                      /* Yes                                            
+ 2383              		.loc 1 390 0
+ 2384              	@ 390 "../kernel/os_core/os_flag.c" 1
+ 2385 06c8 04009DE4 		ldmfd sp!, {r0}
+ 2386              	@ 0 "" 2
+ 2387              	@ 390 "../kernel/os_core/os_flag.c" 1
+ 2388 06cc 00F021E1 		msr   cpsr_c, r0
+ 2389              	@ 0 "" 2
+ 391:../kernel/os_core/os_flag.c ****         *err = OS_ERR_PNAME_NULL;
+ 2390              		.loc 1 391 0
+ 2391 06d0 20301BE5 		ldr	r3, [fp, #-32]
+ 2392 06d4 0F20A0E3 		mov	r2, #15
+ 2393 06d8 0020C3E5 		strb	r2, [r3, #0]
+ 392:../kernel/os_core/os_flag.c ****         return (0);
+ 2394              		.loc 1 392 0
+ 2395 06dc 0030A0E3 		mov	r3, #0
+ 2396 06e0 170000EA 		b	.L48
+ 2397              	.L49:
+ 393:../kernel/os_core/os_flag.c ****     }
+ 394:../kernel/os_core/os_flag.c **** #endif
+ 395:../kernel/os_core/os_flag.c ****     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {
+ 2398              		.loc 1 395 0
+ 2399 06e4 18301BE5 		ldr	r3, [fp, #-24]
+ 2400 06e8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2401 06ec 050053E3 		cmp	r3, #5
+ 2402 06f0 0600000A 		beq	.L50
+ 396:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();
+ 2403              		.loc 1 396 0
+ 2404              	@ 396 "../kernel/os_core/os_flag.c" 1
+ 2405 06f4 04009DE4 		ldmfd sp!, {r0}
+ 2406              	@ 0 "" 2
+ 2407              	@ 396 "../kernel/os_core/os_flag.c" 1
+ 2408 06f8 00F021E1 		msr   cpsr_c, r0
+ 2409              	@ 0 "" 2
+ 397:../kernel/os_core/os_flag.c ****         *err = OS_ERR_EVENT_TYPE;
+ 2410              		.loc 1 397 0
+ 2411 06fc 20301BE5 		ldr	r3, [fp, #-32]
+ 2412 0700 0120A0E3 		mov	r2, #1
+ 2413 0704 0020C3E5 		strb	r2, [r3, #0]
+ 398:../kernel/os_core/os_flag.c ****         return (0);
+ 2414              		.loc 1 398 0
+ 2415 0708 0030A0E3 		mov	r3, #0
+ 2416 070c 0C0000EA 		b	.L48
+ 2417              	.L50:
+ 399:../kernel/os_core/os_flag.c ****     }
+ 400:../kernel/os_core/os_flag.c ****     len  = OS_StrCopy(pname, pgrp->OSFlagName);  /* Copy name from OS_FLAG_GRP                     
+ 2418              		.loc 1 400 0
+ 2419 0710 18301BE5 		ldr	r3, [fp, #-24]
+ 2420 0714 0A3083E2 		add	r3, r3, #10
+ 2421 0718 1C001BE5 		ldr	r0, [fp, #-28]
+ 2422 071c 0310A0E1 		mov	r1, r3
+ 2423 0720 FEFFFFEB 		bl	OS_StrCopy
+ 2424 0724 0030A0E1 		mov	r3, r0
+ 2425 0728 0D304BE5 		strb	r3, [fp, #-13]
+ 401:../kernel/os_core/os_flag.c ****     OS_EXIT_CRITICAL();
+ 2426              		.loc 1 401 0
+ 2427              	@ 401 "../kernel/os_core/os_flag.c" 1
+ 2428 072c 04009DE4 		ldmfd sp!, {r0}
+ 2429              	@ 0 "" 2
+ 2430              	@ 401 "../kernel/os_core/os_flag.c" 1
+ 2431 0730 00F021E1 		msr   cpsr_c, r0
+ 2432              	@ 0 "" 2
+ 402:../kernel/os_core/os_flag.c ****     *err = OS_NO_ERR;
+ 2433              		.loc 1 402 0
+ 2434 0734 20301BE5 		ldr	r3, [fp, #-32]
+ 2435 0738 0020A0E3 		mov	r2, #0
+ 2436 073c 0020C3E5 		strb	r2, [r3, #0]
+ 403:../kernel/os_core/os_flag.c ****     return (len);
+ 2437              		.loc 1 403 0
+ 2438 0740 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2439              	.L48:
+ 404:../kernel/os_core/os_flag.c **** }
+ 2440              		.loc 1 404 0
+ 2441 0744 0300A0E1 		mov	r0, r3
+ 2442 0748 0CD04BE2 		sub	sp, fp, #12
+ 2443 074c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2444 0750 1EFF2FE1 		bx	lr
+ 2445              		.cfi_endproc
+ 2446              	.LFE3:
+ 2448              		.align	2
+ 2449              		.global	OSFlagNameSet
+ 2451              	OSFlagNameSet:
+ 2452              	.LFB4:
+ 405:../kernel/os_core/os_flag.c **** #endif
+ 406:../kernel/os_core/os_flag.c **** 
+ 407:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 408:../kernel/os_core/os_flag.c **** /*
+ 409:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 410:../kernel/os_core/os_flag.c **** *                                 ASSIGN A NAME TO AN EVENT FLAG GROUP
+ 411:../kernel/os_core/os_flag.c **** *
+ 412:../kernel/os_core/os_flag.c **** * Description: This function assigns a name to an event flag group.
+ 413:../kernel/os_core/os_flag.c **** *
+ 414:../kernel/os_core/os_flag.c **** * Arguments  : pgrp      is a pointer to the event flag group. 
+ 415:../kernel/os_core/os_flag.c **** *
+ 416:../kernel/os_core/os_flag.c **** *              pname     is a pointer to an ASCII string that will be used as the name of the event
+ 417:../kernel/os_core/os_flag.c **** *                        group.  The string must be able to hold at least OS_FLAG_NAME_SIZE charact
+ 418:../kernel/os_core/os_flag.c **** *
+ 419:../kernel/os_core/os_flag.c **** *              err       is a pointer to an error code that can contain one of the following values
+ 420:../kernel/os_core/os_flag.c **** *
+ 421:../kernel/os_core/os_flag.c **** *                        OS_NO_ERR                  if the requested task is resumed
+ 422:../kernel/os_core/os_flag.c **** *                        OS_ERR_EVENT_TYPE          if 'pevent' is not pointing to an event flag gr
+ 423:../kernel/os_core/os_flag.c **** *                        OS_ERR_PNAME_NULL          You passed a NULL pointer for 'pname'
+ 424:../kernel/os_core/os_flag.c **** *                        OS_FLAG_INVALID_PGRP       if you passed a NULL pointer for 'pgrp'
+ 425:../kernel/os_core/os_flag.c **** *
+ 426:../kernel/os_core/os_flag.c **** * Returns    : None
+ 427:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 428:../kernel/os_core/os_flag.c **** */
+ 429:../kernel/os_core/os_flag.c **** 
+ 430:../kernel/os_core/os_flag.c **** #if OS_FLAG_NAME_SIZE > 1
+ 431:../kernel/os_core/os_flag.c **** void  OSFlagNameSet (OS_FLAG_GRP *pgrp, char *pname, INT8U *err)
+ 432:../kernel/os_core/os_flag.c **** {
+ 2453              		.loc 1 432 0
+ 2454              		.cfi_startproc
+ 2455              		@ Function supports interworking.
+ 2456              		@ args = 0, pretend = 0, frame = 24
+ 2457              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2458 0754 0DC0A0E1 		mov	ip, sp
+ 2459              	.LCFI8:
+ 2460              		.cfi_def_cfa_register 12
+ 2461 0758 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2462 075c 04B04CE2 		sub	fp, ip, #4
+ 2463              		.cfi_offset 14, -8
+ 2464              		.cfi_offset 13, -12
+ 2465              		.cfi_offset 11, -16
+ 2466              	.LCFI9:
+ 2467              		.cfi_def_cfa 11, 4
+ 2468 0760 18D04DE2 		sub	sp, sp, #24
+ 2469 0764 18000BE5 		str	r0, [fp, #-24]
+ 2470 0768 1C100BE5 		str	r1, [fp, #-28]
+ 2471 076c 20200BE5 		str	r2, [fp, #-32]
+ 433:../kernel/os_core/os_flag.c ****     INT8U      len;
+ 434:../kernel/os_core/os_flag.c **** #if OS_CRITICAL_METHOD == 3                      /* Allocate storage for CPU status register       
+ 435:../kernel/os_core/os_flag.c ****     OS_CPU_SR  cpu_sr;
+ 436:../kernel/os_core/os_flag.c **** 
+ 437:../kernel/os_core/os_flag.c **** 
+ 438:../kernel/os_core/os_flag.c **** 
+ 439:../kernel/os_core/os_flag.c ****     cpu_sr = 0;                                  /* Prevent compiler warning                       
+ 440:../kernel/os_core/os_flag.c **** #endif    
+ 441:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 2472              		.loc 1 441 0
+ 2473              	@ 441 "../kernel/os_core/os_flag.c" 1
+ 2474 0770 00000FE1 		mrs   r0, cpsr
+ 2475              	@ 0 "" 2
+ 2476              	@ 441 "../kernel/os_core/os_flag.c" 1
+ 2477 0774 04002DE5 		stmfd sp!, {r0}
+ 2478              	@ 0 "" 2
+ 2479              	@ 441 "../kernel/os_core/os_flag.c" 1
+ 2480 0778 C00080E3 		orr   r0, r0, #0b11000000
+ 2481              	@ 0 "" 2
+ 2482              	@ 441 "../kernel/os_core/os_flag.c" 1
+ 2483 077c 00F021E1 		msr   cpsr_c, r0
+ 2484              	@ 0 "" 2
+ 442:../kernel/os_core/os_flag.c **** #if OS_ARG_CHK_EN > 0
+ 443:../kernel/os_core/os_flag.c ****     if (pgrp == (OS_FLAG_GRP *)0) {              /* Is 'pgrp' a NULL pointer?                      
+ 2485              		.loc 1 443 0
+ 2486 0780 18301BE5 		ldr	r3, [fp, #-24]
+ 2487 0784 000053E3 		cmp	r3, #0
+ 2488 0788 0500001A 		bne	.L52
+ 444:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();                      /* Yes                                            
+ 2489              		.loc 1 444 0
+ 2490              	@ 444 "../kernel/os_core/os_flag.c" 1
+ 2491 078c 04009DE4 		ldmfd sp!, {r0}
+ 2492              	@ 0 "" 2
+ 2493              	@ 444 "../kernel/os_core/os_flag.c" 1
+ 2494 0790 00F021E1 		msr   cpsr_c, r0
+ 2495              	@ 0 "" 2
+ 445:../kernel/os_core/os_flag.c ****         *err = OS_FLAG_INVALID_PGRP;
+ 2496              		.loc 1 445 0
+ 2497 0794 20301BE5 		ldr	r3, [fp, #-32]
+ 2498 0798 6920E0E3 		mvn	r2, #105
+ 2499 079c 0020C3E5 		strb	r2, [r3, #0]
+ 446:../kernel/os_core/os_flag.c ****         return;
+ 2500              		.loc 1 446 0
+ 2501 07a0 2A0000EA 		b	.L51
+ 2502              	.L52:
+ 447:../kernel/os_core/os_flag.c ****     }
+ 448:../kernel/os_core/os_flag.c ****     if (pname == (char *)0) {                    /* Is 'pname' a NULL pointer?                     
+ 2503              		.loc 1 448 0
+ 2504 07a4 1C301BE5 		ldr	r3, [fp, #-28]
+ 2505 07a8 000053E3 		cmp	r3, #0
+ 2506 07ac 0500001A 		bne	.L54
+ 449:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();                      /* Yes                                            
+ 2507              		.loc 1 449 0
+ 2508              	@ 449 "../kernel/os_core/os_flag.c" 1
+ 2509 07b0 04009DE4 		ldmfd sp!, {r0}
+ 2510              	@ 0 "" 2
+ 2511              	@ 449 "../kernel/os_core/os_flag.c" 1
+ 2512 07b4 00F021E1 		msr   cpsr_c, r0
+ 2513              	@ 0 "" 2
+ 450:../kernel/os_core/os_flag.c ****         *err = OS_ERR_PNAME_NULL;
+ 2514              		.loc 1 450 0
+ 2515 07b8 20301BE5 		ldr	r3, [fp, #-32]
+ 2516 07bc 0F20A0E3 		mov	r2, #15
+ 2517 07c0 0020C3E5 		strb	r2, [r3, #0]
+ 451:../kernel/os_core/os_flag.c ****         return;
+ 2518              		.loc 1 451 0
+ 2519 07c4 210000EA 		b	.L51
+ 2520              	.L54:
+ 452:../kernel/os_core/os_flag.c ****     }
+ 453:../kernel/os_core/os_flag.c **** #endif
+ 454:../kernel/os_core/os_flag.c ****     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {
+ 2521              		.loc 1 454 0
+ 2522 07c8 18301BE5 		ldr	r3, [fp, #-24]
+ 2523 07cc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2524 07d0 050053E3 		cmp	r3, #5
+ 2525 07d4 0500000A 		beq	.L55
+ 455:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();
+ 2526              		.loc 1 455 0
+ 2527              	@ 455 "../kernel/os_core/os_flag.c" 1
+ 2528 07d8 04009DE4 		ldmfd sp!, {r0}
+ 2529              	@ 0 "" 2
+ 2530              	@ 455 "../kernel/os_core/os_flag.c" 1
+ 2531 07dc 00F021E1 		msr   cpsr_c, r0
+ 2532              	@ 0 "" 2
+ 456:../kernel/os_core/os_flag.c ****         *err = OS_ERR_EVENT_TYPE;
+ 2533              		.loc 1 456 0
+ 2534 07e0 20301BE5 		ldr	r3, [fp, #-32]
+ 2535 07e4 0120A0E3 		mov	r2, #1
+ 2536 07e8 0020C3E5 		strb	r2, [r3, #0]
+ 457:../kernel/os_core/os_flag.c ****         return;
+ 2537              		.loc 1 457 0
+ 2538 07ec 170000EA 		b	.L51
+ 2539              	.L55:
+ 458:../kernel/os_core/os_flag.c ****     }
+ 459:../kernel/os_core/os_flag.c ****     len = OS_StrLen(pname);                      /* Can we fit the string in the storage area?     
+ 2540              		.loc 1 459 0
+ 2541 07f0 1C001BE5 		ldr	r0, [fp, #-28]
+ 2542 07f4 FEFFFFEB 		bl	OS_StrLen
+ 2543 07f8 0030A0E1 		mov	r3, r0
+ 2544 07fc 0D304BE5 		strb	r3, [fp, #-13]
+ 460:../kernel/os_core/os_flag.c ****     if (len > (OS_FLAG_NAME_SIZE - 1)) {         /* No                                             
+ 2545              		.loc 1 460 0
+ 2546 0800 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2547 0804 1F0053E3 		cmp	r3, #31
+ 2548 0808 0500009A 		bls	.L56
+ 461:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();
+ 2549              		.loc 1 461 0
+ 2550              	@ 461 "../kernel/os_core/os_flag.c" 1
+ 2551 080c 04009DE4 		ldmfd sp!, {r0}
+ 2552              	@ 0 "" 2
+ 2553              	@ 461 "../kernel/os_core/os_flag.c" 1
+ 2554 0810 00F021E1 		msr   cpsr_c, r0
+ 2555              	@ 0 "" 2
+ 462:../kernel/os_core/os_flag.c ****         *err = OS_ERR_FLAG_NAME_TOO_LONG;
+ 2556              		.loc 1 462 0
+ 2557 0814 20301BE5 		ldr	r3, [fp, #-32]
+ 2558 0818 0D20A0E3 		mov	r2, #13
+ 2559 081c 0020C3E5 		strb	r2, [r3, #0]
+ 463:../kernel/os_core/os_flag.c ****         return;
+ 2560              		.loc 1 463 0
+ 2561 0820 0A0000EA 		b	.L51
+ 2562              	.L56:
+ 464:../kernel/os_core/os_flag.c ****     } 
+ 465:../kernel/os_core/os_flag.c ****     (void)OS_StrCopy(pgrp->OSFlagName, pname);   /* Yes, copy name from OS_FLAG_GRP                
+ 2563              		.loc 1 465 0
+ 2564 0824 18301BE5 		ldr	r3, [fp, #-24]
+ 2565 0828 0A3083E2 		add	r3, r3, #10
+ 2566 082c 0300A0E1 		mov	r0, r3
+ 2567 0830 1C101BE5 		ldr	r1, [fp, #-28]
+ 2568 0834 FEFFFFEB 		bl	OS_StrCopy
+ 466:../kernel/os_core/os_flag.c ****     OS_EXIT_CRITICAL();
+ 2569              		.loc 1 466 0
+ 2570              	@ 466 "../kernel/os_core/os_flag.c" 1
+ 2571 0838 04009DE4 		ldmfd sp!, {r0}
+ 2572              	@ 0 "" 2
+ 2573              	@ 466 "../kernel/os_core/os_flag.c" 1
+ 2574 083c 00F021E1 		msr   cpsr_c, r0
+ 2575              	@ 0 "" 2
+ 467:../kernel/os_core/os_flag.c ****     *err = OS_NO_ERR;
+ 2576              		.loc 1 467 0
+ 2577 0840 20301BE5 		ldr	r3, [fp, #-32]
+ 2578 0844 0020A0E3 		mov	r2, #0
+ 2579 0848 0020C3E5 		strb	r2, [r3, #0]
+ 468:../kernel/os_core/os_flag.c ****     return;
+ 2580              		.loc 1 468 0
+ 2581 084c 0000A0E1 		mov	r0, r0	@ nop
+ 2582              	.L51:
+ 469:../kernel/os_core/os_flag.c **** }
+ 2583              		.loc 1 469 0
+ 2584 0850 0CD04BE2 		sub	sp, fp, #12
+ 2585 0854 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2586 0858 1EFF2FE1 		bx	lr
+ 2587              		.cfi_endproc
+ 2588              	.LFE4:
+ 2590              		.align	2
+ 2591              		.global	OSFlagPend
+ 2593              	OSFlagPend:
+ 2594              	.LFB5:
+ 470:../kernel/os_core/os_flag.c **** #endif
+ 471:../kernel/os_core/os_flag.c **** 
+ 472:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 473:../kernel/os_core/os_flag.c **** /*
+ 474:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 475:../kernel/os_core/os_flag.c **** *                                        WAIT ON AN EVENT FLAG GROUP
+ 476:../kernel/os_core/os_flag.c **** *
+ 477:../kernel/os_core/os_flag.c **** * Description: This function is called to wait for a combination of bits to be set in an event flag
+ 478:../kernel/os_core/os_flag.c **** *              group.  Your application can wait for ANY bit to be set or ALL bits to be set.
+ 479:../kernel/os_core/os_flag.c **** *
+ 480:../kernel/os_core/os_flag.c **** * Arguments  : pgrp          is a pointer to the desired event flag group.
+ 481:../kernel/os_core/os_flag.c **** *
+ 482:../kernel/os_core/os_flag.c **** *              flags         Is a bit pattern indicating which bit(s) (i.e. flags) you wish to wait
+ 483:../kernel/os_core/os_flag.c **** *                            The bits you want are specified by setting the corresponding bits in
+ 484:../kernel/os_core/os_flag.c **** *                            'flags'.  e.g. if your application wants to wait for bits 0 and 1 then
+ 485:../kernel/os_core/os_flag.c **** *                            'flags' would contain 0x03.
+ 486:../kernel/os_core/os_flag.c **** *
+ 487:../kernel/os_core/os_flag.c **** *              wait_type     specifies whether you want ALL bits to be set or ANY of the bits to be
+ 488:../kernel/os_core/os_flag.c **** *                            You can specify the following argument:
+ 489:../kernel/os_core/os_flag.c **** *
+ 490:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_CLR_ALL   You will wait for ALL bits in 'mask' to be clea
+ 491:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_SET_ALL   You will wait for ALL bits in 'mask' to be set 
+ 492:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_CLR_ANY   You will wait for ANY bit  in 'mask' to be clea
+ 493:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_SET_ANY   You will wait for ANY bit  in 'mask' to be set 
+ 494:../kernel/os_core/os_flag.c **** *
+ 495:../kernel/os_core/os_flag.c **** *                            NOTE: Add OS_FLAG_CONSUME if you want the event flag to be 'consumed' 
+ 496:../kernel/os_core/os_flag.c **** *                                  the call.  Example, to wait for any flag in a group AND then cle
+ 497:../kernel/os_core/os_flag.c **** *                                  the flags that are present, set 'wait_type' to:
+ 498:../kernel/os_core/os_flag.c **** *
+ 499:../kernel/os_core/os_flag.c **** *                                  OS_FLAG_WAIT_SET_ANY + OS_FLAG_CONSUME
+ 500:../kernel/os_core/os_flag.c **** *
+ 501:../kernel/os_core/os_flag.c **** *              timeout       is an optional timeout (in clock ticks) that your task will wait for t
+ 502:../kernel/os_core/os_flag.c **** *                            desired bit combination.  If you specify 0, however, your task will wa
+ 503:../kernel/os_core/os_flag.c **** *                            forever at the specified event flag group or, until a message arrives.
+ 504:../kernel/os_core/os_flag.c **** *
+ 505:../kernel/os_core/os_flag.c **** *              err           is a pointer to an error code and can be:
+ 506:../kernel/os_core/os_flag.c **** *                            OS_NO_ERR              The desired bits have been set within the speci
+ 507:../kernel/os_core/os_flag.c **** *                                                   'timeout'.
+ 508:../kernel/os_core/os_flag.c **** *                            OS_ERR_PEND_ISR        If you tried to PEND from an ISR
+ 509:../kernel/os_core/os_flag.c **** *                            OS_FLAG_INVALID_PGRP   If 'pgrp' is a NULL pointer.
+ 510:../kernel/os_core/os_flag.c **** *                            OS_ERR_EVENT_TYPE      You are not pointing to an event flag group
+ 511:../kernel/os_core/os_flag.c **** *                            OS_TIMEOUT             The bit(s) have not been set in the specified
+ 512:../kernel/os_core/os_flag.c **** *                                                   'timeout'.
+ 513:../kernel/os_core/os_flag.c **** *                            OS_FLAG_ERR_WAIT_TYPE  You didn't specify a proper 'wait_type' argumen
+ 514:../kernel/os_core/os_flag.c **** *
+ 515:../kernel/os_core/os_flag.c **** * Returns    : The flags in the event flag group that made the task ready or, 0 if a timeout or an 
+ 516:../kernel/os_core/os_flag.c **** *              occurred.
+ 517:../kernel/os_core/os_flag.c **** *
+ 518:../kernel/os_core/os_flag.c **** * Called from: Task ONLY
+ 519:../kernel/os_core/os_flag.c **** *
+ 520:../kernel/os_core/os_flag.c **** * Note(s)    : 1) IMPORTANT, the behavior of this function has changed from PREVIOUS versions.  The
+ 521:../kernel/os_core/os_flag.c **** *                 function NOW returns the flags that were ready INSTEAD of the current state of th
+ 522:../kernel/os_core/os_flag.c **** *                 event flags.
+ 523:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 524:../kernel/os_core/os_flag.c **** */
+ 525:../kernel/os_core/os_flag.c **** 
+ 526:../kernel/os_core/os_flag.c **** OS_FLAGS  OSFlagPend (OS_FLAG_GRP *pgrp, OS_FLAGS flags, INT8U wait_type, INT16U timeout, INT8U *er
+ 527:../kernel/os_core/os_flag.c **** {
+ 2595              		.loc 1 527 0
+ 2596              		.cfi_startproc
+ 2597              		@ Function supports interworking.
+ 2598              		@ args = 4, pretend = 0, frame = 40
+ 2599              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2600 085c 0DC0A0E1 		mov	ip, sp
+ 2601              	.LCFI10:
+ 2602              		.cfi_def_cfa_register 12
+ 2603 0860 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2604 0864 04B04CE2 		sub	fp, ip, #4
+ 2605              		.cfi_offset 14, -8
+ 2606              		.cfi_offset 13, -12
+ 2607              		.cfi_offset 11, -16
+ 2608              	.LCFI11:
+ 2609              		.cfi_def_cfa 11, 4
+ 2610 0868 30D04DE2 		sub	sp, sp, #48
+ 2611 086c 28000BE5 		str	r0, [fp, #-40]
+ 2612 0870 BA124BE1 		strh	r1, [fp, #-42]	@ movhi
+ 2613 0874 2B204BE5 		strb	r2, [fp, #-43]
+ 2614 0878 BE324BE1 		strh	r3, [fp, #-46]	@ movhi
+ 528:../kernel/os_core/os_flag.c ****     OS_FLAG_NODE  node;
+ 529:../kernel/os_core/os_flag.c ****     OS_FLAGS      flags_rdy;
+ 530:../kernel/os_core/os_flag.c ****     BOOLEAN       consume;
+ 531:../kernel/os_core/os_flag.c **** #if OS_CRITICAL_METHOD == 3                                /* Allocate storage for CPU status regis
+ 532:../kernel/os_core/os_flag.c ****     OS_CPU_SR     cpu_sr;
+ 533:../kernel/os_core/os_flag.c **** 
+ 534:../kernel/os_core/os_flag.c **** 
+ 535:../kernel/os_core/os_flag.c **** 
+ 536:../kernel/os_core/os_flag.c ****     cpu_sr = 0;                                            /* Prevent compiler warning             
+ 537:../kernel/os_core/os_flag.c **** #endif    
+ 538:../kernel/os_core/os_flag.c ****     if (OSIntNesting > 0) {                                /* See if called from ISR ...           
+ 2615              		.loc 1 538 0
+ 2616 087c 3C359FE5 		ldr	r3, .L85
+ 2617 0880 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2618 0884 000053E3 		cmp	r3, #0
+ 2619 0888 0400000A 		beq	.L58
+ 539:../kernel/os_core/os_flag.c ****         *err = OS_ERR_PEND_ISR;                            /* ... can't PEND from an ISR           
+ 2620              		.loc 1 539 0
+ 2621 088c 04309BE5 		ldr	r3, [fp, #4]
+ 2622 0890 0220A0E3 		mov	r2, #2
+ 2623 0894 0020C3E5 		strb	r2, [r3, #0]
+ 540:../kernel/os_core/os_flag.c ****         return ((OS_FLAGS)0);
+ 2624              		.loc 1 540 0
+ 2625 0898 0030A0E3 		mov	r3, #0
+ 2626 089c 430100EA 		b	.L59
+ 2627              	.L58:
+ 541:../kernel/os_core/os_flag.c ****     }
+ 542:../kernel/os_core/os_flag.c **** #if OS_ARG_CHK_EN > 0
+ 543:../kernel/os_core/os_flag.c ****     if (pgrp == (OS_FLAG_GRP *)0) {                        /* Validate 'pgrp'                      
+ 2628              		.loc 1 543 0
+ 2629 08a0 28301BE5 		ldr	r3, [fp, #-40]
+ 2630 08a4 000053E3 		cmp	r3, #0
+ 2631 08a8 0400001A 		bne	.L60
+ 544:../kernel/os_core/os_flag.c ****         *err = OS_FLAG_INVALID_PGRP;
+ 2632              		.loc 1 544 0
+ 2633 08ac 04309BE5 		ldr	r3, [fp, #4]
+ 2634 08b0 6920E0E3 		mvn	r2, #105
+ 2635 08b4 0020C3E5 		strb	r2, [r3, #0]
+ 545:../kernel/os_core/os_flag.c ****         return ((OS_FLAGS)0);
+ 2636              		.loc 1 545 0
+ 2637 08b8 0030A0E3 		mov	r3, #0
+ 2638 08bc 3B0100EA 		b	.L59
+ 2639              	.L60:
+ 546:../kernel/os_core/os_flag.c ****     }
+ 547:../kernel/os_core/os_flag.c **** #endif
+ 548:../kernel/os_core/os_flag.c ****     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {          /* Validate event block type            
+ 2640              		.loc 1 548 0
+ 2641 08c0 28301BE5 		ldr	r3, [fp, #-40]
+ 2642 08c4 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2643 08c8 050053E3 		cmp	r3, #5
+ 2644 08cc 0400000A 		beq	.L61
+ 549:../kernel/os_core/os_flag.c ****         *err = OS_ERR_EVENT_TYPE;
+ 2645              		.loc 1 549 0
+ 2646 08d0 04309BE5 		ldr	r3, [fp, #4]
+ 2647 08d4 0120A0E3 		mov	r2, #1
+ 2648 08d8 0020C3E5 		strb	r2, [r3, #0]
+ 550:../kernel/os_core/os_flag.c ****         return ((OS_FLAGS)0);
+ 2649              		.loc 1 550 0
+ 2650 08dc 0030A0E3 		mov	r3, #0
+ 2651 08e0 320100EA 		b	.L59
+ 2652              	.L61:
+ 551:../kernel/os_core/os_flag.c ****     }
+ 552:../kernel/os_core/os_flag.c ****     if (wait_type & OS_FLAG_CONSUME) {                     /* See if we need to consume the flags  
+ 2653              		.loc 1 552 0
+ 2654 08e4 2B305BE5 		ldrb	r3, [fp, #-43]	@ zero_extendqisi2
+ 2655 08e8 033CA0E1 		mov	r3, r3, asl #24
+ 2656 08ec 433CA0E1 		mov	r3, r3, asr #24
+ 2657 08f0 000053E3 		cmp	r3, #0
+ 2658 08f4 050000AA 		bge	.L62
+ 553:../kernel/os_core/os_flag.c ****         wait_type &= ~OS_FLAG_CONSUME;
+ 2659              		.loc 1 553 0
+ 2660 08f8 2B305BE5 		ldrb	r3, [fp, #-43]
+ 2661 08fc 7F3003E2 		and	r3, r3, #127
+ 2662 0900 2B304BE5 		strb	r3, [fp, #-43]
+ 554:../kernel/os_core/os_flag.c ****         consume    = TRUE;
+ 2663              		.loc 1 554 0
+ 2664 0904 0130A0E3 		mov	r3, #1
+ 2665 0908 0D304BE5 		strb	r3, [fp, #-13]
+ 2666 090c 010000EA 		b	.L63
+ 2667              	.L62:
+ 555:../kernel/os_core/os_flag.c ****     } else {
+ 556:../kernel/os_core/os_flag.c ****         consume    = FALSE;
+ 2668              		.loc 1 556 0
+ 2669 0910 0030A0E3 		mov	r3, #0
+ 2670 0914 0D304BE5 		strb	r3, [fp, #-13]
+ 2671              	.L63:
+ 557:../kernel/os_core/os_flag.c ****     }
+ 558:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 559:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 2672              		.loc 1 559 0
+ 2673              	@ 559 "../kernel/os_core/os_flag.c" 1
+ 2674 0918 00000FE1 		mrs   r0, cpsr
+ 2675              	@ 0 "" 2
+ 2676              	@ 559 "../kernel/os_core/os_flag.c" 1
+ 2677 091c 04002DE5 		stmfd sp!, {r0}
+ 2678              	@ 0 "" 2
+ 2679              	@ 559 "../kernel/os_core/os_flag.c" 1
+ 2680 0920 C00080E3 		orr   r0, r0, #0b11000000
+ 2681              	@ 0 "" 2
+ 2682              	@ 559 "../kernel/os_core/os_flag.c" 1
+ 2683 0924 00F021E1 		msr   cpsr_c, r0
+ 2684              	@ 0 "" 2
+ 560:../kernel/os_core/os_flag.c ****     switch (wait_type) {
+ 2685              		.loc 1 560 0
+ 2686 0928 2B305BE5 		ldrb	r3, [fp, #-43]	@ zero_extendqisi2
+ 2687 092c 030053E3 		cmp	r3, #3
+ 2688 0930 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 2689 0934 C10000EA 		b	.L64
+ 2690              	.L69:
+ 2691 0938 C40A0000 		.word	.L65
+ 2692 093c 840B0000 		.word	.L66
+ 2693 0940 48090000 		.word	.L67
+ 2694 0944 080A0000 		.word	.L68
+ 2695              	.L67:
+ 561:../kernel/os_core/os_flag.c ****         case OS_FLAG_WAIT_SET_ALL:                         /* See if all required flags are set    
+ 562:../kernel/os_core/os_flag.c ****              flags_rdy = pgrp->OSFlagFlags & flags;        /* Extract only the bits we want        
+ 2696              		.loc 1 562 0
+ 2697 0948 28301BE5 		ldr	r3, [fp, #-40]
+ 2698 094c B820D3E1 		ldrh	r2, [r3, #8]
+ 2699 0950 BA325BE1 		ldrh	r3, [fp, #-42]	@ movhi
+ 2700 0954 033002E0 		and	r3, r2, r3
+ 2701 0958 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 563:../kernel/os_core/os_flag.c ****              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want 
+ 2702              		.loc 1 563 0
+ 2703 095c B0215BE1 		ldrh	r2, [fp, #-16]
+ 2704 0960 BA325BE1 		ldrh	r3, [fp, #-42]
+ 2705 0964 030052E1 		cmp	r2, r3
+ 2706 0968 1C00001A 		bne	.L70
+ 564:../kernel/os_core/os_flag.c ****                  if (consume == TRUE) {                    /* See if we need to consume the flags  
+ 2707              		.loc 1 564 0
+ 2708 096c 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2709 0970 010053E3 		cmp	r3, #1
+ 2710 0974 0E00001A 		bne	.L71
+ 565:../kernel/os_core/os_flag.c ****                      pgrp->OSFlagFlags &= ~flags_rdy;      /* Clear ONLY the flags that we wanted  
+ 2711              		.loc 1 565 0
+ 2712 0978 28301BE5 		ldr	r3, [fp, #-40]
+ 2713 097c B830D3E1 		ldrh	r3, [r3, #8]
+ 2714 0980 0338A0E1 		mov	r3, r3, asl #16
+ 2715 0984 2328A0E1 		mov	r2, r3, lsr #16
+ 2716 0988 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2717 098c 0330E0E1 		mvn	r3, r3
+ 2718 0990 0338A0E1 		mov	r3, r3, asl #16
+ 2719 0994 2338A0E1 		mov	r3, r3, lsr #16
+ 2720 0998 033002E0 		and	r3, r2, r3
+ 2721 099c 0338A0E1 		mov	r3, r3, asl #16
+ 2722 09a0 2338A0E1 		mov	r3, r3, lsr #16
+ 2723 09a4 0338A0E1 		mov	r3, r3, asl #16
+ 2724 09a8 2328A0E1 		mov	r2, r3, lsr #16
+ 2725 09ac 28301BE5 		ldr	r3, [fp, #-40]
+ 2726 09b0 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 2727              	.L71:
+ 566:../kernel/os_core/os_flag.c ****                  }
+ 567:../kernel/os_core/os_flag.c ****                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready           
+ 2728              		.loc 1 567 0
+ 2729 09b4 08349FE5 		ldr	r3, .L85+4
+ 2730 09b8 003093E5 		ldr	r3, [r3, #0]
+ 2731 09bc B0215BE1 		ldrh	r2, [fp, #-16]	@ movhi
+ 2732 09c0 B822C3E1 		strh	r2, [r3, #40]	@ movhi
+ 568:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller 
+ 2733              		.loc 1 568 0
+ 2734              	@ 568 "../kernel/os_core/os_flag.c" 1
+ 2735 09c4 04009DE4 		ldmfd sp!, {r0}
+ 2736              	@ 0 "" 2
+ 2737              	@ 568 "../kernel/os_core/os_flag.c" 1
+ 2738 09c8 00F021E1 		msr   cpsr_c, r0
+ 2739              	@ 0 "" 2
+ 569:../kernel/os_core/os_flag.c ****                  *err                    = OS_NO_ERR;
+ 2740              		.loc 1 569 0
+ 2741 09cc 04309BE5 		ldr	r3, [fp, #4]
+ 2742 09d0 0020A0E3 		mov	r2, #0
+ 2743 09d4 0020C3E5 		strb	r2, [r3, #0]
+ 570:../kernel/os_core/os_flag.c ****                  return (flags_rdy);
+ 2744              		.loc 1 570 0
+ 2745 09d8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2746 09dc F30000EA 		b	.L59
+ 2747              	.L70:
+ 571:../kernel/os_core/os_flag.c ****              } else {                                      /* Block task until events occur or time
+ 572:../kernel/os_core/os_flag.c ****                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
+ 2748              		.loc 1 572 0
+ 2749 09e0 24104BE2 		sub	r1, fp, #36
+ 2750 09e4 BA225BE1 		ldrh	r2, [fp, #-42]
+ 2751 09e8 2B305BE5 		ldrb	r3, [fp, #-43]	@ zero_extendqisi2
+ 2752 09ec BE025BE1 		ldrh	r0, [fp, #-46]
+ 2753 09f0 00008DE5 		str	r0, [sp, #0]
+ 2754 09f4 28001BE5 		ldr	r0, [fp, #-40]
+ 2755 09f8 1E0200EB 		bl	OS_FlagBlock
+ 573:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();
+ 2756              		.loc 1 573 0
+ 2757              	@ 573 "../kernel/os_core/os_flag.c" 1
+ 2758 09fc 04009DE4 		ldmfd sp!, {r0}
+ 2759              	@ 0 "" 2
+ 2760              	@ 573 "../kernel/os_core/os_flag.c" 1
+ 2761 0a00 00F021E1 		msr   cpsr_c, r0
+ 2762              	@ 0 "" 2
+ 574:../kernel/os_core/os_flag.c ****              }
+ 575:../kernel/os_core/os_flag.c ****              break;
+ 2763              		.loc 1 575 0
+ 2764 0a04 960000EA 		b	.L72
+ 2765              	.L68:
+ 576:../kernel/os_core/os_flag.c **** 
+ 577:../kernel/os_core/os_flag.c ****         case OS_FLAG_WAIT_SET_ANY:
+ 578:../kernel/os_core/os_flag.c ****              flags_rdy = pgrp->OSFlagFlags & flags;        /* Extract only the bits we want        
+ 2766              		.loc 1 578 0
+ 2767 0a08 28301BE5 		ldr	r3, [fp, #-40]
+ 2768 0a0c B820D3E1 		ldrh	r2, [r3, #8]
+ 2769 0a10 BA325BE1 		ldrh	r3, [fp, #-42]	@ movhi
+ 2770 0a14 033002E0 		and	r3, r2, r3
+ 2771 0a18 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 579:../kernel/os_core/os_flag.c ****              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag set                  
+ 2772              		.loc 1 579 0
+ 2773 0a1c B0315BE1 		ldrh	r3, [fp, #-16]
+ 2774 0a20 000053E3 		cmp	r3, #0
+ 2775 0a24 1C00000A 		beq	.L73
+ 580:../kernel/os_core/os_flag.c ****                  if (consume == TRUE) {                    /* See if we need to consume the flags  
+ 2776              		.loc 1 580 0
+ 2777 0a28 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2778 0a2c 010053E3 		cmp	r3, #1
+ 2779 0a30 0E00001A 		bne	.L74
+ 581:../kernel/os_core/os_flag.c ****                      pgrp->OSFlagFlags &= ~flags_rdy;      /* Clear ONLY the flags that we got     
+ 2780              		.loc 1 581 0
+ 2781 0a34 28301BE5 		ldr	r3, [fp, #-40]
+ 2782 0a38 B830D3E1 		ldrh	r3, [r3, #8]
+ 2783 0a3c 0338A0E1 		mov	r3, r3, asl #16
+ 2784 0a40 2328A0E1 		mov	r2, r3, lsr #16
+ 2785 0a44 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2786 0a48 0330E0E1 		mvn	r3, r3
+ 2787 0a4c 0338A0E1 		mov	r3, r3, asl #16
+ 2788 0a50 2338A0E1 		mov	r3, r3, lsr #16
+ 2789 0a54 033002E0 		and	r3, r2, r3
+ 2790 0a58 0338A0E1 		mov	r3, r3, asl #16
+ 2791 0a5c 2338A0E1 		mov	r3, r3, lsr #16
+ 2792 0a60 0338A0E1 		mov	r3, r3, asl #16
+ 2793 0a64 2328A0E1 		mov	r2, r3, lsr #16
+ 2794 0a68 28301BE5 		ldr	r3, [fp, #-40]
+ 2795 0a6c B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 2796              	.L74:
+ 582:../kernel/os_core/os_flag.c ****                  }
+ 583:../kernel/os_core/os_flag.c ****                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready           
+ 2797              		.loc 1 583 0
+ 2798 0a70 4C339FE5 		ldr	r3, .L85+4
+ 2799 0a74 003093E5 		ldr	r3, [r3, #0]
+ 2800 0a78 B0215BE1 		ldrh	r2, [fp, #-16]	@ movhi
+ 2801 0a7c B822C3E1 		strh	r2, [r3, #40]	@ movhi
+ 584:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller 
+ 2802              		.loc 1 584 0
+ 2803              	@ 584 "../kernel/os_core/os_flag.c" 1
+ 2804 0a80 04009DE4 		ldmfd sp!, {r0}
+ 2805              	@ 0 "" 2
+ 2806              	@ 584 "../kernel/os_core/os_flag.c" 1
+ 2807 0a84 00F021E1 		msr   cpsr_c, r0
+ 2808              	@ 0 "" 2
+ 585:../kernel/os_core/os_flag.c ****                  *err                    = OS_NO_ERR;
+ 2809              		.loc 1 585 0
+ 2810 0a88 04309BE5 		ldr	r3, [fp, #4]
+ 2811 0a8c 0020A0E3 		mov	r2, #0
+ 2812 0a90 0020C3E5 		strb	r2, [r3, #0]
+ 586:../kernel/os_core/os_flag.c ****                  return (flags_rdy);
+ 2813              		.loc 1 586 0
+ 2814 0a94 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2815 0a98 C40000EA 		b	.L59
+ 2816              	.L73:
+ 587:../kernel/os_core/os_flag.c ****              } else {                                      /* Block task until events occur or time
+ 588:../kernel/os_core/os_flag.c ****                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
+ 2817              		.loc 1 588 0
+ 2818 0a9c 24104BE2 		sub	r1, fp, #36
+ 2819 0aa0 BA225BE1 		ldrh	r2, [fp, #-42]
+ 2820 0aa4 2B305BE5 		ldrb	r3, [fp, #-43]	@ zero_extendqisi2
+ 2821 0aa8 BE025BE1 		ldrh	r0, [fp, #-46]
+ 2822 0aac 00008DE5 		str	r0, [sp, #0]
+ 2823 0ab0 28001BE5 		ldr	r0, [fp, #-40]
+ 2824 0ab4 EF0100EB 		bl	OS_FlagBlock
+ 589:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();
+ 2825              		.loc 1 589 0
+ 2826              	@ 589 "../kernel/os_core/os_flag.c" 1
+ 2827 0ab8 04009DE4 		ldmfd sp!, {r0}
+ 2828              	@ 0 "" 2
+ 2829              	@ 589 "../kernel/os_core/os_flag.c" 1
+ 2830 0abc 00F021E1 		msr   cpsr_c, r0
+ 2831              	@ 0 "" 2
+ 590:../kernel/os_core/os_flag.c ****              }
+ 591:../kernel/os_core/os_flag.c ****              break;
+ 2832              		.loc 1 591 0
+ 2833 0ac0 670000EA 		b	.L72
+ 2834              	.L65:
+ 592:../kernel/os_core/os_flag.c **** 
+ 593:../kernel/os_core/os_flag.c **** #if OS_FLAG_WAIT_CLR_EN > 0
+ 594:../kernel/os_core/os_flag.c ****         case OS_FLAG_WAIT_CLR_ALL:                         /* See if all required flags are cleared
+ 595:../kernel/os_core/os_flag.c ****              flags_rdy = ~pgrp->OSFlagFlags & flags;       /* Extract only the bits we want        
+ 2835              		.loc 1 595 0
+ 2836 0ac4 28301BE5 		ldr	r3, [fp, #-40]
+ 2837 0ac8 B830D3E1 		ldrh	r3, [r3, #8]
+ 2838 0acc 0338A0E1 		mov	r3, r3, asl #16
+ 2839 0ad0 2338A0E1 		mov	r3, r3, lsr #16
+ 2840 0ad4 0330E0E1 		mvn	r3, r3
+ 2841 0ad8 0338A0E1 		mov	r3, r3, asl #16
+ 2842 0adc 2328A0E1 		mov	r2, r3, lsr #16
+ 2843 0ae0 BA325BE1 		ldrh	r3, [fp, #-42]
+ 2844 0ae4 033002E0 		and	r3, r2, r3
+ 2845 0ae8 0338A0E1 		mov	r3, r3, asl #16
+ 2846 0aec 2338A0E1 		mov	r3, r3, lsr #16
+ 2847 0af0 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 596:../kernel/os_core/os_flag.c ****              if (flags_rdy == flags) {                     /* Must match ALL the bits that we want 
+ 2848              		.loc 1 596 0
+ 2849 0af4 B0215BE1 		ldrh	r2, [fp, #-16]
+ 2850 0af8 BA325BE1 		ldrh	r3, [fp, #-42]
+ 2851 0afc 030052E1 		cmp	r2, r3
+ 2852 0b00 1500001A 		bne	.L75
+ 597:../kernel/os_core/os_flag.c ****                  if (consume == TRUE) {                    /* See if we need to consume the flags  
+ 2853              		.loc 1 597 0
+ 2854 0b04 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2855 0b08 010053E3 		cmp	r3, #1
+ 2856 0b0c 0700001A 		bne	.L76
+ 598:../kernel/os_core/os_flag.c ****                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we wanted    
+ 2857              		.loc 1 598 0
+ 2858 0b10 28301BE5 		ldr	r3, [fp, #-40]
+ 2859 0b14 B820D3E1 		ldrh	r2, [r3, #8]
+ 2860 0b18 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 2861 0b1c 033082E1 		orr	r3, r2, r3
+ 2862 0b20 0338A0E1 		mov	r3, r3, asl #16
+ 2863 0b24 2328A0E1 		mov	r2, r3, lsr #16
+ 2864 0b28 28301BE5 		ldr	r3, [fp, #-40]
+ 2865 0b2c B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 2866              	.L76:
+ 599:../kernel/os_core/os_flag.c ****                  }
+ 600:../kernel/os_core/os_flag.c ****                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready           
+ 2867              		.loc 1 600 0
+ 2868 0b30 8C329FE5 		ldr	r3, .L85+4
+ 2869 0b34 003093E5 		ldr	r3, [r3, #0]
+ 2870 0b38 B0215BE1 		ldrh	r2, [fp, #-16]	@ movhi
+ 2871 0b3c B822C3E1 		strh	r2, [r3, #40]	@ movhi
+ 601:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller 
+ 2872              		.loc 1 601 0
+ 2873              	@ 601 "../kernel/os_core/os_flag.c" 1
+ 2874 0b40 04009DE4 		ldmfd sp!, {r0}
+ 2875              	@ 0 "" 2
+ 2876              	@ 601 "../kernel/os_core/os_flag.c" 1
+ 2877 0b44 00F021E1 		msr   cpsr_c, r0
+ 2878              	@ 0 "" 2
+ 602:../kernel/os_core/os_flag.c ****                  *err                    = OS_NO_ERR;
+ 2879              		.loc 1 602 0
+ 2880 0b48 04309BE5 		ldr	r3, [fp, #4]
+ 2881 0b4c 0020A0E3 		mov	r2, #0
+ 2882 0b50 0020C3E5 		strb	r2, [r3, #0]
+ 603:../kernel/os_core/os_flag.c ****                  return (flags_rdy);
+ 2883              		.loc 1 603 0
+ 2884 0b54 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2885 0b58 940000EA 		b	.L59
+ 2886              	.L75:
+ 604:../kernel/os_core/os_flag.c ****              } else {                                      /* Block task until events occur or time
+ 605:../kernel/os_core/os_flag.c ****                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
+ 2887              		.loc 1 605 0
+ 2888 0b5c 24104BE2 		sub	r1, fp, #36
+ 2889 0b60 BA225BE1 		ldrh	r2, [fp, #-42]
+ 2890 0b64 2B305BE5 		ldrb	r3, [fp, #-43]	@ zero_extendqisi2
+ 2891 0b68 BE025BE1 		ldrh	r0, [fp, #-46]
+ 2892 0b6c 00008DE5 		str	r0, [sp, #0]
+ 2893 0b70 28001BE5 		ldr	r0, [fp, #-40]
+ 2894 0b74 BF0100EB 		bl	OS_FlagBlock
+ 606:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();
+ 2895              		.loc 1 606 0
+ 2896              	@ 606 "../kernel/os_core/os_flag.c" 1
+ 2897 0b78 04009DE4 		ldmfd sp!, {r0}
+ 2898              	@ 0 "" 2
+ 2899              	@ 606 "../kernel/os_core/os_flag.c" 1
+ 2900 0b7c 00F021E1 		msr   cpsr_c, r0
+ 2901              	@ 0 "" 2
+ 607:../kernel/os_core/os_flag.c ****              }
+ 608:../kernel/os_core/os_flag.c ****              break;
+ 2902              		.loc 1 608 0
+ 2903 0b80 370000EA 		b	.L72
+ 2904              	.L66:
+ 609:../kernel/os_core/os_flag.c **** 
+ 610:../kernel/os_core/os_flag.c ****         case OS_FLAG_WAIT_CLR_ANY:
+ 611:../kernel/os_core/os_flag.c ****              flags_rdy = ~pgrp->OSFlagFlags & flags;       /* Extract only the bits we want        
+ 2905              		.loc 1 611 0
+ 2906 0b84 28301BE5 		ldr	r3, [fp, #-40]
+ 2907 0b88 B830D3E1 		ldrh	r3, [r3, #8]
+ 2908 0b8c 0338A0E1 		mov	r3, r3, asl #16
+ 2909 0b90 2338A0E1 		mov	r3, r3, lsr #16
+ 2910 0b94 0330E0E1 		mvn	r3, r3
+ 2911 0b98 0338A0E1 		mov	r3, r3, asl #16
+ 2912 0b9c 2328A0E1 		mov	r2, r3, lsr #16
+ 2913 0ba0 BA325BE1 		ldrh	r3, [fp, #-42]
+ 2914 0ba4 033002E0 		and	r3, r2, r3
+ 2915 0ba8 0338A0E1 		mov	r3, r3, asl #16
+ 2916 0bac 2338A0E1 		mov	r3, r3, lsr #16
+ 2917 0bb0 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 612:../kernel/os_core/os_flag.c ****              if (flags_rdy != (OS_FLAGS)0) {               /* See if any flag cleared              
+ 2918              		.loc 1 612 0
+ 2919 0bb4 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2920 0bb8 000053E3 		cmp	r3, #0
+ 2921 0bbc 1500000A 		beq	.L77
+ 613:../kernel/os_core/os_flag.c ****                  if (consume == TRUE) {                    /* See if we need to consume the flags  
+ 2922              		.loc 1 613 0
+ 2923 0bc0 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2924 0bc4 010053E3 		cmp	r3, #1
+ 2925 0bc8 0700001A 		bne	.L78
+ 614:../kernel/os_core/os_flag.c ****                      pgrp->OSFlagFlags |= flags_rdy;       /* Set ONLY the flags that we got       
+ 2926              		.loc 1 614 0
+ 2927 0bcc 28301BE5 		ldr	r3, [fp, #-40]
+ 2928 0bd0 B820D3E1 		ldrh	r2, [r3, #8]
+ 2929 0bd4 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 2930 0bd8 033082E1 		orr	r3, r2, r3
+ 2931 0bdc 0338A0E1 		mov	r3, r3, asl #16
+ 2932 0be0 2328A0E1 		mov	r2, r3, lsr #16
+ 2933 0be4 28301BE5 		ldr	r3, [fp, #-40]
+ 2934 0be8 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 2935              	.L78:
+ 615:../kernel/os_core/os_flag.c ****                  }
+ 616:../kernel/os_core/os_flag.c ****                  OSTCBCur->OSTCBFlagsRdy = flags_rdy;      /* Save flags that were ready           
+ 2936              		.loc 1 616 0
+ 2937 0bec D0319FE5 		ldr	r3, .L85+4
+ 2938 0bf0 003093E5 		ldr	r3, [r3, #0]
+ 2939 0bf4 B0215BE1 		ldrh	r2, [fp, #-16]	@ movhi
+ 2940 0bf8 B822C3E1 		strh	r2, [r3, #40]	@ movhi
+ 617:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();                       /* Yes, condition met, return to caller 
+ 2941              		.loc 1 617 0
+ 2942              	@ 617 "../kernel/os_core/os_flag.c" 1
+ 2943 0bfc 04009DE4 		ldmfd sp!, {r0}
+ 2944              	@ 0 "" 2
+ 2945              	@ 617 "../kernel/os_core/os_flag.c" 1
+ 2946 0c00 00F021E1 		msr   cpsr_c, r0
+ 2947              	@ 0 "" 2
+ 618:../kernel/os_core/os_flag.c ****                  *err                    = OS_NO_ERR;
+ 2948              		.loc 1 618 0
+ 2949 0c04 04309BE5 		ldr	r3, [fp, #4]
+ 2950 0c08 0020A0E3 		mov	r2, #0
+ 2951 0c0c 0020C3E5 		strb	r2, [r3, #0]
+ 619:../kernel/os_core/os_flag.c ****                  return (flags_rdy);
+ 2952              		.loc 1 619 0
+ 2953 0c10 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2954 0c14 650000EA 		b	.L59
+ 2955              	.L77:
+ 620:../kernel/os_core/os_flag.c ****              } else {                                      /* Block task until events occur or time
+ 621:../kernel/os_core/os_flag.c ****                  OS_FlagBlock(pgrp, &node, flags, wait_type, timeout);
+ 2956              		.loc 1 621 0
+ 2957 0c18 24104BE2 		sub	r1, fp, #36
+ 2958 0c1c BA225BE1 		ldrh	r2, [fp, #-42]
+ 2959 0c20 2B305BE5 		ldrb	r3, [fp, #-43]	@ zero_extendqisi2
+ 2960 0c24 BE025BE1 		ldrh	r0, [fp, #-46]
+ 2961 0c28 00008DE5 		str	r0, [sp, #0]
+ 2962 0c2c 28001BE5 		ldr	r0, [fp, #-40]
+ 2963 0c30 900100EB 		bl	OS_FlagBlock
+ 622:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();
+ 2964              		.loc 1 622 0
+ 2965              	@ 622 "../kernel/os_core/os_flag.c" 1
+ 2966 0c34 04009DE4 		ldmfd sp!, {r0}
+ 2967              	@ 0 "" 2
+ 2968              	@ 622 "../kernel/os_core/os_flag.c" 1
+ 2969 0c38 00F021E1 		msr   cpsr_c, r0
+ 2970              	@ 0 "" 2
+ 623:../kernel/os_core/os_flag.c ****              }
+ 624:../kernel/os_core/os_flag.c ****              break;
+ 2971              		.loc 1 624 0
+ 2972 0c3c 080000EA 		b	.L72
+ 2973              	.L64:
+ 625:../kernel/os_core/os_flag.c **** #endif
+ 626:../kernel/os_core/os_flag.c **** 
+ 627:../kernel/os_core/os_flag.c ****         default:
+ 628:../kernel/os_core/os_flag.c ****              OS_EXIT_CRITICAL();
+ 2974              		.loc 1 628 0
+ 2975              	@ 628 "../kernel/os_core/os_flag.c" 1
+ 2976 0c40 04009DE4 		ldmfd sp!, {r0}
+ 2977              	@ 0 "" 2
+ 2978              	@ 628 "../kernel/os_core/os_flag.c" 1
+ 2979 0c44 00F021E1 		msr   cpsr_c, r0
+ 2980              	@ 0 "" 2
+ 629:../kernel/os_core/os_flag.c ****              flags_rdy = (OS_FLAGS)0;
+ 2981              		.loc 1 629 0
+ 2982 0c48 0030A0E3 		mov	r3, #0
+ 2983 0c4c B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 630:../kernel/os_core/os_flag.c ****              *err      = OS_FLAG_ERR_WAIT_TYPE;
+ 2984              		.loc 1 630 0
+ 2985 0c50 04309BE5 		ldr	r3, [fp, #4]
+ 2986 0c54 6820E0E3 		mvn	r2, #104
+ 2987 0c58 0020C3E5 		strb	r2, [r3, #0]
+ 631:../kernel/os_core/os_flag.c ****              return (flags_rdy);
+ 2988              		.loc 1 631 0
+ 2989 0c5c B0315BE1 		ldrh	r3, [fp, #-16]
+ 2990 0c60 520000EA 		b	.L59
+ 2991              	.L72:
+ 632:../kernel/os_core/os_flag.c ****     }
+ 633:../kernel/os_core/os_flag.c ****     OS_Sched();                                            /* Find next HPT ready to run           
+ 2992              		.loc 1 633 0
+ 2993 0c64 FEFFFFEB 		bl	OS_Sched
+ 634:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 2994              		.loc 1 634 0
+ 2995              	@ 634 "../kernel/os_core/os_flag.c" 1
+ 2996 0c68 00000FE1 		mrs   r0, cpsr
+ 2997              	@ 0 "" 2
+ 2998              	@ 634 "../kernel/os_core/os_flag.c" 1
+ 2999 0c6c 04002DE5 		stmfd sp!, {r0}
+ 3000              	@ 0 "" 2
+ 3001              	@ 634 "../kernel/os_core/os_flag.c" 1
+ 3002 0c70 C00080E3 		orr   r0, r0, #0b11000000
+ 3003              	@ 0 "" 2
+ 3004              	@ 634 "../kernel/os_core/os_flag.c" 1
+ 3005 0c74 00F021E1 		msr   cpsr_c, r0
+ 3006              	@ 0 "" 2
+ 635:../kernel/os_core/os_flag.c ****     if (OSTCBCur->OSTCBPendTO == TRUE) {                   /* Have we timed-out?                   
+ 3007              		.loc 1 635 0
+ 3008 0c78 44319FE5 		ldr	r3, .L85+4
+ 3009 0c7c 003093E5 		ldr	r3, [r3, #0]
+ 3010 0c80 2D30D3E5 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 3011 0c84 010053E3 		cmp	r3, #1
+ 3012 0c88 1300001A 		bne	.L79
+ 636:../kernel/os_core/os_flag.c ****         OSTCBCur->OSTCBPendTO = FALSE;
+ 3013              		.loc 1 636 0
+ 3014 0c8c 30319FE5 		ldr	r3, .L85+4
+ 3015 0c90 003093E5 		ldr	r3, [r3, #0]
+ 3016 0c94 0020A0E3 		mov	r2, #0
+ 3017 0c98 2D20C3E5 		strb	r2, [r3, #45]
+ 637:../kernel/os_core/os_flag.c ****         OS_FlagUnlink(&node);
+ 3018              		.loc 1 637 0
+ 3019 0c9c 24304BE2 		sub	r3, fp, #36
+ 3020 0ca0 0300A0E1 		mov	r0, r3
+ 3021 0ca4 FEFFFFEB 		bl	OS_FlagUnlink
+ 638:../kernel/os_core/os_flag.c ****         OSTCBCur->OSTCBStat   = OS_STAT_RDY;               /* Yes, make task ready-to-run          
+ 3022              		.loc 1 638 0
+ 3023 0ca8 14319FE5 		ldr	r3, .L85+4
+ 3024 0cac 003093E5 		ldr	r3, [r3, #0]
+ 3025 0cb0 0020A0E3 		mov	r2, #0
+ 3026 0cb4 2C20C3E5 		strb	r2, [r3, #44]
+ 639:../kernel/os_core/os_flag.c ****         OS_EXIT_CRITICAL();
+ 3027              		.loc 1 639 0
+ 3028              	@ 639 "../kernel/os_core/os_flag.c" 1
+ 3029 0cb8 04009DE4 		ldmfd sp!, {r0}
+ 3030              	@ 0 "" 2
+ 3031              	@ 639 "../kernel/os_core/os_flag.c" 1
+ 3032 0cbc 00F021E1 		msr   cpsr_c, r0
+ 3033              	@ 0 "" 2
+ 640:../kernel/os_core/os_flag.c ****         flags_rdy             = (OS_FLAGS)0;
+ 3034              		.loc 1 640 0
+ 3035 0cc0 0030A0E3 		mov	r3, #0
+ 3036 0cc4 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 641:../kernel/os_core/os_flag.c ****         *err                  = OS_TIMEOUT;                /* Indicate that we timed-out waiting   
+ 3037              		.loc 1 641 0
+ 3038 0cc8 04309BE5 		ldr	r3, [fp, #4]
+ 3039 0ccc 0A20A0E3 		mov	r2, #10
+ 3040 0cd0 0020C3E5 		strb	r2, [r3, #0]
+ 642:../kernel/os_core/os_flag.c ****         return (flags_rdy);
+ 3041              		.loc 1 642 0
+ 3042 0cd4 B0315BE1 		ldrh	r3, [fp, #-16]
+ 3043 0cd8 340000EA 		b	.L59
+ 3044              	.L79:
+ 643:../kernel/os_core/os_flag.c ****     } 
+ 644:../kernel/os_core/os_flag.c ****     flags_rdy = OSTCBCur->OSTCBFlagsRdy;
+ 3045              		.loc 1 644 0
+ 3046 0cdc E0309FE5 		ldr	r3, .L85+4
+ 3047 0ce0 003093E5 		ldr	r3, [r3, #0]
+ 3048 0ce4 B832D3E1 		ldrh	r3, [r3, #40]	@ movhi
+ 3049 0ce8 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 645:../kernel/os_core/os_flag.c ****     if (consume == TRUE) {                                 /* See if we need to consume the flags  
+ 3050              		.loc 1 645 0
+ 3051 0cec 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 3052 0cf0 010053E3 		cmp	r3, #1
+ 3053 0cf4 2700001A 		bne	.L80
+ 646:../kernel/os_core/os_flag.c ****         switch (wait_type) {
+ 3054              		.loc 1 646 0
+ 3055 0cf8 2B305BE5 		ldrb	r3, [fp, #-43]	@ zero_extendqisi2
+ 3056 0cfc 030053E3 		cmp	r3, #3
+ 3057 0d00 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 3058 0d04 1C0000EA 		b	.L81
+ 3059              	.L84:
+ 3060 0d08 580D0000 		.word	.L82
+ 3061 0d0c 580D0000 		.word	.L82
+ 3062 0d10 180D0000 		.word	.L83
+ 3063 0d14 180D0000 		.word	.L83
+ 3064              	.L83:
+ 647:../kernel/os_core/os_flag.c ****             case OS_FLAG_WAIT_SET_ALL:
+ 648:../kernel/os_core/os_flag.c ****             case OS_FLAG_WAIT_SET_ANY:                     /* Clear ONLY the flags we got          
+ 649:../kernel/os_core/os_flag.c ****                  pgrp->OSFlagFlags &= ~flags_rdy;
+ 3065              		.loc 1 649 0
+ 3066 0d18 28301BE5 		ldr	r3, [fp, #-40]
+ 3067 0d1c B830D3E1 		ldrh	r3, [r3, #8]
+ 3068 0d20 0338A0E1 		mov	r3, r3, asl #16
+ 3069 0d24 2328A0E1 		mov	r2, r3, lsr #16
+ 3070 0d28 B0315BE1 		ldrh	r3, [fp, #-16]
+ 3071 0d2c 0330E0E1 		mvn	r3, r3
+ 3072 0d30 0338A0E1 		mov	r3, r3, asl #16
+ 3073 0d34 2338A0E1 		mov	r3, r3, lsr #16
+ 3074 0d38 033002E0 		and	r3, r2, r3
+ 3075 0d3c 0338A0E1 		mov	r3, r3, asl #16
+ 3076 0d40 2338A0E1 		mov	r3, r3, lsr #16
+ 3077 0d44 0338A0E1 		mov	r3, r3, asl #16
+ 3078 0d48 2328A0E1 		mov	r2, r3, lsr #16
+ 3079 0d4c 28301BE5 		ldr	r3, [fp, #-40]
+ 3080 0d50 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 650:../kernel/os_core/os_flag.c ****                  break;
+ 3081              		.loc 1 650 0
+ 3082 0d54 0F0000EA 		b	.L80
+ 3083              	.L82:
+ 651:../kernel/os_core/os_flag.c **** 
+ 652:../kernel/os_core/os_flag.c **** #if OS_FLAG_WAIT_CLR_EN > 0
+ 653:../kernel/os_core/os_flag.c ****             case OS_FLAG_WAIT_CLR_ALL:
+ 654:../kernel/os_core/os_flag.c ****             case OS_FLAG_WAIT_CLR_ANY:                     /* Set   ONLY the flags we got          
+ 655:../kernel/os_core/os_flag.c ****                  pgrp->OSFlagFlags |=  flags_rdy;
+ 3084              		.loc 1 655 0
+ 3085 0d58 28301BE5 		ldr	r3, [fp, #-40]
+ 3086 0d5c B820D3E1 		ldrh	r2, [r3, #8]
+ 3087 0d60 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 3088 0d64 033082E1 		orr	r3, r2, r3
+ 3089 0d68 0338A0E1 		mov	r3, r3, asl #16
+ 3090 0d6c 2328A0E1 		mov	r2, r3, lsr #16
+ 3091 0d70 28301BE5 		ldr	r3, [fp, #-40]
+ 3092 0d74 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 656:../kernel/os_core/os_flag.c ****                  break;
+ 3093              		.loc 1 656 0
+ 3094 0d78 060000EA 		b	.L80
+ 3095              	.L81:
+ 657:../kernel/os_core/os_flag.c **** #endif
+ 658:../kernel/os_core/os_flag.c ****             default:
+ 659:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();
+ 3096              		.loc 1 659 0
+ 3097              	@ 659 "../kernel/os_core/os_flag.c" 1
+ 3098 0d7c 04009DE4 		ldmfd sp!, {r0}
+ 3099              	@ 0 "" 2
+ 3100              	@ 659 "../kernel/os_core/os_flag.c" 1
+ 3101 0d80 00F021E1 		msr   cpsr_c, r0
+ 3102              	@ 0 "" 2
+ 660:../kernel/os_core/os_flag.c ****                  *err = OS_FLAG_ERR_WAIT_TYPE;
+ 3103              		.loc 1 660 0
+ 3104 0d84 04309BE5 		ldr	r3, [fp, #4]
+ 3105 0d88 6820E0E3 		mvn	r2, #104
+ 3106 0d8c 0020C3E5 		strb	r2, [r3, #0]
+ 661:../kernel/os_core/os_flag.c ****                  return ((OS_FLAGS)0);
+ 3107              		.loc 1 661 0
+ 3108 0d90 0030A0E3 		mov	r3, #0
+ 3109 0d94 050000EA 		b	.L59
+ 3110              	.L80:
+ 662:../kernel/os_core/os_flag.c ****         }
+ 663:../kernel/os_core/os_flag.c ****     }
+ 664:../kernel/os_core/os_flag.c ****     OS_EXIT_CRITICAL();
+ 3111              		.loc 1 664 0
+ 3112              	@ 664 "../kernel/os_core/os_flag.c" 1
+ 3113 0d98 04009DE4 		ldmfd sp!, {r0}
+ 3114              	@ 0 "" 2
+ 3115              	@ 664 "../kernel/os_core/os_flag.c" 1
+ 3116 0d9c 00F021E1 		msr   cpsr_c, r0
+ 3117              	@ 0 "" 2
+ 665:../kernel/os_core/os_flag.c ****     *err = OS_NO_ERR;                                      /* Event(s) must have occurred          
+ 3118              		.loc 1 665 0
+ 3119 0da0 04309BE5 		ldr	r3, [fp, #4]
+ 3120 0da4 0020A0E3 		mov	r2, #0
+ 3121 0da8 0020C3E5 		strb	r2, [r3, #0]
+ 666:../kernel/os_core/os_flag.c ****     return (flags_rdy);
+ 3122              		.loc 1 666 0
+ 3123 0dac B0315BE1 		ldrh	r3, [fp, #-16]
+ 3124              	.L59:
+ 667:../kernel/os_core/os_flag.c **** }
+ 3125              		.loc 1 667 0
+ 3126 0db0 0300A0E1 		mov	r0, r3
+ 3127 0db4 0CD04BE2 		sub	sp, fp, #12
+ 3128 0db8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3129 0dbc 1EFF2FE1 		bx	lr
+ 3130              	.L86:
+ 3131              		.align	2
+ 3132              	.L85:
+ 3133 0dc0 00000000 		.word	OSIntNesting
+ 3134 0dc4 00000000 		.word	OSTCBCur
+ 3135              		.cfi_endproc
+ 3136              	.LFE5:
+ 3138              		.align	2
+ 3139              		.global	OSFlagPendGetFlagsRdy
+ 3141              	OSFlagPendGetFlagsRdy:
+ 3142              	.LFB6:
+ 668:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 669:../kernel/os_core/os_flag.c **** /*
+ 670:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 671:../kernel/os_core/os_flag.c **** *                               GET FLAGS WHO CAUSED TASK TO BECOME READY
+ 672:../kernel/os_core/os_flag.c **** *
+ 673:../kernel/os_core/os_flag.c **** * Description: This function is called to obtain the flags that caused the task to become ready to 
+ 674:../kernel/os_core/os_flag.c **** *              In other words, this function allows you to tell "Who done it!".
+ 675:../kernel/os_core/os_flag.c **** *
+ 676:../kernel/os_core/os_flag.c **** * Arguments  : None
+ 677:../kernel/os_core/os_flag.c **** *
+ 678:../kernel/os_core/os_flag.c **** * Returns    : The flags that caused the task to be ready.
+ 679:../kernel/os_core/os_flag.c **** *
+ 680:../kernel/os_core/os_flag.c **** * Called from: Task ONLY
+ 681:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 682:../kernel/os_core/os_flag.c **** */
+ 683:../kernel/os_core/os_flag.c **** 
+ 684:../kernel/os_core/os_flag.c **** OS_FLAGS  OSFlagPendGetFlagsRdy (void)
+ 685:../kernel/os_core/os_flag.c **** {
+ 3143              		.loc 1 685 0
+ 3144              		.cfi_startproc
+ 3145              		@ Function supports interworking.
+ 3146              		@ args = 0, pretend = 0, frame = 8
+ 3147              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3148 0dc8 0DC0A0E1 		mov	ip, sp
+ 3149              	.LCFI12:
+ 3150              		.cfi_def_cfa_register 12
+ 3151 0dcc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3152 0dd0 04B04CE2 		sub	fp, ip, #4
+ 3153              		.cfi_offset 14, -8
+ 3154              		.cfi_offset 13, -12
+ 3155              		.cfi_offset 11, -16
+ 3156              	.LCFI13:
+ 3157              		.cfi_def_cfa 11, 4
+ 3158 0dd4 08D04DE2 		sub	sp, sp, #8
+ 686:../kernel/os_core/os_flag.c ****     OS_FLAGS      flags;
+ 687:../kernel/os_core/os_flag.c **** #if OS_CRITICAL_METHOD == 3                                /* Allocate storage for CPU status regis
+ 688:../kernel/os_core/os_flag.c ****     OS_CPU_SR     cpu_sr;
+ 689:../kernel/os_core/os_flag.c **** 
+ 690:../kernel/os_core/os_flag.c **** 
+ 691:../kernel/os_core/os_flag.c **** 
+ 692:../kernel/os_core/os_flag.c ****     cpu_sr = 0;                                            /* Prevent compiler warning             
+ 693:../kernel/os_core/os_flag.c **** #endif    
+ 694:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 3159              		.loc 1 694 0
+ 3160              	@ 694 "../kernel/os_core/os_flag.c" 1
+ 3161 0dd8 00000FE1 		mrs   r0, cpsr
+ 3162              	@ 0 "" 2
+ 3163              	@ 694 "../kernel/os_core/os_flag.c" 1
+ 3164 0ddc 04002DE5 		stmfd sp!, {r0}
+ 3165              	@ 0 "" 2
+ 3166              	@ 694 "../kernel/os_core/os_flag.c" 1
+ 3167 0de0 C00080E3 		orr   r0, r0, #0b11000000
+ 3168              	@ 0 "" 2
+ 3169              	@ 694 "../kernel/os_core/os_flag.c" 1
+ 3170 0de4 00F021E1 		msr   cpsr_c, r0
+ 3171              	@ 0 "" 2
+ 695:../kernel/os_core/os_flag.c ****     flags = OSTCBCur->OSTCBFlagsRdy;
+ 3172              		.loc 1 695 0
+ 3173 0de8 24309FE5 		ldr	r3, .L88
+ 3174 0dec 003093E5 		ldr	r3, [r3, #0]
+ 3175 0df0 B832D3E1 		ldrh	r3, [r3, #40]	@ movhi
+ 3176 0df4 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 696:../kernel/os_core/os_flag.c ****     OS_EXIT_CRITICAL();
+ 3177              		.loc 1 696 0
+ 3178              	@ 696 "../kernel/os_core/os_flag.c" 1
+ 3179 0df8 04009DE4 		ldmfd sp!, {r0}
+ 3180              	@ 0 "" 2
+ 3181              	@ 696 "../kernel/os_core/os_flag.c" 1
+ 3182 0dfc 00F021E1 		msr   cpsr_c, r0
+ 3183              	@ 0 "" 2
+ 697:../kernel/os_core/os_flag.c ****     return (flags);
+ 3184              		.loc 1 697 0
+ 3185 0e00 BE305BE1 		ldrh	r3, [fp, #-14]
+ 698:../kernel/os_core/os_flag.c **** }
+ 3186              		.loc 1 698 0
+ 3187 0e04 0300A0E1 		mov	r0, r3
+ 3188 0e08 0CD04BE2 		sub	sp, fp, #12
+ 3189 0e0c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3190 0e10 1EFF2FE1 		bx	lr
+ 3191              	.L89:
+ 3192              		.align	2
+ 3193              	.L88:
+ 3194 0e14 00000000 		.word	OSTCBCur
+ 3195              		.cfi_endproc
+ 3196              	.LFE6:
+ 3198              		.align	2
+ 3199              		.global	OSFlagPost
+ 3201              	OSFlagPost:
+ 3202              	.LFB7:
+ 699:../kernel/os_core/os_flag.c **** 
+ 700:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 701:../kernel/os_core/os_flag.c **** /*
+ 702:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 703:../kernel/os_core/os_flag.c **** *                                         POST EVENT FLAG BIT(S)
+ 704:../kernel/os_core/os_flag.c **** *
+ 705:../kernel/os_core/os_flag.c **** * Description: This function is called to set or clear some bits in an event flag group.  The bits 
+ 706:../kernel/os_core/os_flag.c **** *              set or clear are specified by a 'bit mask'.
+ 707:../kernel/os_core/os_flag.c **** *
+ 708:../kernel/os_core/os_flag.c **** * Arguments  : pgrp          is a pointer to the desired event flag group.
+ 709:../kernel/os_core/os_flag.c **** *
+ 710:../kernel/os_core/os_flag.c **** *              flags         If 'opt' (see below) is OS_FLAG_SET, each bit that is set in 'flags' w
+ 711:../kernel/os_core/os_flag.c **** *                            set the corresponding bit in the event flag group.  e.g. to set bits 0
+ 712:../kernel/os_core/os_flag.c **** *                            and 5 you would set 'flags' to:
+ 713:../kernel/os_core/os_flag.c **** *
+ 714:../kernel/os_core/os_flag.c **** *                                0x31     (note, bit 0 is least significant bit)
+ 715:../kernel/os_core/os_flag.c **** *
+ 716:../kernel/os_core/os_flag.c **** *                            If 'opt' (see below) is OS_FLAG_CLR, each bit that is set in 'flags' w
+ 717:../kernel/os_core/os_flag.c **** *                            CLEAR the corresponding bit in the event flag group.  e.g. to clear bi
+ 718:../kernel/os_core/os_flag.c **** *                            4 and 5 you would specify 'flags' as:
+ 719:../kernel/os_core/os_flag.c **** *
+ 720:../kernel/os_core/os_flag.c **** *                                0x31     (note, bit 0 is least significant bit)
+ 721:../kernel/os_core/os_flag.c **** *
+ 722:../kernel/os_core/os_flag.c **** *              opt           indicates whether the flags will be:
+ 723:../kernel/os_core/os_flag.c **** *                                set     (OS_FLAG_SET) or
+ 724:../kernel/os_core/os_flag.c **** *                                cleared (OS_FLAG_CLR)
+ 725:../kernel/os_core/os_flag.c **** *
+ 726:../kernel/os_core/os_flag.c **** *              err           is a pointer to an error code and can be:
+ 727:../kernel/os_core/os_flag.c **** *                            OS_NO_ERR              The call was successfull
+ 728:../kernel/os_core/os_flag.c **** *                            OS_FLAG_INVALID_PGRP   You passed a NULL pointer
+ 729:../kernel/os_core/os_flag.c **** *                            OS_ERR_EVENT_TYPE      You are not pointing to an event flag group
+ 730:../kernel/os_core/os_flag.c **** *                            OS_FLAG_INVALID_OPT    You specified an invalid option
+ 731:../kernel/os_core/os_flag.c **** *
+ 732:../kernel/os_core/os_flag.c **** * Returns    : the new value of the event flags bits that are still set.
+ 733:../kernel/os_core/os_flag.c **** *
+ 734:../kernel/os_core/os_flag.c **** * Called From: Task or ISR
+ 735:../kernel/os_core/os_flag.c **** *
+ 736:../kernel/os_core/os_flag.c **** * WARNING(s) : 1) The execution time of this function depends on the number of tasks waiting on the
+ 737:../kernel/os_core/os_flag.c **** *                 flag group.
+ 738:../kernel/os_core/os_flag.c **** *              2) The amount of time interrupts are DISABLED depends on the number of tasks waiting
+ 739:../kernel/os_core/os_flag.c **** *                 the event flag group.
+ 740:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 741:../kernel/os_core/os_flag.c **** */
+ 742:../kernel/os_core/os_flag.c **** OS_FLAGS  OSFlagPost (OS_FLAG_GRP *pgrp, OS_FLAGS flags, INT8U opt, INT8U *err)
+ 743:../kernel/os_core/os_flag.c **** {
+ 3203              		.loc 1 743 0
+ 3204              		.cfi_startproc
+ 3205              		@ Function supports interworking.
+ 3206              		@ args = 0, pretend = 0, frame = 32
+ 3207              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3208 0e18 0DC0A0E1 		mov	ip, sp
+ 3209              	.LCFI14:
+ 3210              		.cfi_def_cfa_register 12
+ 3211 0e1c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3212 0e20 04B04CE2 		sub	fp, ip, #4
+ 3213              		.cfi_offset 14, -8
+ 3214              		.cfi_offset 13, -12
+ 3215              		.cfi_offset 11, -16
+ 3216              	.LCFI15:
+ 3217              		.cfi_def_cfa 11, 4
+ 3218 0e24 20D04DE2 		sub	sp, sp, #32
+ 3219 0e28 20000BE5 		str	r0, [fp, #-32]
+ 3220 0e2c 28300BE5 		str	r3, [fp, #-40]
+ 3221 0e30 B2124BE1 		strh	r1, [fp, #-34]	@ movhi
+ 3222 0e34 0230A0E1 		mov	r3, r2
+ 3223 0e38 23304BE5 		strb	r3, [fp, #-35]
+ 744:../kernel/os_core/os_flag.c ****     OS_FLAG_NODE *pnode;
+ 745:../kernel/os_core/os_flag.c ****     BOOLEAN       sched;
+ 746:../kernel/os_core/os_flag.c ****     OS_FLAGS      flags_cur;
+ 747:../kernel/os_core/os_flag.c ****     OS_FLAGS      flags_rdy;
+ 748:../kernel/os_core/os_flag.c **** 	BOOLEAN       rdy;
+ 749:../kernel/os_core/os_flag.c **** #if OS_CRITICAL_METHOD == 3                          /* Allocate storage for CPU status register   
+ 750:../kernel/os_core/os_flag.c ****     OS_CPU_SR     cpu_sr;
+ 751:../kernel/os_core/os_flag.c **** 
+ 752:../kernel/os_core/os_flag.c **** 
+ 753:../kernel/os_core/os_flag.c **** 
+ 754:../kernel/os_core/os_flag.c ****     cpu_sr = 0;                                      /* Prevent compiler warning                   
+ 755:../kernel/os_core/os_flag.c **** #endif    
+ 756:../kernel/os_core/os_flag.c **** #if OS_ARG_CHK_EN > 0
+ 757:../kernel/os_core/os_flag.c ****     if (pgrp == (OS_FLAG_GRP *)0) {                  /* Validate 'pgrp'                            
+ 3224              		.loc 1 757 0
+ 3225 0e3c 20301BE5 		ldr	r3, [fp, #-32]
+ 3226 0e40 000053E3 		cmp	r3, #0
+ 3227 0e44 0400001A 		bne	.L91
+ 758:../kernel/os_core/os_flag.c ****         *err = OS_FLAG_INVALID_PGRP;
+ 3228              		.loc 1 758 0
+ 3229 0e48 28301BE5 		ldr	r3, [fp, #-40]
+ 3230 0e4c 6920E0E3 		mvn	r2, #105
+ 3231 0e50 0020C3E5 		strb	r2, [r3, #0]
+ 759:../kernel/os_core/os_flag.c ****         return ((OS_FLAGS)0);
+ 3232              		.loc 1 759 0
+ 3233 0e54 0030A0E3 		mov	r3, #0
+ 3234 0e58 DA0000EA 		b	.L92
+ 3235              	.L91:
+ 760:../kernel/os_core/os_flag.c ****     }
+ 761:../kernel/os_core/os_flag.c **** #endif
+ 762:../kernel/os_core/os_flag.c ****     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) {    /* Make sure we are pointing to an event flag 
+ 3236              		.loc 1 762 0
+ 3237 0e5c 20301BE5 		ldr	r3, [fp, #-32]
+ 3238 0e60 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3239 0e64 050053E3 		cmp	r3, #5
+ 3240 0e68 0400000A 		beq	.L93
+ 763:../kernel/os_core/os_flag.c ****         *err = OS_ERR_EVENT_TYPE;
+ 3241              		.loc 1 763 0
+ 3242 0e6c 28301BE5 		ldr	r3, [fp, #-40]
+ 3243 0e70 0120A0E3 		mov	r2, #1
+ 3244 0e74 0020C3E5 		strb	r2, [r3, #0]
+ 764:../kernel/os_core/os_flag.c ****         return ((OS_FLAGS)0);
+ 3245              		.loc 1 764 0
+ 3246 0e78 0030A0E3 		mov	r3, #0
+ 3247 0e7c D10000EA 		b	.L92
+ 3248              	.L93:
+ 765:../kernel/os_core/os_flag.c ****     }
+ 766:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 767:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 3249              		.loc 1 767 0
+ 3250              	@ 767 "../kernel/os_core/os_flag.c" 1
+ 3251 0e80 00000FE1 		mrs   r0, cpsr
+ 3252              	@ 0 "" 2
+ 3253              	@ 767 "../kernel/os_core/os_flag.c" 1
+ 3254 0e84 04002DE5 		stmfd sp!, {r0}
+ 3255              	@ 0 "" 2
+ 3256              	@ 767 "../kernel/os_core/os_flag.c" 1
+ 3257 0e88 C00080E3 		orr   r0, r0, #0b11000000
+ 3258              	@ 0 "" 2
+ 3259              	@ 767 "../kernel/os_core/os_flag.c" 1
+ 3260 0e8c 00F021E1 		msr   cpsr_c, r0
+ 3261              	@ 0 "" 2
+ 768:../kernel/os_core/os_flag.c ****     switch (opt) {
+ 3262              		.loc 1 768 0
+ 3263 0e90 23305BE5 		ldrb	r3, [fp, #-35]	@ zero_extendqisi2
+ 3264 0e94 000053E3 		cmp	r3, #0
+ 3265 0e98 0200000A 		beq	.L95
+ 3266 0e9c 010053E3 		cmp	r3, #1
+ 3267 0ea0 1000000A 		beq	.L96
+ 3268 0ea4 180000EA 		b	.L112
+ 3269              	.L95:
+ 769:../kernel/os_core/os_flag.c ****         case OS_FLAG_CLR:
+ 770:../kernel/os_core/os_flag.c ****              pgrp->OSFlagFlags &= ~flags;            /* Clear the flags specified in the group     
+ 3270              		.loc 1 770 0
+ 3271 0ea8 20301BE5 		ldr	r3, [fp, #-32]
+ 3272 0eac B830D3E1 		ldrh	r3, [r3, #8]
+ 3273 0eb0 0338A0E1 		mov	r3, r3, asl #16
+ 3274 0eb4 2328A0E1 		mov	r2, r3, lsr #16
+ 3275 0eb8 B2325BE1 		ldrh	r3, [fp, #-34]
+ 3276 0ebc 0330E0E1 		mvn	r3, r3
+ 3277 0ec0 0338A0E1 		mov	r3, r3, asl #16
+ 3278 0ec4 2338A0E1 		mov	r3, r3, lsr #16
+ 3279 0ec8 033002E0 		and	r3, r2, r3
+ 3280 0ecc 0338A0E1 		mov	r3, r3, asl #16
+ 3281 0ed0 2338A0E1 		mov	r3, r3, lsr #16
+ 3282 0ed4 0338A0E1 		mov	r3, r3, asl #16
+ 3283 0ed8 2328A0E1 		mov	r2, r3, lsr #16
+ 3284 0edc 20301BE5 		ldr	r3, [fp, #-32]
+ 3285 0ee0 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 771:../kernel/os_core/os_flag.c ****              break;
+ 3286              		.loc 1 771 0
+ 3287 0ee4 0F0000EA 		b	.L97
+ 3288              	.L96:
+ 772:../kernel/os_core/os_flag.c **** 
+ 773:../kernel/os_core/os_flag.c ****         case OS_FLAG_SET:
+ 774:../kernel/os_core/os_flag.c ****              pgrp->OSFlagFlags |=  flags;            /* Set   the flags specified in the group     
+ 3289              		.loc 1 774 0
+ 3290 0ee8 20301BE5 		ldr	r3, [fp, #-32]
+ 3291 0eec B820D3E1 		ldrh	r2, [r3, #8]
+ 3292 0ef0 B2325BE1 		ldrh	r3, [fp, #-34]	@ movhi
+ 3293 0ef4 033082E1 		orr	r3, r2, r3
+ 3294 0ef8 0338A0E1 		mov	r3, r3, asl #16
+ 3295 0efc 2328A0E1 		mov	r2, r3, lsr #16
+ 3296 0f00 20301BE5 		ldr	r3, [fp, #-32]
+ 3297 0f04 B820C3E1 		strh	r2, [r3, #8]	@ movhi
+ 775:../kernel/os_core/os_flag.c ****              break;
+ 3298              		.loc 1 775 0
+ 3299 0f08 060000EA 		b	.L97
+ 3300              	.L112:
+ 776:../kernel/os_core/os_flag.c **** 
+ 777:../kernel/os_core/os_flag.c ****         default:
+ 778:../kernel/os_core/os_flag.c ****              OS_EXIT_CRITICAL();                     /* INVALID option                             
+ 3301              		.loc 1 778 0
+ 3302              	@ 778 "../kernel/os_core/os_flag.c" 1
+ 3303 0f0c 04009DE4 		ldmfd sp!, {r0}
+ 3304              	@ 0 "" 2
+ 3305              	@ 778 "../kernel/os_core/os_flag.c" 1
+ 3306 0f10 00F021E1 		msr   cpsr_c, r0
+ 3307              	@ 0 "" 2
+ 779:../kernel/os_core/os_flag.c ****              *err = OS_FLAG_INVALID_OPT;
+ 3308              		.loc 1 779 0
+ 3309 0f14 28301BE5 		ldr	r3, [fp, #-40]
+ 3310 0f18 6620E0E3 		mvn	r2, #102
+ 3311 0f1c 0020C3E5 		strb	r2, [r3, #0]
+ 780:../kernel/os_core/os_flag.c ****              return ((OS_FLAGS)0);
+ 3312              		.loc 1 780 0
+ 3313 0f20 0030A0E3 		mov	r3, #0
+ 3314 0f24 A70000EA 		b	.L92
+ 3315              	.L97:
+ 781:../kernel/os_core/os_flag.c ****     }
+ 782:../kernel/os_core/os_flag.c ****     sched = FALSE;                                   /* Indicate that we don't need rescheduling   
+ 3316              		.loc 1 782 0
+ 3317 0f28 0030A0E3 		mov	r3, #0
+ 3318 0f2c 11304BE5 		strb	r3, [fp, #-17]
+ 783:../kernel/os_core/os_flag.c ****     pnode = (OS_FLAG_NODE *)pgrp->OSFlagWaitList;
+ 3319              		.loc 1 783 0
+ 3320 0f30 20301BE5 		ldr	r3, [fp, #-32]
+ 3321 0f34 043093E5 		ldr	r3, [r3, #4]
+ 3322 0f38 10300BE5 		str	r3, [fp, #-16]
+ 784:../kernel/os_core/os_flag.c ****     while (pnode != (OS_FLAG_NODE *)0) {             /* Go through all tasks waiting on event flag(
+ 3323              		.loc 1 784 0
+ 3324 0f3c 8B0000EA 		b	.L98
+ 3325              	.L110:
+ 785:../kernel/os_core/os_flag.c ****         switch (pnode->OSFlagNodeWaitType) {
+ 3326              		.loc 1 785 0
+ 3327 0f40 10301BE5 		ldr	r3, [fp, #-16]
+ 3328 0f44 1230D3E5 		ldrb	r3, [r3, #18]	@ zero_extendqisi2
+ 3329 0f48 030053E3 		cmp	r3, #3
+ 3330 0f4c 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 3331 0f50 6D0000EA 		b	.L99
+ 3332              	.L104:
+ 3333 0f54 14100000 		.word	.L100
+ 3334 0f58 94100000 		.word	.L101
+ 3335 0f5c 640F0000 		.word	.L102
+ 3336 0f60 C00F0000 		.word	.L103
+ 3337              	.L102:
+ 786:../kernel/os_core/os_flag.c ****             case OS_FLAG_WAIT_SET_ALL:               /* See if all req. flags are set for current n
+ 787:../kernel/os_core/os_flag.c ****                  flags_rdy = pgrp->OSFlagFlags & pnode->OSFlagNodeFlags;
+ 3338              		.loc 1 787 0
+ 3339 0f64 20301BE5 		ldr	r3, [fp, #-32]
+ 3340 0f68 B820D3E1 		ldrh	r2, [r3, #8]
+ 3341 0f6c 10301BE5 		ldr	r3, [fp, #-16]
+ 3342 0f70 B031D3E1 		ldrh	r3, [r3, #16]
+ 3343 0f74 033002E0 		and	r3, r2, r3
+ 3344 0f78 B4314BE1 		strh	r3, [fp, #-20]	@ movhi
+ 788:../kernel/os_core/os_flag.c ****                  if (flags_rdy == pnode->OSFlagNodeFlags) {
+ 3345              		.loc 1 788 0
+ 3346 0f7c 10301BE5 		ldr	r3, [fp, #-16]
+ 3347 0f80 B031D3E1 		ldrh	r3, [r3, #16]
+ 3348 0f84 B4215BE1 		ldrh	r2, [fp, #-20]
+ 3349 0f88 030052E1 		cmp	r2, r3
+ 3350 0f8c 6500001A 		bne	.L113
+ 789:../kernel/os_core/os_flag.c **** 				     rdy = OS_FlagTaskRdy(pnode, flags_rdy);  /* Make task RTR, event(s) Rx'd          */
+ 3351              		.loc 1 789 0
+ 3352 0f90 B4315BE1 		ldrh	r3, [fp, #-20]
+ 3353 0f94 10001BE5 		ldr	r0, [fp, #-16]
+ 3354 0f98 0310A0E1 		mov	r1, r3
+ 3355 0f9c 5E0100EB 		bl	OS_FlagTaskRdy
+ 3356 0fa0 0030A0E1 		mov	r3, r0
+ 3357 0fa4 15304BE5 		strb	r3, [fp, #-21]
+ 790:../kernel/os_core/os_flag.c ****                      if (rdy == TRUE) {                     
+ 3358              		.loc 1 790 0
+ 3359 0fa8 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3360 0fac 010053E3 		cmp	r3, #1
+ 3361 0fb0 5E00001A 		bne	.L114
+ 791:../kernel/os_core/os_flag.c ****                          sched = TRUE;                        /* When done we will reschedule      
+ 3362              		.loc 1 791 0
+ 3363 0fb4 0130A0E3 		mov	r3, #1
+ 3364 0fb8 11304BE5 		strb	r3, [fp, #-17]
+ 792:../kernel/os_core/os_flag.c ****                      }
+ 793:../kernel/os_core/os_flag.c ****                  }
+ 794:../kernel/os_core/os_flag.c ****                  break;
+ 3365              		.loc 1 794 0
+ 3366 0fbc 680000EA 		b	.L106
+ 3367              	.L103:
+ 795:../kernel/os_core/os_flag.c **** 
+ 796:../kernel/os_core/os_flag.c ****             case OS_FLAG_WAIT_SET_ANY:               /* See if any flag set                        
+ 797:../kernel/os_core/os_flag.c ****                  flags_rdy = pgrp->OSFlagFlags & pnode->OSFlagNodeFlags;
+ 3368              		.loc 1 797 0
+ 3369 0fc0 20301BE5 		ldr	r3, [fp, #-32]
+ 3370 0fc4 B820D3E1 		ldrh	r2, [r3, #8]
+ 3371 0fc8 10301BE5 		ldr	r3, [fp, #-16]
+ 3372 0fcc B031D3E1 		ldrh	r3, [r3, #16]
+ 3373 0fd0 033002E0 		and	r3, r2, r3
+ 3374 0fd4 B4314BE1 		strh	r3, [fp, #-20]	@ movhi
+ 798:../kernel/os_core/os_flag.c ****                  if (flags_rdy != (OS_FLAGS)0) {
+ 3375              		.loc 1 798 0
+ 3376 0fd8 B4315BE1 		ldrh	r3, [fp, #-20]
+ 3377 0fdc 000053E3 		cmp	r3, #0
+ 3378 0fe0 5400000A 		beq	.L115
+ 799:../kernel/os_core/os_flag.c **** 				     rdy = OS_FlagTaskRdy(pnode, flags_rdy);  /* Make task RTR, event(s) Rx'd          */
+ 3379              		.loc 1 799 0
+ 3380 0fe4 B4315BE1 		ldrh	r3, [fp, #-20]
+ 3381 0fe8 10001BE5 		ldr	r0, [fp, #-16]
+ 3382 0fec 0310A0E1 		mov	r1, r3
+ 3383 0ff0 490100EB 		bl	OS_FlagTaskRdy
+ 3384 0ff4 0030A0E1 		mov	r3, r0
+ 3385 0ff8 15304BE5 		strb	r3, [fp, #-21]
+ 800:../kernel/os_core/os_flag.c ****                      if (rdy == TRUE) {                      
+ 3386              		.loc 1 800 0
+ 3387 0ffc 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3388 1000 010053E3 		cmp	r3, #1
+ 3389 1004 4D00001A 		bne	.L116
+ 801:../kernel/os_core/os_flag.c ****                          sched = TRUE;                        /* When done we will reschedule      
+ 3390              		.loc 1 801 0
+ 3391 1008 0130A0E3 		mov	r3, #1
+ 3392 100c 11304BE5 		strb	r3, [fp, #-17]
+ 802:../kernel/os_core/os_flag.c ****                      }
+ 803:../kernel/os_core/os_flag.c ****                  }
+ 804:../kernel/os_core/os_flag.c ****                  break;
+ 3393              		.loc 1 804 0
+ 3394 1010 530000EA 		b	.L106
+ 3395              	.L100:
+ 805:../kernel/os_core/os_flag.c **** 
+ 806:../kernel/os_core/os_flag.c **** #if OS_FLAG_WAIT_CLR_EN > 0
+ 807:../kernel/os_core/os_flag.c ****             case OS_FLAG_WAIT_CLR_ALL:               /* See if all req. flags are set for current n
+ 808:../kernel/os_core/os_flag.c ****                  flags_rdy = ~pgrp->OSFlagFlags & pnode->OSFlagNodeFlags;
+ 3396              		.loc 1 808 0
+ 3397 1014 20301BE5 		ldr	r3, [fp, #-32]
+ 3398 1018 B830D3E1 		ldrh	r3, [r3, #8]
+ 3399 101c 0338A0E1 		mov	r3, r3, asl #16
+ 3400 1020 2338A0E1 		mov	r3, r3, lsr #16
+ 3401 1024 0330E0E1 		mvn	r3, r3
+ 3402 1028 0338A0E1 		mov	r3, r3, asl #16
+ 3403 102c 2328A0E1 		mov	r2, r3, lsr #16
+ 3404 1030 10301BE5 		ldr	r3, [fp, #-16]
+ 3405 1034 B031D3E1 		ldrh	r3, [r3, #16]
+ 3406 1038 0338A0E1 		mov	r3, r3, asl #16
+ 3407 103c 2338A0E1 		mov	r3, r3, lsr #16
+ 3408 1040 033002E0 		and	r3, r2, r3
+ 3409 1044 0338A0E1 		mov	r3, r3, asl #16
+ 3410 1048 2338A0E1 		mov	r3, r3, lsr #16
+ 3411 104c B4314BE1 		strh	r3, [fp, #-20]	@ movhi
+ 809:../kernel/os_core/os_flag.c ****                  if (flags_rdy == pnode->OSFlagNodeFlags) {
+ 3412              		.loc 1 809 0
+ 3413 1050 10301BE5 		ldr	r3, [fp, #-16]
+ 3414 1054 B031D3E1 		ldrh	r3, [r3, #16]
+ 3415 1058 B4215BE1 		ldrh	r2, [fp, #-20]
+ 3416 105c 030052E1 		cmp	r2, r3
+ 3417 1060 3800001A 		bne	.L117
+ 810:../kernel/os_core/os_flag.c **** 				     rdy = OS_FlagTaskRdy(pnode, flags_rdy);  /* Make task RTR, event(s) Rx'd          */
+ 3418              		.loc 1 810 0
+ 3419 1064 B4315BE1 		ldrh	r3, [fp, #-20]
+ 3420 1068 10001BE5 		ldr	r0, [fp, #-16]
+ 3421 106c 0310A0E1 		mov	r1, r3
+ 3422 1070 290100EB 		bl	OS_FlagTaskRdy
+ 3423 1074 0030A0E1 		mov	r3, r0
+ 3424 1078 15304BE5 		strb	r3, [fp, #-21]
+ 811:../kernel/os_core/os_flag.c ****                      if (rdy == TRUE) {                       
+ 3425              		.loc 1 811 0
+ 3426 107c 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3427 1080 010053E3 		cmp	r3, #1
+ 3428 1084 3100001A 		bne	.L118
+ 812:../kernel/os_core/os_flag.c ****                          sched = TRUE;                        /* When done we will reschedule      
+ 3429              		.loc 1 812 0
+ 3430 1088 0130A0E3 		mov	r3, #1
+ 3431 108c 11304BE5 		strb	r3, [fp, #-17]
+ 813:../kernel/os_core/os_flag.c ****                      }
+ 814:../kernel/os_core/os_flag.c ****                  }
+ 815:../kernel/os_core/os_flag.c ****                  break;
+ 3432              		.loc 1 815 0
+ 3433 1090 330000EA 		b	.L106
+ 3434              	.L101:
+ 816:../kernel/os_core/os_flag.c **** 
+ 817:../kernel/os_core/os_flag.c ****             case OS_FLAG_WAIT_CLR_ANY:               /* See if any flag set                        
+ 818:../kernel/os_core/os_flag.c ****                  flags_rdy = ~pgrp->OSFlagFlags & pnode->OSFlagNodeFlags;
+ 3435              		.loc 1 818 0
+ 3436 1094 20301BE5 		ldr	r3, [fp, #-32]
+ 3437 1098 B830D3E1 		ldrh	r3, [r3, #8]
+ 3438 109c 0338A0E1 		mov	r3, r3, asl #16
+ 3439 10a0 2338A0E1 		mov	r3, r3, lsr #16
+ 3440 10a4 0330E0E1 		mvn	r3, r3
+ 3441 10a8 0338A0E1 		mov	r3, r3, asl #16
+ 3442 10ac 2328A0E1 		mov	r2, r3, lsr #16
+ 3443 10b0 10301BE5 		ldr	r3, [fp, #-16]
+ 3444 10b4 B031D3E1 		ldrh	r3, [r3, #16]
+ 3445 10b8 0338A0E1 		mov	r3, r3, asl #16
+ 3446 10bc 2338A0E1 		mov	r3, r3, lsr #16
+ 3447 10c0 033002E0 		and	r3, r2, r3
+ 3448 10c4 0338A0E1 		mov	r3, r3, asl #16
+ 3449 10c8 2338A0E1 		mov	r3, r3, lsr #16
+ 3450 10cc B4314BE1 		strh	r3, [fp, #-20]	@ movhi
+ 819:../kernel/os_core/os_flag.c ****                  if (flags_rdy != (OS_FLAGS)0) {
+ 3451              		.loc 1 819 0
+ 3452 10d0 B4315BE1 		ldrh	r3, [fp, #-20]
+ 3453 10d4 000053E3 		cmp	r3, #0
+ 3454 10d8 1E00000A 		beq	.L119
+ 820:../kernel/os_core/os_flag.c **** 				     rdy = OS_FlagTaskRdy(pnode, flags_rdy);  /* Make task RTR, event(s) Rx'd          */
+ 3455              		.loc 1 820 0
+ 3456 10dc B4315BE1 		ldrh	r3, [fp, #-20]
+ 3457 10e0 10001BE5 		ldr	r0, [fp, #-16]
+ 3458 10e4 0310A0E1 		mov	r1, r3
+ 3459 10e8 0B0100EB 		bl	OS_FlagTaskRdy
+ 3460 10ec 0030A0E1 		mov	r3, r0
+ 3461 10f0 15304BE5 		strb	r3, [fp, #-21]
+ 821:../kernel/os_core/os_flag.c ****                      if (rdy == TRUE) {                       
+ 3462              		.loc 1 821 0
+ 3463 10f4 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 3464 10f8 010053E3 		cmp	r3, #1
+ 3465 10fc 1700001A 		bne	.L120
+ 822:../kernel/os_core/os_flag.c ****                          sched = TRUE;                        /* When done we will reschedule      
+ 3466              		.loc 1 822 0
+ 3467 1100 0130A0E3 		mov	r3, #1
+ 3468 1104 11304BE5 		strb	r3, [fp, #-17]
+ 823:../kernel/os_core/os_flag.c ****                      }
+ 824:../kernel/os_core/os_flag.c ****                  }
+ 825:../kernel/os_core/os_flag.c ****                  break;
+ 3469              		.loc 1 825 0
+ 3470 1108 150000EA 		b	.L106
+ 3471              	.L99:
+ 826:../kernel/os_core/os_flag.c **** #endif
+ 827:../kernel/os_core/os_flag.c ****             default:
+ 828:../kernel/os_core/os_flag.c ****                  OS_EXIT_CRITICAL();
+ 3472              		.loc 1 828 0
+ 3473              	@ 828 "../kernel/os_core/os_flag.c" 1
+ 3474 110c 04009DE4 		ldmfd sp!, {r0}
+ 3475              	@ 0 "" 2
+ 3476              	@ 828 "../kernel/os_core/os_flag.c" 1
+ 3477 1110 00F021E1 		msr   cpsr_c, r0
+ 3478              	@ 0 "" 2
+ 829:../kernel/os_core/os_flag.c ****                  *err = OS_FLAG_ERR_WAIT_TYPE;
+ 3479              		.loc 1 829 0
+ 3480 1114 28301BE5 		ldr	r3, [fp, #-40]
+ 3481 1118 6820E0E3 		mvn	r2, #104
+ 3482 111c 0020C3E5 		strb	r2, [r3, #0]
+ 830:../kernel/os_core/os_flag.c ****                  return ((OS_FLAGS)0);
+ 3483              		.loc 1 830 0
+ 3484 1120 0030A0E3 		mov	r3, #0
+ 3485 1124 270000EA 		b	.L92
+ 3486              	.L113:
+ 794:../kernel/os_core/os_flag.c ****                  break;
+ 3487              		.loc 1 794 0
+ 3488 1128 0000A0E1 		mov	r0, r0	@ nop
+ 3489 112c 0C0000EA 		b	.L106
+ 3490              	.L114:
+ 3491 1130 0000A0E1 		mov	r0, r0	@ nop
+ 3492 1134 0A0000EA 		b	.L106
+ 3493              	.L115:
+ 804:../kernel/os_core/os_flag.c ****                  break;
+ 3494              		.loc 1 804 0
+ 3495 1138 0000A0E1 		mov	r0, r0	@ nop
+ 3496 113c 080000EA 		b	.L106
+ 3497              	.L116:
+ 3498 1140 0000A0E1 		mov	r0, r0	@ nop
+ 3499 1144 060000EA 		b	.L106
+ 3500              	.L117:
+ 815:../kernel/os_core/os_flag.c ****                  break;
+ 3501              		.loc 1 815 0
+ 3502 1148 0000A0E1 		mov	r0, r0	@ nop
+ 3503 114c 040000EA 		b	.L106
+ 3504              	.L118:
+ 3505 1150 0000A0E1 		mov	r0, r0	@ nop
+ 3506 1154 020000EA 		b	.L106
+ 3507              	.L119:
+ 825:../kernel/os_core/os_flag.c ****                  break;
+ 3508              		.loc 1 825 0
+ 3509 1158 0000A0E1 		mov	r0, r0	@ nop
+ 3510 115c 000000EA 		b	.L106
+ 3511              	.L120:
+ 3512 1160 0000A0E1 		mov	r0, r0	@ nop
+ 3513              	.L106:
+ 831:../kernel/os_core/os_flag.c ****         }
+ 832:../kernel/os_core/os_flag.c ****         pnode = (OS_FLAG_NODE *)pnode->OSFlagNodeNext; /* Point to next task waiting for event flag
+ 3514              		.loc 1 832 0
+ 3515 1164 10301BE5 		ldr	r3, [fp, #-16]
+ 3516 1168 003093E5 		ldr	r3, [r3, #0]
+ 3517 116c 10300BE5 		str	r3, [fp, #-16]
+ 3518              	.L98:
+ 784:../kernel/os_core/os_flag.c ****     while (pnode != (OS_FLAG_NODE *)0) {             /* Go through all tasks waiting on event flag(
+ 3519              		.loc 1 784 0 discriminator 1
+ 3520 1170 10301BE5 		ldr	r3, [fp, #-16]
+ 3521 1174 000053E3 		cmp	r3, #0
+ 3522 1178 70FFFF1A 		bne	.L110
+ 833:../kernel/os_core/os_flag.c ****     }
+ 834:../kernel/os_core/os_flag.c ****     OS_EXIT_CRITICAL();
+ 3523              		.loc 1 834 0
+ 3524              	@ 834 "../kernel/os_core/os_flag.c" 1
+ 3525 117c 04009DE4 		ldmfd sp!, {r0}
+ 3526              	@ 0 "" 2
+ 3527              	@ 834 "../kernel/os_core/os_flag.c" 1
+ 3528 1180 00F021E1 		msr   cpsr_c, r0
+ 3529              	@ 0 "" 2
+ 835:../kernel/os_core/os_flag.c ****     if (sched == TRUE) {
+ 3530              		.loc 1 835 0
+ 3531 1184 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 3532 1188 010053E3 		cmp	r3, #1
+ 3533 118c 0000001A 		bne	.L111
+ 836:../kernel/os_core/os_flag.c ****         OS_Sched();
+ 3534              		.loc 1 836 0
+ 3535 1190 FEFFFFEB 		bl	OS_Sched
+ 3536              	.L111:
+ 837:../kernel/os_core/os_flag.c ****     }
+ 838:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 3537              		.loc 1 838 0
+ 3538              	@ 838 "../kernel/os_core/os_flag.c" 1
+ 3539 1194 00000FE1 		mrs   r0, cpsr
+ 3540              	@ 0 "" 2
+ 3541              	@ 838 "../kernel/os_core/os_flag.c" 1
+ 3542 1198 04002DE5 		stmfd sp!, {r0}
+ 3543              	@ 0 "" 2
+ 3544              	@ 838 "../kernel/os_core/os_flag.c" 1
+ 3545 119c C00080E3 		orr   r0, r0, #0b11000000
+ 3546              	@ 0 "" 2
+ 3547              	@ 838 "../kernel/os_core/os_flag.c" 1
+ 3548 11a0 00F021E1 		msr   cpsr_c, r0
+ 3549              	@ 0 "" 2
+ 839:../kernel/os_core/os_flag.c ****     flags_cur = pgrp->OSFlagFlags;
+ 3550              		.loc 1 839 0
+ 3551 11a4 20301BE5 		ldr	r3, [fp, #-32]
+ 3552 11a8 B830D3E1 		ldrh	r3, [r3, #8]	@ movhi
+ 3553 11ac B8314BE1 		strh	r3, [fp, #-24]	@ movhi
+ 840:../kernel/os_core/os_flag.c ****     OS_EXIT_CRITICAL();
+ 3554              		.loc 1 840 0
+ 3555              	@ 840 "../kernel/os_core/os_flag.c" 1
+ 3556 11b0 04009DE4 		ldmfd sp!, {r0}
+ 3557              	@ 0 "" 2
+ 3558              	@ 840 "../kernel/os_core/os_flag.c" 1
+ 3559 11b4 00F021E1 		msr   cpsr_c, r0
+ 3560              	@ 0 "" 2
+ 841:../kernel/os_core/os_flag.c ****     *err      = OS_NO_ERR;
+ 3561              		.loc 1 841 0
+ 3562 11b8 28301BE5 		ldr	r3, [fp, #-40]
+ 3563 11bc 0020A0E3 		mov	r2, #0
+ 3564 11c0 0020C3E5 		strb	r2, [r3, #0]
+ 842:../kernel/os_core/os_flag.c ****     return (flags_cur);
+ 3565              		.loc 1 842 0
+ 3566 11c4 B8315BE1 		ldrh	r3, [fp, #-24]
+ 3567              	.L92:
+ 843:../kernel/os_core/os_flag.c **** }
+ 3568              		.loc 1 843 0
+ 3569 11c8 0300A0E1 		mov	r0, r3
+ 3570 11cc 0CD04BE2 		sub	sp, fp, #12
+ 3571 11d0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3572 11d4 1EFF2FE1 		bx	lr
+ 3573              		.cfi_endproc
+ 3574              	.LFE7:
+ 3576              		.align	2
+ 3577              		.global	OSFlagQuery
+ 3579              	OSFlagQuery:
+ 3580              	.LFB8:
+ 844:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 845:../kernel/os_core/os_flag.c **** /*
+ 846:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 847:../kernel/os_core/os_flag.c **** *                                           QUERY EVENT FLAG
+ 848:../kernel/os_core/os_flag.c **** *
+ 849:../kernel/os_core/os_flag.c **** * Description: This function is used to check the value of the event flag group.
+ 850:../kernel/os_core/os_flag.c **** *
+ 851:../kernel/os_core/os_flag.c **** * Arguments  : pgrp         is a pointer to the desired event flag group.
+ 852:../kernel/os_core/os_flag.c **** *
+ 853:../kernel/os_core/os_flag.c **** *              err           is a pointer to an error code returned to the called:
+ 854:../kernel/os_core/os_flag.c **** *                            OS_NO_ERR              The call was successfull
+ 855:../kernel/os_core/os_flag.c **** *                            OS_FLAG_INVALID_PGRP   You passed a NULL pointer
+ 856:../kernel/os_core/os_flag.c **** *                            OS_ERR_EVENT_TYPE      You are not pointing to an event flag group
+ 857:../kernel/os_core/os_flag.c **** *
+ 858:../kernel/os_core/os_flag.c **** * Returns    : The current value of the event flag group.
+ 859:../kernel/os_core/os_flag.c **** *
+ 860:../kernel/os_core/os_flag.c **** * Called From: Task or ISR
+ 861:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 862:../kernel/os_core/os_flag.c **** */
+ 863:../kernel/os_core/os_flag.c **** 
+ 864:../kernel/os_core/os_flag.c **** #if OS_FLAG_QUERY_EN > 0
+ 865:../kernel/os_core/os_flag.c **** OS_FLAGS  OSFlagQuery (OS_FLAG_GRP *pgrp, INT8U *err)
+ 866:../kernel/os_core/os_flag.c **** {
+ 3581              		.loc 1 866 0
+ 3582              		.cfi_startproc
+ 3583              		@ Function supports interworking.
+ 3584              		@ args = 0, pretend = 0, frame = 16
+ 3585              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3586 11d8 0DC0A0E1 		mov	ip, sp
+ 3587              	.LCFI16:
+ 3588              		.cfi_def_cfa_register 12
+ 3589 11dc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3590 11e0 04B04CE2 		sub	fp, ip, #4
+ 3591              		.cfi_offset 14, -8
+ 3592              		.cfi_offset 13, -12
+ 3593              		.cfi_offset 11, -16
+ 3594              	.LCFI17:
+ 3595              		.cfi_def_cfa 11, 4
+ 3596 11e4 10D04DE2 		sub	sp, sp, #16
+ 3597 11e8 18000BE5 		str	r0, [fp, #-24]
+ 3598 11ec 1C100BE5 		str	r1, [fp, #-28]
+ 867:../kernel/os_core/os_flag.c ****     OS_FLAGS   flags;
+ 868:../kernel/os_core/os_flag.c **** #if OS_CRITICAL_METHOD == 3                       /* Allocate storage for CPU status register      
+ 869:../kernel/os_core/os_flag.c ****     OS_CPU_SR  cpu_sr;
+ 870:../kernel/os_core/os_flag.c **** 
+ 871:../kernel/os_core/os_flag.c **** 
+ 872:../kernel/os_core/os_flag.c **** 
+ 873:../kernel/os_core/os_flag.c ****     cpu_sr = 0;                                   /* Prevent compiler warning                      
+ 874:../kernel/os_core/os_flag.c **** #endif    
+ 875:../kernel/os_core/os_flag.c **** #if OS_ARG_CHK_EN > 0
+ 876:../kernel/os_core/os_flag.c ****     if (pgrp == (OS_FLAG_GRP *)0) {               /* Validate 'pgrp'                               
+ 3599              		.loc 1 876 0
+ 3600 11f0 18301BE5 		ldr	r3, [fp, #-24]
+ 3601 11f4 000053E3 		cmp	r3, #0
+ 3602 11f8 0400001A 		bne	.L122
+ 877:../kernel/os_core/os_flag.c ****         *err = OS_FLAG_INVALID_PGRP;
+ 3603              		.loc 1 877 0
+ 3604 11fc 1C301BE5 		ldr	r3, [fp, #-28]
+ 3605 1200 6920E0E3 		mvn	r2, #105
+ 3606 1204 0020C3E5 		strb	r2, [r3, #0]
+ 878:../kernel/os_core/os_flag.c ****         return ((OS_FLAGS)0);
+ 3607              		.loc 1 878 0
+ 3608 1208 0030A0E3 		mov	r3, #0
+ 3609 120c 150000EA 		b	.L123
+ 3610              	.L122:
+ 879:../kernel/os_core/os_flag.c ****     }
+ 880:../kernel/os_core/os_flag.c **** #endif
+ 881:../kernel/os_core/os_flag.c ****     if (pgrp->OSFlagType != OS_EVENT_TYPE_FLAG) { /* Validate event block type                     
+ 3611              		.loc 1 881 0
+ 3612 1210 18301BE5 		ldr	r3, [fp, #-24]
+ 3613 1214 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3614 1218 050053E3 		cmp	r3, #5
+ 3615 121c 0400000A 		beq	.L124
+ 882:../kernel/os_core/os_flag.c ****         *err = OS_ERR_EVENT_TYPE;
+ 3616              		.loc 1 882 0
+ 3617 1220 1C301BE5 		ldr	r3, [fp, #-28]
+ 3618 1224 0120A0E3 		mov	r2, #1
+ 3619 1228 0020C3E5 		strb	r2, [r3, #0]
+ 883:../kernel/os_core/os_flag.c ****         return ((OS_FLAGS)0);
+ 3620              		.loc 1 883 0
+ 3621 122c 0030A0E3 		mov	r3, #0
+ 3622 1230 0C0000EA 		b	.L123
+ 3623              	.L124:
+ 884:../kernel/os_core/os_flag.c ****     }
+ 885:../kernel/os_core/os_flag.c ****     OS_ENTER_CRITICAL();
+ 3624              		.loc 1 885 0
+ 3625              	@ 885 "../kernel/os_core/os_flag.c" 1
+ 3626 1234 00000FE1 		mrs   r0, cpsr
+ 3627              	@ 0 "" 2
+ 3628              	@ 885 "../kernel/os_core/os_flag.c" 1
+ 3629 1238 04002DE5 		stmfd sp!, {r0}
+ 3630              	@ 0 "" 2
+ 3631              	@ 885 "../kernel/os_core/os_flag.c" 1
+ 3632 123c C00080E3 		orr   r0, r0, #0b11000000
+ 3633              	@ 0 "" 2
+ 3634              	@ 885 "../kernel/os_core/os_flag.c" 1
+ 3635 1240 00F021E1 		msr   cpsr_c, r0
+ 3636              	@ 0 "" 2
+ 886:../kernel/os_core/os_flag.c ****     flags = pgrp->OSFlagFlags;
+ 3637              		.loc 1 886 0
+ 3638 1244 18301BE5 		ldr	r3, [fp, #-24]
+ 3639 1248 B830D3E1 		ldrh	r3, [r3, #8]	@ movhi
+ 3640 124c BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 887:../kernel/os_core/os_flag.c ****     OS_EXIT_CRITICAL();
+ 3641              		.loc 1 887 0
+ 3642              	@ 887 "../kernel/os_core/os_flag.c" 1
+ 3643 1250 04009DE4 		ldmfd sp!, {r0}
+ 3644              	@ 0 "" 2
+ 3645              	@ 887 "../kernel/os_core/os_flag.c" 1
+ 3646 1254 00F021E1 		msr   cpsr_c, r0
+ 3647              	@ 0 "" 2
+ 888:../kernel/os_core/os_flag.c ****     *err = OS_NO_ERR;
+ 3648              		.loc 1 888 0
+ 3649 1258 1C301BE5 		ldr	r3, [fp, #-28]
+ 3650 125c 0020A0E3 		mov	r2, #0
+ 3651 1260 0020C3E5 		strb	r2, [r3, #0]
+ 889:../kernel/os_core/os_flag.c ****     return (flags);                               /* Return the current value of the event flags   
+ 3652              		.loc 1 889 0
+ 3653 1264 BE305BE1 		ldrh	r3, [fp, #-14]
+ 3654              	.L123:
+ 890:../kernel/os_core/os_flag.c **** }
+ 3655              		.loc 1 890 0
+ 3656 1268 0300A0E1 		mov	r0, r3
+ 3657 126c 0CD04BE2 		sub	sp, fp, #12
+ 3658 1270 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3659 1274 1EFF2FE1 		bx	lr
+ 3660              		.cfi_endproc
+ 3661              	.LFE8:
+ 3663              		.align	2
+ 3665              	OS_FlagBlock:
+ 3666              	.LFB9:
+ 891:../kernel/os_core/os_flag.c **** #endif
+ 892:../kernel/os_core/os_flag.c **** 
+ 893:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 894:../kernel/os_core/os_flag.c **** /*
+ 895:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 896:../kernel/os_core/os_flag.c **** *                         SUSPEND TASK UNTIL EVENT FLAG(s) RECEIVED OR TIMEOUT OCCURS
+ 897:../kernel/os_core/os_flag.c **** *
+ 898:../kernel/os_core/os_flag.c **** * Description: This function is internal to uC/OS-II and is used to put a task to sleep until the d
+ 899:../kernel/os_core/os_flag.c **** *              event flag bit(s) are set.
+ 900:../kernel/os_core/os_flag.c **** *
+ 901:../kernel/os_core/os_flag.c **** * Arguments  : pgrp          is a pointer to the desired event flag group.
+ 902:../kernel/os_core/os_flag.c **** *
+ 903:../kernel/os_core/os_flag.c **** *              pnode         is a pointer to a structure which contains data about the task waiting
+ 904:../kernel/os_core/os_flag.c **** *                            event flag bit(s) to be set.
+ 905:../kernel/os_core/os_flag.c **** *
+ 906:../kernel/os_core/os_flag.c **** *              flags         Is a bit pattern indicating which bit(s) (i.e. flags) you wish to chec
+ 907:../kernel/os_core/os_flag.c **** *                            The bits you want are specified by setting the corresponding bits in
+ 908:../kernel/os_core/os_flag.c **** *                            'flags'.  e.g. if your application wants to wait for bits 0 and 1 then
+ 909:../kernel/os_core/os_flag.c **** *                            'flags' would contain 0x03.
+ 910:../kernel/os_core/os_flag.c **** *
+ 911:../kernel/os_core/os_flag.c **** *              wait_type     specifies whether you want ALL bits to be set/cleared or ANY of the bi
+ 912:../kernel/os_core/os_flag.c **** *                            to be set/cleared.
+ 913:../kernel/os_core/os_flag.c **** *                            You can specify the following argument:
+ 914:../kernel/os_core/os_flag.c **** *
+ 915:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_CLR_ALL   You will check ALL bits in 'mask' to be clear (
+ 916:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_CLR_ANY   You will check ANY bit  in 'mask' to be clear (
+ 917:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_SET_ALL   You will check ALL bits in 'mask' to be set   (
+ 918:../kernel/os_core/os_flag.c **** *                            OS_FLAG_WAIT_SET_ANY   You will check ANY bit  in 'mask' to be set   (
+ 919:../kernel/os_core/os_flag.c **** *
+ 920:../kernel/os_core/os_flag.c **** *              timeout       is the desired amount of time that the task will wait for the event fl
+ 921:../kernel/os_core/os_flag.c **** *                            bit(s) to be set.
+ 922:../kernel/os_core/os_flag.c **** *
+ 923:../kernel/os_core/os_flag.c **** * Returns    : none
+ 924:../kernel/os_core/os_flag.c **** *
+ 925:../kernel/os_core/os_flag.c **** * Called by  : OSFlagPend()  OS_FLAG.C
+ 926:../kernel/os_core/os_flag.c **** *
+ 927:../kernel/os_core/os_flag.c **** * Note(s)    : This function is INTERNAL to uC/OS-II and your application should not call it.
+ 928:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 929:../kernel/os_core/os_flag.c **** */
+ 930:../kernel/os_core/os_flag.c **** 
+ 931:../kernel/os_core/os_flag.c **** static  void  OS_FlagBlock (OS_FLAG_GRP *pgrp, OS_FLAG_NODE *pnode, OS_FLAGS flags, INT8U wait_type
+ 932:../kernel/os_core/os_flag.c **** {
+ 3667              		.loc 1 932 0
+ 3668              		.cfi_startproc
+ 3669              		@ Function supports interworking.
+ 3670              		@ args = 4, pretend = 0, frame = 24
+ 3671              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3672 1278 0DC0A0E1 		mov	ip, sp
+ 3673              	.LCFI18:
+ 3674              		.cfi_def_cfa_register 12
+ 3675 127c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3676 1280 04B04CE2 		sub	fp, ip, #4
+ 3677              		.cfi_offset 14, -8
+ 3678              		.cfi_offset 13, -12
+ 3679              		.cfi_offset 11, -16
+ 3680              	.LCFI19:
+ 3681              		.cfi_def_cfa 11, 4
+ 3682 1284 18D04DE2 		sub	sp, sp, #24
+ 3683 1288 18000BE5 		str	r0, [fp, #-24]
+ 3684 128c 1C100BE5 		str	r1, [fp, #-28]
+ 3685 1290 BE214BE1 		strh	r2, [fp, #-30]	@ movhi
+ 3686 1294 1F304BE5 		strb	r3, [fp, #-31]
+ 933:../kernel/os_core/os_flag.c ****     OS_FLAG_NODE  *pnode_next;
+ 934:../kernel/os_core/os_flag.c **** 	INT8U          y;
+ 935:../kernel/os_core/os_flag.c **** 
+ 936:../kernel/os_core/os_flag.c **** 
+ 937:../kernel/os_core/os_flag.c ****     OSTCBCur->OSTCBStat      |= OS_STAT_FLAG;
+ 3687              		.loc 1 937 0
+ 3688 1298 80319FE5 		ldr	r3, .L128
+ 3689 129c 003093E5 		ldr	r3, [r3, #0]
+ 3690 12a0 78219FE5 		ldr	r2, .L128
+ 3691 12a4 002092E5 		ldr	r2, [r2, #0]
+ 3692 12a8 2C20D2E5 		ldrb	r2, [r2, #44]	@ zero_extendqisi2
+ 3693 12ac 202082E3 		orr	r2, r2, #32
+ 3694 12b0 FF2002E2 		and	r2, r2, #255
+ 3695 12b4 2C20C3E5 		strb	r2, [r3, #44]
+ 938:../kernel/os_core/os_flag.c ****     OSTCBCur->OSTCBPendTO     = FALSE;
+ 3696              		.loc 1 938 0
+ 3697 12b8 60319FE5 		ldr	r3, .L128
+ 3698 12bc 003093E5 		ldr	r3, [r3, #0]
+ 3699 12c0 0020A0E3 		mov	r2, #0
+ 3700 12c4 2D20C3E5 		strb	r2, [r3, #45]
+ 939:../kernel/os_core/os_flag.c ****     OSTCBCur->OSTCBDly        = timeout;              /* Store timeout in task's TCB               
+ 3701              		.loc 1 939 0
+ 3702 12c8 50319FE5 		ldr	r3, .L128
+ 3703 12cc 003093E5 		ldr	r3, [r3, #0]
+ 3704 12d0 B420DBE1 		ldrh	r2, [fp, #4]	@ movhi
+ 3705 12d4 BA22C3E1 		strh	r2, [r3, #42]	@ movhi
+ 940:../kernel/os_core/os_flag.c ****     OSTCBCur->OSTCBEventPtr   = (OS_EVENT *)0;
+ 3706              		.loc 1 940 0
+ 3707 12d8 40319FE5 		ldr	r3, .L128
+ 3708 12dc 003093E5 		ldr	r3, [r3, #0]
+ 3709 12e0 0020A0E3 		mov	r2, #0
+ 3710 12e4 1C2083E5 		str	r2, [r3, #28]
+ 941:../kernel/os_core/os_flag.c **** #if OS_TASK_DEL_EN > 0
+ 942:../kernel/os_core/os_flag.c ****     OSTCBCur->OSTCBFlagNode   = pnode;                /* TCB to link to node                       
+ 3711              		.loc 1 942 0
+ 3712 12e8 30319FE5 		ldr	r3, .L128
+ 3713 12ec 003093E5 		ldr	r3, [r3, #0]
+ 3714 12f0 1C201BE5 		ldr	r2, [fp, #-28]
+ 3715 12f4 242083E5 		str	r2, [r3, #36]
+ 943:../kernel/os_core/os_flag.c **** #endif
+ 944:../kernel/os_core/os_flag.c ****     pnode->OSFlagNodeFlags    = flags;                /* Save the flags that we need to wait for   
+ 3716              		.loc 1 944 0
+ 3717 12f8 1C301BE5 		ldr	r3, [fp, #-28]
+ 3718 12fc BE215BE1 		ldrh	r2, [fp, #-30]	@ movhi
+ 3719 1300 B021C3E1 		strh	r2, [r3, #16]	@ movhi
+ 945:../kernel/os_core/os_flag.c ****     pnode->OSFlagNodeWaitType = wait_type;            /* Save the type of wait we are doing        
+ 3720              		.loc 1 945 0
+ 3721 1304 1C301BE5 		ldr	r3, [fp, #-28]
+ 3722 1308 1F205BE5 		ldrb	r2, [fp, #-31]
+ 3723 130c 1220C3E5 		strb	r2, [r3, #18]
+ 946:../kernel/os_core/os_flag.c ****     pnode->OSFlagNodeTCB      = (void *)OSTCBCur;     /* Link to task's TCB                        
+ 3724              		.loc 1 946 0
+ 3725 1310 08319FE5 		ldr	r3, .L128
+ 3726 1314 002093E5 		ldr	r2, [r3, #0]
+ 3727 1318 1C301BE5 		ldr	r3, [fp, #-28]
+ 3728 131c 082083E5 		str	r2, [r3, #8]
+ 947:../kernel/os_core/os_flag.c ****     pnode->OSFlagNodeNext     = pgrp->OSFlagWaitList; /* Add node at beginning of event flag wait l
+ 3729              		.loc 1 947 0
+ 3730 1320 18301BE5 		ldr	r3, [fp, #-24]
+ 3731 1324 042093E5 		ldr	r2, [r3, #4]
+ 3732 1328 1C301BE5 		ldr	r3, [fp, #-28]
+ 3733 132c 002083E5 		str	r2, [r3, #0]
+ 948:../kernel/os_core/os_flag.c ****     pnode->OSFlagNodePrev     = (void *)0;
+ 3734              		.loc 1 948 0
+ 3735 1330 1C301BE5 		ldr	r3, [fp, #-28]
+ 3736 1334 0020A0E3 		mov	r2, #0
+ 3737 1338 042083E5 		str	r2, [r3, #4]
+ 949:../kernel/os_core/os_flag.c ****     pnode->OSFlagNodeFlagGrp  = (void *)pgrp;         /* Link to Event Flag Group                  
+ 3738              		.loc 1 949 0
+ 3739 133c 1C301BE5 		ldr	r3, [fp, #-28]
+ 3740 1340 18201BE5 		ldr	r2, [fp, #-24]
+ 3741 1344 0C2083E5 		str	r2, [r3, #12]
+ 950:../kernel/os_core/os_flag.c ****     pnode_next                = (OS_FLAG_NODE *)pgrp->OSFlagWaitList;
+ 3742              		.loc 1 950 0
+ 3743 1348 18301BE5 		ldr	r3, [fp, #-24]
+ 3744 134c 043093E5 		ldr	r3, [r3, #4]
+ 3745 1350 10300BE5 		str	r3, [fp, #-16]
+ 951:../kernel/os_core/os_flag.c ****     if (pnode_next != (void *)0) {                    /* Is this the first NODE to insert?         
+ 3746              		.loc 1 951 0
+ 3747 1354 10301BE5 		ldr	r3, [fp, #-16]
+ 3748 1358 000053E3 		cmp	r3, #0
+ 3749 135c 0200000A 		beq	.L126
+ 952:../kernel/os_core/os_flag.c ****         pnode_next->OSFlagNodePrev = pnode;           /* No, link in doubly linked list            
+ 3750              		.loc 1 952 0
+ 3751 1360 10301BE5 		ldr	r3, [fp, #-16]
+ 3752 1364 1C201BE5 		ldr	r2, [fp, #-28]
+ 3753 1368 042083E5 		str	r2, [r3, #4]
+ 3754              	.L126:
+ 953:../kernel/os_core/os_flag.c ****     }
+ 954:../kernel/os_core/os_flag.c ****     pgrp->OSFlagWaitList = (void *)pnode;
+ 3755              		.loc 1 954 0
+ 3756 136c 18301BE5 		ldr	r3, [fp, #-24]
+ 3757 1370 1C201BE5 		ldr	r2, [fp, #-28]
+ 3758 1374 042083E5 		str	r2, [r3, #4]
+ 955:../kernel/os_core/os_flag.c ****                                                       
+ 956:../kernel/os_core/os_flag.c ****     y            =  OSTCBCur->OSTCBY;		 	      /* Suspend current task until flag(s) received   */
+ 3759              		.loc 1 956 0
+ 3760 1378 A0309FE5 		ldr	r3, .L128
+ 3761 137c 003093E5 		ldr	r3, [r3, #0]
+ 3762 1380 3030D3E5 		ldrb	r3, [r3, #48]
+ 3763 1384 11304BE5 		strb	r3, [fp, #-17]
+ 957:../kernel/os_core/os_flag.c **** 	OSRdyTbl[y] &= ~OSTCBCur->OSTCBBitX;
+ 3764              		.loc 1 957 0
+ 3765 1388 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 3766 138c 11205BE5 		ldrb	r2, [fp, #-17]	@ zero_extendqisi2
+ 3767 1390 8C109FE5 		ldr	r1, .L128+4
+ 3768 1394 0220D1E7 		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 3769 1398 FF1002E2 		and	r1, r2, #255
+ 3770 139c 7C209FE5 		ldr	r2, .L128
+ 3771 13a0 002092E5 		ldr	r2, [r2, #0]
+ 3772 13a4 3120D2E5 		ldrb	r2, [r2, #49]	@ zero_extendqisi2
+ 3773 13a8 FF2002E2 		and	r2, r2, #255
+ 3774 13ac 0220E0E1 		mvn	r2, r2
+ 3775 13b0 FF2002E2 		and	r2, r2, #255
+ 3776 13b4 022001E0 		and	r2, r1, r2
+ 3777 13b8 FF2002E2 		and	r2, r2, #255
+ 3778 13bc FF1002E2 		and	r1, r2, #255
+ 3779 13c0 5C209FE5 		ldr	r2, .L128+4
+ 3780 13c4 0310C2E7 		strb	r1, [r2, r3]
+ 958:../kernel/os_core/os_flag.c ****     if (OSRdyTbl[y] == 0x00) {
+ 3781              		.loc 1 958 0
+ 3782 13c8 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 3783 13cc 50209FE5 		ldr	r2, .L128+4
+ 3784 13d0 0330D2E7 		ldrb	r3, [r2, r3]	@ zero_extendqisi2
+ 3785 13d4 000053E3 		cmp	r3, #0
+ 3786 13d8 0D00001A 		bne	.L125
+ 959:../kernel/os_core/os_flag.c ****         OSRdyGrp &= ~OSTCBCur->OSTCBBitY;
+ 3787              		.loc 1 959 0
+ 3788 13dc 3C309FE5 		ldr	r3, .L128
+ 3789 13e0 003093E5 		ldr	r3, [r3, #0]
+ 3790 13e4 3230D3E5 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 3791 13e8 FF3003E2 		and	r3, r3, #255
+ 3792 13ec 0330E0E1 		mvn	r3, r3
+ 3793 13f0 FF2003E2 		and	r2, r3, #255
+ 3794 13f4 2C309FE5 		ldr	r3, .L128+8
+ 3795 13f8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3796 13fc FF3003E2 		and	r3, r3, #255
+ 3797 1400 033002E0 		and	r3, r2, r3
+ 3798 1404 FF3003E2 		and	r3, r3, #255
+ 3799 1408 FF2003E2 		and	r2, r3, #255
+ 3800 140c 14309FE5 		ldr	r3, .L128+8
+ 3801 1410 0020C3E5 		strb	r2, [r3, #0]
+ 3802              	.L125:
+ 960:../kernel/os_core/os_flag.c ****     }
+ 961:../kernel/os_core/os_flag.c **** }
+ 3803              		.loc 1 961 0
+ 3804 1414 0CD04BE2 		sub	sp, fp, #12
+ 3805 1418 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3806 141c 1EFF2FE1 		bx	lr
+ 3807              	.L129:
+ 3808              		.align	2
+ 3809              	.L128:
+ 3810 1420 00000000 		.word	OSTCBCur
+ 3811 1424 00000000 		.word	OSRdyTbl
+ 3812 1428 00000000 		.word	OSRdyGrp
+ 3813              		.cfi_endproc
+ 3814              	.LFE9:
+ 3816              		.align	2
+ 3817              		.global	OS_FlagInit
+ 3819              	OS_FlagInit:
+ 3820              	.LFB10:
+ 962:../kernel/os_core/os_flag.c **** 
+ 963:../kernel/os_core/os_flag.c **** /*$PAGE*/
+ 964:../kernel/os_core/os_flag.c **** /*
+ 965:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 966:../kernel/os_core/os_flag.c **** *                                    INITIALIZE THE EVENT FLAG MODULE
+ 967:../kernel/os_core/os_flag.c **** *
+ 968:../kernel/os_core/os_flag.c **** * Description: This function is called by uC/OS-II to initialize the event flag module.  Your appli
+ 969:../kernel/os_core/os_flag.c **** *              MUST NOT call this function.  In other words, this function is internal to uC/OS-II.
+ 970:../kernel/os_core/os_flag.c **** *
+ 971:../kernel/os_core/os_flag.c **** * Arguments  : none
+ 972:../kernel/os_core/os_flag.c **** *
+ 973:../kernel/os_core/os_flag.c **** * Returns    : none
+ 974:../kernel/os_core/os_flag.c **** *
+ 975:../kernel/os_core/os_flag.c **** * WARNING    : You MUST NOT call this function from your code.  This is an INTERNAL function to uC/
+ 976:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+ 977:../kernel/os_core/os_flag.c **** */
+ 978:../kernel/os_core/os_flag.c **** 
+ 979:../kernel/os_core/os_flag.c **** void  OS_FlagInit (void)
+ 980:../kernel/os_core/os_flag.c **** {
+ 3821              		.loc 1 980 0
+ 3822              		.cfi_startproc
+ 3823              		@ Function supports interworking.
+ 3824              		@ args = 0, pretend = 0, frame = 16
+ 3825              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3826 142c 0DC0A0E1 		mov	ip, sp
+ 3827              	.LCFI20:
+ 3828              		.cfi_def_cfa_register 12
+ 3829 1430 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3830 1434 04B04CE2 		sub	fp, ip, #4
+ 3831              		.cfi_offset 14, -8
+ 3832              		.cfi_offset 13, -12
+ 3833              		.cfi_offset 11, -16
+ 3834              	.LCFI21:
+ 3835              		.cfi_def_cfa 11, 4
+ 3836 1438 10D04DE2 		sub	sp, sp, #16
+ 981:../kernel/os_core/os_flag.c **** #if OS_MAX_FLAGS == 1
+ 982:../kernel/os_core/os_flag.c ****     OSFlagFreeList                 = (OS_FLAG_GRP *)&OSFlagTbl[0];  /* Only ONE event flag group!  
+ 983:../kernel/os_core/os_flag.c ****     OSFlagFreeList->OSFlagType     = OS_EVENT_TYPE_UNUSED;
+ 984:../kernel/os_core/os_flag.c ****     OSFlagFreeList->OSFlagWaitList = (void *)0;
+ 985:../kernel/os_core/os_flag.c ****     OSFlagFreeList->OSFlagFlags    = (OS_FLAGS)0;
+ 986:../kernel/os_core/os_flag.c **** #if OS_FLAG_NAME_SIZE > 1
+ 987:../kernel/os_core/os_flag.c ****     OSFlagFreeList->OSFlagName[0]  = '?';
+ 988:../kernel/os_core/os_flag.c ****     OSFlagFreeList->OSFlagName[1]  = OS_ASCII_NUL;
+ 989:../kernel/os_core/os_flag.c **** #endif
+ 990:../kernel/os_core/os_flag.c **** #endif
+ 991:../kernel/os_core/os_flag.c **** 
+ 992:../kernel/os_core/os_flag.c **** #if OS_MAX_FLAGS >= 2
+ 993:../kernel/os_core/os_flag.c ****     INT16U       i;
+ 994:../kernel/os_core/os_flag.c ****     OS_FLAG_GRP *pgrp1;
+ 995:../kernel/os_core/os_flag.c ****     OS_FLAG_GRP *pgrp2;
+ 996:../kernel/os_core/os_flag.c **** 
+ 997:../kernel/os_core/os_flag.c **** 
+ 998:../kernel/os_core/os_flag.c ****     OS_MemClr((INT8U *)&OSFlagTbl[0], sizeof(OSFlagTbl));           /* Clear the flag group table  
+ 3837              		.loc 1 998 0
+ 3838 143c CC309FE5 		ldr	r3, .L133
+ 3839 1440 0300A0E1 		mov	r0, r3
+ 3840 1444 DC10A0E3 		mov	r1, #220
+ 3841 1448 FEFFFFEB 		bl	OS_MemClr
+ 999:../kernel/os_core/os_flag.c ****     pgrp1 = &OSFlagTbl[0];
+ 3842              		.loc 1 999 0
+ 3843 144c BC309FE5 		ldr	r3, .L133
+ 3844 1450 14300BE5 		str	r3, [fp, #-20]
+1000:../kernel/os_core/os_flag.c ****     pgrp2 = &OSFlagTbl[1];
+ 3845              		.loc 1 1000 0
+ 3846 1454 B8309FE5 		ldr	r3, .L133+4
+ 3847 1458 18300BE5 		str	r3, [fp, #-24]
+1001:../kernel/os_core/os_flag.c ****     for (i = 0; i < (OS_MAX_FLAGS - 1); i++) {                      /* Init. list of free EVENT FLA
+ 3848              		.loc 1 1001 0
+ 3849 145c 0030A0E3 		mov	r3, #0
+ 3850 1460 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 3851 1464 140000EA 		b	.L131
+ 3852              	.L132:
+1002:../kernel/os_core/os_flag.c ****         pgrp1->OSFlagType     = OS_EVENT_TYPE_UNUSED;
+ 3853              		.loc 1 1002 0 discriminator 2
+ 3854 1468 14301BE5 		ldr	r3, [fp, #-20]
+ 3855 146c 0020A0E3 		mov	r2, #0
+ 3856 1470 0020C3E5 		strb	r2, [r3, #0]
+1003:../kernel/os_core/os_flag.c ****         pgrp1->OSFlagWaitList = (void *)pgrp2;
+ 3857              		.loc 1 1003 0 discriminator 2
+ 3858 1474 14301BE5 		ldr	r3, [fp, #-20]
+ 3859 1478 18201BE5 		ldr	r2, [fp, #-24]
+ 3860 147c 042083E5 		str	r2, [r3, #4]
+1004:../kernel/os_core/os_flag.c **** #if OS_FLAG_NAME_SIZE > 1
+1005:../kernel/os_core/os_flag.c ****         pgrp1->OSFlagName[0]  = '?';                                /* Unknown name                
+ 3861              		.loc 1 1005 0 discriminator 2
+ 3862 1480 14301BE5 		ldr	r3, [fp, #-20]
+ 3863 1484 3F20A0E3 		mov	r2, #63
+ 3864 1488 0A20C3E5 		strb	r2, [r3, #10]
+1006:../kernel/os_core/os_flag.c ****         pgrp1->OSFlagName[1]  = OS_ASCII_NUL;
+ 3865              		.loc 1 1006 0 discriminator 2
+ 3866 148c 14301BE5 		ldr	r3, [fp, #-20]
+ 3867 1490 0020A0E3 		mov	r2, #0
+ 3868 1494 0B20C3E5 		strb	r2, [r3, #11]
+1007:../kernel/os_core/os_flag.c **** #endif
+1008:../kernel/os_core/os_flag.c ****         pgrp1++;
+ 3869              		.loc 1 1008 0 discriminator 2
+ 3870 1498 14301BE5 		ldr	r3, [fp, #-20]
+ 3871 149c 2C3083E2 		add	r3, r3, #44
+ 3872 14a0 14300BE5 		str	r3, [fp, #-20]
+1009:../kernel/os_core/os_flag.c ****         pgrp2++;
+ 3873              		.loc 1 1009 0 discriminator 2
+ 3874 14a4 18301BE5 		ldr	r3, [fp, #-24]
+ 3875 14a8 2C3083E2 		add	r3, r3, #44
+ 3876 14ac 18300BE5 		str	r3, [fp, #-24]
+1001:../kernel/os_core/os_flag.c ****     for (i = 0; i < (OS_MAX_FLAGS - 1); i++) {                      /* Init. list of free EVENT FLA
+ 3877              		.loc 1 1001 0 discriminator 2
+ 3878 14b0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 3879 14b4 013083E2 		add	r3, r3, #1
+ 3880 14b8 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 3881              	.L131:
+1001:../kernel/os_core/os_flag.c ****     for (i = 0; i < (OS_MAX_FLAGS - 1); i++) {                      /* Init. list of free EVENT FLA
+ 3882              		.loc 1 1001 0 is_stmt 0 discriminator 1
+ 3883 14bc BE305BE1 		ldrh	r3, [fp, #-14]
+ 3884 14c0 030053E3 		cmp	r3, #3
+ 3885 14c4 E7FFFF9A 		bls	.L132
+1010:../kernel/os_core/os_flag.c ****     }
+1011:../kernel/os_core/os_flag.c ****     pgrp1->OSFlagType     = OS_EVENT_TYPE_UNUSED;
+ 3886              		.loc 1 1011 0 is_stmt 1
+ 3887 14c8 14301BE5 		ldr	r3, [fp, #-20]
+ 3888 14cc 0020A0E3 		mov	r2, #0
+ 3889 14d0 0020C3E5 		strb	r2, [r3, #0]
+1012:../kernel/os_core/os_flag.c ****     pgrp1->OSFlagWaitList = (void *)0;
+ 3890              		.loc 1 1012 0
+ 3891 14d4 14301BE5 		ldr	r3, [fp, #-20]
+ 3892 14d8 0020A0E3 		mov	r2, #0
+ 3893 14dc 042083E5 		str	r2, [r3, #4]
+1013:../kernel/os_core/os_flag.c **** #if OS_FLAG_NAME_SIZE > 1
+1014:../kernel/os_core/os_flag.c ****     pgrp1->OSFlagName[0]  = '?';                                    /* Unknown name                
+ 3894              		.loc 1 1014 0
+ 3895 14e0 14301BE5 		ldr	r3, [fp, #-20]
+ 3896 14e4 3F20A0E3 		mov	r2, #63
+ 3897 14e8 0A20C3E5 		strb	r2, [r3, #10]
+1015:../kernel/os_core/os_flag.c ****     pgrp1->OSFlagName[1]  = OS_ASCII_NUL;
+ 3898              		.loc 1 1015 0
+ 3899 14ec 14301BE5 		ldr	r3, [fp, #-20]
+ 3900 14f0 0020A0E3 		mov	r2, #0
+ 3901 14f4 0B20C3E5 		strb	r2, [r3, #11]
+1016:../kernel/os_core/os_flag.c **** #endif
+1017:../kernel/os_core/os_flag.c ****     OSFlagFreeList        = (OS_FLAG_GRP *)&OSFlagTbl[0];
+ 3902              		.loc 1 1017 0
+ 3903 14f8 18309FE5 		ldr	r3, .L133+8
+ 3904 14fc 0C209FE5 		ldr	r2, .L133
+ 3905 1500 002083E5 		str	r2, [r3, #0]
+1018:../kernel/os_core/os_flag.c **** #endif
+1019:../kernel/os_core/os_flag.c **** }
+ 3906              		.loc 1 1019 0
+ 3907 1504 0CD04BE2 		sub	sp, fp, #12
+ 3908 1508 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3909 150c 1EFF2FE1 		bx	lr
+ 3910              	.L134:
+ 3911              		.align	2
+ 3912              	.L133:
+ 3913 1510 00000000 		.word	OSFlagTbl
+ 3914 1514 2C000000 		.word	OSFlagTbl+44
+ 3915 1518 00000000 		.word	OSFlagFreeList
+ 3916              		.cfi_endproc
+ 3917              	.LFE10:
+ 3919              		.align	2
+ 3921              	OS_FlagTaskRdy:
+ 3922              	.LFB11:
+1020:../kernel/os_core/os_flag.c **** 
+1021:../kernel/os_core/os_flag.c **** /*$PAGE*/
+1022:../kernel/os_core/os_flag.c **** /*
+1023:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+1024:../kernel/os_core/os_flag.c **** *                              MAKE TASK READY-TO-RUN, EVENT(s) OCCURRED
+1025:../kernel/os_core/os_flag.c **** *
+1026:../kernel/os_core/os_flag.c **** * Description: This function is internal to uC/OS-II and is used to make a task ready-to-run becaus
+1027:../kernel/os_core/os_flag.c **** *              desired event flag bits have been set.
+1028:../kernel/os_core/os_flag.c **** *
+1029:../kernel/os_core/os_flag.c **** * Arguments  : pnode         is a pointer to a structure which contains data about the task waiting
+1030:../kernel/os_core/os_flag.c **** *                            event flag bit(s) to be set.
+1031:../kernel/os_core/os_flag.c **** *
+1032:../kernel/os_core/os_flag.c **** *              flags_rdy     contains the bit pattern of the event flags that cause the task to bec
+1033:../kernel/os_core/os_flag.c **** *                            ready-to-run.
+1034:../kernel/os_core/os_flag.c **** *
+1035:../kernel/os_core/os_flag.c **** * Returns    : TRUE          If the task has been placed in the ready list and thus needs schedulin
+1036:../kernel/os_core/os_flag.c **** *              FALSE         The task is still not ready to run and thus scheduling is not necessar
+1037:../kernel/os_core/os_flag.c **** *
+1038:../kernel/os_core/os_flag.c **** * Called by  : OSFlagsPost() OS_FLAG.C
+1039:../kernel/os_core/os_flag.c **** *
+1040:../kernel/os_core/os_flag.c **** * Note(s)    : 1) This function assumes that interrupts are disabled.
+1041:../kernel/os_core/os_flag.c **** *              2) This function is INTERNAL to uC/OS-II and your application should not call it.
+1042:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+1043:../kernel/os_core/os_flag.c **** */
+1044:../kernel/os_core/os_flag.c **** 
+1045:../kernel/os_core/os_flag.c **** static  BOOLEAN  OS_FlagTaskRdy (OS_FLAG_NODE *pnode, OS_FLAGS flags_rdy)
+1046:../kernel/os_core/os_flag.c **** {
+ 3923              		.loc 1 1046 0
+ 3924              		.cfi_startproc
+ 3925              		@ Function supports interworking.
+ 3926              		@ args = 0, pretend = 0, frame = 16
+ 3927              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3928 151c 0DC0A0E1 		mov	ip, sp
+ 3929              	.LCFI22:
+ 3930              		.cfi_def_cfa_register 12
+ 3931 1520 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3932 1524 04B04CE2 		sub	fp, ip, #4
+ 3933              		.cfi_offset 14, -8
+ 3934              		.cfi_offset 13, -12
+ 3935              		.cfi_offset 11, -16
+ 3936              	.LCFI23:
+ 3937              		.cfi_def_cfa 11, 4
+ 3938 1528 10D04DE2 		sub	sp, sp, #16
+ 3939 152c 18000BE5 		str	r0, [fp, #-24]
+ 3940 1530 0130A0E1 		mov	r3, r1
+ 3941 1534 BA314BE1 		strh	r3, [fp, #-26]	@ movhi
+1047:../kernel/os_core/os_flag.c ****     OS_TCB   *ptcb;
+1048:../kernel/os_core/os_flag.c ****     BOOLEAN   sched;
+1049:../kernel/os_core/os_flag.c **** 
+1050:../kernel/os_core/os_flag.c **** 
+1051:../kernel/os_core/os_flag.c ****     ptcb                = (OS_TCB *)pnode->OSFlagNodeTCB;  /* Point to TCB of waiting task         
+ 3942              		.loc 1 1051 0
+ 3943 1538 18301BE5 		ldr	r3, [fp, #-24]
+ 3944 153c 083093E5 		ldr	r3, [r3, #8]
+ 3945 1540 14300BE5 		str	r3, [fp, #-20]
+1052:../kernel/os_core/os_flag.c ****     ptcb->OSTCBDly      = 0;
+ 3946              		.loc 1 1052 0
+ 3947 1544 14301BE5 		ldr	r3, [fp, #-20]
+ 3948 1548 0020A0E3 		mov	r2, #0
+ 3949 154c BA22C3E1 		strh	r2, [r3, #42]	@ movhi
+1053:../kernel/os_core/os_flag.c ****     ptcb->OSTCBFlagsRdy = flags_rdy;
+ 3950              		.loc 1 1053 0
+ 3951 1550 14301BE5 		ldr	r3, [fp, #-20]
+ 3952 1554 BA215BE1 		ldrh	r2, [fp, #-26]	@ movhi
+ 3953 1558 B822C3E1 		strh	r2, [r3, #40]	@ movhi
+1054:../kernel/os_core/os_flag.c ****     ptcb->OSTCBStat    &= ~OS_STAT_FLAG;
+ 3954              		.loc 1 1054 0
+ 3955 155c 14301BE5 		ldr	r3, [fp, #-20]
+ 3956 1560 2C30D3E5 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 3957 1564 2030C3E3 		bic	r3, r3, #32
+ 3958 1568 FF2003E2 		and	r2, r3, #255
+ 3959 156c 14301BE5 		ldr	r3, [fp, #-20]
+ 3960 1570 2C20C3E5 		strb	r2, [r3, #44]
+1055:../kernel/os_core/os_flag.c ****     ptcb->OSTCBPendTO   = FALSE;
+ 3961              		.loc 1 1055 0
+ 3962 1574 14301BE5 		ldr	r3, [fp, #-20]
+ 3963 1578 0020A0E3 		mov	r2, #0
+ 3964 157c 2D20C3E5 		strb	r2, [r3, #45]
+1056:../kernel/os_core/os_flag.c ****     if (ptcb->OSTCBStat == OS_STAT_RDY) {                  /* Task now ready?                      
+ 3965              		.loc 1 1056 0
+ 3966 1580 14301BE5 		ldr	r3, [fp, #-20]
+ 3967 1584 2C30D3E5 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 3968 1588 000053E3 		cmp	r3, #0
+ 3969 158c 1600001A 		bne	.L136
+1057:../kernel/os_core/os_flag.c ****         OSRdyGrp               |= ptcb->OSTCBBitY;         /* Put task into ready list             
+ 3970              		.loc 1 1057 0
+ 3971 1590 14301BE5 		ldr	r3, [fp, #-20]
+ 3972 1594 3220D3E5 		ldrb	r2, [r3, #50]	@ zero_extendqisi2
+ 3973 1598 70309FE5 		ldr	r3, .L138
+ 3974 159c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3975 15a0 033082E1 		orr	r3, r2, r3
+ 3976 15a4 FF2003E2 		and	r2, r3, #255
+ 3977 15a8 60309FE5 		ldr	r3, .L138
+ 3978 15ac 0020C3E5 		strb	r2, [r3, #0]
+1058:../kernel/os_core/os_flag.c ****         OSRdyTbl[ptcb->OSTCBY] |= ptcb->OSTCBBitX;
+ 3979              		.loc 1 1058 0
+ 3980 15b0 14301BE5 		ldr	r3, [fp, #-20]
+ 3981 15b4 3030D3E5 		ldrb	r3, [r3, #48]	@ zero_extendqisi2
+ 3982 15b8 14201BE5 		ldr	r2, [fp, #-20]
+ 3983 15bc 3020D2E5 		ldrb	r2, [r2, #48]	@ zero_extendqisi2
+ 3984 15c0 4C109FE5 		ldr	r1, .L138+4
+ 3985 15c4 0210D1E7 		ldrb	r1, [r1, r2]	@ zero_extendqisi2
+ 3986 15c8 14201BE5 		ldr	r2, [fp, #-20]
+ 3987 15cc 3120D2E5 		ldrb	r2, [r2, #49]	@ zero_extendqisi2
+ 3988 15d0 022081E1 		orr	r2, r1, r2
+ 3989 15d4 FF1002E2 		and	r1, r2, #255
+ 3990 15d8 34209FE5 		ldr	r2, .L138+4
+ 3991 15dc 0310C2E7 		strb	r1, [r2, r3]
+1059:../kernel/os_core/os_flag.c ****         sched                   = TRUE;
+ 3992              		.loc 1 1059 0
+ 3993 15e0 0130A0E3 		mov	r3, #1
+ 3994 15e4 0D304BE5 		strb	r3, [fp, #-13]
+ 3995 15e8 010000EA 		b	.L137
+ 3996              	.L136:
+1060:../kernel/os_core/os_flag.c ****     } else {
+1061:../kernel/os_core/os_flag.c ****         sched                   = FALSE;
+ 3997              		.loc 1 1061 0
+ 3998 15ec 0030A0E3 		mov	r3, #0
+ 3999 15f0 0D304BE5 		strb	r3, [fp, #-13]
+ 4000              	.L137:
+1062:../kernel/os_core/os_flag.c ****     }
+1063:../kernel/os_core/os_flag.c ****     OS_FlagUnlink(pnode);
+ 4001              		.loc 1 1063 0
+ 4002 15f4 18001BE5 		ldr	r0, [fp, #-24]
+ 4003 15f8 FEFFFFEB 		bl	OS_FlagUnlink
+1064:../kernel/os_core/os_flag.c ****     return (sched);
+ 4004              		.loc 1 1064 0
+ 4005 15fc 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+1065:../kernel/os_core/os_flag.c **** }
+ 4006              		.loc 1 1065 0
+ 4007 1600 0300A0E1 		mov	r0, r3
+ 4008 1604 0CD04BE2 		sub	sp, fp, #12
+ 4009 1608 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4010 160c 1EFF2FE1 		bx	lr
+ 4011              	.L139:
+ 4012              		.align	2
+ 4013              	.L138:
+ 4014 1610 00000000 		.word	OSRdyGrp
+ 4015 1614 00000000 		.word	OSRdyTbl
+ 4016              		.cfi_endproc
+ 4017              	.LFE11:
+ 4019              		.align	2
+ 4020              		.global	OS_FlagUnlink
+ 4022              	OS_FlagUnlink:
+ 4023              	.LFB12:
+1066:../kernel/os_core/os_flag.c **** 
+1067:../kernel/os_core/os_flag.c **** /*$PAGE*/
+1068:../kernel/os_core/os_flag.c **** /*
+1069:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+1070:../kernel/os_core/os_flag.c **** *                                  UNLINK EVENT FLAG NODE FROM WAITING LIST
+1071:../kernel/os_core/os_flag.c **** *
+1072:../kernel/os_core/os_flag.c **** * Description: This function is internal to uC/OS-II and is used to unlink an event flag node from 
+1073:../kernel/os_core/os_flag.c **** *              list of tasks waiting for the event flag.
+1074:../kernel/os_core/os_flag.c **** *
+1075:../kernel/os_core/os_flag.c **** * Arguments  : pnode         is a pointer to a structure which contains data about the task waiting
+1076:../kernel/os_core/os_flag.c **** *                            event flag bit(s) to be set.
+1077:../kernel/os_core/os_flag.c **** *
+1078:../kernel/os_core/os_flag.c **** * Returns    : none
+1079:../kernel/os_core/os_flag.c **** *
+1080:../kernel/os_core/os_flag.c **** * Called by  : OS_FlagTaskRdy() OS_FLAG.C
+1081:../kernel/os_core/os_flag.c **** *              OSFlagPend()     OS_FLAG.C
+1082:../kernel/os_core/os_flag.c **** *              OSTaskDel()      OS_TASK.C
+1083:../kernel/os_core/os_flag.c **** *
+1084:../kernel/os_core/os_flag.c **** * Note(s)    : 1) This function assumes that interrupts are disabled.
+1085:../kernel/os_core/os_flag.c **** *              2) This function is INTERNAL to uC/OS-II and your application should not call it.
+1086:../kernel/os_core/os_flag.c **** ***************************************************************************************************
+1087:../kernel/os_core/os_flag.c **** */
+1088:../kernel/os_core/os_flag.c **** 
+1089:../kernel/os_core/os_flag.c **** void  OS_FlagUnlink (OS_FLAG_NODE *pnode)
+1090:../kernel/os_core/os_flag.c **** {
+ 4024              		.loc 1 1090 0
+ 4025              		.cfi_startproc
+ 4026              		@ Function supports interworking.
+ 4027              		@ args = 0, pretend = 0, frame = 24
+ 4028              		@ frame_needed = 1, uses_anonymous_args = 0
+ 4029 1618 0DC0A0E1 		mov	ip, sp
+ 4030              	.LCFI24:
+ 4031              		.cfi_def_cfa_register 12
+ 4032 161c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 4033 1620 04B04CE2 		sub	fp, ip, #4
+ 4034              		.cfi_offset 14, -8
+ 4035              		.cfi_offset 13, -12
+ 4036              		.cfi_offset 11, -16
+ 4037              	.LCFI25:
+ 4038              		.cfi_def_cfa 11, 4
+ 4039 1624 18D04DE2 		sub	sp, sp, #24
+ 4040 1628 20000BE5 		str	r0, [fp, #-32]
+1091:../kernel/os_core/os_flag.c **** #if OS_TASK_DEL_EN > 0
+1092:../kernel/os_core/os_flag.c ****     OS_TCB       *ptcb;
+1093:../kernel/os_core/os_flag.c **** #endif
+1094:../kernel/os_core/os_flag.c ****     OS_FLAG_GRP  *pgrp;
+1095:../kernel/os_core/os_flag.c ****     OS_FLAG_NODE *pnode_prev;
+1096:../kernel/os_core/os_flag.c ****     OS_FLAG_NODE *pnode_next;
+1097:../kernel/os_core/os_flag.c **** 
+1098:../kernel/os_core/os_flag.c **** 
+1099:../kernel/os_core/os_flag.c ****     pnode_prev = (OS_FLAG_NODE *)pnode->OSFlagNodePrev;
+ 4041              		.loc 1 1099 0
+ 4042 162c 20301BE5 		ldr	r3, [fp, #-32]
+ 4043 1630 043093E5 		ldr	r3, [r3, #4]
+ 4044 1634 10300BE5 		str	r3, [fp, #-16]
+1100:../kernel/os_core/os_flag.c ****     pnode_next = (OS_FLAG_NODE *)pnode->OSFlagNodeNext;
+ 4045              		.loc 1 1100 0
+ 4046 1638 20301BE5 		ldr	r3, [fp, #-32]
+ 4047 163c 003093E5 		ldr	r3, [r3, #0]
+ 4048 1640 14300BE5 		str	r3, [fp, #-20]
+1101:../kernel/os_core/os_flag.c ****     if (pnode_prev == (OS_FLAG_NODE *)0) {                      /* Is it first node in wait list?  
+ 4049              		.loc 1 1101 0
+ 4050 1644 10301BE5 		ldr	r3, [fp, #-16]
+ 4051 1648 000053E3 		cmp	r3, #0
+ 4052 164c 0C00001A 		bne	.L141
+1102:../kernel/os_core/os_flag.c ****         pgrp                 = (OS_FLAG_GRP *)pnode->OSFlagNodeFlagGrp;
+ 4053              		.loc 1 1102 0
+ 4054 1650 20301BE5 		ldr	r3, [fp, #-32]
+ 4055 1654 0C3093E5 		ldr	r3, [r3, #12]
+ 4056 1658 18300BE5 		str	r3, [fp, #-24]
+1103:../kernel/os_core/os_flag.c ****         pgrp->OSFlagWaitList = (void *)pnode_next;              /*      Update list for new 1st nod
+ 4057              		.loc 1 1103 0
+ 4058 165c 18301BE5 		ldr	r3, [fp, #-24]
+ 4059 1660 14201BE5 		ldr	r2, [fp, #-20]
+ 4060 1664 042083E5 		str	r2, [r3, #4]
+1104:../kernel/os_core/os_flag.c ****         if (pnode_next != (OS_FLAG_NODE *)0) {
+ 4061              		.loc 1 1104 0
+ 4062 1668 14301BE5 		ldr	r3, [fp, #-20]
+ 4063 166c 000053E3 		cmp	r3, #0
+ 4064 1670 0C00000A 		beq	.L142
+1105:../kernel/os_core/os_flag.c ****             pnode_next->OSFlagNodePrev = (OS_FLAG_NODE *)0;     /*      Link new 1st node PREV to N
+ 4065              		.loc 1 1105 0
+ 4066 1674 14301BE5 		ldr	r3, [fp, #-20]
+ 4067 1678 0020A0E3 		mov	r2, #0
+ 4068 167c 042083E5 		str	r2, [r3, #4]
+ 4069 1680 080000EA 		b	.L142
+ 4070              	.L141:
+1106:../kernel/os_core/os_flag.c ****         }
+1107:../kernel/os_core/os_flag.c ****     } else {                                                    /* No,  A node somewhere in the lis
+1108:../kernel/os_core/os_flag.c ****         pnode_prev->OSFlagNodeNext = pnode_next;                /*      Link around the node to unl
+ 4071              		.loc 1 1108 0
+ 4072 1684 10301BE5 		ldr	r3, [fp, #-16]
+ 4073 1688 14201BE5 		ldr	r2, [fp, #-20]
+ 4074 168c 002083E5 		str	r2, [r3, #0]
+1109:../kernel/os_core/os_flag.c ****         if (pnode_next != (OS_FLAG_NODE *)0) {                  /*      Was this the LAST node?    
+ 4075              		.loc 1 1109 0
+ 4076 1690 14301BE5 		ldr	r3, [fp, #-20]
+ 4077 1694 000053E3 		cmp	r3, #0
+ 4078 1698 0200000A 		beq	.L142
+1110:../kernel/os_core/os_flag.c ****             pnode_next->OSFlagNodePrev = pnode_prev;            /*      No, Link around current nod
+ 4079              		.loc 1 1110 0
+ 4080 169c 14301BE5 		ldr	r3, [fp, #-20]
+ 4081 16a0 10201BE5 		ldr	r2, [fp, #-16]
+ 4082 16a4 042083E5 		str	r2, [r3, #4]
+ 4083              	.L142:
+1111:../kernel/os_core/os_flag.c ****         }
+1112:../kernel/os_core/os_flag.c ****     }
+1113:../kernel/os_core/os_flag.c **** #if OS_TASK_DEL_EN > 0
+1114:../kernel/os_core/os_flag.c ****     ptcb                = (OS_TCB *)pnode->OSFlagNodeTCB;
+ 4084              		.loc 1 1114 0
+ 4085 16a8 20301BE5 		ldr	r3, [fp, #-32]
+ 4086 16ac 083093E5 		ldr	r3, [r3, #8]
+ 4087 16b0 1C300BE5 		str	r3, [fp, #-28]
+1115:../kernel/os_core/os_flag.c ****     ptcb->OSTCBFlagNode = (OS_FLAG_NODE *)0;
+ 4088              		.loc 1 1115 0
+ 4089 16b4 1C301BE5 		ldr	r3, [fp, #-28]
+ 4090 16b8 0020A0E3 		mov	r2, #0
+ 4091 16bc 242083E5 		str	r2, [r3, #36]
+1116:../kernel/os_core/os_flag.c **** #endif
+1117:../kernel/os_core/os_flag.c **** }
+ 4092              		.loc 1 1117 0
+ 4093 16c0 0CD04BE2 		sub	sp, fp, #12
+ 4094 16c4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 4095 16c8 1EFF2FE1 		bx	lr
+ 4096              		.cfi_endproc
+ 4097              	.LFE12:
+ 4099              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 os_flag.c
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:1630   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:1633   .text:00000000 OSFlagAccept
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:1723   .text:000000c8 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:1729   .text:000000d8 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:1949   .text:00000324 OSFlagCreate
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2067   .text:00000420 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2072   .text:00000428 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2075   .text:00000428 OSFlagDel
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3921   .text:0000151c OS_FlagTaskRdy
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2318   .text:00000660 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2323   .text:00000668 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2326   .text:00000668 OSFlagNameGet
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2451   .text:00000754 OSFlagNameSet
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2593   .text:0000085c OSFlagPend
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2691   .text:00000938 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:2697   .text:00000948 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3665   .text:00001278 OS_FlagBlock
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:4022   .text:00001618 OS_FlagUnlink
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3060   .text:00000d08 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3066   .text:00000d18 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3133   .text:00000dc0 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3138   .text:00000dc8 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3141   .text:00000dc8 OSFlagPendGetFlagsRdy
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3194   .text:00000e14 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3198   .text:00000e18 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3201   .text:00000e18 OSFlagPost
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3333   .text:00000f54 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3339   .text:00000f64 $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3579   .text:000011d8 OSFlagQuery
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3810   .text:00001420 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3816   .text:0000142c $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3819   .text:0000142c OS_FlagInit
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3913   .text:00001510 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:3919   .text:0000151c $a
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:4014   .text:00001610 $d
+C:\Users\Pedro\AppData\Local\Temp\ccwSRmah.s:4019   .text:00001618 $a
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+OSIntNesting
+OSFlagFreeList
+OS_Sched
+OS_StrCopy
+OS_StrLen
+OSTCBCur
+OSRdyTbl
+OSRdyGrp
+OS_MemClr
+OSFlagTbl

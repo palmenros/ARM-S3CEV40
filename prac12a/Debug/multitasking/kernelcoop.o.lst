@@ -1,0 +1,506 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"kernelcoop.c"
+  21              	.Ltext0:
+  22              		.file 1 "../multitasking/kernelcoop.c"
+ 1787              		.align	2
+ 1788              	tasks:
+ 1789 0000 00000000 		.space	160
+ 1789      00000000 
+ 1789      00000000 
+ 1789      00000000 
+ 1789      00000000 
+ 1790              		.text
+ 1791              		.align	2
+ 1792              		.global	delete_task
+ 1794              	delete_task:
+ 1795              	.LFB0:
+   1:../multitasking/kernelcoop.c **** /*-------------------------------------------------------------------
+   2:../multitasking/kernelcoop.c **** **
+   3:../multitasking/kernelcoop.c **** **  Fichero:
+   4:../multitasking/kernelcoop.c **** **    kernelcoop.c  12/1/2021
+   5:../multitasking/kernelcoop.c **** **
+   6:../multitasking/kernelcoop.c **** **    (c) J.M. Mendias
+   7:../multitasking/kernelcoop.c **** **    Programación de Sistemas y Dispositivos
+   8:../multitasking/kernelcoop.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../multitasking/kernelcoop.c **** **
+  10:../multitasking/kernelcoop.c **** **  Propósito:
+  11:../multitasking/kernelcoop.c **** **    Kernel de planificación no expropiativa de tareas cooperativas
+  12:../multitasking/kernelcoop.c **** **
+  13:../multitasking/kernelcoop.c **** **  Notas de diseño:
+  14:../multitasking/kernelcoop.c **** **
+  15:../multitasking/kernelcoop.c **** **-----------------------------------------------------------------*/
+  16:../multitasking/kernelcoop.c **** 
+  17:../multitasking/kernelcoop.c **** #include "kernelcoop.h"
+  18:../multitasking/kernelcoop.c **** #include "../44b.h"
+  19:../multitasking/kernelcoop.c **** #include "../intcontroller.h"
+  20:../multitasking/kernelcoop.c **** 
+  21:../multitasking/kernelcoop.c **** static task_t tasks[MAX_TASKS];   /* Lista ordenada de TCBs */
+  22:../multitasking/kernelcoop.c **** 
+  23:../multitasking/kernelcoop.c **** void delete_task( uint32 id )
+  24:../multitasking/kernelcoop.c **** {
+ 1796              		.loc 1 24 0
+ 1797              		.cfi_startproc
+ 1798              		@ Function supports interworking.
+ 1799              		@ args = 0, pretend = 0, frame = 8
+ 1800              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1801 0000 0DC0A0E1 		mov	ip, sp
+ 1802              	.LCFI0:
+ 1803              		.cfi_def_cfa_register 12
+ 1804 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1805 0008 04B04CE2 		sub	fp, ip, #4
+ 1806              		.cfi_offset 14, -8
+ 1807              		.cfi_offset 13, -12
+ 1808              		.cfi_offset 11, -16
+ 1809              	.LCFI1:
+ 1810              		.cfi_def_cfa 11, 4
+ 1811 000c 08D04DE2 		sub	sp, sp, #8
+ 1812 0010 10000BE5 		str	r0, [fp, #-16]
+  25:../multitasking/kernelcoop.c ****     tasks[id].pfunction = NULL;
+ 1813              		.loc 1 25 0
+ 1814 0014 74309FE5 		ldr	r3, .L2
+ 1815 0018 10201BE5 		ldr	r2, [fp, #-16]
+ 1816 001c 0010A0E3 		mov	r1, #0
+ 1817 0020 021283E7 		str	r1, [r3, r2, asl #4]
+  26:../multitasking/kernelcoop.c ****     tasks[id].period = 0;
+ 1818              		.loc 1 26 0
+ 1819 0024 64109FE5 		ldr	r1, .L2
+ 1820 0028 10201BE5 		ldr	r2, [fp, #-16]
+ 1821 002c 0430A0E3 		mov	r3, #4
+ 1822 0030 0222A0E1 		mov	r2, r2, asl #4
+ 1823 0034 022081E0 		add	r2, r1, r2
+ 1824 0038 033082E0 		add	r3, r2, r3
+ 1825 003c 0020A0E3 		mov	r2, #0
+ 1826 0040 002083E5 		str	r2, [r3, #0]
+  27:../multitasking/kernelcoop.c ****     tasks[id].ticks = 0;
+ 1827              		.loc 1 27 0
+ 1828 0044 44109FE5 		ldr	r1, .L2
+ 1829 0048 10201BE5 		ldr	r2, [fp, #-16]
+ 1830 004c 0830A0E3 		mov	r3, #8
+ 1831 0050 0222A0E1 		mov	r2, r2, asl #4
+ 1832 0054 022081E0 		add	r2, r1, r2
+ 1833 0058 033082E0 		add	r3, r2, r3
+ 1834 005c 0020A0E3 		mov	r2, #0
+ 1835 0060 002083E5 		str	r2, [r3, #0]
+  28:../multitasking/kernelcoop.c ****     tasks[id].ready = FALSE;
+ 1836              		.loc 1 28 0
+ 1837 0064 24109FE5 		ldr	r1, .L2
+ 1838 0068 10201BE5 		ldr	r2, [fp, #-16]
+ 1839 006c 0830A0E3 		mov	r3, #8
+ 1840 0070 0222A0E1 		mov	r2, r2, asl #4
+ 1841 0074 022081E0 		add	r2, r1, r2
+ 1842 0078 033082E0 		add	r3, r2, r3
+ 1843 007c 0020A0E3 		mov	r2, #0
+ 1844 0080 0420C3E5 		strb	r2, [r3, #4]
+  29:../multitasking/kernelcoop.c **** }
+ 1845              		.loc 1 29 0
+ 1846 0084 0CD04BE2 		sub	sp, fp, #12
+ 1847 0088 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1848 008c 1EFF2FE1 		bx	lr
+ 1849              	.L3:
+ 1850              		.align	2
+ 1851              	.L2:
+ 1852 0090 00000000 		.word	tasks
+ 1853              		.cfi_endproc
+ 1854              	.LFE0:
+ 1856              		.align	2
+ 1857              		.global	create_task
+ 1859              	create_task:
+ 1860              	.LFB1:
+  30:../multitasking/kernelcoop.c **** 
+  31:../multitasking/kernelcoop.c **** uint32 create_task( void (*pfunction)( void ), uint32 period )
+  32:../multitasking/kernelcoop.c **** {
+ 1861              		.loc 1 32 0
+ 1862              		.cfi_startproc
+ 1863              		@ Function supports interworking.
+ 1864              		@ args = 0, pretend = 0, frame = 16
+ 1865              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1866 0094 0DC0A0E1 		mov	ip, sp
+ 1867              	.LCFI2:
+ 1868              		.cfi_def_cfa_register 12
+ 1869 0098 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1870 009c 04B04CE2 		sub	fp, ip, #4
+ 1871              		.cfi_offset 14, -8
+ 1872              		.cfi_offset 13, -12
+ 1873              		.cfi_offset 11, -16
+ 1874              	.LCFI3:
+ 1875              		.cfi_def_cfa 11, 4
+ 1876 00a0 10D04DE2 		sub	sp, sp, #16
+ 1877 00a4 18000BE5 		str	r0, [fp, #-24]
+ 1878 00a8 1C100BE5 		str	r1, [fp, #-28]
+  33:../multitasking/kernelcoop.c ****     uint32 id;
+  34:../multitasking/kernelcoop.c **** 
+  35:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS && tasks[id].pfunction ; id++ ); /* Busca la primera entrada libre (con
+ 1879              		.loc 1 35 0
+ 1880 00ac 0030A0E3 		mov	r3, #0
+ 1881 00b0 10300BE5 		str	r3, [fp, #-16]
+ 1882 00b4 020000EA 		b	.L5
+ 1883              	.L7:
+ 1884              		.loc 1 35 0 is_stmt 0 discriminator 1
+ 1885 00b8 10301BE5 		ldr	r3, [fp, #-16]
+ 1886 00bc 013083E2 		add	r3, r3, #1
+ 1887 00c0 10300BE5 		str	r3, [fp, #-16]
+ 1888              	.L5:
+ 1889 00c4 10301BE5 		ldr	r3, [fp, #-16]
+ 1890 00c8 090053E3 		cmp	r3, #9
+ 1891 00cc 0400008A 		bhi	.L6
+ 1892              		.loc 1 35 0 discriminator 2
+ 1893 00d0 9C309FE5 		ldr	r3, .L8
+ 1894 00d4 10201BE5 		ldr	r2, [fp, #-16]
+ 1895 00d8 023293E7 		ldr	r3, [r3, r2, asl #4]
+ 1896 00dc 000053E3 		cmp	r3, #0
+ 1897 00e0 F4FFFF1A 		bne	.L7
+ 1898              	.L6:
+  36:../multitasking/kernelcoop.c **** 
+  37:../multitasking/kernelcoop.c ****     tasks[id].pfunction = pfunction;
+ 1899              		.loc 1 37 0 is_stmt 1
+ 1900 00e4 88309FE5 		ldr	r3, .L8
+ 1901 00e8 10201BE5 		ldr	r2, [fp, #-16]
+ 1902 00ec 18101BE5 		ldr	r1, [fp, #-24]
+ 1903 00f0 021283E7 		str	r1, [r3, r2, asl #4]
+  38:../multitasking/kernelcoop.c ****     tasks[id].period = period;
+ 1904              		.loc 1 38 0
+ 1905 00f4 78109FE5 		ldr	r1, .L8
+ 1906 00f8 10201BE5 		ldr	r2, [fp, #-16]
+ 1907 00fc 0430A0E3 		mov	r3, #4
+ 1908 0100 0222A0E1 		mov	r2, r2, asl #4
+ 1909 0104 022081E0 		add	r2, r1, r2
+ 1910 0108 033082E0 		add	r3, r2, r3
+ 1911 010c 1C201BE5 		ldr	r2, [fp, #-28]
+ 1912 0110 002083E5 		str	r2, [r3, #0]
+  39:../multitasking/kernelcoop.c ****     tasks[id].ticks = 0;
+ 1913              		.loc 1 39 0
+ 1914 0114 58109FE5 		ldr	r1, .L8
+ 1915 0118 10201BE5 		ldr	r2, [fp, #-16]
+ 1916 011c 0830A0E3 		mov	r3, #8
+ 1917 0120 0222A0E1 		mov	r2, r2, asl #4
+ 1918 0124 022081E0 		add	r2, r1, r2
+ 1919 0128 033082E0 		add	r3, r2, r3
+ 1920 012c 0020A0E3 		mov	r2, #0
+ 1921 0130 002083E5 		str	r2, [r3, #0]
+  40:../multitasking/kernelcoop.c ****     tasks[id].ready = FALSE;
+ 1922              		.loc 1 40 0
+ 1923 0134 38109FE5 		ldr	r1, .L8
+ 1924 0138 10201BE5 		ldr	r2, [fp, #-16]
+ 1925 013c 0830A0E3 		mov	r3, #8
+ 1926 0140 0222A0E1 		mov	r2, r2, asl #4
+ 1927 0144 022081E0 		add	r2, r1, r2
+ 1928 0148 033082E0 		add	r3, r2, r3
+ 1929 014c 0020A0E3 		mov	r2, #0
+ 1930 0150 0420C3E5 		strb	r2, [r3, #4]
+  41:../multitasking/kernelcoop.c **** 
+  42:../multitasking/kernelcoop.c ****     (*pfunction)();     /* Asume que la primera llamada a la tarea la inicializa */
+ 1931              		.loc 1 42 0
+ 1932 0154 18301BE5 		ldr	r3, [fp, #-24]
+ 1933 0158 0FE0A0E1 		mov	lr, pc
+ 1934 015c 13FF2FE1 		bx	r3
+  43:../multitasking/kernelcoop.c **** 
+  44:../multitasking/kernelcoop.c ****     return id;
+ 1935              		.loc 1 44 0
+ 1936 0160 10301BE5 		ldr	r3, [fp, #-16]
+  45:../multitasking/kernelcoop.c **** }
+ 1937              		.loc 1 45 0
+ 1938 0164 0300A0E1 		mov	r0, r3
+ 1939 0168 0CD04BE2 		sub	sp, fp, #12
+ 1940 016c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1941 0170 1EFF2FE1 		bx	lr
+ 1942              	.L9:
+ 1943              		.align	2
+ 1944              	.L8:
+ 1945 0174 00000000 		.word	tasks
+ 1946              		.cfi_endproc
+ 1947              	.LFE1:
+ 1949              		.align	2
+ 1950              		.global	scheduler_init
+ 1952              	scheduler_init:
+ 1953              	.LFB2:
+  46:../multitasking/kernelcoop.c **** 
+  47:../multitasking/kernelcoop.c **** void scheduler_init( void )
+  48:../multitasking/kernelcoop.c **** {
+ 1954              		.loc 1 48 0
+ 1955              		.cfi_startproc
+ 1956              		@ Function supports interworking.
+ 1957              		@ args = 0, pretend = 0, frame = 8
+ 1958              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1959 0178 0DC0A0E1 		mov	ip, sp
+ 1960              	.LCFI4:
+ 1961              		.cfi_def_cfa_register 12
+ 1962 017c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1963 0180 04B04CE2 		sub	fp, ip, #4
+ 1964              		.cfi_offset 14, -8
+ 1965              		.cfi_offset 13, -12
+ 1966              		.cfi_offset 11, -16
+ 1967              	.LCFI5:
+ 1968              		.cfi_def_cfa 11, 4
+ 1969 0184 08D04DE2 		sub	sp, sp, #8
+  49:../multitasking/kernelcoop.c ****     uint32 id;
+  50:../multitasking/kernelcoop.c **** 
+  51:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS; id++ )
+ 1970              		.loc 1 51 0
+ 1971 0188 0030A0E3 		mov	r3, #0
+ 1972 018c 10300BE5 		str	r3, [fp, #-16]
+ 1973 0190 040000EA 		b	.L11
+ 1974              	.L12:
+  52:../multitasking/kernelcoop.c ****         delete_task( id );
+ 1975              		.loc 1 52 0 discriminator 2
+ 1976 0194 10001BE5 		ldr	r0, [fp, #-16]
+ 1977 0198 FEFFFFEB 		bl	delete_task
+  51:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS; id++ )
+ 1978              		.loc 1 51 0 discriminator 2
+ 1979 019c 10301BE5 		ldr	r3, [fp, #-16]
+ 1980 01a0 013083E2 		add	r3, r3, #1
+ 1981 01a4 10300BE5 		str	r3, [fp, #-16]
+ 1982              	.L11:
+  51:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS; id++ )
+ 1983              		.loc 1 51 0 is_stmt 0 discriminator 1
+ 1984 01a8 10301BE5 		ldr	r3, [fp, #-16]
+ 1985 01ac 090053E3 		cmp	r3, #9
+ 1986 01b0 F7FFFF9A 		bls	.L12
+  53:../multitasking/kernelcoop.c **** }
+ 1987              		.loc 1 53 0 is_stmt 1
+ 1988 01b4 0CD04BE2 		sub	sp, fp, #12
+ 1989 01b8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1990 01bc 1EFF2FE1 		bx	lr
+ 1991              		.cfi_endproc
+ 1992              	.LFE2:
+ 1994              		.align	2
+ 1995              		.global	scheduler
+ 1997              	scheduler:
+ 1998              	.LFB3:
+  54:../multitasking/kernelcoop.c **** 
+  55:../multitasking/kernelcoop.c **** void scheduler( void ) /* Esta funcion es la ISR del timer0 */
+  56:../multitasking/kernelcoop.c **** {
+ 1999              		.loc 1 56 0
+ 2000              		.cfi_startproc
+ 2001              		@ Interrupt Service Routine.
+ 2002              		@ args = 0, pretend = 0, frame = 8
+ 2003              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2004 01c0 04C02DE5 		str	ip, [sp, #-4]!
+ 2005 01c4 0DC0A0E1 		mov	ip, sp
+ 2006              	.LCFI6:
+ 2007              		.cfi_def_cfa_register 12
+ 2008 01c8 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 2009 01cc 04B04CE2 		sub	fp, ip, #4
+ 2010              		.cfi_offset 14, -8
+ 2011              		.cfi_offset 13, -12
+ 2012              		.cfi_offset 11, -16
+ 2013              		.cfi_offset 3, -20
+ 2014              		.cfi_offset 2, -24
+ 2015              		.cfi_offset 1, -28
+ 2016              		.cfi_offset 0, -32
+ 2017              	.LCFI7:
+ 2018              		.cfi_def_cfa 11, 4
+ 2019 01d0 08D04DE2 		sub	sp, sp, #8
+  57:../multitasking/kernelcoop.c ****     uint32 id;
+  58:../multitasking/kernelcoop.c **** 
+  59:../multitasking/kernelcoop.c ****     ic_cleanflag(INT_TIMER0);
+ 2020              		.loc 1 59 0
+ 2021 01d4 0D00A0E3 		mov	r0, #13
+ 2022 01d8 FEFFFFEB 		bl	ic_cleanflag
+  60:../multitasking/kernelcoop.c **** 
+  61:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS; id++ )                     /* Recorre la lista completa de TCB */
+ 2023              		.loc 1 61 0
+ 2024 01dc 0030A0E3 		mov	r3, #0
+ 2025 01e0 20300BE5 		str	r3, [fp, #-32]
+ 2026 01e4 360000EA 		b	.L14
+ 2027              	.L16:
+  62:../multitasking/kernelcoop.c ****         if( tasks[id].pfunction )
+ 2028              		.loc 1 62 0
+ 2029 01e8 F0309FE5 		ldr	r3, .L17
+ 2030 01ec 20201BE5 		ldr	r2, [fp, #-32]
+ 2031 01f0 023293E7 		ldr	r3, [r3, r2, asl #4]
+ 2032 01f4 000053E3 		cmp	r3, #0
+ 2033 01f8 2E00000A 		beq	.L15
+  63:../multitasking/kernelcoop.c ****             if( ++tasks[id].ticks == tasks[id].period ) /* Si el contador de ticks equivale a su pe
+ 2034              		.loc 1 63 0
+ 2035 01fc DC109FE5 		ldr	r1, .L17
+ 2036 0200 20201BE5 		ldr	r2, [fp, #-32]
+ 2037 0204 0830A0E3 		mov	r3, #8
+ 2038 0208 0222A0E1 		mov	r2, r2, asl #4
+ 2039 020c 022081E0 		add	r2, r1, r2
+ 2040 0210 033082E0 		add	r3, r2, r3
+ 2041 0214 003093E5 		ldr	r3, [r3, #0]
+ 2042 0218 012083E2 		add	r2, r3, #1
+ 2043 021c BC009FE5 		ldr	r0, .L17
+ 2044 0220 20101BE5 		ldr	r1, [fp, #-32]
+ 2045 0224 0830A0E3 		mov	r3, #8
+ 2046 0228 0112A0E1 		mov	r1, r1, asl #4
+ 2047 022c 011080E0 		add	r1, r0, r1
+ 2048 0230 033081E0 		add	r3, r1, r3
+ 2049 0234 002083E5 		str	r2, [r3, #0]
+ 2050 0238 A0109FE5 		ldr	r1, .L17
+ 2051 023c 20201BE5 		ldr	r2, [fp, #-32]
+ 2052 0240 0830A0E3 		mov	r3, #8
+ 2053 0244 0222A0E1 		mov	r2, r2, asl #4
+ 2054 0248 022081E0 		add	r2, r1, r2
+ 2055 024c 033082E0 		add	r3, r2, r3
+ 2056 0250 002093E5 		ldr	r2, [r3, #0]
+ 2057 0254 84009FE5 		ldr	r0, .L17
+ 2058 0258 20101BE5 		ldr	r1, [fp, #-32]
+ 2059 025c 0430A0E3 		mov	r3, #4
+ 2060 0260 0112A0E1 		mov	r1, r1, asl #4
+ 2061 0264 011080E0 		add	r1, r0, r1
+ 2062 0268 033081E0 		add	r3, r1, r3
+ 2063 026c 003093E5 		ldr	r3, [r3, #0]
+ 2064 0270 030052E1 		cmp	r2, r3
+ 2065 0274 0F00001A 		bne	.L15
+  64:../multitasking/kernelcoop.c ****             {
+  65:../multitasking/kernelcoop.c ****                 tasks[id].ticks = 0;                    /* Inicializa a 0 su contador de ticks */
+ 2066              		.loc 1 65 0
+ 2067 0278 60109FE5 		ldr	r1, .L17
+ 2068 027c 20201BE5 		ldr	r2, [fp, #-32]
+ 2069 0280 0830A0E3 		mov	r3, #8
+ 2070 0284 0222A0E1 		mov	r2, r2, asl #4
+ 2071 0288 022081E0 		add	r2, r1, r2
+ 2072 028c 033082E0 		add	r3, r2, r3
+ 2073 0290 0020A0E3 		mov	r2, #0
+ 2074 0294 002083E5 		str	r2, [r3, #0]
+  66:../multitasking/kernelcoop.c ****                 tasks[id].ready = TRUE;                 /* Pasa la tarea a estado "preparado" */
+ 2075              		.loc 1 66 0
+ 2076 0298 40109FE5 		ldr	r1, .L17
+ 2077 029c 20201BE5 		ldr	r2, [fp, #-32]
+ 2078 02a0 0830A0E3 		mov	r3, #8
+ 2079 02a4 0222A0E1 		mov	r2, r2, asl #4
+ 2080 02a8 022081E0 		add	r2, r1, r2
+ 2081 02ac 033082E0 		add	r3, r2, r3
+ 2082 02b0 0120A0E3 		mov	r2, #1
+ 2083 02b4 0420C3E5 		strb	r2, [r3, #4]
+ 2084              	.L15:
+  61:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS; id++ )                     /* Recorre la lista completa de TCB */
+ 2085              		.loc 1 61 0
+ 2086 02b8 20301BE5 		ldr	r3, [fp, #-32]
+ 2087 02bc 013083E2 		add	r3, r3, #1
+ 2088 02c0 20300BE5 		str	r3, [fp, #-32]
+ 2089              	.L14:
+  61:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS; id++ )                     /* Recorre la lista completa de TCB */
+ 2090              		.loc 1 61 0 is_stmt 0 discriminator 1
+ 2091 02c4 20301BE5 		ldr	r3, [fp, #-32]
+ 2092 02c8 090053E3 		cmp	r3, #9
+ 2093 02cc C5FFFF9A 		bls	.L16
+  67:../multitasking/kernelcoop.c ****             }
+  68:../multitasking/kernelcoop.c **** }
+ 2094              		.loc 1 68 0 is_stmt 1
+ 2095 02d0 1CD04BE2 		sub	sp, fp, #28
+ 2096 02d4 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 2097 02d8 04C09DE4 		ldmfd	sp!, {ip}
+ 2098 02dc 04F05EE2 		subs	pc, lr, #4
+ 2099              	.L18:
+ 2100              		.align	2
+ 2101              	.L17:
+ 2102 02e0 00000000 		.word	tasks
+ 2103              		.cfi_endproc
+ 2104              	.LFE3:
+ 2106              		.align	2
+ 2107              		.global	dispacher
+ 2109              	dispacher:
+ 2110              	.LFB4:
+  69:../multitasking/kernelcoop.c **** 
+  70:../multitasking/kernelcoop.c **** void dispacher( void )
+  71:../multitasking/kernelcoop.c **** {
+ 2111              		.loc 1 71 0
+ 2112              		.cfi_startproc
+ 2113              		@ Function supports interworking.
+ 2114              		@ args = 0, pretend = 0, frame = 8
+ 2115              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2116 02e4 0DC0A0E1 		mov	ip, sp
+ 2117              	.LCFI8:
+ 2118              		.cfi_def_cfa_register 12
+ 2119 02e8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2120 02ec 04B04CE2 		sub	fp, ip, #4
+ 2121              		.cfi_offset 14, -8
+ 2122              		.cfi_offset 13, -12
+ 2123              		.cfi_offset 11, -16
+ 2124              	.LCFI9:
+ 2125              		.cfi_def_cfa 11, 4
+ 2126 02f0 08D04DE2 		sub	sp, sp, #8
+  72:../multitasking/kernelcoop.c ****     uint32 id;
+  73:../multitasking/kernelcoop.c **** 
+  74:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS; id++ )                     /* Recorre la lista completa de TCB */
+ 2127              		.loc 1 74 0
+ 2128 02f4 0030A0E3 		mov	r3, #0
+ 2129 02f8 10300BE5 		str	r3, [fp, #-16]
+ 2130 02fc 180000EA 		b	.L20
+ 2131              	.L22:
+  75:../multitasking/kernelcoop.c ****         if( tasks[id].ready == TRUE )                   /* Si la tarea está en estado "preparado": 
+ 2132              		.loc 1 75 0
+ 2133 0300 74109FE5 		ldr	r1, .L23
+ 2134 0304 10201BE5 		ldr	r2, [fp, #-16]
+ 2135 0308 0830A0E3 		mov	r3, #8
+ 2136 030c 0222A0E1 		mov	r2, r2, asl #4
+ 2137 0310 022081E0 		add	r2, r1, r2
+ 2138 0314 033082E0 		add	r3, r2, r3
+ 2139 0318 0430D3E5 		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 2140 031c 010053E3 		cmp	r3, #1
+ 2141 0320 0C00001A 		bne	.L21
+  76:../multitasking/kernelcoop.c ****         {
+  77:../multitasking/kernelcoop.c ****             (*tasks[id].pfunction)();                   /* La ejecuta */
+ 2142              		.loc 1 77 0
+ 2143 0324 50309FE5 		ldr	r3, .L23
+ 2144 0328 10201BE5 		ldr	r2, [fp, #-16]
+ 2145 032c 023293E7 		ldr	r3, [r3, r2, asl #4]
+ 2146 0330 0FE0A0E1 		mov	lr, pc
+ 2147 0334 13FF2FE1 		bx	r3
+  78:../multitasking/kernelcoop.c ****             tasks[id].ready = FALSE;                    /* Pasa la tarea a estado "no preparado" */
+ 2148              		.loc 1 78 0
+ 2149 0338 3C109FE5 		ldr	r1, .L23
+ 2150 033c 10201BE5 		ldr	r2, [fp, #-16]
+ 2151 0340 0830A0E3 		mov	r3, #8
+ 2152 0344 0222A0E1 		mov	r2, r2, asl #4
+ 2153 0348 022081E0 		add	r2, r1, r2
+ 2154 034c 033082E0 		add	r3, r2, r3
+ 2155 0350 0020A0E3 		mov	r2, #0
+ 2156 0354 0420C3E5 		strb	r2, [r3, #4]
+ 2157              	.L21:
+  74:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS; id++ )                     /* Recorre la lista completa de TCB */
+ 2158              		.loc 1 74 0
+ 2159 0358 10301BE5 		ldr	r3, [fp, #-16]
+ 2160 035c 013083E2 		add	r3, r3, #1
+ 2161 0360 10300BE5 		str	r3, [fp, #-16]
+ 2162              	.L20:
+  74:../multitasking/kernelcoop.c ****     for( id=0; id<MAX_TASKS; id++ )                     /* Recorre la lista completa de TCB */
+ 2163              		.loc 1 74 0 is_stmt 0 discriminator 1
+ 2164 0364 10301BE5 		ldr	r3, [fp, #-16]
+ 2165 0368 090053E3 		cmp	r3, #9
+ 2166 036c E3FFFF9A 		bls	.L22
+  79:../multitasking/kernelcoop.c ****         }
+  80:../multitasking/kernelcoop.c **** }
+ 2167              		.loc 1 80 0 is_stmt 1
+ 2168 0370 0CD04BE2 		sub	sp, fp, #12
+ 2169 0374 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2170 0378 1EFF2FE1 		bx	lr
+ 2171              	.L24:
+ 2172              		.align	2
+ 2173              	.L23:
+ 2174 037c 00000000 		.word	tasks
+ 2175              		.cfi_endproc
+ 2176              	.LFE4:
+ 2178              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 kernelcoop.c
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1787   .bss:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1788   .bss:00000000 tasks
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1791   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1794   .text:00000000 delete_task
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1852   .text:00000090 $d
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1856   .text:00000094 $a
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1859   .text:00000094 create_task
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1945   .text:00000174 $d
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1949   .text:00000178 $a
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1952   .text:00000178 scheduler_init
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:1997   .text:000001c0 scheduler
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:2102   .text:000002e0 $d
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:2106   .text:000002e4 $a
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:2109   .text:000002e4 dispacher
+C:\Users\Pedro\AppData\Local\Temp\ccr8ZiEs.s:2174   .text:0000037c $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+ic_cleanflag

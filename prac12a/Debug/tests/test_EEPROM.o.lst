@@ -1,0 +1,747 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"test_EEPROM.c"
+  21              	.Ltext0:
+  22              		.file 1 "../tests/test_EEPROM.c"
+ 1799              		.align	2
+ 1800              	.LC0:
+ 1801 0000 0A0A4361 		.ascii	"\012\012Cargando en RAM el contenido de IIC-EEPROM "
+ 1801      7267616E 
+ 1801      646F2065 
+ 1801      6E205241 
+ 1801      4D20656C 
+ 1802 002d 41543234 		.ascii	"AT24C04:\012\000"
+ 1802      4330343A 
+ 1802      0A00
+ 1803 0037 00       		.align	2
+ 1804              	.LC1:
+ 1805 0038 202D204C 		.ascii	" - Lectura aleatoria (\000"
+ 1805      65637475 
+ 1805      72612061 
+ 1805      6C656174 
+ 1805      6F726961 
+ 1806 004f 00       		.align	2
+ 1807              	.LC2:
+ 1808 0050 20627974 		.ascii	" bytes)\012\000"
+ 1808      6573290A 
+ 1808      00
+ 1809 0059 000000   		.align	2
+ 1810              	.LC3:
+ 1811 005c 202D204C 		.ascii	" - Lectura secuencial (\000"
+ 1811      65637475 
+ 1811      72612073 
+ 1811      65637565 
+ 1811      6E636961 
+ 1812              		.align	2
+ 1813              	.LC4:
+ 1814 0074 20627974 		.ascii	" bytes)\000"
+ 1814      65732900 
+ 1815              		.align	2
+ 1816              	.LC5:
+ 1817 007c 4552524F 		.ascii	"ERROR: lectura aleatoria y secuencial no son coinci"
+ 1817      523A206C 
+ 1817      65637475 
+ 1817      72612061 
+ 1817      6C656174 
+ 1818 00af 64656E74 		.ascii	"dentes\012\000"
+ 1818      65730A00 
+ 1819 00b7 00       		.align	2
+ 1820              	.LC6:
+ 1821 00b8 0A566F6C 		.ascii	"\012Volcado del contenido inicial de la memoria IIC"
+ 1821      6361646F 
+ 1821      2064656C 
+ 1821      20636F6E 
+ 1821      74656E69 
+ 1822 00e8 2D454550 		.ascii	"-EEPROM AT24C04:\012\000"
+ 1822      524F4D20 
+ 1822      41543234 
+ 1822      4330343A 
+ 1822      0A00
+ 1823 00fa 0000     		.align	2
+ 1824              	.LC7:
+ 1825 00fc 0A00     		.ascii	"\012\000"
+ 1826 00fe 0000     		.align	2
+ 1827              	.LC8:
+ 1828 0100 303000   		.ascii	"00\000"
+ 1829 0103 00       		.align	2
+ 1830              	.LC9:
+ 1831 0104 683A00   		.ascii	"h:\000"
+ 1832 0107 00       		.align	2
+ 1833              	.LC10:
+ 1834 0108 203B2000 		.ascii	" ; \000"
+ 1835              		.align	2
+ 1836              	.LC11:
+ 1837 010c 0A0A4D6F 		.ascii	"\012\012Modificacion del contenido de la memoria II"
+ 1837      64696669 
+ 1837      63616369 
+ 1837      6F6E2064 
+ 1837      656C2063 
+ 1838 0139 432D4545 		.ascii	"C-EEPROM AT24C04:\012\000"
+ 1838      50524F4D 
+ 1838      20415432 
+ 1838      34433034 
+ 1838      3A0A00
+ 1839              		.align	2
+ 1840              	.LC12:
+ 1841 014c 20202D20 		.ascii	"  - Introduzca una direccion (0h-1ffh): \000"
+ 1841      496E7472 
+ 1841      6F64757A 
+ 1841      63612075 
+ 1841      6E612064 
+ 1842 0175 000000   		.align	2
+ 1843              	.LC13:
+ 1844 0178 20202D20 		.ascii	"  - Introduzca el dato (0h-ffh): \000"
+ 1844      496E7472 
+ 1844      6F64757A 
+ 1844      63612065 
+ 1844      6C206461 
+ 1845 019a 0000     		.align	2
+ 1846              	.LC14:
+ 1847 019c 0A566F6C 		.ascii	"\012Volcando en la IIC-EEPROM AT24C04 el contenido "
+ 1847      63616E64 
+ 1847      6F20656E 
+ 1847      206C6120 
+ 1847      4949432D 
+ 1848 01cc 6465206C 		.ascii	"de la RAM:\012\000"
+ 1848      61205241 
+ 1848      4D3A0A00 
+ 1849              		.align	2
+ 1850              	.LC15:
+ 1851 01d8 202D2045 		.ascii	" - Escritura aleatoria (\000"
+ 1851      73637269 
+ 1851      74757261 
+ 1851      20616C65 
+ 1851      61746F72 
+ 1852 01f1 000000   		.align	2
+ 1853              	.LC16:
+ 1854 01f4 4552524F 		.ascii	"ERROR: La escritura aleatoria falla.\012\000"
+ 1854      523A204C 
+ 1854      61206573 
+ 1854      63726974 
+ 1854      75726120 
+ 1855 021a 0000     		.align	2
+ 1856              	.LC17:
+ 1857 021c 202D2045 		.ascii	" - Escritura secuencial (\000"
+ 1857      73637269 
+ 1857      74757261 
+ 1857      20736563 
+ 1857      75656E63 
+ 1858 0236 0000     		.align	2
+ 1859              	.LC18:
+ 1860 0238 4552524F 		.ascii	"ERROR: La escritura secuencial falla.\012\000"
+ 1860      523A204C 
+ 1860      61206573 
+ 1860      63726974 
+ 1860      75726120 
+ 1861 025f 00       		.align	2
+ 1862              	.LC19:
+ 1863 0260 0A417061 		.ascii	"\012Apague la placa y vuelva a cargar y ejecutar el"
+ 1863      67756520 
+ 1863      6C612070 
+ 1863      6C616361 
+ 1863      20792076 
+ 1864 0290 2070726F 		.ascii	" programa.\012\000"
+ 1864      6772616D 
+ 1864      612E0A00 
+ 1865              		.text
+ 1866              		.align	2
+ 1867              		.global	test_EEPROM
+ 1869              	test_EEPROM:
+ 1870              	.LFB0:
+   1:../tests/test_EEPROM.c **** #include "test_EEPROM.h"
+   2:../tests/test_EEPROM.c **** #include "../at24c04.h"
+   3:../tests/test_EEPROM.c **** #include "../44b.h"
+   4:../tests/test_EEPROM.c **** #include "../uart.h"
+   5:../tests/test_EEPROM.c **** 
+   6:../tests/test_EEPROM.c **** void test_EEPROM(void) {
+ 1871              		.loc 1 6 0
+ 1872              		.cfi_startproc
+ 1873              		@ Function supports interworking.
+ 1874              		@ args = 0, pretend = 0, frame = 1040
+ 1875              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1876 0000 0DC0A0E1 		mov	ip, sp
+ 1877              	.LCFI0:
+ 1878              		.cfi_def_cfa_register 12
+ 1879 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1880 0008 04B04CE2 		sub	fp, ip, #4
+ 1881              		.cfi_offset 14, -8
+ 1882              		.cfi_offset 13, -12
+ 1883              		.cfi_offset 11, -16
+ 1884              	.LCFI1:
+ 1885              		.cfi_def_cfa 11, 4
+ 1886 000c 41DE4DE2 		sub	sp, sp, #1040
+   7:../tests/test_EEPROM.c ****     uint8 buffer[AT24C04_DEPTH], buffer_aux[AT24C04_DEPTH];
+   8:../tests/test_EEPROM.c ****     uint16 i, j;
+   9:../tests/test_EEPROM.c ****     uint32 addr, data;
+  10:../tests/test_EEPROM.c **** 
+  11:../tests/test_EEPROM.c **** 	uart0_puts( "\n\nCargando en RAM el contenido de IIC-EEPROM AT24C04:\n" );
+ 1887              		.loc 1 11 0
+ 1888 0010 B8049FE5 		ldr	r0, .L28
+ 1889 0014 FEFFFFEB 		bl	uart0_puts
+  12:../tests/test_EEPROM.c **** 
+  13:../tests/test_EEPROM.c **** 	/************************************/
+  14:../tests/test_EEPROM.c **** 
+  15:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 1890              		.loc 1 15 0
+ 1891 0018 0030A0E3 		mov	r3, #0
+ 1892 001c BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 1893 0020 090000EA 		b	.L2
+ 1894              	.L3:
+  16:../tests/test_EEPROM.c **** 		at24c04_byteread( i, &buffer[i] );
+ 1895              		.loc 1 16 0 discriminator 2
+ 1896 0024 BE305BE1 		ldrh	r3, [fp, #-14]
+ 1897 0028 862F4BE2 		sub	r2, fp, #536
+ 1898 002c 033082E0 		add	r3, r2, r3
+ 1899 0030 BE205BE1 		ldrh	r2, [fp, #-14]
+ 1900 0034 0200A0E1 		mov	r0, r2
+ 1901 0038 0310A0E1 		mov	r1, r3
+ 1902 003c FEFFFFEB 		bl	at24c04_byteread
+  15:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 1903              		.loc 1 15 0 discriminator 2
+ 1904 0040 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 1905 0044 013083E2 		add	r3, r3, #1
+ 1906 0048 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 1907              	.L2:
+  15:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 1908              		.loc 1 15 0 is_stmt 0 discriminator 1
+ 1909 004c BE205BE1 		ldrh	r2, [fp, #-14]
+ 1910 0050 7C349FE5 		ldr	r3, .L28+4
+ 1911 0054 030052E1 		cmp	r2, r3
+ 1912 0058 F1FFFF9A 		bls	.L3
+  17:../tests/test_EEPROM.c **** 	uart0_puts( " - Lectura aleatoria (" );
+ 1913              		.loc 1 17 0 is_stmt 1
+ 1914 005c 74049FE5 		ldr	r0, .L28+8
+ 1915 0060 FEFFFFEB 		bl	uart0_puts
+  18:../tests/test_EEPROM.c **** 	uart0_putint( AT24C04_DEPTH );
+ 1916              		.loc 1 18 0
+ 1917 0064 020CA0E3 		mov	r0, #512
+ 1918 0068 FEFFFFEB 		bl	uart0_putint
+  19:../tests/test_EEPROM.c **** 	uart0_puts( " bytes)\n" );
+ 1919              		.loc 1 19 0
+ 1920 006c 68049FE5 		ldr	r0, .L28+12
+ 1921 0070 FEFFFFEB 		bl	uart0_puts
+  20:../tests/test_EEPROM.c **** 
+  21:../tests/test_EEPROM.c **** 	/************************************/
+  22:../tests/test_EEPROM.c **** 	at24c04_load( buffer_aux );
+ 1922              		.loc 1 22 0
+ 1923 0074 013B4BE2 		sub	r3, fp, #1024
+ 1924 0078 0C3043E2 		sub	r3, r3, #12
+ 1925 007c 0C3043E2 		sub	r3, r3, #12
+ 1926 0080 0300A0E1 		mov	r0, r3
+ 1927 0084 FEFFFFEB 		bl	at24c04_load
+  23:../tests/test_EEPROM.c **** 	uart0_puts( " - Lectura secuencial (" );
+ 1928              		.loc 1 23 0
+ 1929 0088 50049FE5 		ldr	r0, .L28+16
+ 1930 008c FEFFFFEB 		bl	uart0_puts
+  24:../tests/test_EEPROM.c **** 	uart0_putint( AT24C04_DEPTH );
+ 1931              		.loc 1 24 0
+ 1932 0090 020CA0E3 		mov	r0, #512
+ 1933 0094 FEFFFFEB 		bl	uart0_putint
+  25:../tests/test_EEPROM.c **** 	uart0_puts( " bytes)" );
+ 1934              		.loc 1 25 0
+ 1935 0098 44049FE5 		ldr	r0, .L28+20
+ 1936 009c FEFFFFEB 		bl	uart0_puts
+  26:../tests/test_EEPROM.c **** 
+  27:../tests/test_EEPROM.c **** 	/************************************/
+  28:../tests/test_EEPROM.c **** 
+  29:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 1937              		.loc 1 29 0
+ 1938 00a0 0030A0E3 		mov	r3, #0
+ 1939 00a4 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 1940 00a8 120000EA 		b	.L4
+ 1941              	.L6:
+  30:../tests/test_EEPROM.c **** 		if( buffer[i] != buffer_aux[i] )
+ 1942              		.loc 1 30 0
+ 1943 00ac BE205BE1 		ldrh	r2, [fp, #-14]
+ 1944 00b0 30349FE5 		ldr	r3, .L28+24
+ 1945 00b4 0C004BE2 		sub	r0, fp, #12
+ 1946 00b8 022080E0 		add	r2, r0, r2
+ 1947 00bc 033082E0 		add	r3, r2, r3
+ 1948 00c0 0020D3E5 		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 1949 00c4 BE105BE1 		ldrh	r1, [fp, #-14]
+ 1950 00c8 1C349FE5 		ldr	r3, .L28+28
+ 1951 00cc 0C004BE2 		sub	r0, fp, #12
+ 1952 00d0 011080E0 		add	r1, r0, r1
+ 1953 00d4 033081E0 		add	r3, r1, r3
+ 1954 00d8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1955 00dc 030052E1 		cmp	r2, r3
+ 1956 00e0 0100000A 		beq	.L5
+  31:../tests/test_EEPROM.c **** 			uart0_puts( "ERROR: lectura aleatoria y secuencial no son coincidentes\n" );
+ 1957              		.loc 1 31 0
+ 1958 00e4 04049FE5 		ldr	r0, .L28+32
+ 1959 00e8 FEFFFFEB 		bl	uart0_puts
+ 1960              	.L5:
+  29:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 1961              		.loc 1 29 0
+ 1962 00ec BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 1963 00f0 013083E2 		add	r3, r3, #1
+ 1964 00f4 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 1965              	.L4:
+  29:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 1966              		.loc 1 29 0 is_stmt 0 discriminator 1
+ 1967 00f8 BE205BE1 		ldrh	r2, [fp, #-14]
+ 1968 00fc D0339FE5 		ldr	r3, .L28+4
+ 1969 0100 030052E1 		cmp	r2, r3
+ 1970 0104 E8FFFF9A 		bls	.L6
+  32:../tests/test_EEPROM.c **** 
+  33:../tests/test_EEPROM.c **** 	/************************************/
+  34:../tests/test_EEPROM.c **** 
+  35:../tests/test_EEPROM.c **** 	uart0_puts( "\nVolcado del contenido inicial de la memoria IIC-EEPROM AT24C04:\n" );
+ 1971              		.loc 1 35 0 is_stmt 1
+ 1972 0108 E4039FE5 		ldr	r0, .L28+36
+ 1973 010c FEFFFFEB 		bl	uart0_puts
+  36:../tests/test_EEPROM.c **** 
+  37:../tests/test_EEPROM.c **** 	for( i=0; i < (AT24C04_DEPTH>>4); i++ ){
+ 1974              		.loc 1 37 0
+ 1975 0110 0030A0E3 		mov	r3, #0
+ 1976 0114 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 1977 0118 660000EA 		b	.L7
+ 1978              	.L17:
+  38:../tests/test_EEPROM.c **** 		uart0_puts( "\n" );
+ 1979              		.loc 1 38 0
+ 1980 011c D4039FE5 		ldr	r0, .L28+40
+ 1981 0120 FEFFFFEB 		bl	uart0_puts
+  39:../tests/test_EEPROM.c **** 		if( i<<4 <= 0xf )
+ 1982              		.loc 1 39 0
+ 1983 0124 BE305BE1 		ldrh	r3, [fp, #-14]
+ 1984 0128 0332A0E1 		mov	r3, r3, asl #4
+ 1985 012c 0F0053E3 		cmp	r3, #15
+ 1986 0130 020000CA 		bgt	.L8
+  40:../tests/test_EEPROM.c **** 			uart0_puts( "00" );
+ 1987              		.loc 1 40 0
+ 1988 0134 C0039FE5 		ldr	r0, .L28+44
+ 1989 0138 FEFFFFEB 		bl	uart0_puts
+ 1990 013c 050000EA 		b	.L9
+ 1991              	.L8:
+  41:../tests/test_EEPROM.c **** 		else if( i<<4 <= 0xff )
+ 1992              		.loc 1 41 0
+ 1993 0140 BE305BE1 		ldrh	r3, [fp, #-14]
+ 1994 0144 0332A0E1 		mov	r3, r3, asl #4
+ 1995 0148 FF0053E3 		cmp	r3, #255
+ 1996 014c 010000CA 		bgt	.L9
+  42:../tests/test_EEPROM.c **** 			uart0_putchar( '0' );
+ 1997              		.loc 1 42 0
+ 1998 0150 3000A0E3 		mov	r0, #48
+ 1999 0154 FEFFFFEB 		bl	uart0_putchar
+ 2000              	.L9:
+  43:../tests/test_EEPROM.c **** 		uart0_puthex( i<<4 );
+ 2001              		.loc 1 43 0
+ 2002 0158 BE305BE1 		ldrh	r3, [fp, #-14]
+ 2003 015c 0332A0E1 		mov	r3, r3, asl #4
+ 2004 0160 0300A0E1 		mov	r0, r3
+ 2005 0164 FEFFFFEB 		bl	uart0_puthex
+  44:../tests/test_EEPROM.c **** 		uart0_puts( "h:"  );
+ 2006              		.loc 1 44 0
+ 2007 0168 90039FE5 		ldr	r0, .L28+48
+ 2008 016c FEFFFFEB 		bl	uart0_puts
+  45:../tests/test_EEPROM.c **** 		for( j=0; j<16; j++ )
+ 2009              		.loc 1 45 0
+ 2010 0170 0030A0E3 		mov	r3, #0
+ 2011 0174 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 2012 0178 1A0000EA 		b	.L10
+ 2013              	.L12:
+  46:../tests/test_EEPROM.c **** 		{
+  47:../tests/test_EEPROM.c **** 			if( buffer[(i<<4)+j] <= 0xf )
+ 2014              		.loc 1 47 0
+ 2015 017c BE305BE1 		ldrh	r3, [fp, #-14]
+ 2016 0180 0322A0E1 		mov	r2, r3, asl #4
+ 2017 0184 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2018 0188 032082E0 		add	r2, r2, r3
+ 2019 018c 54339FE5 		ldr	r3, .L28+24
+ 2020 0190 0C104BE2 		sub	r1, fp, #12
+ 2021 0194 022081E0 		add	r2, r1, r2
+ 2022 0198 033082E0 		add	r3, r2, r3
+ 2023 019c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2024 01a0 0F0053E3 		cmp	r3, #15
+ 2025 01a4 0100008A 		bhi	.L11
+  48:../tests/test_EEPROM.c **** 				uart0_putchar( '0' );
+ 2026              		.loc 1 48 0
+ 2027 01a8 3000A0E3 		mov	r0, #48
+ 2028 01ac FEFFFFEB 		bl	uart0_putchar
+ 2029              	.L11:
+  49:../tests/test_EEPROM.c **** 			uart0_puthex( buffer[(i<<4)+j] );
+ 2030              		.loc 1 49 0
+ 2031 01b0 BE305BE1 		ldrh	r3, [fp, #-14]
+ 2032 01b4 0322A0E1 		mov	r2, r3, asl #4
+ 2033 01b8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2034 01bc 032082E0 		add	r2, r2, r3
+ 2035 01c0 20339FE5 		ldr	r3, .L28+24
+ 2036 01c4 0C004BE2 		sub	r0, fp, #12
+ 2037 01c8 022080E0 		add	r2, r0, r2
+ 2038 01cc 033082E0 		add	r3, r2, r3
+ 2039 01d0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2040 01d4 0300A0E1 		mov	r0, r3
+ 2041 01d8 FEFFFFEB 		bl	uart0_puthex
+  45:../tests/test_EEPROM.c **** 		for( j=0; j<16; j++ )
+ 2042              		.loc 1 45 0
+ 2043 01dc B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 2044 01e0 013083E2 		add	r3, r3, #1
+ 2045 01e4 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 2046              	.L10:
+  45:../tests/test_EEPROM.c **** 		for( j=0; j<16; j++ )
+ 2047              		.loc 1 45 0 is_stmt 0 discriminator 1
+ 2048 01e8 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2049 01ec 0F0053E3 		cmp	r3, #15
+ 2050 01f0 E1FFFF9A 		bls	.L12
+  50:../tests/test_EEPROM.c **** 		}
+  51:../tests/test_EEPROM.c **** 		uart0_puts( " ; " );
+ 2051              		.loc 1 51 0 is_stmt 1
+ 2052 01f4 08039FE5 		ldr	r0, .L28+52
+ 2053 01f8 FEFFFFEB 		bl	uart0_puts
+  52:../tests/test_EEPROM.c **** 		for( j=0; j<16; j++ )
+ 2054              		.loc 1 52 0
+ 2055 01fc 0030A0E3 		mov	r3, #0
+ 2056 0200 B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 2057 0204 250000EA 		b	.L13
+ 2058              	.L16:
+  53:../tests/test_EEPROM.c **** 			  uart0_putchar( ( (31<buffer[(i<<4)+j]) && (buffer[(i<<4)+j]<127) ? buffer[(i<<4)+j] : '.' ) );
+ 2059              		.loc 1 53 0
+ 2060 0208 BE305BE1 		ldrh	r3, [fp, #-14]
+ 2061 020c 0322A0E1 		mov	r2, r3, asl #4
+ 2062 0210 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2063 0214 032082E0 		add	r2, r2, r3
+ 2064 0218 C8329FE5 		ldr	r3, .L28+24
+ 2065 021c 0C104BE2 		sub	r1, fp, #12
+ 2066 0220 022081E0 		add	r2, r1, r2
+ 2067 0224 033082E0 		add	r3, r2, r3
+ 2068 0228 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2069 022c 1F0053E3 		cmp	r3, #31
+ 2070 0230 1400009A 		bls	.L14
+ 2071              		.loc 1 53 0 is_stmt 0 discriminator 1
+ 2072 0234 BE305BE1 		ldrh	r3, [fp, #-14]
+ 2073 0238 0322A0E1 		mov	r2, r3, asl #4
+ 2074 023c B0315BE1 		ldrh	r3, [fp, #-16]
+ 2075 0240 032082E0 		add	r2, r2, r3
+ 2076 0244 9C329FE5 		ldr	r3, .L28+24
+ 2077 0248 0C004BE2 		sub	r0, fp, #12
+ 2078 024c 022080E0 		add	r2, r0, r2
+ 2079 0250 033082E0 		add	r3, r2, r3
+ 2080 0254 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2081 0258 7E0053E3 		cmp	r3, #126
+ 2082 025c 0900008A 		bhi	.L14
+ 2083 0260 BE305BE1 		ldrh	r3, [fp, #-14]
+ 2084 0264 0322A0E1 		mov	r2, r3, asl #4
+ 2085 0268 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2086 026c 032082E0 		add	r2, r2, r3
+ 2087 0270 70329FE5 		ldr	r3, .L28+24
+ 2088 0274 0C104BE2 		sub	r1, fp, #12
+ 2089 0278 022081E0 		add	r2, r1, r2
+ 2090 027c 033082E0 		add	r3, r2, r3
+ 2091 0280 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2092 0284 000000EA 		b	.L15
+ 2093              	.L14:
+ 2094              		.loc 1 53 0 discriminator 2
+ 2095 0288 2E30A0E3 		mov	r3, #46
+ 2096              	.L15:
+ 2097              		.loc 1 53 0 discriminator 3
+ 2098 028c 0300A0E1 		mov	r0, r3
+ 2099 0290 FEFFFFEB 		bl	uart0_putchar
+  52:../tests/test_EEPROM.c **** 		for( j=0; j<16; j++ )
+ 2100              		.loc 1 52 0 is_stmt 1 discriminator 3
+ 2101 0294 B0315BE1 		ldrh	r3, [fp, #-16]	@ movhi
+ 2102 0298 013083E2 		add	r3, r3, #1
+ 2103 029c B0314BE1 		strh	r3, [fp, #-16]	@ movhi
+ 2104              	.L13:
+  52:../tests/test_EEPROM.c **** 		for( j=0; j<16; j++ )
+ 2105              		.loc 1 52 0 is_stmt 0 discriminator 1
+ 2106 02a0 B0315BE1 		ldrh	r3, [fp, #-16]
+ 2107 02a4 0F0053E3 		cmp	r3, #15
+ 2108 02a8 D6FFFF9A 		bls	.L16
+  37:../tests/test_EEPROM.c **** 	for( i=0; i < (AT24C04_DEPTH>>4); i++ ){
+ 2109              		.loc 1 37 0 is_stmt 1
+ 2110 02ac BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 2111 02b0 013083E2 		add	r3, r3, #1
+ 2112 02b4 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 2113              	.L7:
+  37:../tests/test_EEPROM.c **** 	for( i=0; i < (AT24C04_DEPTH>>4); i++ ){
+ 2114              		.loc 1 37 0 is_stmt 0 discriminator 1
+ 2115 02b8 BE305BE1 		ldrh	r3, [fp, #-14]
+ 2116 02bc 1F0053E3 		cmp	r3, #31
+ 2117 02c0 95FFFF9A 		bls	.L17
+  54:../tests/test_EEPROM.c **** 	};
+  55:../tests/test_EEPROM.c **** 
+  56:../tests/test_EEPROM.c **** 	/************************************/
+  57:../tests/test_EEPROM.c **** 
+  58:../tests/test_EEPROM.c **** 	uart0_puts( "\n\nModificacion del contenido de la memoria IIC-EEPROM AT24C04:\n" );
+ 2118              		.loc 1 58 0 is_stmt 1
+ 2119 02c4 3C029FE5 		ldr	r0, .L28+56
+ 2120 02c8 FEFFFFEB 		bl	uart0_puts
+  59:../tests/test_EEPROM.c **** 
+  60:../tests/test_EEPROM.c **** 	for( i=0; i<5; i++ )
+ 2121              		.loc 1 60 0
+ 2122 02cc 0030A0E3 		mov	r3, #0
+ 2123 02d0 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 2124 02d4 120000EA 		b	.L18
+ 2125              	.L19:
+  61:../tests/test_EEPROM.c **** 	{
+  62:../tests/test_EEPROM.c **** 		uart0_puts( "  - Introduzca una direccion (0h-1ffh): " );
+ 2126              		.loc 1 62 0 discriminator 2
+ 2127 02d8 2C029FE5 		ldr	r0, .L28+60
+ 2128 02dc FEFFFFEB 		bl	uart0_puts
+  63:../tests/test_EEPROM.c **** 		addr = uart0_gethex( );
+ 2129              		.loc 1 63 0 discriminator 2
+ 2130 02e0 FEFFFFEB 		bl	uart0_gethex
+ 2131 02e4 14000BE5 		str	r0, [fp, #-20]
+  64:../tests/test_EEPROM.c **** 		uart0_puts( "  - Introduzca el dato (0h-ffh): " );
+ 2132              		.loc 1 64 0 discriminator 2
+ 2133 02e8 20029FE5 		ldr	r0, .L28+64
+ 2134 02ec FEFFFFEB 		bl	uart0_puts
+  65:../tests/test_EEPROM.c **** 		data = uart0_gethex( );
+ 2135              		.loc 1 65 0 discriminator 2
+ 2136 02f0 FEFFFFEB 		bl	uart0_gethex
+ 2137 02f4 18000BE5 		str	r0, [fp, #-24]
+  66:../tests/test_EEPROM.c **** 		buffer[addr] = data;
+ 2138              		.loc 1 66 0 discriminator 2
+ 2139 02f8 18301BE5 		ldr	r3, [fp, #-24]
+ 2140 02fc FF2003E2 		and	r2, r3, #255
+ 2141 0300 E0319FE5 		ldr	r3, .L28+24
+ 2142 0304 14101BE5 		ldr	r1, [fp, #-20]
+ 2143 0308 0C004BE2 		sub	r0, fp, #12
+ 2144 030c 011080E0 		add	r1, r0, r1
+ 2145 0310 033081E0 		add	r3, r1, r3
+ 2146 0314 0020C3E5 		strb	r2, [r3, #0]
+  60:../tests/test_EEPROM.c **** 	for( i=0; i<5; i++ )
+ 2147              		.loc 1 60 0 discriminator 2
+ 2148 0318 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 2149 031c 013083E2 		add	r3, r3, #1
+ 2150 0320 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 2151              	.L18:
+  60:../tests/test_EEPROM.c **** 	for( i=0; i<5; i++ )
+ 2152              		.loc 1 60 0 is_stmt 0 discriminator 1
+ 2153 0324 BE305BE1 		ldrh	r3, [fp, #-14]
+ 2154 0328 040053E3 		cmp	r3, #4
+ 2155 032c E9FFFF9A 		bls	.L19
+  67:../tests/test_EEPROM.c **** 	}
+  68:../tests/test_EEPROM.c **** 
+  69:../tests/test_EEPROM.c **** 	/************************************/
+  70:../tests/test_EEPROM.c **** 
+  71:../tests/test_EEPROM.c **** 	uart0_puts( "\nVolcando en la IIC-EEPROM AT24C04 el contenido de la RAM:\n" );
+ 2156              		.loc 1 71 0 is_stmt 1
+ 2157 0330 DC019FE5 		ldr	r0, .L28+68
+ 2158 0334 FEFFFFEB 		bl	uart0_puts
+  72:../tests/test_EEPROM.c **** 
+  73:../tests/test_EEPROM.c **** 	/************************************/
+  74:../tests/test_EEPROM.c **** 
+  75:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 2159              		.loc 1 75 0
+ 2160 0338 0030A0E3 		mov	r3, #0
+ 2161 033c BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 2162 0340 0C0000EA 		b	.L20
+ 2163              	.L21:
+  76:../tests/test_EEPROM.c **** 		at24c04_bytewrite( i, buffer[i] );
+ 2164              		.loc 1 76 0 discriminator 2
+ 2165 0344 BE205BE1 		ldrh	r2, [fp, #-14]
+ 2166 0348 98319FE5 		ldr	r3, .L28+24
+ 2167 034c 0C104BE2 		sub	r1, fp, #12
+ 2168 0350 022081E0 		add	r2, r1, r2
+ 2169 0354 033082E0 		add	r3, r2, r3
+ 2170 0358 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2171 035c BE205BE1 		ldrh	r2, [fp, #-14]
+ 2172 0360 0200A0E1 		mov	r0, r2
+ 2173 0364 0310A0E1 		mov	r1, r3
+ 2174 0368 FEFFFFEB 		bl	at24c04_bytewrite
+  75:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 2175              		.loc 1 75 0 discriminator 2
+ 2176 036c BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 2177 0370 013083E2 		add	r3, r3, #1
+ 2178 0374 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 2179              	.L20:
+  75:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 2180              		.loc 1 75 0 is_stmt 0 discriminator 1
+ 2181 0378 BE205BE1 		ldrh	r2, [fp, #-14]
+ 2182 037c 50319FE5 		ldr	r3, .L28+4
+ 2183 0380 030052E1 		cmp	r2, r3
+ 2184 0384 EEFFFF9A 		bls	.L21
+  77:../tests/test_EEPROM.c **** 	uart0_puts( " - Escritura aleatoria (" );
+ 2185              		.loc 1 77 0 is_stmt 1
+ 2186 0388 88019FE5 		ldr	r0, .L28+72
+ 2187 038c FEFFFFEB 		bl	uart0_puts
+  78:../tests/test_EEPROM.c **** 	uart0_putint( AT24C04_DEPTH );
+ 2188              		.loc 1 78 0
+ 2189 0390 020CA0E3 		mov	r0, #512
+ 2190 0394 FEFFFFEB 		bl	uart0_putint
+  79:../tests/test_EEPROM.c **** 	uart0_puts( " bytes)\n" );
+ 2191              		.loc 1 79 0
+ 2192 0398 3C019FE5 		ldr	r0, .L28+12
+ 2193 039c FEFFFFEB 		bl	uart0_puts
+  80:../tests/test_EEPROM.c **** 
+  81:../tests/test_EEPROM.c **** 	at24c04_load( buffer_aux );
+ 2194              		.loc 1 81 0
+ 2195 03a0 013B4BE2 		sub	r3, fp, #1024
+ 2196 03a4 0C3043E2 		sub	r3, r3, #12
+ 2197 03a8 0C3043E2 		sub	r3, r3, #12
+ 2198 03ac 0300A0E1 		mov	r0, r3
+ 2199 03b0 FEFFFFEB 		bl	at24c04_load
+  82:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 2200              		.loc 1 82 0
+ 2201 03b4 0030A0E3 		mov	r3, #0
+ 2202 03b8 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 2203 03bc 120000EA 		b	.L22
+ 2204              	.L24:
+  83:../tests/test_EEPROM.c **** 		if( buffer[i] != buffer_aux[i] )
+ 2205              		.loc 1 83 0
+ 2206 03c0 BE205BE1 		ldrh	r2, [fp, #-14]
+ 2207 03c4 1C319FE5 		ldr	r3, .L28+24
+ 2208 03c8 0C004BE2 		sub	r0, fp, #12
+ 2209 03cc 022080E0 		add	r2, r0, r2
+ 2210 03d0 033082E0 		add	r3, r2, r3
+ 2211 03d4 0020D3E5 		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 2212 03d8 BE105BE1 		ldrh	r1, [fp, #-14]
+ 2213 03dc 08319FE5 		ldr	r3, .L28+28
+ 2214 03e0 0C004BE2 		sub	r0, fp, #12
+ 2215 03e4 011080E0 		add	r1, r0, r1
+ 2216 03e8 033081E0 		add	r3, r1, r3
+ 2217 03ec 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2218 03f0 030052E1 		cmp	r2, r3
+ 2219 03f4 0100000A 		beq	.L23
+  84:../tests/test_EEPROM.c **** 			uart0_puts( "ERROR: La escritura aleatoria falla.\n" );
+ 2220              		.loc 1 84 0
+ 2221 03f8 1C019FE5 		ldr	r0, .L28+76
+ 2222 03fc FEFFFFEB 		bl	uart0_puts
+ 2223              	.L23:
+  82:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 2224              		.loc 1 82 0
+ 2225 0400 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 2226 0404 013083E2 		add	r3, r3, #1
+ 2227 0408 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 2228              	.L22:
+  82:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 2229              		.loc 1 82 0 is_stmt 0 discriminator 1
+ 2230 040c BE205BE1 		ldrh	r2, [fp, #-14]
+ 2231 0410 BC309FE5 		ldr	r3, .L28+4
+ 2232 0414 030052E1 		cmp	r2, r3
+ 2233 0418 E8FFFF9A 		bls	.L24
+  85:../tests/test_EEPROM.c **** 
+  86:../tests/test_EEPROM.c **** 	/************************************/
+  87:../tests/test_EEPROM.c **** 
+  88:../tests/test_EEPROM.c **** 	at24c04_store( buffer );
+ 2234              		.loc 1 88 0 is_stmt 1
+ 2235 041c 863F4BE2 		sub	r3, fp, #536
+ 2236 0420 0300A0E1 		mov	r0, r3
+ 2237 0424 FEFFFFEB 		bl	at24c04_store
+  89:../tests/test_EEPROM.c **** 	uart0_puts( " - Escritura secuencial (" );
+ 2238              		.loc 1 89 0
+ 2239 0428 F0009FE5 		ldr	r0, .L28+80
+ 2240 042c FEFFFFEB 		bl	uart0_puts
+  90:../tests/test_EEPROM.c **** 	uart0_putint( AT24C04_DEPTH );
+ 2241              		.loc 1 90 0
+ 2242 0430 020CA0E3 		mov	r0, #512
+ 2243 0434 FEFFFFEB 		bl	uart0_putint
+  91:../tests/test_EEPROM.c **** 	uart0_puts( " bytes)\n" );
+ 2244              		.loc 1 91 0
+ 2245 0438 9C009FE5 		ldr	r0, .L28+12
+ 2246 043c FEFFFFEB 		bl	uart0_puts
+  92:../tests/test_EEPROM.c **** 
+  93:../tests/test_EEPROM.c **** 	at24c04_load( buffer_aux );
+ 2247              		.loc 1 93 0
+ 2248 0440 013B4BE2 		sub	r3, fp, #1024
+ 2249 0444 0C3043E2 		sub	r3, r3, #12
+ 2250 0448 0C3043E2 		sub	r3, r3, #12
+ 2251 044c 0300A0E1 		mov	r0, r3
+ 2252 0450 FEFFFFEB 		bl	at24c04_load
+  94:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 2253              		.loc 1 94 0
+ 2254 0454 0030A0E3 		mov	r3, #0
+ 2255 0458 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 2256 045c 120000EA 		b	.L25
+ 2257              	.L27:
+  95:../tests/test_EEPROM.c **** 		if( buffer[i] != buffer_aux[i] )
+ 2258              		.loc 1 95 0
+ 2259 0460 BE205BE1 		ldrh	r2, [fp, #-14]
+ 2260 0464 7C309FE5 		ldr	r3, .L28+24
+ 2261 0468 0C104BE2 		sub	r1, fp, #12
+ 2262 046c 022081E0 		add	r2, r1, r2
+ 2263 0470 033082E0 		add	r3, r2, r3
+ 2264 0474 0020D3E5 		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 2265 0478 BE105BE1 		ldrh	r1, [fp, #-14]
+ 2266 047c 68309FE5 		ldr	r3, .L28+28
+ 2267 0480 0C004BE2 		sub	r0, fp, #12
+ 2268 0484 011080E0 		add	r1, r0, r1
+ 2269 0488 033081E0 		add	r3, r1, r3
+ 2270 048c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2271 0490 030052E1 		cmp	r2, r3
+ 2272 0494 0100000A 		beq	.L26
+  96:../tests/test_EEPROM.c **** 			uart0_puts( "ERROR: La escritura secuencial falla.\n" );
+ 2273              		.loc 1 96 0
+ 2274 0498 84009FE5 		ldr	r0, .L28+84
+ 2275 049c FEFFFFEB 		bl	uart0_puts
+ 2276              	.L26:
+  94:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 2277              		.loc 1 94 0
+ 2278 04a0 BE305BE1 		ldrh	r3, [fp, #-14]	@ movhi
+ 2279 04a4 013083E2 		add	r3, r3, #1
+ 2280 04a8 BE304BE1 		strh	r3, [fp, #-14]	@ movhi
+ 2281              	.L25:
+  94:../tests/test_EEPROM.c **** 	for( i=0; i<AT24C04_DEPTH; i++ )
+ 2282              		.loc 1 94 0 is_stmt 0 discriminator 1
+ 2283 04ac BE205BE1 		ldrh	r2, [fp, #-14]
+ 2284 04b0 1C309FE5 		ldr	r3, .L28+4
+ 2285 04b4 030052E1 		cmp	r2, r3
+ 2286 04b8 E8FFFF9A 		bls	.L27
+  97:../tests/test_EEPROM.c **** 
+  98:../tests/test_EEPROM.c **** 	/************************************/
+  99:../tests/test_EEPROM.c **** 
+ 100:../tests/test_EEPROM.c **** 	uart0_puts( "\nApague la placa y vuelva a cargar y ejecutar el programa.\n" );
+ 2287              		.loc 1 100 0 is_stmt 1
+ 2288 04bc 64009FE5 		ldr	r0, .L28+88
+ 2289 04c0 FEFFFFEB 		bl	uart0_puts
+ 101:../tests/test_EEPROM.c **** }
+ 2290              		.loc 1 101 0
+ 2291 04c4 0CD04BE2 		sub	sp, fp, #12
+ 2292 04c8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2293 04cc 1EFF2FE1 		bx	lr
+ 2294              	.L29:
+ 2295              		.align	2
+ 2296              	.L28:
+ 2297 04d0 00000000 		.word	.LC0
+ 2298 04d4 FF010000 		.word	511
+ 2299 04d8 38000000 		.word	.LC1
+ 2300 04dc 50000000 		.word	.LC2
+ 2301 04e0 5C000000 		.word	.LC3
+ 2302 04e4 74000000 		.word	.LC4
+ 2303 04e8 F4FDFFFF 		.word	-524
+ 2304 04ec F4FBFFFF 		.word	-1036
+ 2305 04f0 7C000000 		.word	.LC5
+ 2306 04f4 B8000000 		.word	.LC6
+ 2307 04f8 FC000000 		.word	.LC7
+ 2308 04fc 00010000 		.word	.LC8
+ 2309 0500 04010000 		.word	.LC9
+ 2310 0504 08010000 		.word	.LC10
+ 2311 0508 0C010000 		.word	.LC11
+ 2312 050c 4C010000 		.word	.LC12
+ 2313 0510 78010000 		.word	.LC13
+ 2314 0514 9C010000 		.word	.LC14
+ 2315 0518 D8010000 		.word	.LC15
+ 2316 051c F4010000 		.word	.LC16
+ 2317 0520 1C020000 		.word	.LC17
+ 2318 0524 38020000 		.word	.LC18
+ 2319 0528 60020000 		.word	.LC19
+ 2320              		.cfi_endproc
+ 2321              	.LFE0:
+ 2323              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 test_EEPROM.c
+C:\Users\Pedro\AppData\Local\Temp\ccmZKoHc.s:1799   .rodata:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccmZKoHc.s:1866   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccmZKoHc.s:1869   .text:00000000 test_EEPROM
+C:\Users\Pedro\AppData\Local\Temp\ccmZKoHc.s:2297   .text:000004d0 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+uart0_puts
+at24c04_byteread
+uart0_putint
+at24c04_load
+uart0_putchar
+uart0_puthex
+uart0_gethex
+at24c04_bytewrite
+at24c04_store

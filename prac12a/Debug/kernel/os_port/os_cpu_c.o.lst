@@ -1,0 +1,576 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"os_cpu_c.c"
+  21              	.Ltext0:
+  22              		.file 1 "../kernel/os_port/os_cpu_c.c"
+ 1643              		.align	2
+ 1644              		.global	OSInitHookBegin
+ 1646              	OSInitHookBegin:
+ 1647              	.LFB0:
+   1:../kernel/os_port/os_cpu_c.c **** /*-----------------------------------------------------------------
+   2:../kernel/os_port/os_cpu_c.c **** **
+   3:../kernel/os_port/os_cpu_c.c **** **  Fichero:
+   4:../kernel/os_port/os_cpu_c.c **** **    os_cpu_c.c  15/3/2015
+   5:../kernel/os_port/os_cpu_c.c **** **
+   6:../kernel/os_port/os_cpu_c.c **** **    (c) J.M. Mendias
+   7:../kernel/os_port/os_cpu_c.c **** **    Programación de Sistemas y Dispositivos
+   8:../kernel/os_port/os_cpu_c.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../kernel/os_port/os_cpu_c.c **** **
+  10:../kernel/os_port/os_cpu_c.c **** **  Propósito:
+  11:../kernel/os_port/os_cpu_c.c **** **    Portar el kernel de tiempo real uC/OS-II a la placa de prototipado
+  12:../kernel/os_port/os_cpu_c.c **** **    Embest S3CEV40, implementando las funciones:
+  13:../kernel/os_port/os_cpu_c.c **** **      - void OSInitHookBegin( void )
+  14:../kernel/os_port/os_cpu_c.c **** **      - void OSInitHookEnd( void )
+  15:../kernel/os_port/os_cpu_c.c **** **      - void OSTaskCreateHook( OS_TCB *ptcb )
+  16:../kernel/os_port/os_cpu_c.c **** **      - void OSTaskDelHook( OS_TCB *ptcb )
+  17:../kernel/os_port/os_cpu_c.c **** **      - void OSTaskIdleHook( void )
+  18:../kernel/os_port/os_cpu_c.c **** **      - void OSTaskStatHook( void )
+  19:../kernel/os_port/os_cpu_c.c **** **      - OS_STK *OSTaskStkInit( void (*task)(void *pd), void *pdata, OS_STK *ptos, INT16U opt )
+  20:../kernel/os_port/os_cpu_c.c **** **      - void OSTaskSwHook( void )
+  21:../kernel/os_port/os_cpu_c.c **** **      - void OSTCBInitHook( OS_TCB *ptcb )
+  22:../kernel/os_port/os_cpu_c.c **** **      - void OSTimeTickHook( void )
+  23:../kernel/os_port/os_cpu_c.c **** **
+  24:../kernel/os_port/os_cpu_c.c **** **  Notas de diseño:
+  25:../kernel/os_port/os_cpu_c.c **** **    - Implementado según las especificaciones del capítulo 3 del
+  26:../kernel/os_port/os_cpu_c.c **** **      libro "MicroC/OS-II. The Real-Time Kernel (2nd. edition)" 
+  27:../kernel/os_port/os_cpu_c.c **** **      de Jean J. Labrosse
+  28:../kernel/os_port/os_cpu_c.c **** **
+  29:../kernel/os_port/os_cpu_c.c **** **---------------------------------------------------------------*/
+  30:../kernel/os_port/os_cpu_c.c **** 
+  31:../kernel/os_port/os_cpu_c.c **** #define  OS_CPU_GLOBALS
+  32:../kernel/os_port/os_cpu_c.c **** 
+  33:../kernel/os_port/os_cpu_c.c **** #include "os_cpu.h"
+  34:../kernel/os_port/os_cpu_c.c **** #include "../os_cfg.h"
+  35:../kernel/os_port/os_cpu_c.c **** #include "../os_core/ucos_ii.h"
+  36:../kernel/os_port/os_cpu_c.c **** 
+  37:../kernel/os_port/os_cpu_c.c **** /*
+  38:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada con las interrupciones deshabilitadas por OSInit() justo después de su i
+  39:../kernel/os_port/os_cpu_c.c **** */
+  40:../kernel/os_port/os_cpu_c.c **** 
+  41:../kernel/os_port/os_cpu_c.c **** #if OS_CPU_HOOKS_EN > 0
+  42:../kernel/os_port/os_cpu_c.c **** void OSInitHookBegin( void )
+  43:../kernel/os_port/os_cpu_c.c **** {
+ 1648              		.loc 1 43 0
+ 1649              		.cfi_startproc
+ 1650              		@ Function supports interworking.
+ 1651              		@ args = 0, pretend = 0, frame = 0
+ 1652              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1653 0000 0DC0A0E1 		mov	ip, sp
+ 1654              	.LCFI0:
+ 1655              		.cfi_def_cfa_register 12
+ 1656 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1657 0008 04B04CE2 		sub	fp, ip, #4
+ 1658              		.cfi_offset 14, -8
+ 1659              		.cfi_offset 13, -12
+ 1660              		.cfi_offset 11, -16
+ 1661              	.LCFI1:
+ 1662              		.cfi_def_cfa 11, 4
+  44:../kernel/os_port/os_cpu_c.c **** }
+ 1663              		.loc 1 44 0
+ 1664 000c 0CD04BE2 		sub	sp, fp, #12
+ 1665 0010 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1666 0014 1EFF2FE1 		bx	lr
+ 1667              		.cfi_endproc
+ 1668              	.LFE0:
+ 1670              		.align	2
+ 1671              		.global	OSInitHookEnd
+ 1673              	OSInitHookEnd:
+ 1674              	.LFB1:
+  45:../kernel/os_port/os_cpu_c.c **** #endif
+  46:../kernel/os_port/os_cpu_c.c **** 
+  47:../kernel/os_port/os_cpu_c.c **** /*
+  48:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada con las interrupciones deshabilitadas por OSInit() justo antes de su fin
+  49:../kernel/os_port/os_cpu_c.c **** */
+  50:../kernel/os_port/os_cpu_c.c **** 
+  51:../kernel/os_port/os_cpu_c.c **** #if OS_CPU_HOOKS_EN > 0
+  52:../kernel/os_port/os_cpu_c.c **** void OSInitHookEnd( void )
+  53:../kernel/os_port/os_cpu_c.c **** {
+ 1675              		.loc 1 53 0
+ 1676              		.cfi_startproc
+ 1677              		@ Function supports interworking.
+ 1678              		@ args = 0, pretend = 0, frame = 0
+ 1679              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1680 0018 0DC0A0E1 		mov	ip, sp
+ 1681              	.LCFI2:
+ 1682              		.cfi_def_cfa_register 12
+ 1683 001c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1684 0020 04B04CE2 		sub	fp, ip, #4
+ 1685              		.cfi_offset 14, -8
+ 1686              		.cfi_offset 13, -12
+ 1687              		.cfi_offset 11, -16
+ 1688              	.LCFI3:
+ 1689              		.cfi_def_cfa 11, 4
+  54:../kernel/os_port/os_cpu_c.c **** }
+ 1690              		.loc 1 54 0
+ 1691 0024 0CD04BE2 		sub	sp, fp, #12
+ 1692 0028 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1693 002c 1EFF2FE1 		bx	lr
+ 1694              		.cfi_endproc
+ 1695              	.LFE1:
+ 1697              		.align	2
+ 1698              		.global	OSTaskCreateHook
+ 1700              	OSTaskCreateHook:
+ 1701              	.LFB2:
+  55:../kernel/os_port/os_cpu_c.c **** #endif
+  56:../kernel/os_port/os_cpu_c.c **** 
+  57:../kernel/os_port/os_cpu_c.c **** /*
+  58:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada con las interrupciones deshabilitadas cada vez que se crea una tarea.
+  59:../kernel/os_port/os_cpu_c.c **** ** Toma como argumento un puntero al TCB de la tarea recién creada.
+  60:../kernel/os_port/os_cpu_c.c **** */
+  61:../kernel/os_port/os_cpu_c.c **** 
+  62:../kernel/os_port/os_cpu_c.c **** #if OS_CPU_HOOKS_EN > 0 
+  63:../kernel/os_port/os_cpu_c.c **** void OSTaskCreateHook( OS_TCB *ptcb )
+  64:../kernel/os_port/os_cpu_c.c **** {
+ 1702              		.loc 1 64 0
+ 1703              		.cfi_startproc
+ 1704              		@ Function supports interworking.
+ 1705              		@ args = 0, pretend = 0, frame = 8
+ 1706              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1707 0030 0DC0A0E1 		mov	ip, sp
+ 1708              	.LCFI4:
+ 1709              		.cfi_def_cfa_register 12
+ 1710 0034 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1711 0038 04B04CE2 		sub	fp, ip, #4
+ 1712              		.cfi_offset 14, -8
+ 1713              		.cfi_offset 13, -12
+ 1714              		.cfi_offset 11, -16
+ 1715              	.LCFI5:
+ 1716              		.cfi_def_cfa 11, 4
+ 1717 003c 08D04DE2 		sub	sp, sp, #8
+ 1718 0040 10000BE5 		str	r0, [fp, #-16]
+  65:../kernel/os_port/os_cpu_c.c **** }
+ 1719              		.loc 1 65 0
+ 1720 0044 0CD04BE2 		sub	sp, fp, #12
+ 1721 0048 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1722 004c 1EFF2FE1 		bx	lr
+ 1723              		.cfi_endproc
+ 1724              	.LFE2:
+ 1726              		.align	2
+ 1727              		.global	OSTaskDelHook
+ 1729              	OSTaskDelHook:
+ 1730              	.LFB3:
+  66:../kernel/os_port/os_cpu_c.c **** #endif
+  67:../kernel/os_port/os_cpu_c.c **** 
+  68:../kernel/os_port/os_cpu_c.c **** /*
+  69:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada con las interrupciones deshabilitadas cada vez que se borra una tarea.
+  70:../kernel/os_port/os_cpu_c.c **** ** Toma como argumento un puntero al TCB de la tarea borrada.
+  71:../kernel/os_port/os_cpu_c.c **** */
+  72:../kernel/os_port/os_cpu_c.c **** 
+  73:../kernel/os_port/os_cpu_c.c **** #if OS_CPU_HOOKS_EN > 0 
+  74:../kernel/os_port/os_cpu_c.c **** void OSTaskDelHook( OS_TCB *ptcb )
+  75:../kernel/os_port/os_cpu_c.c **** {
+ 1731              		.loc 1 75 0
+ 1732              		.cfi_startproc
+ 1733              		@ Function supports interworking.
+ 1734              		@ args = 0, pretend = 0, frame = 8
+ 1735              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1736 0050 0DC0A0E1 		mov	ip, sp
+ 1737              	.LCFI6:
+ 1738              		.cfi_def_cfa_register 12
+ 1739 0054 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1740 0058 04B04CE2 		sub	fp, ip, #4
+ 1741              		.cfi_offset 14, -8
+ 1742              		.cfi_offset 13, -12
+ 1743              		.cfi_offset 11, -16
+ 1744              	.LCFI7:
+ 1745              		.cfi_def_cfa 11, 4
+ 1746 005c 08D04DE2 		sub	sp, sp, #8
+ 1747 0060 10000BE5 		str	r0, [fp, #-16]
+  76:../kernel/os_port/os_cpu_c.c **** }
+ 1748              		.loc 1 76 0
+ 1749 0064 0CD04BE2 		sub	sp, fp, #12
+ 1750 0068 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1751 006c 1EFF2FE1 		bx	lr
+ 1752              		.cfi_endproc
+ 1753              	.LFE3:
+ 1755              		.align	2
+ 1756              		.global	OSTaskIdleHook
+ 1758              	OSTaskIdleHook:
+ 1759              	.LFB4:
+  77:../kernel/os_port/os_cpu_c.c **** #endif
+  78:../kernel/os_port/os_cpu_c.c **** 
+  79:../kernel/os_port/os_cpu_c.c **** /*
+  80:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada con las interrupciones habilitadas por la tarea OS_TaskIdle().
+  81:../kernel/os_port/os_cpu_c.c **** */
+  82:../kernel/os_port/os_cpu_c.c **** 
+  83:../kernel/os_port/os_cpu_c.c **** #if OS_CPU_HOOKS_EN > 0
+  84:../kernel/os_port/os_cpu_c.c **** void OSTaskIdleHook( void )
+  85:../kernel/os_port/os_cpu_c.c **** {
+ 1760              		.loc 1 85 0
+ 1761              		.cfi_startproc
+ 1762              		@ Function supports interworking.
+ 1763              		@ args = 0, pretend = 0, frame = 0
+ 1764              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1765 0070 0DC0A0E1 		mov	ip, sp
+ 1766              	.LCFI8:
+ 1767              		.cfi_def_cfa_register 12
+ 1768 0074 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1769 0078 04B04CE2 		sub	fp, ip, #4
+ 1770              		.cfi_offset 14, -8
+ 1771              		.cfi_offset 13, -12
+ 1772              		.cfi_offset 11, -16
+ 1773              	.LCFI9:
+ 1774              		.cfi_def_cfa 11, 4
+  86:../kernel/os_port/os_cpu_c.c ****     sleep();    /* Pone a la CPU en estado IDLE, sale por interrupción */
+ 1775              		.loc 1 86 0
+ 1776 007c FEFFFFEB 		bl	sleep
+  87:../kernel/os_port/os_cpu_c.c **** }
+ 1777              		.loc 1 87 0
+ 1778 0080 0CD04BE2 		sub	sp, fp, #12
+ 1779 0084 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1780 0088 1EFF2FE1 		bx	lr
+ 1781              		.cfi_endproc
+ 1782              	.LFE4:
+ 1784              		.align	2
+ 1785              		.global	OSTaskStatHook
+ 1787              	OSTaskStatHook:
+ 1788              	.LFB5:
+  88:../kernel/os_port/os_cpu_c.c **** #endif
+  89:../kernel/os_port/os_cpu_c.c **** 
+  90:../kernel/os_port/os_cpu_c.c **** /*
+  91:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada cada segundo por la tarea OSTaskStat().
+  92:../kernel/os_port/os_cpu_c.c **** */
+  93:../kernel/os_port/os_cpu_c.c **** 
+  94:../kernel/os_port/os_cpu_c.c **** #if OS_CPU_HOOKS_EN > 0 
+  95:../kernel/os_port/os_cpu_c.c **** void OSTaskStatHook( void )
+  96:../kernel/os_port/os_cpu_c.c **** {
+ 1789              		.loc 1 96 0
+ 1790              		.cfi_startproc
+ 1791              		@ Function supports interworking.
+ 1792              		@ args = 0, pretend = 0, frame = 0
+ 1793              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1794 008c 0DC0A0E1 		mov	ip, sp
+ 1795              	.LCFI10:
+ 1796              		.cfi_def_cfa_register 12
+ 1797 0090 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1798 0094 04B04CE2 		sub	fp, ip, #4
+ 1799              		.cfi_offset 14, -8
+ 1800              		.cfi_offset 13, -12
+ 1801              		.cfi_offset 11, -16
+ 1802              	.LCFI11:
+ 1803              		.cfi_def_cfa 11, 4
+  97:../kernel/os_port/os_cpu_c.c **** }
+ 1804              		.loc 1 97 0
+ 1805 0098 0CD04BE2 		sub	sp, fp, #12
+ 1806 009c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1807 00a0 1EFF2FE1 		bx	lr
+ 1808              		.cfi_endproc
+ 1809              	.LFE5:
+ 1811              		.align	2
+ 1812              		.global	OSTaskStkInit
+ 1814              	OSTaskStkInit:
+ 1815              	.LFB6:
+  98:../kernel/os_port/os_cpu_c.c **** #endif
+  99:../kernel/os_port/os_cpu_c.c **** 
+ 100:../kernel/os_port/os_cpu_c.c **** /*
+ 101:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada con las interrupciones deshabilitadas cada vez que se crea una tarea par
+ 102:../kernel/os_port/os_cpu_c.c **** ** Toma los siguientes argumentos:
+ 103:../kernel/os_port/os_cpu_c.c **** **   - void (*task)(void *pd) -- puntero al código de la tarea
+ 104:../kernel/os_port/os_cpu_c.c **** **   - void *pdata            -- puntero a los argumentos que tomará la tarea cuando se ejecute por
+ 105:../kernel/os_port/os_cpu_c.c **** **   - OS_STK *ptos           -- puntero a la cima de la pila en la que la función inicializará el 
+ 106:../kernel/os_port/os_cpu_c.c **** **   - INT16U opt             -- permite indicar opciones para modificar el comportamiento de la fu
+ 107:../kernel/os_port/os_cpu_c.c **** ** Devuelve un puntero a la nueva cima de la pila
+ 108:../kernel/os_port/os_cpu_c.c **** */
+ 109:../kernel/os_port/os_cpu_c.c **** OS_STK *OSTaskStkInit( void (*task)(void *pd), void *pdata, OS_STK *ptos, INT16U opt )
+ 110:../kernel/os_port/os_cpu_c.c **** {
+ 1816              		.loc 1 110 0
+ 1817              		.cfi_startproc
+ 1818              		@ Function supports interworking.
+ 1819              		@ args = 0, pretend = 0, frame = 16
+ 1820              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1821 00a4 0DC0A0E1 		mov	ip, sp
+ 1822              	.LCFI12:
+ 1823              		.cfi_def_cfa_register 12
+ 1824 00a8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1825 00ac 04B04CE2 		sub	fp, ip, #4
+ 1826              		.cfi_offset 14, -8
+ 1827              		.cfi_offset 13, -12
+ 1828              		.cfi_offset 11, -16
+ 1829              	.LCFI13:
+ 1830              		.cfi_def_cfa 11, 4
+ 1831 00b0 10D04DE2 		sub	sp, sp, #16
+ 1832 00b4 10000BE5 		str	r0, [fp, #-16]
+ 1833 00b8 14100BE5 		str	r1, [fp, #-20]
+ 1834 00bc 18200BE5 		str	r2, [fp, #-24]
+ 1835 00c0 BA314BE1 		strh	r3, [fp, #-26]	@ movhi
+ 111:../kernel/os_port/os_cpu_c.c **** 
+ 112:../kernel/os_port/os_cpu_c.c ****     #if OS_STK_GROWTH == 1               /* Si la pila crece de de direcciones ALTAS hacia BAJAS */
+ 113:../kernel/os_port/os_cpu_c.c **** 
+ 114:../kernel/os_port/os_cpu_c.c ****     *(ptos)   = (INT32U) task;        /* Apila el punto de entrada a la tarea                 */
+ 1836              		.loc 1 114 0
+ 1837 00c4 10201BE5 		ldr	r2, [fp, #-16]
+ 1838 00c8 18301BE5 		ldr	r3, [fp, #-24]
+ 1839 00cc 002083E5 		str	r2, [r3, #0]
+ 115:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila LR                                             */
+ 1840              		.loc 1 115 0
+ 1841 00d0 18301BE5 		ldr	r3, [fp, #-24]
+ 1842 00d4 043043E2 		sub	r3, r3, #4
+ 1843 00d8 18300BE5 		str	r3, [fp, #-24]
+ 1844 00dc 18301BE5 		ldr	r3, [fp, #-24]
+ 1845 00e0 0020A0E3 		mov	r2, #0
+ 1846 00e4 002083E5 		str	r2, [r3, #0]
+ 116:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R12                                            */
+ 1847              		.loc 1 116 0
+ 1848 00e8 18301BE5 		ldr	r3, [fp, #-24]
+ 1849 00ec 043043E2 		sub	r3, r3, #4
+ 1850 00f0 18300BE5 		str	r3, [fp, #-24]
+ 1851 00f4 18301BE5 		ldr	r3, [fp, #-24]
+ 1852 00f8 0020A0E3 		mov	r2, #0
+ 1853 00fc 002083E5 		str	r2, [r3, #0]
+ 117:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R11                                            */
+ 1854              		.loc 1 117 0
+ 1855 0100 18301BE5 		ldr	r3, [fp, #-24]
+ 1856 0104 043043E2 		sub	r3, r3, #4
+ 1857 0108 18300BE5 		str	r3, [fp, #-24]
+ 1858 010c 18301BE5 		ldr	r3, [fp, #-24]
+ 1859 0110 0020A0E3 		mov	r2, #0
+ 1860 0114 002083E5 		str	r2, [r3, #0]
+ 118:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R10                                            */
+ 1861              		.loc 1 118 0
+ 1862 0118 18301BE5 		ldr	r3, [fp, #-24]
+ 1863 011c 043043E2 		sub	r3, r3, #4
+ 1864 0120 18300BE5 		str	r3, [fp, #-24]
+ 1865 0124 18301BE5 		ldr	r3, [fp, #-24]
+ 1866 0128 0020A0E3 		mov	r2, #0
+ 1867 012c 002083E5 		str	r2, [r3, #0]
+ 119:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R9                                             */
+ 1868              		.loc 1 119 0
+ 1869 0130 18301BE5 		ldr	r3, [fp, #-24]
+ 1870 0134 043043E2 		sub	r3, r3, #4
+ 1871 0138 18300BE5 		str	r3, [fp, #-24]
+ 1872 013c 18301BE5 		ldr	r3, [fp, #-24]
+ 1873 0140 0020A0E3 		mov	r2, #0
+ 1874 0144 002083E5 		str	r2, [r3, #0]
+ 120:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R8                                             */
+ 1875              		.loc 1 120 0
+ 1876 0148 18301BE5 		ldr	r3, [fp, #-24]
+ 1877 014c 043043E2 		sub	r3, r3, #4
+ 1878 0150 18300BE5 		str	r3, [fp, #-24]
+ 1879 0154 18301BE5 		ldr	r3, [fp, #-24]
+ 1880 0158 0020A0E3 		mov	r2, #0
+ 1881 015c 002083E5 		str	r2, [r3, #0]
+ 121:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R7                                             */
+ 1882              		.loc 1 121 0
+ 1883 0160 18301BE5 		ldr	r3, [fp, #-24]
+ 1884 0164 043043E2 		sub	r3, r3, #4
+ 1885 0168 18300BE5 		str	r3, [fp, #-24]
+ 1886 016c 18301BE5 		ldr	r3, [fp, #-24]
+ 1887 0170 0020A0E3 		mov	r2, #0
+ 1888 0174 002083E5 		str	r2, [r3, #0]
+ 122:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R6                                             */
+ 1889              		.loc 1 122 0
+ 1890 0178 18301BE5 		ldr	r3, [fp, #-24]
+ 1891 017c 043043E2 		sub	r3, r3, #4
+ 1892 0180 18300BE5 		str	r3, [fp, #-24]
+ 1893 0184 18301BE5 		ldr	r3, [fp, #-24]
+ 1894 0188 0020A0E3 		mov	r2, #0
+ 1895 018c 002083E5 		str	r2, [r3, #0]
+ 123:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R5                                             */
+ 1896              		.loc 1 123 0
+ 1897 0190 18301BE5 		ldr	r3, [fp, #-24]
+ 1898 0194 043043E2 		sub	r3, r3, #4
+ 1899 0198 18300BE5 		str	r3, [fp, #-24]
+ 1900 019c 18301BE5 		ldr	r3, [fp, #-24]
+ 1901 01a0 0020A0E3 		mov	r2, #0
+ 1902 01a4 002083E5 		str	r2, [r3, #0]
+ 124:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R4                                             */
+ 1903              		.loc 1 124 0
+ 1904 01a8 18301BE5 		ldr	r3, [fp, #-24]
+ 1905 01ac 043043E2 		sub	r3, r3, #4
+ 1906 01b0 18300BE5 		str	r3, [fp, #-24]
+ 1907 01b4 18301BE5 		ldr	r3, [fp, #-24]
+ 1908 01b8 0020A0E3 		mov	r2, #0
+ 1909 01bc 002083E5 		str	r2, [r3, #0]
+ 125:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R3                                             */
+ 1910              		.loc 1 125 0
+ 1911 01c0 18301BE5 		ldr	r3, [fp, #-24]
+ 1912 01c4 043043E2 		sub	r3, r3, #4
+ 1913 01c8 18300BE5 		str	r3, [fp, #-24]
+ 1914 01cc 18301BE5 		ldr	r3, [fp, #-24]
+ 1915 01d0 0020A0E3 		mov	r2, #0
+ 1916 01d4 002083E5 		str	r2, [r3, #0]
+ 126:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R2                                             */
+ 1917              		.loc 1 126 0
+ 1918 01d8 18301BE5 		ldr	r3, [fp, #-24]
+ 1919 01dc 043043E2 		sub	r3, r3, #4
+ 1920 01e0 18300BE5 		str	r3, [fp, #-24]
+ 1921 01e4 18301BE5 		ldr	r3, [fp, #-24]
+ 1922 01e8 0020A0E3 		mov	r2, #0
+ 1923 01ec 002083E5 		str	r2, [r3, #0]
+ 127:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) 0;           /* Apila R1                                             */
+ 1924              		.loc 1 127 0
+ 1925 01f0 18301BE5 		ldr	r3, [fp, #-24]
+ 1926 01f4 043043E2 		sub	r3, r3, #4
+ 1927 01f8 18300BE5 		str	r3, [fp, #-24]
+ 1928 01fc 18301BE5 		ldr	r3, [fp, #-24]
+ 1929 0200 0020A0E3 		mov	r2, #0
+ 1930 0204 002083E5 		str	r2, [r3, #0]
+ 128:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) pdata;       /* Apila R0 : argumento                                 */
+ 1931              		.loc 1 128 0
+ 1932 0208 18301BE5 		ldr	r3, [fp, #-24]
+ 1933 020c 043043E2 		sub	r3, r3, #4
+ 1934 0210 18300BE5 		str	r3, [fp, #-24]
+ 1935 0214 14201BE5 		ldr	r2, [fp, #-20]
+ 1936 0218 18301BE5 		ldr	r3, [fp, #-24]
+ 1937 021c 002083E5 		str	r2, [r3, #0]
+ 129:../kernel/os_port/os_cpu_c.c ****     *(--ptos) = (INT32U) (0x13|0x0);  /* Apila CPSR (IRQ y FIQ habilitadas, modo SVC)         */
+ 1938              		.loc 1 129 0
+ 1939 0220 18301BE5 		ldr	r3, [fp, #-24]
+ 1940 0224 043043E2 		sub	r3, r3, #4
+ 1941 0228 18300BE5 		str	r3, [fp, #-24]
+ 1942 022c 18301BE5 		ldr	r3, [fp, #-24]
+ 1943 0230 1320A0E3 		mov	r2, #19
+ 1944 0234 002083E5 		str	r2, [r3, #0]
+ 130:../kernel/os_port/os_cpu_c.c **** 
+ 131:../kernel/os_port/os_cpu_c.c ****     return (ptos);
+ 1945              		.loc 1 131 0
+ 1946 0238 18301BE5 		ldr	r3, [fp, #-24]
+ 132:../kernel/os_port/os_cpu_c.c **** 
+ 133:../kernel/os_port/os_cpu_c.c **** #else
+ 134:../kernel/os_port/os_cpu_c.c **** #error OS_STK_GROWTH no implementado
+ 135:../kernel/os_port/os_cpu_c.c **** #endif
+ 136:../kernel/os_port/os_cpu_c.c **** 
+ 137:../kernel/os_port/os_cpu_c.c **** }
+ 1947              		.loc 1 137 0
+ 1948 023c 0300A0E1 		mov	r0, r3
+ 1949 0240 0CD04BE2 		sub	sp, fp, #12
+ 1950 0244 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1951 0248 1EFF2FE1 		bx	lr
+ 1952              		.cfi_endproc
+ 1953              	.LFE6:
+ 1955              		.align	2
+ 1956              		.global	OSTaskSwHook
+ 1958              	OSTaskSwHook:
+ 1959              	.LFB7:
+ 138:../kernel/os_port/os_cpu_c.c **** 
+ 139:../kernel/os_port/os_cpu_c.c **** /*
+ 140:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada con las interrupciones deshabilitadas cada vez que se conmuta de tarea.
+ 141:../kernel/os_port/os_cpu_c.c **** ** Podrá acceder a las variable globales:
+ 142:../kernel/os_port/os_cpu_c.c **** **   - OS_TCB *OSTCBCur que apuntará al TCB de la tarea en ejecución (a suspender)
+ 143:../kernel/os_port/os_cpu_c.c **** **   - OS_TCB *OSTCBHighRdy que apuntará al TCB de la tarea preparada de máxima prioridad (a reanud
+ 144:../kernel/os_port/os_cpu_c.c **** */
+ 145:../kernel/os_port/os_cpu_c.c **** 
+ 146:../kernel/os_port/os_cpu_c.c **** #if (OS_CPU_HOOKS_EN > 0) && (OS_TASK_SW_HOOK_EN > 0)
+ 147:../kernel/os_port/os_cpu_c.c **** void OSTaskSwHook( void )
+ 148:../kernel/os_port/os_cpu_c.c **** {
+ 1960              		.loc 1 148 0
+ 1961              		.cfi_startproc
+ 1962              		@ Function supports interworking.
+ 1963              		@ args = 0, pretend = 0, frame = 0
+ 1964              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1965 024c 0DC0A0E1 		mov	ip, sp
+ 1966              	.LCFI14:
+ 1967              		.cfi_def_cfa_register 12
+ 1968 0250 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1969 0254 04B04CE2 		sub	fp, ip, #4
+ 1970              		.cfi_offset 14, -8
+ 1971              		.cfi_offset 13, -12
+ 1972              		.cfi_offset 11, -16
+ 1973              	.LCFI15:
+ 1974              		.cfi_def_cfa 11, 4
+ 149:../kernel/os_port/os_cpu_c.c **** }
+ 1975              		.loc 1 149 0
+ 1976 0258 0CD04BE2 		sub	sp, fp, #12
+ 1977 025c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1978 0260 1EFF2FE1 		bx	lr
+ 1979              		.cfi_endproc
+ 1980              	.LFE7:
+ 1982              		.align	2
+ 1983              		.global	OSTCBInitHook
+ 1985              	OSTCBInitHook:
+ 1986              	.LFB8:
+ 150:../kernel/os_port/os_cpu_c.c **** #endif
+ 151:../kernel/os_port/os_cpu_c.c **** 
+ 152:../kernel/os_port/os_cpu_c.c **** /*
+ 153:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada cada vez que se crea una tarea justo tras la creación de su TBC pero ant
+ 154:../kernel/os_port/os_cpu_c.c **** ** Las interrupciones pueden estar habilitadas o deshabilitadas.
+ 155:../kernel/os_port/os_cpu_c.c **** ** Toma como argumento un puntero al TCB de la tarea recién creada.
+ 156:../kernel/os_port/os_cpu_c.c **** */
+ 157:../kernel/os_port/os_cpu_c.c **** #if OS_CPU_HOOKS_EN > 0
+ 158:../kernel/os_port/os_cpu_c.c **** void OSTCBInitHook( OS_TCB *ptcb )
+ 159:../kernel/os_port/os_cpu_c.c **** {
+ 1987              		.loc 1 159 0
+ 1988              		.cfi_startproc
+ 1989              		@ Function supports interworking.
+ 1990              		@ args = 0, pretend = 0, frame = 8
+ 1991              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1992 0264 0DC0A0E1 		mov	ip, sp
+ 1993              	.LCFI16:
+ 1994              		.cfi_def_cfa_register 12
+ 1995 0268 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1996 026c 04B04CE2 		sub	fp, ip, #4
+ 1997              		.cfi_offset 14, -8
+ 1998              		.cfi_offset 13, -12
+ 1999              		.cfi_offset 11, -16
+ 2000              	.LCFI17:
+ 2001              		.cfi_def_cfa 11, 4
+ 2002 0270 08D04DE2 		sub	sp, sp, #8
+ 2003 0274 10000BE5 		str	r0, [fp, #-16]
+ 160:../kernel/os_port/os_cpu_c.c **** }
+ 2004              		.loc 1 160 0
+ 2005 0278 0CD04BE2 		sub	sp, fp, #12
+ 2006 027c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2007 0280 1EFF2FE1 		bx	lr
+ 2008              		.cfi_endproc
+ 2009              	.LFE8:
+ 2011              		.align	2
+ 2012              		.global	OSTimeTickHook
+ 2014              	OSTimeTickHook:
+ 2015              	.LFB9:
+ 161:../kernel/os_port/os_cpu_c.c **** #endif
+ 162:../kernel/os_port/os_cpu_c.c **** 
+ 163:../kernel/os_port/os_cpu_c.c **** /*
+ 164:../kernel/os_port/os_cpu_c.c **** ** Esta función es llamada cada tick. Las interrupciones pueden estar habilitadas o deshabilitadas.
+ 165:../kernel/os_port/os_cpu_c.c **** */
+ 166:../kernel/os_port/os_cpu_c.c **** 
+ 167:../kernel/os_port/os_cpu_c.c **** #if (OS_CPU_HOOKS_EN > 0) && (OS_TIME_TICK_HOOK_EN > 0)
+ 168:../kernel/os_port/os_cpu_c.c **** void OSTimeTickHook( void )
+ 169:../kernel/os_port/os_cpu_c.c **** {
+ 2016              		.loc 1 169 0
+ 2017              		.cfi_startproc
+ 2018              		@ Function supports interworking.
+ 2019              		@ args = 0, pretend = 0, frame = 0
+ 2020              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2021 0284 0DC0A0E1 		mov	ip, sp
+ 2022              	.LCFI18:
+ 2023              		.cfi_def_cfa_register 12
+ 2024 0288 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2025 028c 04B04CE2 		sub	fp, ip, #4
+ 2026              		.cfi_offset 14, -8
+ 2027              		.cfi_offset 13, -12
+ 2028              		.cfi_offset 11, -16
+ 2029              	.LCFI19:
+ 2030              		.cfi_def_cfa 11, 4
+ 170:../kernel/os_port/os_cpu_c.c **** }
+ 2031              		.loc 1 170 0
+ 2032 0290 0CD04BE2 		sub	sp, fp, #12
+ 2033 0294 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2034 0298 1EFF2FE1 		bx	lr
+ 2035              		.cfi_endproc
+ 2036              	.LFE9:
+ 2038              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 os_cpu_c.c
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1643   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1646   .text:00000000 OSInitHookBegin
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1673   .text:00000018 OSInitHookEnd
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1700   .text:00000030 OSTaskCreateHook
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1729   .text:00000050 OSTaskDelHook
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1758   .text:00000070 OSTaskIdleHook
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1787   .text:0000008c OSTaskStatHook
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1814   .text:000000a4 OSTaskStkInit
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1958   .text:0000024c OSTaskSwHook
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:1985   .text:00000264 OSTCBInitHook
+C:\Users\Pedro\AppData\Local\Temp\cczpPlzf.s:2014   .text:00000284 OSTimeTickHook
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+sleep

@@ -1,0 +1,731 @@
+   1              	# 1 "../kernel/os_port/os_cpu_isr_wrapper.asm"
+   1              	/*-----------------------------------------------------------------
+   0              	
+   0              	
+   0              	
+   2              	**
+   3              	**  Fichero:
+   4              	**    os_cpu_isr_wrapper.asm  20/1/2017
+   5              	**
+   6              	**    (c) J.M. Mendias
+   7              	**    Programación de Sistemas y Dispositivos
+   8              	**    Facultad de Informática. Universidad Complutense de Madrid
+   9              	**
+  10              	**  Propósito:
+  11              	**    Implementa una macro que permite añadir un wrapper a una RTI
+  12              	**    de una aplicación ejecutada bajo el kernel de tiempo real uC/OS-II 
+  13              	**
+  14              	**  Notas de diseño:
+  15              	**    - Implementado según las especificaciones del capítulo 3 del
+  16              	**      libro "MicroC/OS-II. The Real-Time Kernel (2nd. edition)" 
+  17              	**      de Jean J. Labrosse
+  18              	**    - Asume que interrumpen por IRQ
+  19              	**
+  20              	**---------------------------------------------------------------*/
+  21              	
+  22              	#-----------------------------------------------------------------
+  23              	#
+  24              	#  Fichero:
+  25              	#    s3c44b0x.asm  24/4/2013
+  26              	#
+  27              	#    (c) J.M. Mendias
+  28              	#    Programación de Sistemas y Dispositivos
+  29              	#    Facultad de Informática. Universidad Complutense de Madrid
+  30              	#
+  31              	#  Propósito:
+  32              	#    Creación de nemotécnicos para los registros de los
+  33              	#    controladores de dispositivos internos del chip S3C44BOX
+  34              	#
+  35              	#  Notas de diseño:
+  36              	#    Las direcciones usadas asumen un alineamiento little-endian
+  37              	#
+  38              	#-----------------------------------------------------------------
+  39              	
+  40              	/* Controlador de memoria */
+  41              	.equ BWSCON,    0x1c80000
+  42              	.equ BANKCON0,  0x1c80004
+  43              	.equ BANKCON1,  0x1c80008
+  44              	.equ BANKCON2,  0x1c8000c
+  45              	.equ BANKCON3,  0x1c80010
+  46              	.equ BANKCON4,  0x1c80014
+  47              	.equ BANKCON5,  0x1c80018
+  48              	.equ BANKCON6,  0x1c8001c
+  49              	.equ BANKCON7,  0x1c80020
+  50              	.equ REFRESH,   0x1c80024
+  51              	.equ BANKSIZE,  0x1c80028
+  52              	.equ MRSRB6,    0x1c8002c
+  53              	.equ MRSRB7,    0x1c80030
+  54              	
+  55              	/* Gestor de reloj y energía */
+  56              	.equ PLLCON,    0x1d80000
+  57              	.equ CLKCON,    0x1d80004
+  58              	.equ CLKSLOW,   0x1d80008
+  59              	.equ LOCKTIME,  0x1d8000c
+  60              	
+  61              	/* Controlador de cache */
+  62              	.equ SYSCFG,    0x1c00000
+  63              	.equ NCACHBE0,  0x1c00004
+  64              	.equ NCACHBE1,  0x1c00008
+  65              	
+  66              	/* Árbitro de bus */
+  67              	.equ SBUSCON,   0x1c40000
+  68              	
+  69              	/* Controlador de DMA */
+  70              	.equ ZDCON0,    0x1e80000 /* canal ZDMA 0 */
+  71              	.equ ZDISRC0,   0x1e80004
+  72              	.equ ZDIDES0,   0x1e80008
+  73              	.equ ZDICNT0,   0x1e8000c
+  74              	.equ ZDCSRC0,   0x1e80010
+  75              	.equ ZDCDES0,   0x1e80014
+  76              	.equ ZDCCNT0,   0x1e80018
+  77              	.equ ZDCON1,    0x1e80020 /* canal ZDMA 1 */
+  78              	.equ ZDISRC1,   0x1e80024
+  79              	.equ ZDIDES1,   0x1e80028
+  80              	.equ ZDICNT1,   0x1e8002c
+  81              	.equ ZDCSRC1,   0x1e80030
+  82              	.equ ZDCDES1,   0x1e80034
+  83              	.equ ZDCCNT1,   0x1e80038
+  84              	.equ BDCON0,    0x1f80000 /* canal BDMA 0 */
+  85              	.equ BDISRC0,   0x1f80004
+  86              	.equ BDIDES0,   0x1f80008
+  87              	.equ BDICNT0,   0x1f8000c
+  88              	.equ BDCSRC0,   0x1f80010
+  89              	.equ BDCDES0,   0x1f80014
+  90              	.equ BDCCNT0,   0x1f80018
+  91              	.equ BDCON1,    0x1f80020 /* canal BDMA 1 */
+  92              	.equ BDISRC1,   0x1f80024
+  93              	.equ BDIDES1,   0x1f80028
+  94              	.equ BDICNT1,   0x1f8002c
+  95              	.equ BDCSRC1,   0x1f80030
+  96              	.equ BDCDES1,   0x1f80034
+  97              	.equ BDCCNT1,   0x1f80038
+  98              	
+  99              	/* Controlador de puertos de E/S */
+ 100              	.equ SPUCR,     0x1d2004c
+ 101              	.equ PCONA,     0x1d20000 /* puerto A */
+ 102              	.equ PDATA,     0x1d20004
+ 103              	.equ PCONB,     0x1d20008 /* puerto B */
+ 104              	.equ PDATB,     0x1d2000c
+ 105              	.equ PCONC,     0x1d20010 /* puerto C */
+ 106              	.equ PDATC,     0x1d20014
+ 107              	.equ PUPC,      0x1d20018
+ 108              	.equ PCOND,     0x1d2001c /* puerto D */
+ 109              	.equ PDATD,     0x1d20020
+ 110              	.equ PUPD,      0x1d20024
+ 111              	.equ PCONE,     0x1d20028 /* puerto E */
+ 112              	.equ PDATE,     0x1d2002c
+ 113              	.equ PUPE,      0x1d20030
+ 114              	.equ PCONF,     0x1d20034 /* puerto F */
+ 115              	.equ PDATF,     0x1d20038
+ 116              	.equ PUPF,      0x1d2003c
+ 117              	.equ PCONG,     0x1d20040 /* puerto G */
+ 118              	.equ PDATG,     0x1d20044
+ 119              	.equ PUPG,      0x1d20048
+ 120              	.equ EXTINT,    0x1d20050
+ 121              	.equ EXTINTPND, 0x1d20054
+ 122              	
+ 123              	/* Bits de EXTINTPND */
+ 124              	.equ BIT_EINT4,  (1<<0)
+ 125              	.equ BIT_EINT5,  (1<<1)
+ 126              	.equ BIT_EINT6,  (1<<2)
+ 127              	.equ BIT_EINT7,  (1<<3)
+ 128              	
+ 129              	/* Temporizadores */
+ 130              	.equ TCFG0,     0x1d50000
+ 131              	.equ TCFG1,     0x1d50004
+ 132              	.equ TCON,      0x1d50008
+ 133              	.equ TCNTB0,    0x1d5000c /* temporizador 0 */
+ 134              	.equ TCMPB0,    0x1d50010
+ 135              	.equ TCNTO0,    0x1d50014
+ 136              	.equ TCNTB1,    0x1d50018 /* temporizador 1 */
+ 137              	.equ TCMPB1,    0x1d5001c
+ 138              	.equ TCNTO1,    0x1d50020
+ 139              	.equ TCNTB2,    0x1d50024 /* temporizador 2 */
+ 140              	.equ TCMPB2,    0x1d50028
+ 141              	.equ TCNTO2,    0x1d5002c
+ 142              	.equ TCNTB3,    0x1d50030 /* temporizador 3 */
+ 143              	.equ TCMPB3,    0x1d50034
+ 144              	.equ TCNTO3,    0x1d50038
+ 145              	.equ TCNTB4,    0x1d5003c /* temporizador 4 */
+ 146              	.equ TCMPB4,    0x1d50040
+ 147              	.equ TCNTO4,    0x1d50044
+ 148              	.equ TCNTB5,    0x1d50048 /* temporizador 5 */
+ 149              	.equ TCNTO5,    0x1d5004c
+ 150              	
+ 151              	/* UART */
+ 152              	.equ ULCON0,    0x1d00000 /* canal 0 */
+ 153              	.equ UCON0,     0x1d00004
+ 154              	.equ UFCON0,    0x1d00008
+ 155              	.equ UMCON0,    0x1d0000c
+ 156              	.equ UTRSTAT0,  0x1d00010
+ 157              	.equ UERSTAT0,  0x1d00014
+ 158              	.equ UFSTAT0,   0x1d00018
+ 159              	.equ UMSTAT0,   0x1d0001c
+ 160              	.equ UTXH0,     0x1d00020
+ 161              	.equ URXH0,     0x1d00024
+ 162              	.equ UBRDIV0,   0x1d00028
+ 163              	.equ ULCON1,    0x1d04000 /* canal 1 */
+ 164              	.equ UCON1,     0x1d04004
+ 165              	.equ UFCON1,    0x1d04008
+ 166              	.equ UMCON1,    0x1d0400c
+ 167              	.equ UTRSTAT1,  0x1d04010
+ 168              	.equ UERSTAT1,  0x1d04014
+ 169              	.equ UFSTAT1,   0x1d04018
+ 170              	.equ UMSTAT1,   0x1d0401c
+ 171              	.equ UTXH1,     0x1d04020
+ 172              	.equ URXH1,     0x1d04024
+ 173              	.equ UBRDIV1,   0x1d04028
+ 174              	
+ 175              	/* Controlador de interrupciones */
+ 176              	.equ INTCON,    0x1e00000
+ 177              	.equ INTPND,    0x1e00004
+ 178              	.equ INTMOD,    0x1e00008
+ 179              	.equ INTMSK,    0x1e0000c
+ 180              	.equ I_PSLV,    0x1e00010
+ 181              	.equ I_PMST,    0x1e00014
+ 182              	.equ I_CSLV,    0x1e00018
+ 183              	.equ I_CMST,    0x1e0001c
+ 184              	.equ I_ISPR,    0x1e00020
+ 185              	.equ I_ISPC,    0x1e00024
+ 186              	.equ F_ISPC,    0x1e0003c
+ 187              	
+ 188              	/* Bits de INTMASK, I_ISPC/F_ISPC y I_ISPR */
+ 189              	.equ BIT_ADC,    (1<<0)
+ 190              	.equ BIT_RTC,    (1<<1)
+ 191              	.equ BIT_UTXD1,  (1<<2)
+ 192              	.equ BIT_UTXD0,  (1<<3)
+ 193              	.equ BIT_SIO,    (1<<4)
+ 194              	.equ BIT_IIC,    (1<<5)
+ 195              	.equ BIT_URXD1,  (1<<6)
+ 196              	.equ BIT_URXD0,  (1<<7)
+ 197              	.equ BIT_TIMER5, (1<<8)
+ 198              	.equ BIT_TIMER4, (1<<9)
+ 199              	.equ BIT_TIMER3, (1<<10)
+ 200              	.equ BIT_TIMER2, (1<<11)
+ 201              	.equ BIT_TIMER1, (1<<12)
+ 202              	.equ BIT_TIMER0, (1<<13)
+ 203              	.equ BIT_UERR01, (1<<14)
+ 204              	.equ BIT_WDT,    (1<<15)
+ 205              	.equ BIT_BDMA1,  (1<<16)
+ 206              	.equ BIT_BDMA0,  (1<<17)
+ 207              	.equ BIT_ZDMA1,  (1<<18)
+ 208              	.equ BIT_ZDMA0,  (1<<19)
+ 209              	.equ BIT_TICK,   (1<<20)
+ 210              	.equ BIT_EINT4567, (1<<21)
+ 211              	.equ BIT_EINT3,  (1<<22)
+ 212              	.equ BIT_EINT2,  (1<<23)
+ 213              	.equ BIT_EINT1,  (1<<24)
+ 214              	.equ BIT_EINT0,  (1<<25)
+ 215              	.equ BIT_GLOBAL, (1<<26)
+ 216              	
+ 217              	/* Controlador de LCD */
+ 218              	.equ LCDCON1,   0x1f00000
+ 219              	.equ LCDCON2,   0x1f00004
+ 220              	.equ LCDCON3,   0x1f00040
+ 221              	.equ LCDSADDR1, 0x1f00008
+ 222              	.equ LCDSADDR2, 0x1f0000c
+ 223              	.equ LCDSADDR3, 0x1f00010
+ 224              	.equ REDLUT,    0x1f00014
+ 225              	.equ GREENLUT,  0x1f00018
+ 226              	.equ BLUELUT,   0x1f0001c
+ 227              	.equ DP1_2,     0x1f00020
+ 228              	.equ DP4_7,     0x1f00024
+ 229              	.equ DP3_5,     0x1f00028
+ 230              	.equ DP2_3,     0x1f0002c
+ 231              	.equ DP5_7,     0x1f00030
+ 232              	.equ DP3_4,     0x1f00034
+ 233              	.equ DP4_5,     0x1f00038
+ 234              	.equ DP6_7,     0x1f0003c
+ 235              	.equ DITHMODE,  0x1f00044
+ 236              	
+ 237              	/* Conversor analógico digital */
+ 238              	.equ ADCCON,    0x1d40000
+ 239              	.equ ADCPSR,    0x1d40004
+ 240              	.equ ADCDAT,    0x1d40008
+ 241              	
+ 242              	/* Reloj de tiempo real */
+ 243              	.equ RTCCON,    0x1d70040
+ 244              	.equ RTCALM,    0x1d70050
+ 245              	.equ ALMSEC,    0x1d70054
+ 246              	.equ ALMMIN,    0x1d70058
+ 247              	.equ ALMHOUR,   0x1d7005c
+ 248              	.equ ALMDAY,    0x1d70060
+ 249              	.equ ALMMON,    0x1d70064
+ 250              	.equ ALMYEAR,   0x1d70068
+ 251              	.equ RTCRST,    0x1d7006c
+ 252              	.equ BCDSEC,    0x1d70070
+ 253              	.equ BCDMIN,    0x1d70074
+ 254              	.equ BCDHOUR,   0x1d70078
+ 255              	.equ BCDDAY,    0x1d7007c
+ 256              	.equ BCDDATE,   0x1d70080
+ 257              	.equ BCDMON,    0x1d70084
+ 258              	.equ BCDYEAR,   0x1d70088
+ 259              	.equ TICNT,     0x1d7008c
+ 260              	
+ 261              	/* Watchdog timer */
+ 262              	.equ WTCON,     0x1d30000
+ 263              	.equ WTDAT,     0x1d30004
+ 264              	.equ WTCNT,     0x1d30008
+ 265              	
+ 266              	/* Controlador de IIC */
+ 267              	.equ IICCON,    0x1d60000
+ 268              	.equ IICSTAT,   0x1d60004
+ 269              	.equ IICADD,    0x1d60008
+ 270              	.equ IICDS,     0x1d6000c
+ 271              	
+ 272              	/* Controlador de IIS */
+ 273              	.equ IISCON,    0x1d18000
+ 274              	.equ IISMOD,    0x1d18004
+ 275              	.equ IISPSR,    0x1d18008
+ 276              	.equ IISFCON,   0x1d1800c
+ 277              	.equ IISFIF,    0x1d18010
+ 278              	
+ 279              	/* Controlador de SIO */
+ 280              	.equ SIOCON,    0x1d14000
+ 281              	.equ SIODAT,    0x1d14004
+ 282              	.equ SBRDR,     0x1d14008
+ 283              	.equ IVTCNT,    0x1d1400c
+ 284              	.equ DCNTZ,     0x1d14010
+ 285              	
+ 286              	/*-------------------------------------------------------------------
+ 287              	**
+ 288              	**  Fichero:
+ 289              	**    s3cev40.asm  24/4/2013
+ 290              	**
+ 291              	**    (c) J.M. Mendias
+ 292              	**    Programación de Sistemas y Dispositivos
+ 293              	**    Facultad de Informática. Universidad Complutense de Madrid
+ 294              	**
+ 295              	**  Propósito:
+ 296              	**    Creación de nemotécnicos para acceso a distintos elementos
+ 297              	**    de la placa de prototipado Embest S3CEV40
+ 298              	**
+ 299              	**  Notas de diseño:
+ 300              	**    Las direcciones usadas asumen un alineamiento little-endian
+ 301              	**
+ 302              	**-----------------------------------------------------------------*/
+ 303              	
+ 304              	/* Mapa de memoria */
+ 305              	
+ 306              	.equ ROM_START_ADDRESS, 0x00000000
+ 307              	.equ ROM_END_ADDRESS,   0x001fffff
+ 308              	
+ 309              	.equ DEVICES_START,     0x01c00000
+ 310              	.equ DEVICES_END,       0x0bffffff
+ 311              	
+ 312              	.equ RAM_START_ADDRESS, 0x0c000000
+ 313              	.equ RAM_END_ADDRESS,   0x0c7fffff
+ 314              	
+ 315              	.equ SP_START_ADDRESS,  0x10000000
+ 316              	.equ SP_END_ADDRESS,    0x100001ff
+ 317              	
+ 318              	.equ CACHE_LRU_START,   0x10004000
+ 319              	.equ CACHE_LRU_END,     0x100047ff
+ 320              	
+ 321              	/* Direcciones de las bases de las pilas del sistema */
+ 322              	
+ 323              	.equ USRSTACK,      0xc7ff000
+ 324              	.equ SVCSTACK,      0xc7ff100
+ 325              	.equ UNDSTACK,      0xc7ff200
+ 326              	.equ ABTSTACK,      0xc7ff300
+ 327              	.equ IRQSTACK,      0xc7ff400
+ 328              	.equ FIQSTACK,      0xc7ff500
+ 329              	
+ 330              	/* Tabla virtual de vectores de excepción */
+ 331              	
+ 332              	.equ pISR_RESET,    0xc7fff00
+ 333              	.equ pISR_UNDEF,    0xc7fff04
+ 334              	.equ pISR_SWI,      0xc7fff08
+ 335              	.equ pISR_PABORT,   0xc7fff0c
+ 336              	.equ pISR_DABORT,   0xc7fff10
+ 337              	/* Reservado */
+ 338              	.equ pISR_IRQ,      0xc7fff18
+ 339              	.equ pISR_FIQ,      0xc7fff1c
+ 340              	.equ pISR_ADC,      0xc7fff20
+ 341              	.equ pISR_RTC,      0xc7fff24
+ 342              	.equ pISR_UTXD1,    0xc7fff28
+ 343              	.equ pISR_UTXD0,    0xc7fff2c
+ 344              	.equ pISR_SIO,      0xc7fff30
+ 345              	.equ pISR_IIC,      0xc7fff34
+ 346              	.equ pISR_URXD1,    0xc7fff38
+ 347              	.equ pISR_URXD0,    0xc7fff3c
+ 348              	.equ pISR_TIMER5,   0xc7fff40
+ 349              	.equ pISR_TIMER4,   0xc7fff44
+ 350              	.equ pISR_TIMER3,   0xc7fff48
+ 351              	.equ pISR_TIMER2,   0xc7fff4c
+ 352              	.equ pISR_TIMER1,   0xc7fff50
+ 353              	.equ pISR_TIMER0,   0xc7fff54
+ 354              	.equ pISR_UERR01,   0xc7fff58
+ 355              	.equ pISR_WDT,      0xc7fff5c
+ 356              	.equ pISR_BDMA1,    0xc7fff60
+ 357              	.equ pISR_BDMA0,    0xc7fff64
+ 358              	.equ pISR_ZDMA1,    0xc7fff68
+ 359              	.equ pISR_ZDMA0,    0xc7fff6c
+ 360              	.equ pISR_TICK,     0xc7fff70
+ 361              	.equ pISR_PB,       0xc7fff74 /* EINT4567 */
+ 362              	.equ pISR_ETHERNET, 0xc7fff78 /* EINT3    */
+ 363              	.equ pISR_TS,       0xc7fff7c /* EINT2    */
+ 364              	.equ pISR_KEYPAD,   0xc7fff80 /* EINT1    */
+ 365              	.equ pISR_USB,      0xc7fff84 /* EINT0    */
+ 366              	
+ 367              	/* Bits de INTMASK, I_ISPC/F_ISPC y I_ISPR */
+ 368              	.equ BIT_PB,        (1<<21) /* EINT4567 */
+ 369              	.equ BIT_ETHERNET,  (1<<22) /* EINT3    */
+ 370              	.equ BIT_TS,        (1<<23) /* EINT2    */
+ 371              	.equ BIT_KEYPAD,    (1<<24) /* EINT1    */
+ 372              	.equ BIT_USB,       (1<<25) /* EINT0    */
+ 373              	
+ 374              	/* Bits de EXTINTPND */
+ 375              	.equ BIT_RIGHTPB,   (1<<3)
+ 376              	.equ BIT_LEFTPB,    (1<<2)
+ 377              	.equ BIT_IDE_INTRQ, (1<<1)
+ 378              	.equ BIT_IDE_DMACK, (1<<0)
+ 379              	
+ 380              	
+ 381              	  /* Referencias externas */
+ 382              	
+ 383              	  .extern OSIntNesting   /* INT8U OSIntNesting        -- nivel de anidación de interrupciones      
+ 384              	  .extern OSTCBCur       /* OS_TCB *OSTCBCur          -- puntero al TCB de la tarea en ejecución (a
+ 385              	  .extern OSIntEnter     /* void OSIntEnter( void )   -- función del kernel                        
+ 386              	  .extern OSIntExit      /* void OSIntExit( void )    -- función del kernel                        
+ 387              	  
+ 388              	  /* Modos de operación */
+ 389              	
+ 390              	  .equ IRQMODE, (0x12)
+ 391              	  .equ SVCMODE, (0x13)
+ 392              	
+ 393              	  /* Máscara para desabilitar IRQ y FIQ */
+ 394              	
+ 395              	  .equ NOINT,   (0xc0)
+ 396              	
+ 397              	/*
+ 398              	**
+ 399              	** Macro para el tratamiento de una interrupción genérica
+ 400              	**
+ 401              	** IMPORTANTE: La rutina comienza su ejecución en modo IRQ (con SP, LR y CPSR propios)
+ 402              	**
+ 403              	*/
+ 404              	
+ 405              	.macro OS_CPU_ISR_WRAPPER isr
+ 406              	
+ 407              	  stmfd sp!, {r1-r3}           /* Apila los registros de trabajo en la pila IRQ  */
+ 408              	
+ 409              	  mov r1, sp                   /* Copia en R1 el puntero de la pila IRQ          */
+ 410              	  add sp, sp, #12              /* Ajusta el puntero del la pila IRQ a la posición que tenía antes d
+ 411              	  sub r2, lr, #4               /* Copia en R2, previo ajuste, la dirección de retorno a la tarea ac
+ 412              	  mrs r3, spsr                 /* Copia en R3 el SPSR (i.e. el CPSR de la tarea actual interrumpida
+ 413              	
+ 414              	  msr cpsr_c, #(NOINT|SVCMODE) /* Cambia a modo SVC */
+ 415              	
+ 416              	                               /* (1) Guarda en la pila SVC el contexto de la tarea actual         
+ 417              	  stmfd sp!, {r2}              /*     - Apila la dirección de retorno a la tarea actual (previament
+ 418              	  stmfd sp!, {lr}              /*     - Apila el LR de la tarea actual                             
+ 419              	  stmfd sp!, {r4-r12}          /*     - Apila los registros R4-R12 de la tarea actual              
+ 420              	  ldmfd r1!, {r4-r6}           /*     - Copia en R4-R6 los registros R1-R3 de la tarea actual (prev
+ 421              	  stmfd sp!, {r4-r6}           /*     - Apila los registros R1-R3 de la tarea actual (anteriormente
+ 422              	  stmfd sp!, {r0}              /*     - Apila el registro R0 de la tarea actual                    
+ 423              	  stmfd sp!, {r3}              /*     - Apila el CPSR de la tarea actual (previamente copiado en R3
+ 424              	
+ 425              	  bl  OSIntEnter               /* (2) Llama a la función OSIntEnter()          */
+ 426              	
+ 427              	  ldr  r0, =OSIntNesting        /* (3) Si OSIntNesting == 1 ...                 */
+ 428              	  ldrb r0, [r0]
+ 429              	  cmp  r0, #1
+ 430              	  bne  label\isr
+ 431              	  ldr  r0, =OSTCBCur            /*     ... OSTCBCur->OSTCBStkPtr = SP           */
+ 432              	  ldr  r1, [r0]
+ 433              	  str  sp, [r1]
+ 434              	
+ 435              	label\isr:
+ 436              	
+ 437              	  msr cpsr_c, #(NOINT|IRQMODE) /* Cambia a modo IRQ (para que la pila IRQ sea usada para tratar la 
+ 438              	
+ 439              	  bl  \isr                     /* (6) Llama a la función pasada por argumento a la macro esta funci
+ 440              	                               /*     - (4) Borrar interrupción pendiente                          
+ 441              	                               /*     - (5) Opcionalmente habilitar interrupciones                 
+ 442              	
+ 443              	  msr cpsr_c, #(NOINT|SVCMODE) /* Cambia a modo SVC                            */
+ 444              	
+ 445              	  bl  OSIntExit                /* (6) Llama a la función OSIntExit()           */
+ 446              	
+ 447              	                               /* Si ha vuelto de OSintExit() porque no hay una tarea preparada con
+ 448              	  ldmfd sp!,  {r4}             /* (7) Restaura de la pila el contexto de la tarea actual y ...     
+ 449              	  msr   spsr, r4
+ 450              	  ldmfd sp!,  {r0-r12,lr,pc}^  /* (9) ... retorna a dicha tarea                */
+ 451              	
+ 452              	
+ 453              	.endm
+DEFINED SYMBOLS
+../kernel/os_port/os_cpu_isr_wrapper.asm:41     *ABS*:01c80000 BWSCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:42     *ABS*:01c80004 BANKCON0
+../kernel/os_port/os_cpu_isr_wrapper.asm:43     *ABS*:01c80008 BANKCON1
+../kernel/os_port/os_cpu_isr_wrapper.asm:44     *ABS*:01c8000c BANKCON2
+../kernel/os_port/os_cpu_isr_wrapper.asm:45     *ABS*:01c80010 BANKCON3
+../kernel/os_port/os_cpu_isr_wrapper.asm:46     *ABS*:01c80014 BANKCON4
+../kernel/os_port/os_cpu_isr_wrapper.asm:47     *ABS*:01c80018 BANKCON5
+../kernel/os_port/os_cpu_isr_wrapper.asm:48     *ABS*:01c8001c BANKCON6
+../kernel/os_port/os_cpu_isr_wrapper.asm:49     *ABS*:01c80020 BANKCON7
+../kernel/os_port/os_cpu_isr_wrapper.asm:50     *ABS*:01c80024 REFRESH
+../kernel/os_port/os_cpu_isr_wrapper.asm:51     *ABS*:01c80028 BANKSIZE
+../kernel/os_port/os_cpu_isr_wrapper.asm:52     *ABS*:01c8002c MRSRB6
+../kernel/os_port/os_cpu_isr_wrapper.asm:53     *ABS*:01c80030 MRSRB7
+../kernel/os_port/os_cpu_isr_wrapper.asm:56     *ABS*:01d80000 PLLCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:57     *ABS*:01d80004 CLKCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:58     *ABS*:01d80008 CLKSLOW
+../kernel/os_port/os_cpu_isr_wrapper.asm:59     *ABS*:01d8000c LOCKTIME
+../kernel/os_port/os_cpu_isr_wrapper.asm:62     *ABS*:01c00000 SYSCFG
+../kernel/os_port/os_cpu_isr_wrapper.asm:63     *ABS*:01c00004 NCACHBE0
+../kernel/os_port/os_cpu_isr_wrapper.asm:64     *ABS*:01c00008 NCACHBE1
+../kernel/os_port/os_cpu_isr_wrapper.asm:67     *ABS*:01c40000 SBUSCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:70     *ABS*:01e80000 ZDCON0
+../kernel/os_port/os_cpu_isr_wrapper.asm:71     *ABS*:01e80004 ZDISRC0
+../kernel/os_port/os_cpu_isr_wrapper.asm:72     *ABS*:01e80008 ZDIDES0
+../kernel/os_port/os_cpu_isr_wrapper.asm:73     *ABS*:01e8000c ZDICNT0
+../kernel/os_port/os_cpu_isr_wrapper.asm:74     *ABS*:01e80010 ZDCSRC0
+../kernel/os_port/os_cpu_isr_wrapper.asm:75     *ABS*:01e80014 ZDCDES0
+../kernel/os_port/os_cpu_isr_wrapper.asm:76     *ABS*:01e80018 ZDCCNT0
+../kernel/os_port/os_cpu_isr_wrapper.asm:77     *ABS*:01e80020 ZDCON1
+../kernel/os_port/os_cpu_isr_wrapper.asm:78     *ABS*:01e80024 ZDISRC1
+../kernel/os_port/os_cpu_isr_wrapper.asm:79     *ABS*:01e80028 ZDIDES1
+../kernel/os_port/os_cpu_isr_wrapper.asm:80     *ABS*:01e8002c ZDICNT1
+../kernel/os_port/os_cpu_isr_wrapper.asm:81     *ABS*:01e80030 ZDCSRC1
+../kernel/os_port/os_cpu_isr_wrapper.asm:82     *ABS*:01e80034 ZDCDES1
+../kernel/os_port/os_cpu_isr_wrapper.asm:83     *ABS*:01e80038 ZDCCNT1
+../kernel/os_port/os_cpu_isr_wrapper.asm:84     *ABS*:01f80000 BDCON0
+../kernel/os_port/os_cpu_isr_wrapper.asm:85     *ABS*:01f80004 BDISRC0
+../kernel/os_port/os_cpu_isr_wrapper.asm:86     *ABS*:01f80008 BDIDES0
+../kernel/os_port/os_cpu_isr_wrapper.asm:87     *ABS*:01f8000c BDICNT0
+../kernel/os_port/os_cpu_isr_wrapper.asm:88     *ABS*:01f80010 BDCSRC0
+../kernel/os_port/os_cpu_isr_wrapper.asm:89     *ABS*:01f80014 BDCDES0
+../kernel/os_port/os_cpu_isr_wrapper.asm:90     *ABS*:01f80018 BDCCNT0
+../kernel/os_port/os_cpu_isr_wrapper.asm:91     *ABS*:01f80020 BDCON1
+../kernel/os_port/os_cpu_isr_wrapper.asm:92     *ABS*:01f80024 BDISRC1
+../kernel/os_port/os_cpu_isr_wrapper.asm:93     *ABS*:01f80028 BDIDES1
+../kernel/os_port/os_cpu_isr_wrapper.asm:94     *ABS*:01f8002c BDICNT1
+../kernel/os_port/os_cpu_isr_wrapper.asm:95     *ABS*:01f80030 BDCSRC1
+../kernel/os_port/os_cpu_isr_wrapper.asm:96     *ABS*:01f80034 BDCDES1
+../kernel/os_port/os_cpu_isr_wrapper.asm:97     *ABS*:01f80038 BDCCNT1
+../kernel/os_port/os_cpu_isr_wrapper.asm:100    *ABS*:01d2004c SPUCR
+../kernel/os_port/os_cpu_isr_wrapper.asm:101    *ABS*:01d20000 PCONA
+../kernel/os_port/os_cpu_isr_wrapper.asm:102    *ABS*:01d20004 PDATA
+../kernel/os_port/os_cpu_isr_wrapper.asm:103    *ABS*:01d20008 PCONB
+../kernel/os_port/os_cpu_isr_wrapper.asm:104    *ABS*:01d2000c PDATB
+../kernel/os_port/os_cpu_isr_wrapper.asm:105    *ABS*:01d20010 PCONC
+../kernel/os_port/os_cpu_isr_wrapper.asm:106    *ABS*:01d20014 PDATC
+../kernel/os_port/os_cpu_isr_wrapper.asm:107    *ABS*:01d20018 PUPC
+../kernel/os_port/os_cpu_isr_wrapper.asm:108    *ABS*:01d2001c PCOND
+../kernel/os_port/os_cpu_isr_wrapper.asm:109    *ABS*:01d20020 PDATD
+../kernel/os_port/os_cpu_isr_wrapper.asm:110    *ABS*:01d20024 PUPD
+../kernel/os_port/os_cpu_isr_wrapper.asm:111    *ABS*:01d20028 PCONE
+../kernel/os_port/os_cpu_isr_wrapper.asm:112    *ABS*:01d2002c PDATE
+../kernel/os_port/os_cpu_isr_wrapper.asm:113    *ABS*:01d20030 PUPE
+../kernel/os_port/os_cpu_isr_wrapper.asm:114    *ABS*:01d20034 PCONF
+../kernel/os_port/os_cpu_isr_wrapper.asm:115    *ABS*:01d20038 PDATF
+../kernel/os_port/os_cpu_isr_wrapper.asm:116    *ABS*:01d2003c PUPF
+../kernel/os_port/os_cpu_isr_wrapper.asm:117    *ABS*:01d20040 PCONG
+../kernel/os_port/os_cpu_isr_wrapper.asm:118    *ABS*:01d20044 PDATG
+../kernel/os_port/os_cpu_isr_wrapper.asm:119    *ABS*:01d20048 PUPG
+../kernel/os_port/os_cpu_isr_wrapper.asm:120    *ABS*:01d20050 EXTINT
+../kernel/os_port/os_cpu_isr_wrapper.asm:121    *ABS*:01d20054 EXTINTPND
+../kernel/os_port/os_cpu_isr_wrapper.asm:124    *ABS*:00000001 BIT_EINT4
+../kernel/os_port/os_cpu_isr_wrapper.asm:125    *ABS*:00000002 BIT_EINT5
+../kernel/os_port/os_cpu_isr_wrapper.asm:126    *ABS*:00000004 BIT_EINT6
+../kernel/os_port/os_cpu_isr_wrapper.asm:127    *ABS*:00000008 BIT_EINT7
+../kernel/os_port/os_cpu_isr_wrapper.asm:130    *ABS*:01d50000 TCFG0
+../kernel/os_port/os_cpu_isr_wrapper.asm:131    *ABS*:01d50004 TCFG1
+../kernel/os_port/os_cpu_isr_wrapper.asm:132    *ABS*:01d50008 TCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:133    *ABS*:01d5000c TCNTB0
+../kernel/os_port/os_cpu_isr_wrapper.asm:134    *ABS*:01d50010 TCMPB0
+../kernel/os_port/os_cpu_isr_wrapper.asm:135    *ABS*:01d50014 TCNTO0
+../kernel/os_port/os_cpu_isr_wrapper.asm:136    *ABS*:01d50018 TCNTB1
+../kernel/os_port/os_cpu_isr_wrapper.asm:137    *ABS*:01d5001c TCMPB1
+../kernel/os_port/os_cpu_isr_wrapper.asm:138    *ABS*:01d50020 TCNTO1
+../kernel/os_port/os_cpu_isr_wrapper.asm:139    *ABS*:01d50024 TCNTB2
+../kernel/os_port/os_cpu_isr_wrapper.asm:140    *ABS*:01d50028 TCMPB2
+../kernel/os_port/os_cpu_isr_wrapper.asm:141    *ABS*:01d5002c TCNTO2
+../kernel/os_port/os_cpu_isr_wrapper.asm:142    *ABS*:01d50030 TCNTB3
+../kernel/os_port/os_cpu_isr_wrapper.asm:143    *ABS*:01d50034 TCMPB3
+../kernel/os_port/os_cpu_isr_wrapper.asm:144    *ABS*:01d50038 TCNTO3
+../kernel/os_port/os_cpu_isr_wrapper.asm:145    *ABS*:01d5003c TCNTB4
+../kernel/os_port/os_cpu_isr_wrapper.asm:146    *ABS*:01d50040 TCMPB4
+../kernel/os_port/os_cpu_isr_wrapper.asm:147    *ABS*:01d50044 TCNTO4
+../kernel/os_port/os_cpu_isr_wrapper.asm:148    *ABS*:01d50048 TCNTB5
+../kernel/os_port/os_cpu_isr_wrapper.asm:149    *ABS*:01d5004c TCNTO5
+../kernel/os_port/os_cpu_isr_wrapper.asm:152    *ABS*:01d00000 ULCON0
+../kernel/os_port/os_cpu_isr_wrapper.asm:153    *ABS*:01d00004 UCON0
+../kernel/os_port/os_cpu_isr_wrapper.asm:154    *ABS*:01d00008 UFCON0
+../kernel/os_port/os_cpu_isr_wrapper.asm:155    *ABS*:01d0000c UMCON0
+../kernel/os_port/os_cpu_isr_wrapper.asm:156    *ABS*:01d00010 UTRSTAT0
+../kernel/os_port/os_cpu_isr_wrapper.asm:157    *ABS*:01d00014 UERSTAT0
+../kernel/os_port/os_cpu_isr_wrapper.asm:158    *ABS*:01d00018 UFSTAT0
+../kernel/os_port/os_cpu_isr_wrapper.asm:159    *ABS*:01d0001c UMSTAT0
+../kernel/os_port/os_cpu_isr_wrapper.asm:160    *ABS*:01d00020 UTXH0
+../kernel/os_port/os_cpu_isr_wrapper.asm:161    *ABS*:01d00024 URXH0
+../kernel/os_port/os_cpu_isr_wrapper.asm:162    *ABS*:01d00028 UBRDIV0
+../kernel/os_port/os_cpu_isr_wrapper.asm:163    *ABS*:01d04000 ULCON1
+../kernel/os_port/os_cpu_isr_wrapper.asm:164    *ABS*:01d04004 UCON1
+../kernel/os_port/os_cpu_isr_wrapper.asm:165    *ABS*:01d04008 UFCON1
+../kernel/os_port/os_cpu_isr_wrapper.asm:166    *ABS*:01d0400c UMCON1
+../kernel/os_port/os_cpu_isr_wrapper.asm:167    *ABS*:01d04010 UTRSTAT1
+../kernel/os_port/os_cpu_isr_wrapper.asm:168    *ABS*:01d04014 UERSTAT1
+../kernel/os_port/os_cpu_isr_wrapper.asm:169    *ABS*:01d04018 UFSTAT1
+../kernel/os_port/os_cpu_isr_wrapper.asm:170    *ABS*:01d0401c UMSTAT1
+../kernel/os_port/os_cpu_isr_wrapper.asm:171    *ABS*:01d04020 UTXH1
+../kernel/os_port/os_cpu_isr_wrapper.asm:172    *ABS*:01d04024 URXH1
+../kernel/os_port/os_cpu_isr_wrapper.asm:173    *ABS*:01d04028 UBRDIV1
+../kernel/os_port/os_cpu_isr_wrapper.asm:176    *ABS*:01e00000 INTCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:177    *ABS*:01e00004 INTPND
+../kernel/os_port/os_cpu_isr_wrapper.asm:178    *ABS*:01e00008 INTMOD
+../kernel/os_port/os_cpu_isr_wrapper.asm:179    *ABS*:01e0000c INTMSK
+../kernel/os_port/os_cpu_isr_wrapper.asm:180    *ABS*:01e00010 I_PSLV
+../kernel/os_port/os_cpu_isr_wrapper.asm:181    *ABS*:01e00014 I_PMST
+../kernel/os_port/os_cpu_isr_wrapper.asm:182    *ABS*:01e00018 I_CSLV
+../kernel/os_port/os_cpu_isr_wrapper.asm:183    *ABS*:01e0001c I_CMST
+../kernel/os_port/os_cpu_isr_wrapper.asm:184    *ABS*:01e00020 I_ISPR
+../kernel/os_port/os_cpu_isr_wrapper.asm:185    *ABS*:01e00024 I_ISPC
+../kernel/os_port/os_cpu_isr_wrapper.asm:186    *ABS*:01e0003c F_ISPC
+../kernel/os_port/os_cpu_isr_wrapper.asm:189    *ABS*:00000001 BIT_ADC
+../kernel/os_port/os_cpu_isr_wrapper.asm:190    *ABS*:00000002 BIT_RTC
+../kernel/os_port/os_cpu_isr_wrapper.asm:191    *ABS*:00000004 BIT_UTXD1
+../kernel/os_port/os_cpu_isr_wrapper.asm:192    *ABS*:00000008 BIT_UTXD0
+../kernel/os_port/os_cpu_isr_wrapper.asm:193    *ABS*:00000010 BIT_SIO
+../kernel/os_port/os_cpu_isr_wrapper.asm:194    *ABS*:00000020 BIT_IIC
+../kernel/os_port/os_cpu_isr_wrapper.asm:195    *ABS*:00000040 BIT_URXD1
+../kernel/os_port/os_cpu_isr_wrapper.asm:196    *ABS*:00000080 BIT_URXD0
+../kernel/os_port/os_cpu_isr_wrapper.asm:197    *ABS*:00000100 BIT_TIMER5
+../kernel/os_port/os_cpu_isr_wrapper.asm:198    *ABS*:00000200 BIT_TIMER4
+../kernel/os_port/os_cpu_isr_wrapper.asm:199    *ABS*:00000400 BIT_TIMER3
+../kernel/os_port/os_cpu_isr_wrapper.asm:200    *ABS*:00000800 BIT_TIMER2
+../kernel/os_port/os_cpu_isr_wrapper.asm:201    *ABS*:00001000 BIT_TIMER1
+../kernel/os_port/os_cpu_isr_wrapper.asm:202    *ABS*:00002000 BIT_TIMER0
+../kernel/os_port/os_cpu_isr_wrapper.asm:203    *ABS*:00004000 BIT_UERR01
+../kernel/os_port/os_cpu_isr_wrapper.asm:204    *ABS*:00008000 BIT_WDT
+../kernel/os_port/os_cpu_isr_wrapper.asm:205    *ABS*:00010000 BIT_BDMA1
+../kernel/os_port/os_cpu_isr_wrapper.asm:206    *ABS*:00020000 BIT_BDMA0
+../kernel/os_port/os_cpu_isr_wrapper.asm:207    *ABS*:00040000 BIT_ZDMA1
+../kernel/os_port/os_cpu_isr_wrapper.asm:208    *ABS*:00080000 BIT_ZDMA0
+../kernel/os_port/os_cpu_isr_wrapper.asm:209    *ABS*:00100000 BIT_TICK
+../kernel/os_port/os_cpu_isr_wrapper.asm:210    *ABS*:00200000 BIT_EINT4567
+../kernel/os_port/os_cpu_isr_wrapper.asm:211    *ABS*:00400000 BIT_EINT3
+../kernel/os_port/os_cpu_isr_wrapper.asm:212    *ABS*:00800000 BIT_EINT2
+../kernel/os_port/os_cpu_isr_wrapper.asm:213    *ABS*:01000000 BIT_EINT1
+../kernel/os_port/os_cpu_isr_wrapper.asm:214    *ABS*:02000000 BIT_EINT0
+../kernel/os_port/os_cpu_isr_wrapper.asm:215    *ABS*:04000000 BIT_GLOBAL
+../kernel/os_port/os_cpu_isr_wrapper.asm:218    *ABS*:01f00000 LCDCON1
+../kernel/os_port/os_cpu_isr_wrapper.asm:219    *ABS*:01f00004 LCDCON2
+../kernel/os_port/os_cpu_isr_wrapper.asm:220    *ABS*:01f00040 LCDCON3
+../kernel/os_port/os_cpu_isr_wrapper.asm:221    *ABS*:01f00008 LCDSADDR1
+../kernel/os_port/os_cpu_isr_wrapper.asm:222    *ABS*:01f0000c LCDSADDR2
+../kernel/os_port/os_cpu_isr_wrapper.asm:223    *ABS*:01f00010 LCDSADDR3
+../kernel/os_port/os_cpu_isr_wrapper.asm:224    *ABS*:01f00014 REDLUT
+../kernel/os_port/os_cpu_isr_wrapper.asm:225    *ABS*:01f00018 GREENLUT
+../kernel/os_port/os_cpu_isr_wrapper.asm:226    *ABS*:01f0001c BLUELUT
+../kernel/os_port/os_cpu_isr_wrapper.asm:227    *ABS*:01f00020 DP1_2
+../kernel/os_port/os_cpu_isr_wrapper.asm:228    *ABS*:01f00024 DP4_7
+../kernel/os_port/os_cpu_isr_wrapper.asm:229    *ABS*:01f00028 DP3_5
+../kernel/os_port/os_cpu_isr_wrapper.asm:230    *ABS*:01f0002c DP2_3
+../kernel/os_port/os_cpu_isr_wrapper.asm:231    *ABS*:01f00030 DP5_7
+../kernel/os_port/os_cpu_isr_wrapper.asm:232    *ABS*:01f00034 DP3_4
+../kernel/os_port/os_cpu_isr_wrapper.asm:233    *ABS*:01f00038 DP4_5
+../kernel/os_port/os_cpu_isr_wrapper.asm:234    *ABS*:01f0003c DP6_7
+../kernel/os_port/os_cpu_isr_wrapper.asm:235    *ABS*:01f00044 DITHMODE
+../kernel/os_port/os_cpu_isr_wrapper.asm:238    *ABS*:01d40000 ADCCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:239    *ABS*:01d40004 ADCPSR
+../kernel/os_port/os_cpu_isr_wrapper.asm:240    *ABS*:01d40008 ADCDAT
+../kernel/os_port/os_cpu_isr_wrapper.asm:243    *ABS*:01d70040 RTCCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:244    *ABS*:01d70050 RTCALM
+../kernel/os_port/os_cpu_isr_wrapper.asm:245    *ABS*:01d70054 ALMSEC
+../kernel/os_port/os_cpu_isr_wrapper.asm:246    *ABS*:01d70058 ALMMIN
+../kernel/os_port/os_cpu_isr_wrapper.asm:247    *ABS*:01d7005c ALMHOUR
+../kernel/os_port/os_cpu_isr_wrapper.asm:248    *ABS*:01d70060 ALMDAY
+../kernel/os_port/os_cpu_isr_wrapper.asm:249    *ABS*:01d70064 ALMMON
+../kernel/os_port/os_cpu_isr_wrapper.asm:250    *ABS*:01d70068 ALMYEAR
+../kernel/os_port/os_cpu_isr_wrapper.asm:251    *ABS*:01d7006c RTCRST
+../kernel/os_port/os_cpu_isr_wrapper.asm:252    *ABS*:01d70070 BCDSEC
+../kernel/os_port/os_cpu_isr_wrapper.asm:253    *ABS*:01d70074 BCDMIN
+../kernel/os_port/os_cpu_isr_wrapper.asm:254    *ABS*:01d70078 BCDHOUR
+../kernel/os_port/os_cpu_isr_wrapper.asm:255    *ABS*:01d7007c BCDDAY
+../kernel/os_port/os_cpu_isr_wrapper.asm:256    *ABS*:01d70080 BCDDATE
+../kernel/os_port/os_cpu_isr_wrapper.asm:257    *ABS*:01d70084 BCDMON
+../kernel/os_port/os_cpu_isr_wrapper.asm:258    *ABS*:01d70088 BCDYEAR
+../kernel/os_port/os_cpu_isr_wrapper.asm:259    *ABS*:01d7008c TICNT
+../kernel/os_port/os_cpu_isr_wrapper.asm:262    *ABS*:01d30000 WTCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:263    *ABS*:01d30004 WTDAT
+../kernel/os_port/os_cpu_isr_wrapper.asm:264    *ABS*:01d30008 WTCNT
+../kernel/os_port/os_cpu_isr_wrapper.asm:267    *ABS*:01d60000 IICCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:268    *ABS*:01d60004 IICSTAT
+../kernel/os_port/os_cpu_isr_wrapper.asm:269    *ABS*:01d60008 IICADD
+../kernel/os_port/os_cpu_isr_wrapper.asm:270    *ABS*:01d6000c IICDS
+../kernel/os_port/os_cpu_isr_wrapper.asm:273    *ABS*:01d18000 IISCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:274    *ABS*:01d18004 IISMOD
+../kernel/os_port/os_cpu_isr_wrapper.asm:275    *ABS*:01d18008 IISPSR
+../kernel/os_port/os_cpu_isr_wrapper.asm:276    *ABS*:01d1800c IISFCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:277    *ABS*:01d18010 IISFIF
+../kernel/os_port/os_cpu_isr_wrapper.asm:280    *ABS*:01d14000 SIOCON
+../kernel/os_port/os_cpu_isr_wrapper.asm:281    *ABS*:01d14004 SIODAT
+../kernel/os_port/os_cpu_isr_wrapper.asm:282    *ABS*:01d14008 SBRDR
+../kernel/os_port/os_cpu_isr_wrapper.asm:283    *ABS*:01d1400c IVTCNT
+../kernel/os_port/os_cpu_isr_wrapper.asm:284    *ABS*:01d14010 DCNTZ
+../kernel/os_port/os_cpu_isr_wrapper.asm:306    *ABS*:00000000 ROM_START_ADDRESS
+../kernel/os_port/os_cpu_isr_wrapper.asm:307    *ABS*:001fffff ROM_END_ADDRESS
+../kernel/os_port/os_cpu_isr_wrapper.asm:309    *ABS*:01c00000 DEVICES_START
+../kernel/os_port/os_cpu_isr_wrapper.asm:310    *ABS*:0bffffff DEVICES_END
+../kernel/os_port/os_cpu_isr_wrapper.asm:312    *ABS*:0c000000 RAM_START_ADDRESS
+../kernel/os_port/os_cpu_isr_wrapper.asm:313    *ABS*:0c7fffff RAM_END_ADDRESS
+../kernel/os_port/os_cpu_isr_wrapper.asm:315    *ABS*:10000000 SP_START_ADDRESS
+../kernel/os_port/os_cpu_isr_wrapper.asm:316    *ABS*:100001ff SP_END_ADDRESS
+../kernel/os_port/os_cpu_isr_wrapper.asm:318    *ABS*:10004000 CACHE_LRU_START
+../kernel/os_port/os_cpu_isr_wrapper.asm:319    *ABS*:100047ff CACHE_LRU_END
+../kernel/os_port/os_cpu_isr_wrapper.asm:323    *ABS*:0c7ff000 USRSTACK
+../kernel/os_port/os_cpu_isr_wrapper.asm:324    *ABS*:0c7ff100 SVCSTACK
+../kernel/os_port/os_cpu_isr_wrapper.asm:325    *ABS*:0c7ff200 UNDSTACK
+../kernel/os_port/os_cpu_isr_wrapper.asm:326    *ABS*:0c7ff300 ABTSTACK
+../kernel/os_port/os_cpu_isr_wrapper.asm:327    *ABS*:0c7ff400 IRQSTACK
+../kernel/os_port/os_cpu_isr_wrapper.asm:328    *ABS*:0c7ff500 FIQSTACK
+../kernel/os_port/os_cpu_isr_wrapper.asm:332    *ABS*:0c7fff00 pISR_RESET
+../kernel/os_port/os_cpu_isr_wrapper.asm:333    *ABS*:0c7fff04 pISR_UNDEF
+../kernel/os_port/os_cpu_isr_wrapper.asm:334    *ABS*:0c7fff08 pISR_SWI
+../kernel/os_port/os_cpu_isr_wrapper.asm:335    *ABS*:0c7fff0c pISR_PABORT
+../kernel/os_port/os_cpu_isr_wrapper.asm:336    *ABS*:0c7fff10 pISR_DABORT
+../kernel/os_port/os_cpu_isr_wrapper.asm:338    *ABS*:0c7fff18 pISR_IRQ
+../kernel/os_port/os_cpu_isr_wrapper.asm:339    *ABS*:0c7fff1c pISR_FIQ
+../kernel/os_port/os_cpu_isr_wrapper.asm:340    *ABS*:0c7fff20 pISR_ADC
+../kernel/os_port/os_cpu_isr_wrapper.asm:341    *ABS*:0c7fff24 pISR_RTC
+../kernel/os_port/os_cpu_isr_wrapper.asm:342    *ABS*:0c7fff28 pISR_UTXD1
+../kernel/os_port/os_cpu_isr_wrapper.asm:343    *ABS*:0c7fff2c pISR_UTXD0
+../kernel/os_port/os_cpu_isr_wrapper.asm:344    *ABS*:0c7fff30 pISR_SIO
+../kernel/os_port/os_cpu_isr_wrapper.asm:345    *ABS*:0c7fff34 pISR_IIC
+../kernel/os_port/os_cpu_isr_wrapper.asm:346    *ABS*:0c7fff38 pISR_URXD1
+../kernel/os_port/os_cpu_isr_wrapper.asm:347    *ABS*:0c7fff3c pISR_URXD0
+../kernel/os_port/os_cpu_isr_wrapper.asm:348    *ABS*:0c7fff40 pISR_TIMER5
+../kernel/os_port/os_cpu_isr_wrapper.asm:349    *ABS*:0c7fff44 pISR_TIMER4
+../kernel/os_port/os_cpu_isr_wrapper.asm:350    *ABS*:0c7fff48 pISR_TIMER3
+../kernel/os_port/os_cpu_isr_wrapper.asm:351    *ABS*:0c7fff4c pISR_TIMER2
+../kernel/os_port/os_cpu_isr_wrapper.asm:352    *ABS*:0c7fff50 pISR_TIMER1
+../kernel/os_port/os_cpu_isr_wrapper.asm:353    *ABS*:0c7fff54 pISR_TIMER0
+../kernel/os_port/os_cpu_isr_wrapper.asm:354    *ABS*:0c7fff58 pISR_UERR01
+../kernel/os_port/os_cpu_isr_wrapper.asm:355    *ABS*:0c7fff5c pISR_WDT
+../kernel/os_port/os_cpu_isr_wrapper.asm:356    *ABS*:0c7fff60 pISR_BDMA1
+../kernel/os_port/os_cpu_isr_wrapper.asm:357    *ABS*:0c7fff64 pISR_BDMA0
+../kernel/os_port/os_cpu_isr_wrapper.asm:358    *ABS*:0c7fff68 pISR_ZDMA1
+../kernel/os_port/os_cpu_isr_wrapper.asm:359    *ABS*:0c7fff6c pISR_ZDMA0
+../kernel/os_port/os_cpu_isr_wrapper.asm:360    *ABS*:0c7fff70 pISR_TICK
+../kernel/os_port/os_cpu_isr_wrapper.asm:361    *ABS*:0c7fff74 pISR_PB
+../kernel/os_port/os_cpu_isr_wrapper.asm:362    *ABS*:0c7fff78 pISR_ETHERNET
+../kernel/os_port/os_cpu_isr_wrapper.asm:363    *ABS*:0c7fff7c pISR_TS
+../kernel/os_port/os_cpu_isr_wrapper.asm:364    *ABS*:0c7fff80 pISR_KEYPAD
+../kernel/os_port/os_cpu_isr_wrapper.asm:365    *ABS*:0c7fff84 pISR_USB
+../kernel/os_port/os_cpu_isr_wrapper.asm:368    *ABS*:00200000 BIT_PB
+../kernel/os_port/os_cpu_isr_wrapper.asm:369    *ABS*:00400000 BIT_ETHERNET
+../kernel/os_port/os_cpu_isr_wrapper.asm:370    *ABS*:00800000 BIT_TS
+../kernel/os_port/os_cpu_isr_wrapper.asm:371    *ABS*:01000000 BIT_KEYPAD
+../kernel/os_port/os_cpu_isr_wrapper.asm:372    *ABS*:02000000 BIT_USB
+../kernel/os_port/os_cpu_isr_wrapper.asm:375    *ABS*:00000008 BIT_RIGHTPB
+../kernel/os_port/os_cpu_isr_wrapper.asm:376    *ABS*:00000004 BIT_LEFTPB
+../kernel/os_port/os_cpu_isr_wrapper.asm:377    *ABS*:00000002 BIT_IDE_INTRQ
+../kernel/os_port/os_cpu_isr_wrapper.asm:378    *ABS*:00000001 BIT_IDE_DMACK
+../kernel/os_port/os_cpu_isr_wrapper.asm:390    *ABS*:00000012 IRQMODE
+../kernel/os_port/os_cpu_isr_wrapper.asm:391    *ABS*:00000013 SVCMODE
+../kernel/os_port/os_cpu_isr_wrapper.asm:395    *ABS*:000000c0 NOINT
+
+NO UNDEFINED SYMBOLS

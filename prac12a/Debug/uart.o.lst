@@ -1,0 +1,910 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"uart.c"
+  21              	.Ltext0:
+  22              		.file 1 "../uart.c"
+ 1777              		.align	2
+ 1778              		.global	uart0_init
+ 1780              	uart0_init:
+ 1781              	.LFB0:
+   1:../uart.c     **** #include "uart.h"
+   2:../uart.c     **** #include "44b.h"
+   3:../uart.c     **** 
+   4:../uart.c     **** void uart0_init( void )
+   5:../uart.c     **** {
+ 1782              		.loc 1 5 0
+ 1783              		.cfi_startproc
+ 1784              		@ Function supports interworking.
+ 1785              		@ args = 0, pretend = 0, frame = 0
+ 1786              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1787 0000 0DC0A0E1 		mov	ip, sp
+ 1788              	.LCFI0:
+ 1789              		.cfi_def_cfa_register 12
+ 1790 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1791 0008 04B04CE2 		sub	fp, ip, #4
+ 1792              		.cfi_offset 14, -8
+ 1793              		.cfi_offset 13, -12
+ 1794              		.cfi_offset 11, -16
+ 1795              	.LCFI1:
+ 1796              		.cfi_def_cfa 11, 4
+   6:../uart.c     **** 	//*Enable FIFO, Rx normal, Tx normal
+   7:../uart.c     **** 	//UFCON0[0] = 1
+   8:../uart.c     **** 	//UFCON0[1] = 0  Rx FIFO normal (no reset)
+   9:../uart.c     **** 	//UFCON0[2] = 0  Rx FIFO normal (no reset)
+  10:../uart.c     ****     rUFCON0 = 0x1;
+ 1797              		.loc 1 10 0
+ 1798 000c 40309FE5 		ldr	r3, .L2
+ 1799 0010 0120A0E3 		mov	r2, #1
+ 1800 0014 002083E5 		str	r2, [r3, #0]
+  11:../uart.c     **** 
+  12:../uart.c     ****     //Disable Auto Flow Control and disable Request to Send
+  13:../uart.c     ****     //UMCON0[4] = 0
+  14:../uart.c     ****     rUMCON0 = 0x0;
+ 1801              		.loc 1 14 0
+ 1802 0018 38309FE5 		ldr	r3, .L2+4
+ 1803 001c 0020A0E3 		mov	r2, #0
+ 1804 0020 002083E5 		str	r2, [r3, #0]
+  15:../uart.c     **** 
+  16:../uart.c     ****     //* Formato de la trama:
+  17:../uart.c     ****     //ULCON0[6]   = 0  normal (no infrarrojos)
+  18:../uart.c     ****     //ULCON0[5:3] = 0  sin paridad
+  19:../uart.c     ****     //ULCON0[2]   = 0  1 bit de stop
+  20:../uart.c     ****     //ULCON0[1:0] = 3  8 bits de datos
+  21:../uart.c     ****     rULCON0 = 0x3;
+ 1805              		.loc 1 21 0
+ 1806 0024 1D36A0E3 		mov	r3, #30408704
+ 1807 0028 0320A0E3 		mov	r2, #3
+ 1808 002c 002083E5 		str	r2, [r3, #0]
+  22:../uart.c     **** 
+  23:../uart.c     ****     //* 115200 Baudios
+  24:../uart.c     ****     //UBRDIV0 = 34  64MHz / (115200 × 16) ‐ 1
+  25:../uart.c     ****     rUBRDIV0 = 34;
+ 1809              		.loc 1 25 0
+ 1810 0030 24309FE5 		ldr	r3, .L2+8
+ 1811 0034 2220A0E3 		mov	r2, #34
+ 1812 0038 002083E5 		str	r2, [r3, #0]
+  26:../uart.c     **** 
+  27:../uart.c     ****     //UCON0[1:0] = 1  Rx: polling/interrupt mode
+  28:../uart.c     ****     //UCON0[3:2] = 1  Tx: polling/interrupt mode
+  29:../uart.c     ****     //UCON0[4]   = 0  no break
+  30:../uart.c     ****     //UCON0[5]   = 0  no loopback
+  31:../uart.c     ****     rUCON0 = 0x5;
+ 1813              		.loc 1 31 0
+ 1814 003c 1C309FE5 		ldr	r3, .L2+12
+ 1815 0040 0520A0E3 		mov	r2, #5
+ 1816 0044 002083E5 		str	r2, [r3, #0]
+  32:../uart.c     **** }
+ 1817              		.loc 1 32 0
+ 1818 0048 0CD04BE2 		sub	sp, fp, #12
+ 1819 004c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1820 0050 1EFF2FE1 		bx	lr
+ 1821              	.L3:
+ 1822              		.align	2
+ 1823              	.L2:
+ 1824 0054 0800D001 		.word	30408712
+ 1825 0058 0C00D001 		.word	30408716
+ 1826 005c 2800D001 		.word	30408744
+ 1827 0060 0400D001 		.word	30408708
+ 1828              		.cfi_endproc
+ 1829              	.LFE0:
+ 1831              		.align	2
+ 1832              		.global	uart0_putchar
+ 1834              	uart0_putchar:
+ 1835              	.LFB1:
+  33:../uart.c     **** 
+  34:../uart.c     **** void uart0_putchar( char ch )
+  35:../uart.c     **** {
+ 1836              		.loc 1 35 0
+ 1837              		.cfi_startproc
+ 1838              		@ Function supports interworking.
+ 1839              		@ args = 0, pretend = 0, frame = 8
+ 1840              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1841 0064 0DC0A0E1 		mov	ip, sp
+ 1842              	.LCFI2:
+ 1843              		.cfi_def_cfa_register 12
+ 1844 0068 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1845 006c 04B04CE2 		sub	fp, ip, #4
+ 1846              		.cfi_offset 14, -8
+ 1847              		.cfi_offset 13, -12
+ 1848              		.cfi_offset 11, -16
+ 1849              	.LCFI3:
+ 1850              		.cfi_def_cfa 11, 4
+ 1851 0070 08D04DE2 		sub	sp, sp, #8
+ 1852 0074 0030A0E1 		mov	r3, r0
+ 1853 0078 0D304BE5 		strb	r3, [fp, #-13]
+  36:../uart.c     **** 	//While FIFO is full wait (while UFSTAT0[9] == 1)
+  37:../uart.c     ****     while( rUFSTAT0 & (1 << 9) );
+ 1854              		.loc 1 37 0
+ 1855 007c 0000A0E1 		mov	r0, r0	@ nop
+ 1856              	.L5:
+ 1857              		.loc 1 37 0 is_stmt 0 discriminator 1
+ 1858 0080 24309FE5 		ldr	r3, .L6
+ 1859 0084 003093E5 		ldr	r3, [r3, #0]
+ 1860 0088 023C03E2 		and	r3, r3, #512
+ 1861 008c 000053E3 		cmp	r3, #0
+ 1862 0090 FAFFFF1A 		bne	.L5
+  38:../uart.c     ****     rUTXH0 = ch;
+ 1863              		.loc 1 38 0 is_stmt 1
+ 1864 0094 14309FE5 		ldr	r3, .L6+4
+ 1865 0098 0D205BE5 		ldrb	r2, [fp, #-13]
+ 1866 009c 0020C3E5 		strb	r2, [r3, #0]
+  39:../uart.c     **** }
+ 1867              		.loc 1 39 0
+ 1868 00a0 0CD04BE2 		sub	sp, fp, #12
+ 1869 00a4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1870 00a8 1EFF2FE1 		bx	lr
+ 1871              	.L7:
+ 1872              		.align	2
+ 1873              	.L6:
+ 1874 00ac 1800D001 		.word	30408728
+ 1875 00b0 2000D001 		.word	30408736
+ 1876              		.cfi_endproc
+ 1877              	.LFE1:
+ 1879              		.align	2
+ 1880              		.global	uart0_getchar
+ 1882              	uart0_getchar:
+ 1883              	.LFB2:
+  40:../uart.c     **** 
+  41:../uart.c     **** char uart0_getchar( void )
+  42:../uart.c     **** {
+ 1884              		.loc 1 42 0
+ 1885              		.cfi_startproc
+ 1886              		@ Function supports interworking.
+ 1887              		@ args = 0, pretend = 0, frame = 0
+ 1888              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1889 00b4 0DC0A0E1 		mov	ip, sp
+ 1890              	.LCFI4:
+ 1891              		.cfi_def_cfa_register 12
+ 1892 00b8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1893 00bc 04B04CE2 		sub	fp, ip, #4
+ 1894              		.cfi_offset 14, -8
+ 1895              		.cfi_offset 13, -12
+ 1896              		.cfi_offset 11, -16
+ 1897              	.LCFI5:
+ 1898              		.cfi_def_cfa 11, 4
+  43:../uart.c     **** 	//While FIFO is empty wait (while UFSTAT0[3:0] == 0)
+  44:../uart.c     ****     while( (rUFSTAT0 & 0b1111) == 0 );
+ 1899              		.loc 1 44 0
+ 1900 00c0 0000A0E1 		mov	r0, r0	@ nop
+ 1901              	.L9:
+ 1902              		.loc 1 44 0 is_stmt 0 discriminator 1
+ 1903 00c4 28309FE5 		ldr	r3, .L10
+ 1904 00c8 003093E5 		ldr	r3, [r3, #0]
+ 1905 00cc 0F3003E2 		and	r3, r3, #15
+ 1906 00d0 000053E3 		cmp	r3, #0
+ 1907 00d4 FAFFFF0A 		beq	.L9
+  45:../uart.c     **** 
+  46:../uart.c     ****     //Read URXH0
+  47:../uart.c     ****     return rURXH0;
+ 1908              		.loc 1 47 0 is_stmt 1
+ 1909 00d8 18309FE5 		ldr	r3, .L10+4
+ 1910 00dc 0030D3E5 		ldrb	r3, [r3, #0]
+ 1911 00e0 FF3003E2 		and	r3, r3, #255
+  48:../uart.c     **** }
+ 1912              		.loc 1 48 0
+ 1913 00e4 0300A0E1 		mov	r0, r3
+ 1914 00e8 0CD04BE2 		sub	sp, fp, #12
+ 1915 00ec 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1916 00f0 1EFF2FE1 		bx	lr
+ 1917              	.L11:
+ 1918              		.align	2
+ 1919              	.L10:
+ 1920 00f4 1800D001 		.word	30408728
+ 1921 00f8 2400D001 		.word	30408740
+ 1922              		.cfi_endproc
+ 1923              	.LFE2:
+ 1925              		.align	2
+ 1926              		.global	uart0_puts
+ 1928              	uart0_puts:
+ 1929              	.LFB3:
+  49:../uart.c     **** 
+  50:../uart.c     **** void uart0_puts( char *s )
+  51:../uart.c     **** {
+ 1930              		.loc 1 51 0
+ 1931              		.cfi_startproc
+ 1932              		@ Function supports interworking.
+ 1933              		@ args = 0, pretend = 0, frame = 8
+ 1934              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1935 00fc 0DC0A0E1 		mov	ip, sp
+ 1936              	.LCFI6:
+ 1937              		.cfi_def_cfa_register 12
+ 1938 0100 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1939 0104 04B04CE2 		sub	fp, ip, #4
+ 1940              		.cfi_offset 14, -8
+ 1941              		.cfi_offset 13, -12
+ 1942              		.cfi_offset 11, -16
+ 1943              	.LCFI7:
+ 1944              		.cfi_def_cfa 11, 4
+ 1945 0108 08D04DE2 		sub	sp, sp, #8
+ 1946 010c 10000BE5 		str	r0, [fp, #-16]
+  52:../uart.c     ****     while(*s) {
+ 1947              		.loc 1 52 0
+ 1948 0110 060000EA 		b	.L13
+ 1949              	.L14:
+  53:../uart.c     ****     	uart0_putchar(*s);
+ 1950              		.loc 1 53 0
+ 1951 0114 10301BE5 		ldr	r3, [fp, #-16]
+ 1952 0118 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1953 011c 0300A0E1 		mov	r0, r3
+ 1954 0120 FEFFFFEB 		bl	uart0_putchar
+  54:../uart.c     ****     	s++;
+ 1955              		.loc 1 54 0
+ 1956 0124 10301BE5 		ldr	r3, [fp, #-16]
+ 1957 0128 013083E2 		add	r3, r3, #1
+ 1958 012c 10300BE5 		str	r3, [fp, #-16]
+ 1959              	.L13:
+  52:../uart.c     ****     while(*s) {
+ 1960              		.loc 1 52 0 discriminator 1
+ 1961 0130 10301BE5 		ldr	r3, [fp, #-16]
+ 1962 0134 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1963 0138 000053E3 		cmp	r3, #0
+ 1964 013c F4FFFF1A 		bne	.L14
+  55:../uart.c     ****     }
+  56:../uart.c     **** }
+ 1965              		.loc 1 56 0
+ 1966 0140 0CD04BE2 		sub	sp, fp, #12
+ 1967 0144 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1968 0148 1EFF2FE1 		bx	lr
+ 1969              		.cfi_endproc
+ 1970              	.LFE3:
+ 1972              		.align	2
+ 1973              		.global	uart0_putint
+ 1975              	uart0_putint:
+ 1976              	.LFB4:
+  57:../uart.c     **** 
+  58:../uart.c     **** void uart0_putint( int32 i )
+  59:../uart.c     **** {
+ 1977              		.loc 1 59 0
+ 1978              		.cfi_startproc
+ 1979              		@ Function supports interworking.
+ 1980              		@ args = 0, pretend = 0, frame = 32
+ 1981              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1982 014c 0DC0A0E1 		mov	ip, sp
+ 1983              	.LCFI8:
+ 1984              		.cfi_def_cfa_register 12
+ 1985 0150 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1986 0154 04B04CE2 		sub	fp, ip, #4
+ 1987              		.cfi_offset 14, -8
+ 1988              		.cfi_offset 13, -12
+ 1989              		.cfi_offset 11, -16
+ 1990              	.LCFI9:
+ 1991              		.cfi_def_cfa 11, 4
+ 1992 0158 20D04DE2 		sub	sp, sp, #32
+ 1993 015c 28000BE5 		str	r0, [fp, #-40]
+  60:../uart.c     **** 	char s[11 + 1];
+  61:../uart.c     **** 	int negative = i < 0;
+ 1994              		.loc 1 61 0
+ 1995 0160 28301BE5 		ldr	r3, [fp, #-40]
+ 1996 0164 A33FA0E1 		mov	r3, r3, lsr #31
+ 1997 0168 14300BE5 		str	r3, [fp, #-20]
+  62:../uart.c     **** 	char* p = s + 11;
+ 1998              		.loc 1 62 0
+ 1999 016c 20304BE2 		sub	r3, fp, #32
+ 2000 0170 0B3083E2 		add	r3, r3, #11
+ 2001 0174 10300BE5 		str	r3, [fp, #-16]
+  63:../uart.c     **** 
+  64:../uart.c     **** 	*p = '\0';
+ 2002              		.loc 1 64 0
+ 2003 0178 10301BE5 		ldr	r3, [fp, #-16]
+ 2004 017c 0020A0E3 		mov	r2, #0
+ 2005 0180 0020C3E5 		strb	r2, [r3, #0]
+  65:../uart.c     **** 	if (negative)
+ 2006              		.loc 1 65 0
+ 2007 0184 14301BE5 		ldr	r3, [fp, #-20]
+ 2008 0188 000053E3 		cmp	r3, #0
+ 2009 018c 0200000A 		beq	.L16
+  66:../uart.c     **** 		i *= -1;
+ 2010              		.loc 1 66 0
+ 2011 0190 28301BE5 		ldr	r3, [fp, #-40]
+ 2012 0194 003063E2 		rsb	r3, r3, #0
+ 2013 0198 28300BE5 		str	r3, [fp, #-40]
+ 2014              	.L16:
+  67:../uart.c     **** 
+  68:../uart.c     **** 	do {
+  69:../uart.c     **** 		*--p = '0' + ( i % 10 );
+ 2015              		.loc 1 69 0 discriminator 1
+ 2016 019c 10301BE5 		ldr	r3, [fp, #-16]
+ 2017 01a0 013043E2 		sub	r3, r3, #1
+ 2018 01a4 10300BE5 		str	r3, [fp, #-16]
+ 2019 01a8 28101BE5 		ldr	r1, [fp, #-40]
+ 2020 01ac 94309FE5 		ldr	r3, .L18
+ 2021 01b0 9123C3E0 		smull	r2, r3, r1, r3
+ 2022 01b4 4321A0E1 		mov	r2, r3, asr #2
+ 2023 01b8 C13FA0E1 		mov	r3, r1, asr #31
+ 2024 01bc 022063E0 		rsb	r2, r3, r2
+ 2025 01c0 0230A0E1 		mov	r3, r2
+ 2026 01c4 0331A0E1 		mov	r3, r3, asl #2
+ 2027 01c8 023083E0 		add	r3, r3, r2
+ 2028 01cc 8330A0E1 		mov	r3, r3, asl #1
+ 2029 01d0 012063E0 		rsb	r2, r3, r1
+ 2030 01d4 FF3002E2 		and	r3, r2, #255
+ 2031 01d8 303083E2 		add	r3, r3, #48
+ 2032 01dc FF2003E2 		and	r2, r3, #255
+ 2033 01e0 10301BE5 		ldr	r3, [fp, #-16]
+ 2034 01e4 0020C3E5 		strb	r2, [r3, #0]
+  70:../uart.c     **** 		i /= 10;
+ 2035              		.loc 1 70 0 discriminator 1
+ 2036 01e8 28301BE5 		ldr	r3, [fp, #-40]
+ 2037 01ec 54209FE5 		ldr	r2, .L18
+ 2038 01f0 9312C2E0 		smull	r1, r2, r3, r2
+ 2039 01f4 4221A0E1 		mov	r2, r2, asr #2
+ 2040 01f8 C33FA0E1 		mov	r3, r3, asr #31
+ 2041 01fc 023063E0 		rsb	r3, r3, r2
+ 2042 0200 28300BE5 		str	r3, [fp, #-40]
+  71:../uart.c     **** 	} while(i > 0);
+ 2043              		.loc 1 71 0 discriminator 1
+ 2044 0204 28301BE5 		ldr	r3, [fp, #-40]
+ 2045 0208 000053E3 		cmp	r3, #0
+ 2046 020c E2FFFFCA 		bgt	.L16
+  72:../uart.c     **** 
+  73:../uart.c     **** 	if(negative) {
+ 2047              		.loc 1 73 0
+ 2048 0210 14301BE5 		ldr	r3, [fp, #-20]
+ 2049 0214 000053E3 		cmp	r3, #0
+ 2050 0218 0500000A 		beq	.L17
+  74:../uart.c     **** 		*--p = '-';
+ 2051              		.loc 1 74 0
+ 2052 021c 10301BE5 		ldr	r3, [fp, #-16]
+ 2053 0220 013043E2 		sub	r3, r3, #1
+ 2054 0224 10300BE5 		str	r3, [fp, #-16]
+ 2055 0228 10301BE5 		ldr	r3, [fp, #-16]
+ 2056 022c 2D20A0E3 		mov	r2, #45
+ 2057 0230 0020C3E5 		strb	r2, [r3, #0]
+ 2058              	.L17:
+  75:../uart.c     **** 	}
+  76:../uart.c     **** 
+  77:../uart.c     **** 	uart0_puts(p);
+ 2059              		.loc 1 77 0
+ 2060 0234 10001BE5 		ldr	r0, [fp, #-16]
+ 2061 0238 FEFFFFEB 		bl	uart0_puts
+  78:../uart.c     **** }
+ 2062              		.loc 1 78 0
+ 2063 023c 0CD04BE2 		sub	sp, fp, #12
+ 2064 0240 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2065 0244 1EFF2FE1 		bx	lr
+ 2066              	.L19:
+ 2067              		.align	2
+ 2068              	.L18:
+ 2069 0248 67666666 		.word	1717986919
+ 2070              		.cfi_endproc
+ 2071              	.LFE4:
+ 2073              		.align	2
+ 2074              		.global	uart0_puthex
+ 2076              	uart0_puthex:
+ 2077              	.LFB5:
+  79:../uart.c     **** 
+  80:../uart.c     **** void uart0_puthex( uint32 i )
+  81:../uart.c     **** {
+ 2078              		.loc 1 81 0
+ 2079              		.cfi_startproc
+ 2080              		@ Function supports interworking.
+ 2081              		@ args = 0, pretend = 0, frame = 24
+ 2082              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2083 024c 0DC0A0E1 		mov	ip, sp
+ 2084              	.LCFI10:
+ 2085              		.cfi_def_cfa_register 12
+ 2086 0250 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2087 0254 04B04CE2 		sub	fp, ip, #4
+ 2088              		.cfi_offset 14, -8
+ 2089              		.cfi_offset 13, -12
+ 2090              		.cfi_offset 11, -16
+ 2091              	.LCFI11:
+ 2092              		.cfi_def_cfa 11, 4
+ 2093 0258 18D04DE2 		sub	sp, sp, #24
+ 2094 025c 20000BE5 		str	r0, [fp, #-32]
+  82:../uart.c     ****     char buf[8 + 1];
+  83:../uart.c     ****     char *p = buf + 8;
+ 2095              		.loc 1 83 0
+ 2096 0260 1C304BE2 		sub	r3, fp, #28
+ 2097 0264 083083E2 		add	r3, r3, #8
+ 2098 0268 10300BE5 		str	r3, [fp, #-16]
+  84:../uart.c     ****     uint8 c;
+  85:../uart.c     **** 
+  86:../uart.c     ****     *p = '\0';
+ 2099              		.loc 1 86 0
+ 2100 026c 10301BE5 		ldr	r3, [fp, #-16]
+ 2101 0270 0020A0E3 		mov	r2, #0
+ 2102 0274 0020C3E5 		strb	r2, [r3, #0]
+ 2103              	.L23:
+  87:../uart.c     **** 
+  88:../uart.c     ****     do {
+  89:../uart.c     ****         c = i & 0xf;
+ 2104              		.loc 1 89 0
+ 2105 0278 20301BE5 		ldr	r3, [fp, #-32]
+ 2106 027c FF3003E2 		and	r3, r3, #255
+ 2107 0280 0F3003E2 		and	r3, r3, #15
+ 2108 0284 11304BE5 		strb	r3, [fp, #-17]
+  90:../uart.c     ****         if( c < 10 )
+ 2109              		.loc 1 90 0
+ 2110 0288 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2111 028c 090053E3 		cmp	r3, #9
+ 2112 0290 0800008A 		bhi	.L21
+  91:../uart.c     ****             *--p = '0' + c;
+ 2113              		.loc 1 91 0
+ 2114 0294 10301BE5 		ldr	r3, [fp, #-16]
+ 2115 0298 013043E2 		sub	r3, r3, #1
+ 2116 029c 10300BE5 		str	r3, [fp, #-16]
+ 2117 02a0 11305BE5 		ldrb	r3, [fp, #-17]
+ 2118 02a4 303083E2 		add	r3, r3, #48
+ 2119 02a8 FF2003E2 		and	r2, r3, #255
+ 2120 02ac 10301BE5 		ldr	r3, [fp, #-16]
+ 2121 02b0 0020C3E5 		strb	r2, [r3, #0]
+ 2122 02b4 070000EA 		b	.L22
+ 2123              	.L21:
+  92:../uart.c     ****         else
+  93:../uart.c     ****             *--p = 'a' + c - 10;
+ 2124              		.loc 1 93 0
+ 2125 02b8 10301BE5 		ldr	r3, [fp, #-16]
+ 2126 02bc 013043E2 		sub	r3, r3, #1
+ 2127 02c0 10300BE5 		str	r3, [fp, #-16]
+ 2128 02c4 11305BE5 		ldrb	r3, [fp, #-17]
+ 2129 02c8 573083E2 		add	r3, r3, #87
+ 2130 02cc FF2003E2 		and	r2, r3, #255
+ 2131 02d0 10301BE5 		ldr	r3, [fp, #-16]
+ 2132 02d4 0020C3E5 		strb	r2, [r3, #0]
+ 2133              	.L22:
+  94:../uart.c     ****         i = i >> 4;
+ 2134              		.loc 1 94 0
+ 2135 02d8 20301BE5 		ldr	r3, [fp, #-32]
+ 2136 02dc 2332A0E1 		mov	r3, r3, lsr #4
+ 2137 02e0 20300BE5 		str	r3, [fp, #-32]
+  95:../uart.c     ****     } while( i );
+ 2138              		.loc 1 95 0
+ 2139 02e4 20301BE5 		ldr	r3, [fp, #-32]
+ 2140 02e8 000053E3 		cmp	r3, #0
+ 2141 02ec E1FFFF1A 		bne	.L23
+  96:../uart.c     **** 
+  97:../uart.c     ****     uart0_puts( p );
+ 2142              		.loc 1 97 0
+ 2143 02f0 10001BE5 		ldr	r0, [fp, #-16]
+ 2144 02f4 FEFFFFEB 		bl	uart0_puts
+  98:../uart.c     **** }
+ 2145              		.loc 1 98 0
+ 2146 02f8 0CD04BE2 		sub	sp, fp, #12
+ 2147 02fc 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2148 0300 1EFF2FE1 		bx	lr
+ 2149              		.cfi_endproc
+ 2150              	.LFE5:
+ 2152              		.align	2
+ 2153              		.global	uart0_gets
+ 2155              	uart0_gets:
+ 2156              	.LFB6:
+  99:../uart.c     **** 
+ 100:../uart.c     **** void uart0_gets( char *s )
+ 101:../uart.c     **** {
+ 2157              		.loc 1 101 0
+ 2158              		.cfi_startproc
+ 2159              		@ Function supports interworking.
+ 2160              		@ args = 0, pretend = 0, frame = 16
+ 2161              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2162 0304 0DC0A0E1 		mov	ip, sp
+ 2163              	.LCFI12:
+ 2164              		.cfi_def_cfa_register 12
+ 2165 0308 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2166 030c 04B04CE2 		sub	fp, ip, #4
+ 2167              		.cfi_offset 14, -8
+ 2168              		.cfi_offset 13, -12
+ 2169              		.cfi_offset 11, -16
+ 2170              	.LCFI13:
+ 2171              		.cfi_def_cfa 11, 4
+ 2172 0310 10D04DE2 		sub	sp, sp, #16
+ 2173 0314 18000BE5 		str	r0, [fp, #-24]
+ 102:../uart.c     **** 	char c = uart0_getchar();
+ 2174              		.loc 1 102 0
+ 2175 0318 FEFFFFEB 		bl	uart0_getchar
+ 2176 031c 0030A0E1 		mov	r3, r0
+ 2177 0320 0D304BE5 		strb	r3, [fp, #-13]
+ 103:../uart.c     **** 
+ 104:../uart.c     **** 	while(c != '\n') {
+ 2178              		.loc 1 104 0
+ 2179 0324 080000EA 		b	.L25
+ 2180              	.L26:
+ 105:../uart.c     **** 		*s = c;
+ 2181              		.loc 1 105 0
+ 2182 0328 18301BE5 		ldr	r3, [fp, #-24]
+ 2183 032c 0D205BE5 		ldrb	r2, [fp, #-13]
+ 2184 0330 0020C3E5 		strb	r2, [r3, #0]
+ 106:../uart.c     **** 		s++;
+ 2185              		.loc 1 106 0
+ 2186 0334 18301BE5 		ldr	r3, [fp, #-24]
+ 2187 0338 013083E2 		add	r3, r3, #1
+ 2188 033c 18300BE5 		str	r3, [fp, #-24]
+ 107:../uart.c     **** 		c = uart0_getchar();
+ 2189              		.loc 1 107 0
+ 2190 0340 FEFFFFEB 		bl	uart0_getchar
+ 2191 0344 0030A0E1 		mov	r3, r0
+ 2192 0348 0D304BE5 		strb	r3, [fp, #-13]
+ 2193              	.L25:
+ 104:../uart.c     **** 	while(c != '\n') {
+ 2194              		.loc 1 104 0 discriminator 1
+ 2195 034c 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2196 0350 0A0053E3 		cmp	r3, #10
+ 2197 0354 F3FFFF1A 		bne	.L26
+ 108:../uart.c     **** 	}
+ 109:../uart.c     **** 
+ 110:../uart.c     **** 	*s = '\0';
+ 2198              		.loc 1 110 0
+ 2199 0358 18301BE5 		ldr	r3, [fp, #-24]
+ 2200 035c 0020A0E3 		mov	r2, #0
+ 2201 0360 0020C3E5 		strb	r2, [r3, #0]
+ 111:../uart.c     **** }
+ 2202              		.loc 1 111 0
+ 2203 0364 0CD04BE2 		sub	sp, fp, #12
+ 2204 0368 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2205 036c 1EFF2FE1 		bx	lr
+ 2206              		.cfi_endproc
+ 2207              	.LFE6:
+ 2209              		.align	2
+ 2210              		.global	uart0_getint
+ 2212              	uart0_getint:
+ 2213              	.LFB7:
+ 112:../uart.c     **** 
+ 113:../uart.c     **** int32 uart0_getint( void )
+ 114:../uart.c     **** {
+ 2214              		.loc 1 114 0
+ 2215              		.cfi_startproc
+ 2216              		@ Function supports interworking.
+ 2217              		@ args = 0, pretend = 0, frame = 24
+ 2218              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2219 0370 0DC0A0E1 		mov	ip, sp
+ 2220              	.LCFI14:
+ 2221              		.cfi_def_cfa_register 12
+ 2222 0374 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2223 0378 04B04CE2 		sub	fp, ip, #4
+ 2224              		.cfi_offset 14, -8
+ 2225              		.cfi_offset 13, -12
+ 2226              		.cfi_offset 11, -16
+ 2227              	.LCFI15:
+ 2228              		.cfi_def_cfa 11, 4
+ 2229 037c 18D04DE2 		sub	sp, sp, #24
+ 115:../uart.c     **** 	char s[11 + 1];
+ 116:../uart.c     **** 	char* p = s;
+ 2230              		.loc 1 116 0
+ 2231 0380 20304BE2 		sub	r3, fp, #32
+ 2232 0384 10300BE5 		str	r3, [fp, #-16]
+ 117:../uart.c     **** 	int32 res = 0;
+ 2233              		.loc 1 117 0
+ 2234 0388 0030A0E3 		mov	r3, #0
+ 2235 038c 14300BE5 		str	r3, [fp, #-20]
+ 118:../uart.c     **** 
+ 119:../uart.c     **** 	uart0_gets(s);
+ 2236              		.loc 1 119 0
+ 2237 0390 20304BE2 		sub	r3, fp, #32
+ 2238 0394 0300A0E1 		mov	r0, r3
+ 2239 0398 FEFFFFEB 		bl	uart0_gets
+ 120:../uart.c     **** 
+ 121:../uart.c     **** 	if(s[0] == '\0')
+ 2240              		.loc 1 121 0
+ 2241 039c 20305BE5 		ldrb	r3, [fp, #-32]	@ zero_extendqisi2
+ 2242 03a0 000053E3 		cmp	r3, #0
+ 2243 03a4 0100001A 		bne	.L28
+ 122:../uart.c     **** 		return 0;
+ 2244              		.loc 1 122 0
+ 2245 03a8 0030A0E3 		mov	r3, #0
+ 2246 03ac 210000EA 		b	.L29
+ 2247              	.L28:
+ 123:../uart.c     **** 
+ 124:../uart.c     **** 	if(s[0]=='-')
+ 2248              		.loc 1 124 0
+ 2249 03b0 20305BE5 		ldrb	r3, [fp, #-32]	@ zero_extendqisi2
+ 2250 03b4 2D0053E3 		cmp	r3, #45
+ 2251 03b8 1200001A 		bne	.L34
+ 125:../uart.c     **** 		p++;
+ 2252              		.loc 1 125 0
+ 2253 03bc 10301BE5 		ldr	r3, [fp, #-16]
+ 2254 03c0 013083E2 		add	r3, r3, #1
+ 2255 03c4 10300BE5 		str	r3, [fp, #-16]
+ 126:../uart.c     **** 
+ 127:../uart.c     **** 	while(*p) {
+ 2256              		.loc 1 127 0
+ 2257 03c8 0F0000EA 		b	.L31
+ 2258              	.L32:
+ 128:../uart.c     **** 		res = 10 * res + (*p - '0');
+ 2259              		.loc 1 128 0
+ 2260 03cc 14201BE5 		ldr	r2, [fp, #-20]
+ 2261 03d0 0230A0E1 		mov	r3, r2
+ 2262 03d4 0331A0E1 		mov	r3, r3, asl #2
+ 2263 03d8 023083E0 		add	r3, r3, r2
+ 2264 03dc 8330A0E1 		mov	r3, r3, asl #1
+ 2265 03e0 0320A0E1 		mov	r2, r3
+ 2266 03e4 10301BE5 		ldr	r3, [fp, #-16]
+ 2267 03e8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2268 03ec 303043E2 		sub	r3, r3, #48
+ 2269 03f0 033082E0 		add	r3, r2, r3
+ 2270 03f4 14300BE5 		str	r3, [fp, #-20]
+ 129:../uart.c     **** 		p++;
+ 2271              		.loc 1 129 0
+ 2272 03f8 10301BE5 		ldr	r3, [fp, #-16]
+ 2273 03fc 013083E2 		add	r3, r3, #1
+ 2274 0400 10300BE5 		str	r3, [fp, #-16]
+ 2275 0404 000000EA 		b	.L31
+ 2276              	.L34:
+ 127:../uart.c     **** 	while(*p) {
+ 2277              		.loc 1 127 0
+ 2278 0408 0000A0E1 		mov	r0, r0	@ nop
+ 2279              	.L31:
+ 127:../uart.c     **** 	while(*p) {
+ 2280              		.loc 1 127 0 is_stmt 0 discriminator 1
+ 2281 040c 10301BE5 		ldr	r3, [fp, #-16]
+ 2282 0410 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2283 0414 000053E3 		cmp	r3, #0
+ 2284 0418 EBFFFF1A 		bne	.L32
+ 130:../uart.c     **** 	}
+ 131:../uart.c     **** 
+ 132:../uart.c     **** 	if(s[0] == '-')
+ 2285              		.loc 1 132 0 is_stmt 1
+ 2286 041c 20305BE5 		ldrb	r3, [fp, #-32]	@ zero_extendqisi2
+ 2287 0420 2D0053E3 		cmp	r3, #45
+ 2288 0424 0200001A 		bne	.L33
+ 133:../uart.c     **** 		res *= -1;
+ 2289              		.loc 1 133 0
+ 2290 0428 14301BE5 		ldr	r3, [fp, #-20]
+ 2291 042c 003063E2 		rsb	r3, r3, #0
+ 2292 0430 14300BE5 		str	r3, [fp, #-20]
+ 2293              	.L33:
+ 134:../uart.c     **** 
+ 135:../uart.c     **** 	return res;
+ 2294              		.loc 1 135 0
+ 2295 0434 14301BE5 		ldr	r3, [fp, #-20]
+ 2296              	.L29:
+ 136:../uart.c     **** }
+ 2297              		.loc 1 136 0
+ 2298 0438 0300A0E1 		mov	r0, r3
+ 2299 043c 0CD04BE2 		sub	sp, fp, #12
+ 2300 0440 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2301 0444 1EFF2FE1 		bx	lr
+ 2302              		.cfi_endproc
+ 2303              	.LFE7:
+ 2305              		.align	2
+ 2306              		.global	uart0_gethex
+ 2308              	uart0_gethex:
+ 2309              	.LFB8:
+ 137:../uart.c     **** 
+ 138:../uart.c     **** uint32 uart0_gethex( void )
+ 139:../uart.c     **** {
+ 2310              		.loc 1 139 0
+ 2311              		.cfi_startproc
+ 2312              		@ Function supports interworking.
+ 2313              		@ args = 0, pretend = 0, frame = 24
+ 2314              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2315 0448 0DC0A0E1 		mov	ip, sp
+ 2316              	.LCFI16:
+ 2317              		.cfi_def_cfa_register 12
+ 2318 044c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2319 0450 04B04CE2 		sub	fp, ip, #4
+ 2320              		.cfi_offset 14, -8
+ 2321              		.cfi_offset 13, -12
+ 2322              		.cfi_offset 11, -16
+ 2323              	.LCFI17:
+ 2324              		.cfi_def_cfa 11, 4
+ 2325 0454 18D04DE2 		sub	sp, sp, #24
+ 140:../uart.c     **** 	char s[8 + 1];
+ 141:../uart.c     **** 	char* p = s;
+ 2326              		.loc 1 141 0
+ 2327 0458 20304BE2 		sub	r3, fp, #32
+ 2328 045c 10300BE5 		str	r3, [fp, #-16]
+ 142:../uart.c     **** 	int32 res = 0;
+ 2329              		.loc 1 142 0
+ 2330 0460 0030A0E3 		mov	r3, #0
+ 2331 0464 14300BE5 		str	r3, [fp, #-20]
+ 143:../uart.c     **** 
+ 144:../uart.c     **** 	uart0_gets(s);
+ 2332              		.loc 1 144 0
+ 2333 0468 20304BE2 		sub	r3, fp, #32
+ 2334 046c 0300A0E1 		mov	r0, r3
+ 2335 0470 FEFFFFEB 		bl	uart0_gets
+ 145:../uart.c     **** 
+ 146:../uart.c     **** 	while(*p) {
+ 2336              		.loc 1 146 0
+ 2337 0474 2B0000EA 		b	.L36
+ 2338              	.L40:
+ 2339              	.LBB2:
+ 147:../uart.c     **** 		res = res << 4;
+ 2340              		.loc 1 147 0
+ 2341 0478 14301BE5 		ldr	r3, [fp, #-20]
+ 2342 047c 0332A0E1 		mov	r3, r3, asl #4
+ 2343 0480 14300BE5 		str	r3, [fp, #-20]
+ 148:../uart.c     **** 		char c = *p;
+ 2344              		.loc 1 148 0
+ 2345 0484 10301BE5 		ldr	r3, [fp, #-16]
+ 2346 0488 0030D3E5 		ldrb	r3, [r3, #0]
+ 2347 048c 15304BE5 		strb	r3, [fp, #-21]
+ 149:../uart.c     **** 		if(c >= '0' && c <= '9')
+ 2348              		.loc 1 149 0
+ 2349 0490 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2350 0494 2F0053E3 		cmp	r3, #47
+ 2351 0498 0800009A 		bls	.L37
+ 2352              		.loc 1 149 0 is_stmt 0 discriminator 1
+ 2353 049c 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2354 04a0 390053E3 		cmp	r3, #57
+ 2355 04a4 0500008A 		bhi	.L37
+ 150:../uart.c     **** 			res += c - '0';
+ 2356              		.loc 1 150 0 is_stmt 1
+ 2357 04a8 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2358 04ac 303043E2 		sub	r3, r3, #48
+ 2359 04b0 14201BE5 		ldr	r2, [fp, #-20]
+ 2360 04b4 033082E0 		add	r3, r2, r3
+ 2361 04b8 14300BE5 		str	r3, [fp, #-20]
+ 2362 04bc 160000EA 		b	.L38
+ 2363              	.L37:
+ 151:../uart.c     **** 		else if(c >= 'a' && c <= 'f')
+ 2364              		.loc 1 151 0
+ 2365 04c0 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2366 04c4 600053E3 		cmp	r3, #96
+ 2367 04c8 0800009A 		bls	.L39
+ 2368              		.loc 1 151 0 is_stmt 0 discriminator 1
+ 2369 04cc 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2370 04d0 660053E3 		cmp	r3, #102
+ 2371 04d4 0500008A 		bhi	.L39
+ 152:../uart.c     **** 			res += 10 + c - 'a';
+ 2372              		.loc 1 152 0 is_stmt 1
+ 2373 04d8 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2374 04dc 573043E2 		sub	r3, r3, #87
+ 2375 04e0 14201BE5 		ldr	r2, [fp, #-20]
+ 2376 04e4 033082E0 		add	r3, r2, r3
+ 2377 04e8 14300BE5 		str	r3, [fp, #-20]
+ 2378 04ec 0A0000EA 		b	.L38
+ 2379              	.L39:
+ 153:../uart.c     **** 		else if(c >= 'A' && c <= 'F')
+ 2380              		.loc 1 153 0
+ 2381 04f0 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2382 04f4 400053E3 		cmp	r3, #64
+ 2383 04f8 0700009A 		bls	.L38
+ 2384              		.loc 1 153 0 is_stmt 0 discriminator 1
+ 2385 04fc 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2386 0500 460053E3 		cmp	r3, #70
+ 2387 0504 0400008A 		bhi	.L38
+ 154:../uart.c     **** 			res += 10 + c - 'A';
+ 2388              		.loc 1 154 0 is_stmt 1
+ 2389 0508 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2390 050c 373043E2 		sub	r3, r3, #55
+ 2391 0510 14201BE5 		ldr	r2, [fp, #-20]
+ 2392 0514 033082E0 		add	r3, r2, r3
+ 2393 0518 14300BE5 		str	r3, [fp, #-20]
+ 2394              	.L38:
+ 155:../uart.c     **** 		p++;
+ 2395              		.loc 1 155 0
+ 2396 051c 10301BE5 		ldr	r3, [fp, #-16]
+ 2397 0520 013083E2 		add	r3, r3, #1
+ 2398 0524 10300BE5 		str	r3, [fp, #-16]
+ 2399              	.L36:
+ 2400              	.LBE2:
+ 146:../uart.c     **** 	while(*p) {
+ 2401              		.loc 1 146 0 discriminator 1
+ 2402 0528 10301BE5 		ldr	r3, [fp, #-16]
+ 2403 052c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2404 0530 000053E3 		cmp	r3, #0
+ 2405 0534 CFFFFF1A 		bne	.L40
+ 156:../uart.c     **** 	}
+ 157:../uart.c     **** 
+ 158:../uart.c     **** 	return res;
+ 2406              		.loc 1 158 0
+ 2407 0538 14301BE5 		ldr	r3, [fp, #-20]
+ 159:../uart.c     **** }
+ 2408              		.loc 1 159 0
+ 2409 053c 0300A0E1 		mov	r0, r3
+ 2410 0540 0CD04BE2 		sub	sp, fp, #12
+ 2411 0544 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2412 0548 1EFF2FE1 		bx	lr
+ 2413              		.cfi_endproc
+ 2414              	.LFE8:
+ 2416              		.align	2
+ 2417              		.global	uart0_put_rtc_time
+ 2419              	uart0_put_rtc_time:
+ 2420              	.LFB9:
+ 160:../uart.c     **** 
+ 161:../uart.c     **** void uart0_put_rtc_time( rtc_time_t* rtc_time )
+ 162:../uart.c     **** {
+ 2421              		.loc 1 162 0
+ 2422              		.cfi_startproc
+ 2423              		@ Function supports interworking.
+ 2424              		@ args = 0, pretend = 0, frame = 8
+ 2425              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2426 054c 0DC0A0E1 		mov	ip, sp
+ 2427              	.LCFI18:
+ 2428              		.cfi_def_cfa_register 12
+ 2429 0550 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2430 0554 04B04CE2 		sub	fp, ip, #4
+ 2431              		.cfi_offset 14, -8
+ 2432              		.cfi_offset 13, -12
+ 2433              		.cfi_offset 11, -16
+ 2434              	.LCFI19:
+ 2435              		.cfi_def_cfa 11, 4
+ 2436 0558 08D04DE2 		sub	sp, sp, #8
+ 2437 055c 10000BE5 		str	r0, [fp, #-16]
+ 163:../uart.c     **** 	uart0_putint( rtc_time->mday );
+ 2438              		.loc 1 163 0
+ 2439 0560 10301BE5 		ldr	r3, [fp, #-16]
+ 2440 0564 0330D3E5 		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 2441 0568 0300A0E1 		mov	r0, r3
+ 2442 056c FEFFFFEB 		bl	uart0_putint
+ 164:../uart.c     **** 	uart0_putchar( '/' );
+ 2443              		.loc 1 164 0
+ 2444 0570 2F00A0E3 		mov	r0, #47
+ 2445 0574 FEFFFFEB 		bl	uart0_putchar
+ 165:../uart.c     **** 	uart0_putint( rtc_time->mon );
+ 2446              		.loc 1 165 0
+ 2447 0578 10301BE5 		ldr	r3, [fp, #-16]
+ 2448 057c 0530D3E5 		ldrb	r3, [r3, #5]	@ zero_extendqisi2
+ 2449 0580 0300A0E1 		mov	r0, r3
+ 2450 0584 FEFFFFEB 		bl	uart0_putint
+ 166:../uart.c     **** 	uart0_putchar( '/' );
+ 2451              		.loc 1 166 0
+ 2452 0588 2F00A0E3 		mov	r0, #47
+ 2453 058c FEFFFFEB 		bl	uart0_putchar
+ 167:../uart.c     **** 	uart0_putint( rtc_time->year );
+ 2454              		.loc 1 167 0
+ 2455 0590 10301BE5 		ldr	r3, [fp, #-16]
+ 2456 0594 0630D3E5 		ldrb	r3, [r3, #6]	@ zero_extendqisi2
+ 2457 0598 0300A0E1 		mov	r0, r3
+ 2458 059c FEFFFFEB 		bl	uart0_putint
+ 168:../uart.c     **** 	uart0_putchar( ' ' );
+ 2459              		.loc 1 168 0
+ 2460 05a0 2000A0E3 		mov	r0, #32
+ 2461 05a4 FEFFFFEB 		bl	uart0_putchar
+ 169:../uart.c     **** 	uart0_putint( rtc_time->hour );
+ 2462              		.loc 1 169 0
+ 2463 05a8 10301BE5 		ldr	r3, [fp, #-16]
+ 2464 05ac 0230D3E5 		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 2465 05b0 0300A0E1 		mov	r0, r3
+ 2466 05b4 FEFFFFEB 		bl	uart0_putint
+ 170:../uart.c     **** 	uart0_putchar( ':' );
+ 2467              		.loc 1 170 0
+ 2468 05b8 3A00A0E3 		mov	r0, #58
+ 2469 05bc FEFFFFEB 		bl	uart0_putchar
+ 171:../uart.c     **** 	uart0_putint( rtc_time->min );
+ 2470              		.loc 1 171 0
+ 2471 05c0 10301BE5 		ldr	r3, [fp, #-16]
+ 2472 05c4 0130D3E5 		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 2473 05c8 0300A0E1 		mov	r0, r3
+ 2474 05cc FEFFFFEB 		bl	uart0_putint
+ 172:../uart.c     **** 	uart0_putchar( ':' );
+ 2475              		.loc 1 172 0
+ 2476 05d0 3A00A0E3 		mov	r0, #58
+ 2477 05d4 FEFFFFEB 		bl	uart0_putchar
+ 173:../uart.c     **** 	uart0_putint( rtc_time->sec );
+ 2478              		.loc 1 173 0
+ 2479 05d8 10301BE5 		ldr	r3, [fp, #-16]
+ 2480 05dc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2481 05e0 0300A0E1 		mov	r0, r3
+ 2482 05e4 FEFFFFEB 		bl	uart0_putint
+ 174:../uart.c     **** }
+ 2483              		.loc 1 174 0
+ 2484 05e8 0CD04BE2 		sub	sp, fp, #12
+ 2485 05ec 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2486 05f0 1EFF2FE1 		bx	lr
+ 2487              		.cfi_endproc
+ 2488              	.LFE9:
+ 2490              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 uart.c
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1777   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1780   .text:00000000 uart0_init
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1824   .text:00000054 $d
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1831   .text:00000064 $a
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1834   .text:00000064 uart0_putchar
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1874   .text:000000ac $d
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1879   .text:000000b4 $a
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1882   .text:000000b4 uart0_getchar
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1920   .text:000000f4 $d
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1925   .text:000000fc $a
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1928   .text:000000fc uart0_puts
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:1975   .text:0000014c uart0_putint
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:2069   .text:00000248 $d
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:2073   .text:0000024c $a
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:2076   .text:0000024c uart0_puthex
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:2155   .text:00000304 uart0_gets
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:2212   .text:00000370 uart0_getint
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:2308   .text:00000448 uart0_gethex
+C:\Users\Pedro\AppData\Local\Temp\cc1nlNhb.s:2419   .text:0000054c uart0_put_rtc_time
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

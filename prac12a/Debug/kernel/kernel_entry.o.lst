@@ -1,0 +1,1430 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"kernel_entry.c"
+  21              	.Ltext0:
+  22              		.file 1 "../kernel/kernel_entry.c"
+ 2477              		.align	2
+ 2478              	.LC0:
+ 2479 0000 0A0A2045 		.ascii	"\012\012 Ejecutando uCOS-II (version \000"
+ 2479      6A656375 
+ 2479      74616E64 
+ 2479      6F207543 
+ 2479      4F532D49 
+ 2480              		.align	2
+ 2481              	.LC1:
+ 2482 0020 290A00   		.ascii	")\012\000"
+ 2483 0023 00       		.align	2
+ 2484              	.LC2:
+ 2485 0024 2D2D2D2D 		.ascii	"----------------------------------\012\012\000"
+ 2485      2D2D2D2D 
+ 2485      2D2D2D2D 
+ 2485      2D2D2D2D 
+ 2485      2D2D2D2D 
+ 2486              		.text
+ 2487              		.align	2
+ 2488              		.global	kernel_entry
+ 2490              	kernel_entry:
+ 2491              	.LFB0:
+   1:../kernel/kernel_entry.c **** /*-------------------------------------------------------------------
+   2:../kernel/kernel_entry.c **** **
+   3:../kernel/kernel_entry.c **** **  Fichero:
+   4:../kernel/kernel_entry.c **** **    lab12.c  12/1/2021
+   5:../kernel/kernel_entry.c **** **
+   6:../kernel/kernel_entry.c **** **    (c) J.M. Mendias
+   7:../kernel/kernel_entry.c **** **    Programación de Sistemas y Dispositivos
+   8:../kernel/kernel_entry.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../kernel/kernel_entry.c **** **
+  10:../kernel/kernel_entry.c **** **  Propósito:
+  11:../kernel/kernel_entry.c **** **    Ejemplo de una aplicación bajo uC/OS-II
+  12:../kernel/kernel_entry.c **** **
+  13:../kernel/kernel_entry.c **** **  Notas de diseño:
+  14:../kernel/kernel_entry.c **** **
+  15:../kernel/kernel_entry.c **** **-----------------------------------------------------------------*/
+  16:../kernel/kernel_entry.c **** 
+  17:../kernel/kernel_entry.c **** #include "os_port/os_cpu.h"
+  18:../kernel/kernel_entry.c **** #include "os_cfg.h"
+  19:../kernel/kernel_entry.c **** #include "os_core/ucos_ii.h"
+  20:../kernel/kernel_entry.c **** 
+  21:../kernel/kernel_entry.c **** #include "../44b.h"
+  22:../kernel/kernel_entry.c **** #include "../common_types.h"
+  23:../kernel/kernel_entry.c **** #include "../leds.h"
+  24:../kernel/kernel_entry.c **** #include "../D8Led.h"
+  25:../kernel/kernel_entry.c **** #include "../uart.h"
+  26:../kernel/kernel_entry.c **** #include "../button.h"
+  27:../kernel/kernel_entry.c **** #include "../keyboard.h"
+  28:../kernel/kernel_entry.c **** #include "../intcontroller.h"
+  29:../kernel/kernel_entry.c **** #include "../timer.h"
+  30:../kernel/kernel_entry.c **** #include "../utils.h"
+  31:../kernel/kernel_entry.c **** #include "../rtc.h"
+  32:../kernel/kernel_entry.c **** 
+  33:../kernel/kernel_entry.c **** /* Declaración de pilas */
+  34:../kernel/kernel_entry.c **** 
+  35:../kernel/kernel_entry.c **** #define    TASK_STK_SIZE    10*1024
+  36:../kernel/kernel_entry.c **** 
+  37:../kernel/kernel_entry.c **** OS_STK Task1Stk[TASK_STK_SIZE];
+  38:../kernel/kernel_entry.c **** OS_STK Task2Stk[TASK_STK_SIZE];
+  39:../kernel/kernel_entry.c **** OS_STK Task3Stk[TASK_STK_SIZE];
+  40:../kernel/kernel_entry.c **** OS_STK Task4Stk[TASK_STK_SIZE];
+  41:../kernel/kernel_entry.c **** OS_STK Task5Stk[TASK_STK_SIZE];
+  42:../kernel/kernel_entry.c **** OS_STK Task6Stk[TASK_STK_SIZE];
+  43:../kernel/kernel_entry.c **** OS_STK Task7Stk[TASK_STK_SIZE];
+  44:../kernel/kernel_entry.c **** OS_STK TaskStartStk[TASK_STK_SIZE];
+  45:../kernel/kernel_entry.c **** 
+  46:../kernel/kernel_entry.c **** /* Declaración de recursos */
+  47:../kernel/kernel_entry.c **** 
+  48:../kernel/kernel_entry.c **** OS_EVENT *uart0Sem;                /* Semáforo para el acceso mutex a la UART0 */
+  49:../kernel/kernel_entry.c **** 
+  50:../kernel/kernel_entry.c **** OS_EVENT *keypadMbox;              /* Buzón para el scancode de la tecla pulsada */
+  51:../kernel/kernel_entry.c **** OS_EVENT *flagPb;                  /* Flag para señalizar la presión de un pulsador */
+  52:../kernel/kernel_entry.c **** 
+  53:../kernel/kernel_entry.c **** /* Declaración de tareas */
+  54:../kernel/kernel_entry.c **** 
+  55:../kernel/kernel_entry.c **** void Task1( void *id );
+  56:../kernel/kernel_entry.c **** void Task2( void *id );
+  57:../kernel/kernel_entry.c **** void Task3( void *id );
+  58:../kernel/kernel_entry.c **** void Task4( void *id );
+  59:../kernel/kernel_entry.c **** void Task5( void *id );
+  60:../kernel/kernel_entry.c **** void Task6( void *id );
+  61:../kernel/kernel_entry.c **** void Task7( void *id );
+  62:../kernel/kernel_entry.c **** void TaskStart( void *pdata );
+  63:../kernel/kernel_entry.c **** 
+  64:../kernel/kernel_entry.c **** /* Declaración de RTI */
+  65:../kernel/kernel_entry.c **** 
+  66:../kernel/kernel_entry.c **** extern void OSTickISR( void );       /* RTI del tick del sistema */
+  67:../kernel/kernel_entry.c **** 
+  68:../kernel/kernel_entry.c **** extern void OS_CPU_isr_pb( void );   /* RTI (wrapper) por pulsación teclado */
+  69:../kernel/kernel_entry.c **** void isr_pb( void );                 /* Función invocada por el anterior wrapper que atiende al dis
+  70:../kernel/kernel_entry.c **** 
+  71:../kernel/kernel_entry.c **** /*******************************************************************/
+  72:../kernel/kernel_entry.c **** 
+  73:../kernel/kernel_entry.c **** void kernel_entry( void )
+  74:../kernel/kernel_entry.c **** {
+ 2492              		.loc 1 74 0
+ 2493              		.cfi_startproc
+ 2494              		@ Function supports interworking.
+ 2495              		@ args = 0, pretend = 0, frame = 0
+ 2496              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2497 0000 0DC0A0E1 		mov	ip, sp
+ 2498              	.LCFI0:
+ 2499              		.cfi_def_cfa_register 12
+ 2500 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2501 0008 04B04CE2 		sub	fp, ip, #4
+ 2502              		.cfi_offset 14, -8
+ 2503              		.cfi_offset 13, -12
+ 2504              		.cfi_offset 11, -16
+ 2505              	.LCFI1:
+ 2506              		.cfi_def_cfa 11, 4
+  75:../kernel/kernel_entry.c ****    /* sys_init();                                                          // Inicializa los dispos
+  76:../kernel/kernel_entry.c ****     timers_init();
+  77:../kernel/kernel_entry.c ****     uart0_init();
+  78:../kernel/kernel_entry.c ****     leds_init();
+  79:../kernel/kernel_entry.c ****     segs_init();
+  80:../kernel/kernel_entry.c ****     rtc_init();
+  81:../kernel/kernel_entry.c ****     pbs_init();
+  82:../kernel/kernel_entry.c ****     keypad_init(); */
+  83:../kernel/kernel_entry.c **** 	rWTCON = 0;
+ 2507              		.loc 1 83 0
+ 2508 000c 90309FE5 		ldr	r3, .L2
+ 2509 0010 0020A0E3 		mov	r2, #0
+ 2510 0014 002083E5 		str	r2, [r3, #0]
+  84:../kernel/kernel_entry.c **** 
+  85:../kernel/kernel_entry.c ****     uart0_puts( "\n\n Ejecutando uCOS-II (version " );
+ 2511              		.loc 1 85 0
+ 2512 0018 88009FE5 		ldr	r0, .L2+4
+ 2513 001c FEFFFFEB 		bl	uart0_puts
+  86:../kernel/kernel_entry.c ****     uart0_putint( OSVersion() );
+ 2514              		.loc 1 86 0
+ 2515 0020 FEFFFFEB 		bl	OSVersion
+ 2516 0024 0030A0E1 		mov	r3, r0
+ 2517 0028 0300A0E1 		mov	r0, r3
+ 2518 002c FEFFFFEB 		bl	uart0_putint
+  87:../kernel/kernel_entry.c ****     uart0_puts( ")\n" ) ;
+ 2519              		.loc 1 87 0
+ 2520 0030 74009FE5 		ldr	r0, .L2+8
+ 2521 0034 FEFFFFEB 		bl	uart0_puts
+  88:../kernel/kernel_entry.c ****     uart0_puts( "----------------------------------\n\n" ) ;
+ 2522              		.loc 1 88 0
+ 2523 0038 70009FE5 		ldr	r0, .L2+12
+ 2524 003c FEFFFFEB 		bl	uart0_puts
+  89:../kernel/kernel_entry.c **** 
+  90:../kernel/kernel_entry.c ****     OSInit();                                                              /* Inicializa el kernel 
+ 2525              		.loc 1 90 0
+ 2526 0040 FEFFFFEB 		bl	OSInit
+  91:../kernel/kernel_entry.c ****     uart0Sem   = OSSemCreate( 1 );                                         /* Crea recursos        
+ 2527              		.loc 1 91 0
+ 2528 0044 0100A0E3 		mov	r0, #1
+ 2529 0048 FEFFFFEB 		bl	OSSemCreate
+ 2530 004c 0020A0E1 		mov	r2, r0
+ 2531 0050 5C309FE5 		ldr	r3, .L2+16
+ 2532 0054 002083E5 		str	r2, [r3, #0]
+  92:../kernel/kernel_entry.c ****     keypadMbox = OSMboxCreate( NULL );
+ 2533              		.loc 1 92 0
+ 2534 0058 0000A0E3 		mov	r0, #0
+ 2535 005c FEFFFFEB 		bl	OSMboxCreate
+ 2536 0060 0020A0E1 		mov	r2, r0
+ 2537 0064 4C309FE5 		ldr	r3, .L2+20
+ 2538 0068 002083E5 		str	r2, [r3, #0]
+  93:../kernel/kernel_entry.c ****     flagPb     = OSSemCreate( 0 ); 
+ 2539              		.loc 1 93 0
+ 2540 006c 0000A0E3 		mov	r0, #0
+ 2541 0070 FEFFFFEB 		bl	OSSemCreate
+ 2542 0074 0020A0E1 		mov	r2, r0
+ 2543 0078 3C309FE5 		ldr	r3, .L2+24
+ 2544 007c 002083E5 		str	r2, [r3, #0]
+  94:../kernel/kernel_entry.c ****     
+  95:../kernel/kernel_entry.c ****     OSTaskCreate( TaskStart, NULL, &TaskStartStk[TASK_STK_SIZE - 1], 0 );  /* Crea la tarea inicial
+ 2545              		.loc 1 95 0
+ 2546 0080 38009FE5 		ldr	r0, .L2+28
+ 2547 0084 0010A0E3 		mov	r1, #0
+ 2548 0088 34209FE5 		ldr	r2, .L2+32
+ 2549 008c 0030A0E3 		mov	r3, #0
+ 2550 0090 FEFFFFEB 		bl	OSTaskCreate
+  96:../kernel/kernel_entry.c ****     OSStart();                                                             /* Inicia multitarea    
+ 2551              		.loc 1 96 0
+ 2552 0094 FEFFFFEB 		bl	OSStart
+  97:../kernel/kernel_entry.c **** }                              
+ 2553              		.loc 1 97 0
+ 2554 0098 0CD04BE2 		sub	sp, fp, #12
+ 2555 009c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2556 00a0 1EFF2FE1 		bx	lr
+ 2557              	.L3:
+ 2558              		.align	2
+ 2559              	.L2:
+ 2560 00a4 0000D301 		.word	30605312
+ 2561 00a8 00000000 		.word	.LC0
+ 2562 00ac 20000000 		.word	.LC1
+ 2563 00b0 24000000 		.word	.LC2
+ 2564 00b4 00000000 		.word	uart0Sem
+ 2565 00b8 00000000 		.word	keypadMbox
+ 2566 00bc 00000000 		.word	flagPb
+ 2567 00c0 00000000 		.word	TaskStart
+ 2568 00c4 FC9F0000 		.word	TaskStartStk+40956
+ 2569              		.cfi_endproc
+ 2570              	.LFE0:
+ 2572              		.align	2
+ 2573              		.global	TaskStart
+ 2575              	TaskStart:
+ 2576              	.LFB1:
+  98:../kernel/kernel_entry.c **** 
+  99:../kernel/kernel_entry.c **** /*******************************************************************/
+ 100:../kernel/kernel_entry.c **** 
+ 101:../kernel/kernel_entry.c **** void TaskStart( void *pdata )
+ 102:../kernel/kernel_entry.c **** {
+ 2577              		.loc 1 102 0
+ 2578              		.cfi_startproc
+ 2579              		@ Function supports interworking.
+ 2580              		@ args = 0, pretend = 0, frame = 16
+ 2581              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2582 00c8 0DC0A0E1 		mov	ip, sp
+ 2583              	.LCFI2:
+ 2584              		.cfi_def_cfa_register 12
+ 2585 00cc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2586 00d0 04B04CE2 		sub	fp, ip, #4
+ 2587              		.cfi_offset 14, -8
+ 2588              		.cfi_offset 13, -12
+ 2589              		.cfi_offset 11, -16
+ 2590              	.LCFI3:
+ 2591              		.cfi_def_cfa 11, 4
+ 2592 00d4 10D04DE2 		sub	sp, sp, #16
+ 2593 00d8 18000BE5 		str	r0, [fp, #-24]
+ 103:../kernel/kernel_entry.c ****     const char id1 = '1'; /* Identificadores de tareas */
+ 2594              		.loc 1 103 0
+ 2595 00dc 3130A0E3 		mov	r3, #49
+ 2596 00e0 0D304BE5 		strb	r3, [fp, #-13]
+ 104:../kernel/kernel_entry.c ****     const char id2 = '2';
+ 2597              		.loc 1 104 0
+ 2598 00e4 3230A0E3 		mov	r3, #50
+ 2599 00e8 0E304BE5 		strb	r3, [fp, #-14]
+ 105:../kernel/kernel_entry.c ****     const char id3 = '3';
+ 2600              		.loc 1 105 0
+ 2601 00ec 3330A0E3 		mov	r3, #51
+ 2602 00f0 0F304BE5 		strb	r3, [fp, #-15]
+ 106:../kernel/kernel_entry.c ****     const char id4 = '4';
+ 2603              		.loc 1 106 0
+ 2604 00f4 3430A0E3 		mov	r3, #52
+ 2605 00f8 10304BE5 		strb	r3, [fp, #-16]
+ 107:../kernel/kernel_entry.c ****     const char id5 = '5';
+ 2606              		.loc 1 107 0
+ 2607 00fc 3530A0E3 		mov	r3, #53
+ 2608 0100 11304BE5 		strb	r3, [fp, #-17]
+ 108:../kernel/kernel_entry.c ****     const char id6 = '6';
+ 2609              		.loc 1 108 0
+ 2610 0104 3630A0E3 		mov	r3, #54
+ 2611 0108 12304BE5 		strb	r3, [fp, #-18]
+ 109:../kernel/kernel_entry.c ****     const char id7 = '7';
+ 2612              		.loc 1 109 0
+ 2613 010c 3730A0E3 		mov	r3, #55
+ 2614 0110 13304BE5 		strb	r3, [fp, #-19]
+ 110:../kernel/kernel_entry.c ****   
+ 111:../kernel/kernel_entry.c ****     OS_ENTER_CRITICAL();
+ 2615              		.loc 1 111 0
+ 2616              	@ 111 "../kernel/kernel_entry.c" 1
+ 2617 0114 00000FE1 		mrs   r0, cpsr
+ 2618              	@ 0 "" 2
+ 2619              	@ 111 "../kernel/kernel_entry.c" 1
+ 2620 0118 04002DE5 		stmfd sp!, {r0}
+ 2621              	@ 0 "" 2
+ 2622              	@ 111 "../kernel/kernel_entry.c" 1
+ 2623 011c C00080E3 		orr   r0, r0, #0b11000000
+ 2624              	@ 0 "" 2
+ 2625              	@ 111 "../kernel/kernel_entry.c" 1
+ 2626 0120 00F021E1 		msr   cpsr_c, r0
+ 2627              	@ 0 "" 2
+ 112:../kernel/kernel_entry.c **** 
+ 113:../kernel/kernel_entry.c ****     //10ms
+ 114:../kernel/kernel_entry.c ****     tmr_set_mode(TIMER0, RELOAD);
+ 2628              		.loc 1 114 0
+ 2629 0124 0000A0E3 		mov	r0, #0
+ 2630 0128 0110A0E3 		mov	r1, #1
+ 2631 012c FEFFFFEB 		bl	tmr_set_mode
+ 115:../kernel/kernel_entry.c **** 	tmr_set_prescaler(TIMER0, 1);
+ 2632              		.loc 1 115 0
+ 2633 0130 0000A0E3 		mov	r0, #0
+ 2634 0134 0110A0E3 		mov	r1, #1
+ 2635 0138 FEFFFFEB 		bl	tmr_set_prescaler
+ 116:../kernel/kernel_entry.c **** 	tmr_set_divider(TIMER0, D1_8);
+ 2636              		.loc 1 116 0
+ 2637 013c 0000A0E3 		mov	r0, #0
+ 2638 0140 0210A0E3 		mov	r1, #2
+ 2639 0144 FEFFFFEB 		bl	tmr_set_divider
+ 117:../kernel/kernel_entry.c **** 	tmr_set_count(TIMER0, 40000, 1);
+ 2640              		.loc 1 117 0
+ 2641 0148 0000A0E3 		mov	r0, #0
+ 2642 014c 18119FE5 		ldr	r1, .L5
+ 2643 0150 0120A0E3 		mov	r2, #1
+ 2644 0154 FEFFFFEB 		bl	tmr_set_count
+ 118:../kernel/kernel_entry.c **** 
+ 119:../kernel/kernel_entry.c **** 	tmr_update(TIMER0);
+ 2645              		.loc 1 119 0
+ 2646 0158 0000A0E3 		mov	r0, #0
+ 2647 015c FEFFFFEB 		bl	tmr_update
+ 120:../kernel/kernel_entry.c **** 
+ 121:../kernel/kernel_entry.c **** 	pISR_TIMER0 =(unsigned)OSTickISR;
+ 2648              		.loc 1 121 0
+ 2649 0160 08319FE5 		ldr	r3, .L5+4
+ 2650 0164 08219FE5 		ldr	r2, .L5+8
+ 2651 0168 002083E5 		str	r2, [r3, #0]
+ 122:../kernel/kernel_entry.c **** 	tmr_start(TIMER0);
+ 2652              		.loc 1 122 0
+ 2653 016c 0000A0E3 		mov	r0, #0
+ 2654 0170 FEFFFFEB 		bl	tmr_start
+ 123:../kernel/kernel_entry.c **** 
+ 124:../kernel/kernel_entry.c **** 	ic_cleanflag(INT_TIMER0);
+ 2655              		.loc 1 124 0
+ 2656 0174 0D00A0E3 		mov	r0, #13
+ 2657 0178 FEFFFFEB 		bl	ic_cleanflag
+ 125:../kernel/kernel_entry.c **** 	ic_enable(INT_TIMER0);
+ 2658              		.loc 1 125 0
+ 2659 017c 0D00A0E3 		mov	r0, #13
+ 2660 0180 FEFFFFEB 		bl	ic_enable
+ 126:../kernel/kernel_entry.c **** 
+ 127:../kernel/kernel_entry.c ****     pISR_EINT4567 = (unsigned) OS_CPU_isr_pb;
+ 2661              		.loc 1 127 0
+ 2662 0184 EC309FE5 		ldr	r3, .L5+12
+ 2663 0188 EC209FE5 		ldr	r2, .L5+16
+ 2664 018c 002083E5 		str	r2, [r3, #0]
+ 128:../kernel/kernel_entry.c ****     ic_cleanflag(INT_EINT4567);
+ 2665              		.loc 1 128 0
+ 2666 0190 1500A0E3 		mov	r0, #21
+ 2667 0194 FEFFFFEB 		bl	ic_cleanflag
+ 129:../kernel/kernel_entry.c ****     ic_enable(INT_EINT4567);
+ 2668              		.loc 1 129 0
+ 2669 0198 1500A0E3 		mov	r0, #21
+ 2670 019c FEFFFFEB 		bl	ic_enable
+ 130:../kernel/kernel_entry.c **** 
+ 131:../kernel/kernel_entry.c ****     OS_EXIT_CRITICAL();
+ 2671              		.loc 1 131 0
+ 2672              	@ 131 "../kernel/kernel_entry.c" 1
+ 2673 01a0 04009DE4 		ldmfd sp!, {r0}
+ 2674              	@ 0 "" 2
+ 2675              	@ 131 "../kernel/kernel_entry.c" 1
+ 2676 01a4 00F021E1 		msr   cpsr_c, r0
+ 2677              	@ 0 "" 2
+ 132:../kernel/kernel_entry.c **** 
+ 133:../kernel/kernel_entry.c ****     //OSStatInit();                     /* Opcionalmente, arranca la tarea del kernel de recopilaci
+ 134:../kernel/kernel_entry.c **** 
+ 135:../kernel/kernel_entry.c ****     OSTaskCreate( Task1, (void *)&id1, &Task1Stk[TASK_STK_SIZE - 1], 6 );      /* Crea las tareas d
+ 2678              		.loc 1 135 0
+ 2679 01a8 0D304BE2 		sub	r3, fp, #13
+ 2680 01ac CC009FE5 		ldr	r0, .L5+20
+ 2681 01b0 0310A0E1 		mov	r1, r3
+ 2682 01b4 C8209FE5 		ldr	r2, .L5+24
+ 2683 01b8 0630A0E3 		mov	r3, #6
+ 2684 01bc FEFFFFEB 		bl	OSTaskCreate
+ 136:../kernel/kernel_entry.c ****     OSTaskCreate( Task2, (void *)&id2, &Task2Stk[TASK_STK_SIZE - 1], 1 );      /* Las tareas más fr
+ 2685              		.loc 1 136 0
+ 2686 01c0 0E304BE2 		sub	r3, fp, #14
+ 2687 01c4 BC009FE5 		ldr	r0, .L5+28
+ 2688 01c8 0310A0E1 		mov	r1, r3
+ 2689 01cc B8209FE5 		ldr	r2, .L5+32
+ 2690 01d0 0130A0E3 		mov	r3, #1
+ 2691 01d4 FEFFFFEB 		bl	OSTaskCreate
+ 137:../kernel/kernel_entry.c ****     OSTaskCreate( Task3, (void *)&id3, &Task3Stk[TASK_STK_SIZE - 1], 7 );
+ 2692              		.loc 1 137 0
+ 2693 01d8 0F304BE2 		sub	r3, fp, #15
+ 2694 01dc AC009FE5 		ldr	r0, .L5+36
+ 2695 01e0 0310A0E1 		mov	r1, r3
+ 2696 01e4 A8209FE5 		ldr	r2, .L5+40
+ 2697 01e8 0730A0E3 		mov	r3, #7
+ 2698 01ec FEFFFFEB 		bl	OSTaskCreate
+ 138:../kernel/kernel_entry.c ****     OSTaskCreate( Task4, (void *)&id4, &Task4Stk[TASK_STK_SIZE - 1], 9 );
+ 2699              		.loc 1 138 0
+ 2700 01f0 10304BE2 		sub	r3, fp, #16
+ 2701 01f4 9C009FE5 		ldr	r0, .L5+44
+ 2702 01f8 0310A0E1 		mov	r1, r3
+ 2703 01fc 98209FE5 		ldr	r2, .L5+48
+ 2704 0200 0930A0E3 		mov	r3, #9
+ 2705 0204 FEFFFFEB 		bl	OSTaskCreate
+ 139:../kernel/kernel_entry.c ****     OSTaskCreate( Task5, (void *)&id5, &Task5Stk[TASK_STK_SIZE - 1], 3 );
+ 2706              		.loc 1 139 0
+ 2707 0208 11304BE2 		sub	r3, fp, #17
+ 2708 020c 8C009FE5 		ldr	r0, .L5+52
+ 2709 0210 0310A0E1 		mov	r1, r3
+ 2710 0214 88209FE5 		ldr	r2, .L5+56
+ 2711 0218 0330A0E3 		mov	r3, #3
+ 2712 021c FEFFFFEB 		bl	OSTaskCreate
+ 140:../kernel/kernel_entry.c ****     OSTaskCreate( Task6, (void *)&id6, &Task6Stk[TASK_STK_SIZE - 1], 4 );
+ 2713              		.loc 1 140 0
+ 2714 0220 12304BE2 		sub	r3, fp, #18
+ 2715 0224 7C009FE5 		ldr	r0, .L5+60
+ 2716 0228 0310A0E1 		mov	r1, r3
+ 2717 022c 78209FE5 		ldr	r2, .L5+64
+ 2718 0230 0430A0E3 		mov	r3, #4
+ 2719 0234 FEFFFFEB 		bl	OSTaskCreate
+ 141:../kernel/kernel_entry.c ****     OSTaskCreate( Task7, (void *)&id7, &Task7Stk[TASK_STK_SIZE - 1], 2 );
+ 2720              		.loc 1 141 0
+ 2721 0238 13304BE2 		sub	r3, fp, #19
+ 2722 023c 6C009FE5 		ldr	r0, .L5+68
+ 2723 0240 0310A0E1 		mov	r1, r3
+ 2724 0244 68209FE5 		ldr	r2, .L5+72
+ 2725 0248 0230A0E3 		mov	r3, #2
+ 2726 024c FEFFFFEB 		bl	OSTaskCreate
+ 142:../kernel/kernel_entry.c **** 
+ 143:../kernel/kernel_entry.c ****     Delay(1000);
+ 2727              		.loc 1 143 0
+ 2728 0250 FA0FA0E3 		mov	r0, #1000
+ 2729 0254 FEFFFFEB 		bl	Delay
+ 144:../kernel/kernel_entry.c **** 
+ 145:../kernel/kernel_entry.c ****     OSTaskDel(OS_PRIO_SELF);             /* La tarea inicial de arranque se auto-elimina */
+ 2730              		.loc 1 145 0
+ 2731 0258 FF00A0E3 		mov	r0, #255
+ 2732 025c FEFFFFEB 		bl	OSTaskDel
+ 146:../kernel/kernel_entry.c **** }
+ 2733              		.loc 1 146 0
+ 2734 0260 0CD04BE2 		sub	sp, fp, #12
+ 2735 0264 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2736 0268 1EFF2FE1 		bx	lr
+ 2737              	.L6:
+ 2738              		.align	2
+ 2739              	.L5:
+ 2740 026c 409C0000 		.word	40000
+ 2741 0270 54FF7F0C 		.word	209715028
+ 2742 0274 00000000 		.word	OSTickISR
+ 2743 0278 74FF7F0C 		.word	209715060
+ 2744 027c 00000000 		.word	OS_CPU_isr_pb
+ 2745 0280 00000000 		.word	Task1
+ 2746 0284 FC9F0000 		.word	Task1Stk+40956
+ 2747 0288 00000000 		.word	Task2
+ 2748 028c FC9F0000 		.word	Task2Stk+40956
+ 2749 0290 00000000 		.word	Task3
+ 2750 0294 FC9F0000 		.word	Task3Stk+40956
+ 2751 0298 00000000 		.word	Task4
+ 2752 029c FC9F0000 		.word	Task4Stk+40956
+ 2753 02a0 00000000 		.word	Task5
+ 2754 02a4 FC9F0000 		.word	Task5Stk+40956
+ 2755 02a8 00000000 		.word	Task6
+ 2756 02ac FC9F0000 		.word	Task6Stk+40956
+ 2757 02b0 00000000 		.word	Task7
+ 2758 02b4 FC9F0000 		.word	Task7Stk+40956
+ 2759              		.cfi_endproc
+ 2760              	.LFE1:
+ 2762              		.section	.rodata
+ 2763 0049 000000   		.align	2
+ 2764              	.LC3:
+ 2765 004c 20205461 		.ascii	"  Task\000"
+ 2765      736B00
+ 2766 0053 00       		.align	2
+ 2767              	.LC4:
+ 2768 0054 20696E69 		.ascii	" iniciada.\012\000"
+ 2768      63696164 
+ 2768      612E0A00 
+ 2769              		.text
+ 2770              		.align	2
+ 2771              		.global	Task1
+ 2773              	Task1:
+ 2774              	.LFB2:
+ 147:../kernel/kernel_entry.c **** 
+ 148:../kernel/kernel_entry.c **** void Task1( void *id )
+ 149:../kernel/kernel_entry.c **** {
+ 2775              		.loc 1 149 0
+ 2776              		.cfi_startproc
+ 2777              		@ Function supports interworking.
+ 2778              		@ args = 0, pretend = 0, frame = 16
+ 2779              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2780 02b8 0DC0A0E1 		mov	ip, sp
+ 2781              	.LCFI4:
+ 2782              		.cfi_def_cfa_register 12
+ 2783 02bc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2784 02c0 04B04CE2 		sub	fp, ip, #4
+ 2785              		.cfi_offset 14, -8
+ 2786              		.cfi_offset 13, -12
+ 2787              		.cfi_offset 11, -16
+ 2788              	.LCFI5:
+ 2789              		.cfi_def_cfa 11, 4
+ 2790 02c4 10D04DE2 		sub	sp, sp, #16
+ 2791 02c8 18000BE5 		str	r0, [fp, #-24]
+ 150:../kernel/kernel_entry.c ****     INT8U err;
+ 151:../kernel/kernel_entry.c **** 
+ 152:../kernel/kernel_entry.c ****     OSSemPend( uart0Sem, 0, &err );    /* Muestra un mensaje inicial en la UART0 (protegida por un 
+ 2792              		.loc 1 152 0
+ 2793 02cc 60309FE5 		ldr	r3, .L9
+ 2794 02d0 002093E5 		ldr	r2, [r3, #0]
+ 2795 02d4 0D304BE2 		sub	r3, fp, #13
+ 2796 02d8 0200A0E1 		mov	r0, r2
+ 2797 02dc 0010A0E3 		mov	r1, #0
+ 2798 02e0 0320A0E1 		mov	r2, r3
+ 2799 02e4 FEFFFFEB 		bl	OSSemPend
+ 153:../kernel/kernel_entry.c ****         uart0_puts( "  Task" );
+ 2800              		.loc 1 153 0
+ 2801 02e8 48009FE5 		ldr	r0, .L9+4
+ 2802 02ec FEFFFFEB 		bl	uart0_puts
+ 154:../kernel/kernel_entry.c ****         uart0_putchar( *(char *)id );
+ 2803              		.loc 1 154 0
+ 2804 02f0 18301BE5 		ldr	r3, [fp, #-24]
+ 2805 02f4 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2806 02f8 0300A0E1 		mov	r0, r3
+ 2807 02fc FEFFFFEB 		bl	uart0_putchar
+ 155:../kernel/kernel_entry.c ****         uart0_puts( " iniciada.\n" );
+ 2808              		.loc 1 155 0
+ 2809 0300 34009FE5 		ldr	r0, .L9+8
+ 2810 0304 FEFFFFEB 		bl	uart0_puts
+ 156:../kernel/kernel_entry.c ****     OSSemPost( uart0Sem );
+ 2811              		.loc 1 156 0
+ 2812 0308 24309FE5 		ldr	r3, .L9
+ 2813 030c 003093E5 		ldr	r3, [r3, #0]
+ 2814 0310 0300A0E1 		mov	r0, r3
+ 2815 0314 FEFFFFEB 		bl	OSSemPost
+ 157:../kernel/kernel_entry.c ****     
+ 158:../kernel/kernel_entry.c ****     led1_on();
+ 2816              		.loc 1 158 0
+ 2817 0318 FEFFFFEB 		bl	led1_on
+ 159:../kernel/kernel_entry.c ****     led2_off();
+ 2818              		.loc 1 159 0
+ 2819 031c FEFFFFEB 		bl	led2_off
+ 2820              	.L8:
+ 160:../kernel/kernel_entry.c **** 
+ 161:../kernel/kernel_entry.c ****     while( 1 )                         /* Cada 0,5 segundos (50 ticks) alterna el led que se encien
+ 162:../kernel/kernel_entry.c ****     {
+ 163:../kernel/kernel_entry.c ****         OSTimeDly( 50 );
+ 2821              		.loc 1 163 0 discriminator 1
+ 2822 0320 3200A0E3 		mov	r0, #50
+ 2823 0324 FEFFFFEB 		bl	OSTimeDly
+ 164:../kernel/kernel_entry.c ****         led1_switch();
+ 2824              		.loc 1 164 0 discriminator 1
+ 2825 0328 FEFFFFEB 		bl	led1_switch
+ 165:../kernel/kernel_entry.c ****         led2_switch();
+ 2826              		.loc 1 165 0 discriminator 1
+ 2827 032c FEFFFFEB 		bl	led2_switch
+ 166:../kernel/kernel_entry.c ****     }
+ 2828              		.loc 1 166 0 discriminator 1
+ 2829 0330 FAFFFFEA 		b	.L8
+ 2830              	.L10:
+ 2831              		.align	2
+ 2832              	.L9:
+ 2833 0334 00000000 		.word	uart0Sem
+ 2834 0338 4C000000 		.word	.LC3
+ 2835 033c 54000000 		.word	.LC4
+ 2836              		.cfi_endproc
+ 2837              	.LFE2:
+ 2839              		.align	2
+ 2840              		.global	Task2
+ 2842              	Task2:
+ 2843              	.LFB3:
+ 167:../kernel/kernel_entry.c **** }
+ 168:../kernel/kernel_entry.c **** 
+ 169:../kernel/kernel_entry.c **** void Task2( void *id)
+ 170:../kernel/kernel_entry.c **** {
+ 2844              		.loc 1 170 0
+ 2845              		.cfi_startproc
+ 2846              		@ Function supports interworking.
+ 2847              		@ args = 0, pretend = 0, frame = 16
+ 2848              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2849 0340 0DC0A0E1 		mov	ip, sp
+ 2850              	.LCFI6:
+ 2851              		.cfi_def_cfa_register 12
+ 2852 0344 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2853 0348 04B04CE2 		sub	fp, ip, #4
+ 2854              		.cfi_offset 14, -8
+ 2855              		.cfi_offset 13, -12
+ 2856              		.cfi_offset 11, -16
+ 2857              	.LCFI7:
+ 2858              		.cfi_def_cfa 11, 4
+ 2859 034c 10D04DE2 		sub	sp, sp, #16
+ 2860 0350 18000BE5 		str	r0, [fp, #-24]
+ 171:../kernel/kernel_entry.c ****     INT8U err;
+ 172:../kernel/kernel_entry.c ****     uint8 scancode;
+ 173:../kernel/kernel_entry.c **** 
+ 174:../kernel/kernel_entry.c ****     OSSemPend( uart0Sem, 0, &err );    /* Muestra un mensaje inicial en la UART0 (protegida por un 
+ 2861              		.loc 1 174 0
+ 2862 0354 B0309FE5 		ldr	r3, .L17
+ 2863 0358 002093E5 		ldr	r2, [r3, #0]
+ 2864 035c 0D304BE2 		sub	r3, fp, #13
+ 2865 0360 0200A0E1 		mov	r0, r2
+ 2866 0364 0010A0E3 		mov	r1, #0
+ 2867 0368 0320A0E1 		mov	r2, r3
+ 2868 036c FEFFFFEB 		bl	OSSemPend
+ 175:../kernel/kernel_entry.c ****         uart0_puts( "  Task" );
+ 2869              		.loc 1 175 0
+ 2870 0370 98009FE5 		ldr	r0, .L17+4
+ 2871 0374 FEFFFFEB 		bl	uart0_puts
+ 176:../kernel/kernel_entry.c ****         uart0_putchar( *(char *)id );
+ 2872              		.loc 1 176 0
+ 2873 0378 18301BE5 		ldr	r3, [fp, #-24]
+ 2874 037c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2875 0380 0300A0E1 		mov	r0, r3
+ 2876 0384 FEFFFFEB 		bl	uart0_putchar
+ 177:../kernel/kernel_entry.c ****         uart0_puts( " iniciada.\n" );
+ 2877              		.loc 1 177 0
+ 2878 0388 84009FE5 		ldr	r0, .L17+8
+ 2879 038c FEFFFFEB 		bl	uart0_puts
+ 178:../kernel/kernel_entry.c ****     OSSemPost( uart0Sem );
+ 2880              		.loc 1 178 0
+ 2881 0390 74309FE5 		ldr	r3, .L17
+ 2882 0394 003093E5 		ldr	r3, [r3, #0]
+ 2883 0398 0300A0E1 		mov	r0, r3
+ 2884 039c FEFFFFEB 		bl	OSSemPost
+ 179:../kernel/kernel_entry.c **** 
+ 180:../kernel/kernel_entry.c ****     while( 1 )                         /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scanco
+ 181:../kernel/kernel_entry.c ****     {      
+ 182:../kernel/kernel_entry.c ****         while( kb_scan() < 0 )
+ 2885              		.loc 1 182 0
+ 2886 03a0 010000EA 		b	.L12
+ 2887              	.L13:
+ 183:../kernel/kernel_entry.c ****             OSTimeDly( 5 );
+ 2888              		.loc 1 183 0
+ 2889 03a4 0500A0E3 		mov	r0, #5
+ 2890 03a8 FEFFFFEB 		bl	OSTimeDly
+ 2891              	.L12:
+ 182:../kernel/kernel_entry.c ****         while( kb_scan() < 0 )
+ 2892              		.loc 1 182 0 discriminator 1
+ 2893 03ac FEFFFFEB 		bl	kb_scan
+ 2894 03b0 0030A0E1 		mov	r3, r0
+ 2895 03b4 000053E3 		cmp	r3, #0
+ 2896 03b8 F9FFFFBA 		blt	.L13
+ 184:../kernel/kernel_entry.c ****         scancode = kb_scan();
+ 2897              		.loc 1 184 0
+ 2898 03bc FEFFFFEB 		bl	kb_scan
+ 2899 03c0 0030A0E1 		mov	r3, r0
+ 2900 03c4 FF3003E2 		and	r3, r3, #255
+ 2901 03c8 0E304BE5 		strb	r3, [fp, #-14]
+ 185:../kernel/kernel_entry.c ****         if( scancode >= 0 )
+ 186:../kernel/kernel_entry.c ****             OSMboxPostOpt( keypadMbox, (void *) &scancode, OS_POST_OPT_BROADCAST );
+ 2902              		.loc 1 186 0
+ 2903 03cc 44309FE5 		ldr	r3, .L17+12
+ 2904 03d0 002093E5 		ldr	r2, [r3, #0]
+ 2905 03d4 0E304BE2 		sub	r3, fp, #14
+ 2906 03d8 0200A0E1 		mov	r0, r2
+ 2907 03dc 0310A0E1 		mov	r1, r3
+ 2908 03e0 0120A0E3 		mov	r2, #1
+ 2909 03e4 FEFFFFEB 		bl	OSMboxPostOpt
+ 187:../kernel/kernel_entry.c ****         while( kb_scan() >= 0 )
+ 2910              		.loc 1 187 0
+ 2911 03e8 010000EA 		b	.L14
+ 2912              	.L15:
+ 188:../kernel/kernel_entry.c ****             OSTimeDly( 5 );
+ 2913              		.loc 1 188 0
+ 2914 03ec 0500A0E3 		mov	r0, #5
+ 2915 03f0 FEFFFFEB 		bl	OSTimeDly
+ 2916              	.L14:
+ 187:../kernel/kernel_entry.c ****         while( kb_scan() >= 0 )
+ 2917              		.loc 1 187 0 discriminator 1
+ 2918 03f4 FEFFFFEB 		bl	kb_scan
+ 2919 03f8 0030A0E1 		mov	r3, r0
+ 2920 03fc 000053E3 		cmp	r3, #0
+ 2921 0400 F9FFFFAA 		bge	.L15
+ 189:../kernel/kernel_entry.c ****     }
+ 2922              		.loc 1 189 0
+ 2923 0404 0000A0E1 		mov	r0, r0	@ nop
+ 182:../kernel/kernel_entry.c ****         while( kb_scan() < 0 )
+ 2924              		.loc 1 182 0
+ 2925 0408 E7FFFFEA 		b	.L12
+ 2926              	.L18:
+ 2927              		.align	2
+ 2928              	.L17:
+ 2929 040c 00000000 		.word	uart0Sem
+ 2930 0410 4C000000 		.word	.LC3
+ 2931 0414 54000000 		.word	.LC4
+ 2932 0418 00000000 		.word	keypadMbox
+ 2933              		.cfi_endproc
+ 2934              	.LFE3:
+ 2936              		.section	.rodata
+ 2937              		.align	2
+ 2938              	.LC5:
+ 2939 0060 20202854 		.ascii	"  (Task\000"
+ 2939      61736B00 
+ 2940              		.align	2
+ 2941              	.LC6:
+ 2942 0068 2920486F 		.ascii	") Hora: \000"
+ 2942      72613A20 
+ 2942      00
+ 2943 0071 000000   		.align	2
+ 2944              	.LC7:
+ 2945 0074 0A00     		.ascii	"\012\000"
+ 2946              		.text
+ 2947              		.align	2
+ 2948              		.global	Task3
+ 2950              	Task3:
+ 2951              	.LFB4:
+ 190:../kernel/kernel_entry.c **** }
+ 191:../kernel/kernel_entry.c **** 
+ 192:../kernel/kernel_entry.c **** void Task3( void *id )
+ 193:../kernel/kernel_entry.c **** {
+ 2952              		.loc 1 193 0
+ 2953              		.cfi_startproc
+ 2954              		@ Function supports interworking.
+ 2955              		@ args = 0, pretend = 0, frame = 16
+ 2956              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2957 041c 0DC0A0E1 		mov	ip, sp
+ 2958              	.LCFI8:
+ 2959              		.cfi_def_cfa_register 12
+ 2960 0420 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2961 0424 04B04CE2 		sub	fp, ip, #4
+ 2962              		.cfi_offset 14, -8
+ 2963              		.cfi_offset 13, -12
+ 2964              		.cfi_offset 11, -16
+ 2965              	.LCFI9:
+ 2966              		.cfi_def_cfa 11, 4
+ 2967 0428 10D04DE2 		sub	sp, sp, #16
+ 2968 042c 18000BE5 		str	r0, [fp, #-24]
+ 194:../kernel/kernel_entry.c ****     INT8U err;
+ 195:../kernel/kernel_entry.c ****     rtc_time_t rtc_time;
+ 196:../kernel/kernel_entry.c **** 
+ 197:../kernel/kernel_entry.c ****     OSSemPend( uart0Sem, 0, &err );    /* Muestra un mensaje inicial en la UART0 (protegida por un 
+ 2969              		.loc 1 197 0
+ 2970 0430 E4309FE5 		ldr	r3, .L21
+ 2971 0434 002093E5 		ldr	r2, [r3, #0]
+ 2972 0438 0D304BE2 		sub	r3, fp, #13
+ 2973 043c 0200A0E1 		mov	r0, r2
+ 2974 0440 0010A0E3 		mov	r1, #0
+ 2975 0444 0320A0E1 		mov	r2, r3
+ 2976 0448 FEFFFFEB 		bl	OSSemPend
+ 198:../kernel/kernel_entry.c ****         uart0_puts( "  Task" );
+ 2977              		.loc 1 198 0
+ 2978 044c CC009FE5 		ldr	r0, .L21+4
+ 2979 0450 FEFFFFEB 		bl	uart0_puts
+ 199:../kernel/kernel_entry.c ****         uart0_putchar( *(char *)id );
+ 2980              		.loc 1 199 0
+ 2981 0454 18301BE5 		ldr	r3, [fp, #-24]
+ 2982 0458 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 2983 045c 0300A0E1 		mov	r0, r3
+ 2984 0460 FEFFFFEB 		bl	uart0_putchar
+ 200:../kernel/kernel_entry.c ****         uart0_puts( " iniciada.\n" );
+ 2985              		.loc 1 200 0
+ 2986 0464 B8009FE5 		ldr	r0, .L21+8
+ 2987 0468 FEFFFFEB 		bl	uart0_puts
+ 201:../kernel/kernel_entry.c ****     OSSemPost( uart0Sem );
+ 2988              		.loc 1 201 0
+ 2989 046c A8309FE5 		ldr	r3, .L21
+ 2990 0470 003093E5 		ldr	r3, [r3, #0]
+ 2991 0474 0300A0E1 		mov	r0, r3
+ 2992 0478 FEFFFFEB 		bl	OSSemPost
+ 2993              	.L20:
+ 202:../kernel/kernel_entry.c **** 
+ 203:../kernel/kernel_entry.c ****     while( 1 )                         /* Cada segundo (100 ticks) muestra por la UART0 la hora del
+ 204:../kernel/kernel_entry.c ****     {
+ 205:../kernel/kernel_entry.c ****         OSTimeDly( 100 );
+ 2994              		.loc 1 205 0 discriminator 1
+ 2995 047c 6400A0E3 		mov	r0, #100
+ 2996 0480 FEFFFFEB 		bl	OSTimeDly
+ 206:../kernel/kernel_entry.c ****         rtc_gettime( &rtc_time );
+ 2997              		.loc 1 206 0 discriminator 1
+ 2998 0484 14304BE2 		sub	r3, fp, #20
+ 2999 0488 0300A0E1 		mov	r0, r3
+ 3000 048c FEFFFFEB 		bl	rtc_gettime
+ 207:../kernel/kernel_entry.c ****         OSSemPend( uart0Sem, 0, &err );
+ 3001              		.loc 1 207 0 discriminator 1
+ 3002 0490 84309FE5 		ldr	r3, .L21
+ 3003 0494 002093E5 		ldr	r2, [r3, #0]
+ 3004 0498 0D304BE2 		sub	r3, fp, #13
+ 3005 049c 0200A0E1 		mov	r0, r2
+ 3006 04a0 0010A0E3 		mov	r1, #0
+ 3007 04a4 0320A0E1 		mov	r2, r3
+ 3008 04a8 FEFFFFEB 		bl	OSSemPend
+ 208:../kernel/kernel_entry.c ****             uart0_puts( "  (Task" );
+ 3009              		.loc 1 208 0 discriminator 1
+ 3010 04ac 74009FE5 		ldr	r0, .L21+12
+ 3011 04b0 FEFFFFEB 		bl	uart0_puts
+ 209:../kernel/kernel_entry.c ****             uart0_putchar( *(char *)id );
+ 3012              		.loc 1 209 0 discriminator 1
+ 3013 04b4 18301BE5 		ldr	r3, [fp, #-24]
+ 3014 04b8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3015 04bc 0300A0E1 		mov	r0, r3
+ 3016 04c0 FEFFFFEB 		bl	uart0_putchar
+ 210:../kernel/kernel_entry.c ****             uart0_puts( ") Hora: " );
+ 3017              		.loc 1 210 0 discriminator 1
+ 3018 04c4 60009FE5 		ldr	r0, .L21+16
+ 3019 04c8 FEFFFFEB 		bl	uart0_puts
+ 211:../kernel/kernel_entry.c ****             uart0_putint( rtc_time.hour );
+ 3020              		.loc 1 211 0 discriminator 1
+ 3021 04cc 12305BE5 		ldrb	r3, [fp, #-18]	@ zero_extendqisi2
+ 3022 04d0 0300A0E1 		mov	r0, r3
+ 3023 04d4 FEFFFFEB 		bl	uart0_putint
+ 212:../kernel/kernel_entry.c ****             uart0_putchar( ':' );
+ 3024              		.loc 1 212 0 discriminator 1
+ 3025 04d8 3A00A0E3 		mov	r0, #58
+ 3026 04dc FEFFFFEB 		bl	uart0_putchar
+ 213:../kernel/kernel_entry.c ****             uart0_putint( rtc_time.min );
+ 3027              		.loc 1 213 0 discriminator 1
+ 3028 04e0 13305BE5 		ldrb	r3, [fp, #-19]	@ zero_extendqisi2
+ 3029 04e4 0300A0E1 		mov	r0, r3
+ 3030 04e8 FEFFFFEB 		bl	uart0_putint
+ 214:../kernel/kernel_entry.c ****             uart0_putchar( ':' );
+ 3031              		.loc 1 214 0 discriminator 1
+ 3032 04ec 3A00A0E3 		mov	r0, #58
+ 3033 04f0 FEFFFFEB 		bl	uart0_putchar
+ 215:../kernel/kernel_entry.c ****             uart0_putint( rtc_time.sec );
+ 3034              		.loc 1 215 0 discriminator 1
+ 3035 04f4 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 3036 04f8 0300A0E1 		mov	r0, r3
+ 3037 04fc FEFFFFEB 		bl	uart0_putint
+ 216:../kernel/kernel_entry.c ****             uart0_puts( "\n" );
+ 3038              		.loc 1 216 0 discriminator 1
+ 3039 0500 28009FE5 		ldr	r0, .L21+20
+ 3040 0504 FEFFFFEB 		bl	uart0_puts
+ 217:../kernel/kernel_entry.c ****         OSSemPost( uart0Sem );
+ 3041              		.loc 1 217 0 discriminator 1
+ 3042 0508 0C309FE5 		ldr	r3, .L21
+ 3043 050c 003093E5 		ldr	r3, [r3, #0]
+ 3044 0510 0300A0E1 		mov	r0, r3
+ 3045 0514 FEFFFFEB 		bl	OSSemPost
+ 218:../kernel/kernel_entry.c ****     }
+ 3046              		.loc 1 218 0 discriminator 1
+ 3047 0518 D7FFFFEA 		b	.L20
+ 3048              	.L22:
+ 3049              		.align	2
+ 3050              	.L21:
+ 3051 051c 00000000 		.word	uart0Sem
+ 3052 0520 4C000000 		.word	.LC3
+ 3053 0524 54000000 		.word	.LC4
+ 3054 0528 60000000 		.word	.LC5
+ 3055 052c 68000000 		.word	.LC6
+ 3056 0530 74000000 		.word	.LC7
+ 3057              		.cfi_endproc
+ 3058              	.LFE4:
+ 3060              		.section	.rodata
+ 3061 0076 0000     		.align	2
+ 3062              	.LC8:
+ 3063 0078 29205469 		.ascii	") Ticks: \000"
+ 3063      636B733A 
+ 3063      2000
+ 3064              		.text
+ 3065              		.align	2
+ 3066              		.global	Task4
+ 3068              	Task4:
+ 3069              	.LFB5:
+ 219:../kernel/kernel_entry.c **** }
+ 220:../kernel/kernel_entry.c **** 
+ 221:../kernel/kernel_entry.c **** void Task4( void *id )
+ 222:../kernel/kernel_entry.c **** {
+ 3070              		.loc 1 222 0
+ 3071              		.cfi_startproc
+ 3072              		@ Function supports interworking.
+ 3073              		@ args = 0, pretend = 0, frame = 16
+ 3074              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3075 0534 0DC0A0E1 		mov	ip, sp
+ 3076              	.LCFI10:
+ 3077              		.cfi_def_cfa_register 12
+ 3078 0538 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3079 053c 04B04CE2 		sub	fp, ip, #4
+ 3080              		.cfi_offset 14, -8
+ 3081              		.cfi_offset 13, -12
+ 3082              		.cfi_offset 11, -16
+ 3083              	.LCFI11:
+ 3084              		.cfi_def_cfa 11, 4
+ 3085 0540 10D04DE2 		sub	sp, sp, #16
+ 3086 0544 18000BE5 		str	r0, [fp, #-24]
+ 223:../kernel/kernel_entry.c ****     INT8U err;
+ 224:../kernel/kernel_entry.c ****     INT32U ticks;
+ 225:../kernel/kernel_entry.c **** 
+ 226:../kernel/kernel_entry.c ****     OSSemPend( uart0Sem, 0, &err );    /* Muestra un mensaje inicial en la UART0 (protegida por un 
+ 3087              		.loc 1 226 0
+ 3088 0548 B8309FE5 		ldr	r3, .L25
+ 3089 054c 002093E5 		ldr	r2, [r3, #0]
+ 3090 0550 11304BE2 		sub	r3, fp, #17
+ 3091 0554 0200A0E1 		mov	r0, r2
+ 3092 0558 0010A0E3 		mov	r1, #0
+ 3093 055c 0320A0E1 		mov	r2, r3
+ 3094 0560 FEFFFFEB 		bl	OSSemPend
+ 227:../kernel/kernel_entry.c ****         uart0_puts( "  Task" );
+ 3095              		.loc 1 227 0
+ 3096 0564 A0009FE5 		ldr	r0, .L25+4
+ 3097 0568 FEFFFFEB 		bl	uart0_puts
+ 228:../kernel/kernel_entry.c ****         uart0_putchar( *(char *)id );
+ 3098              		.loc 1 228 0
+ 3099 056c 18301BE5 		ldr	r3, [fp, #-24]
+ 3100 0570 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3101 0574 0300A0E1 		mov	r0, r3
+ 3102 0578 FEFFFFEB 		bl	uart0_putchar
+ 229:../kernel/kernel_entry.c ****         uart0_puts( " iniciada.\n" );
+ 3103              		.loc 1 229 0
+ 3104 057c 8C009FE5 		ldr	r0, .L25+8
+ 3105 0580 FEFFFFEB 		bl	uart0_puts
+ 230:../kernel/kernel_entry.c ****     OSSemPost( uart0Sem );
+ 3106              		.loc 1 230 0
+ 3107 0584 7C309FE5 		ldr	r3, .L25
+ 3108 0588 003093E5 		ldr	r3, [r3, #0]
+ 3109 058c 0300A0E1 		mov	r0, r3
+ 3110 0590 FEFFFFEB 		bl	OSSemPost
+ 3111              	.L24:
+ 231:../kernel/kernel_entry.c **** 
+ 232:../kernel/kernel_entry.c ****     while( 1 )                         /* Cada 10 segundos (1000 ticks) muestra por la UART0 los ti
+ 233:../kernel/kernel_entry.c ****     {
+ 234:../kernel/kernel_entry.c ****         OSTimeDly( 1000 );
+ 3112              		.loc 1 234 0 discriminator 1
+ 3113 0594 FA0FA0E3 		mov	r0, #1000
+ 3114 0598 FEFFFFEB 		bl	OSTimeDly
+ 235:../kernel/kernel_entry.c ****         ticks = OSTimeGet();
+ 3115              		.loc 1 235 0 discriminator 1
+ 3116 059c FEFFFFEB 		bl	OSTimeGet
+ 3117 05a0 10000BE5 		str	r0, [fp, #-16]
+ 236:../kernel/kernel_entry.c ****         OSSemPend( uart0Sem, 0, &err );
+ 3118              		.loc 1 236 0 discriminator 1
+ 3119 05a4 5C309FE5 		ldr	r3, .L25
+ 3120 05a8 002093E5 		ldr	r2, [r3, #0]
+ 3121 05ac 11304BE2 		sub	r3, fp, #17
+ 3122 05b0 0200A0E1 		mov	r0, r2
+ 3123 05b4 0010A0E3 		mov	r1, #0
+ 3124 05b8 0320A0E1 		mov	r2, r3
+ 3125 05bc FEFFFFEB 		bl	OSSemPend
+ 237:../kernel/kernel_entry.c ****             uart0_puts( "  (Task" );
+ 3126              		.loc 1 237 0 discriminator 1
+ 3127 05c0 4C009FE5 		ldr	r0, .L25+12
+ 3128 05c4 FEFFFFEB 		bl	uart0_puts
+ 238:../kernel/kernel_entry.c ****             uart0_putchar( *(char *)id );
+ 3129              		.loc 1 238 0 discriminator 1
+ 3130 05c8 18301BE5 		ldr	r3, [fp, #-24]
+ 3131 05cc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3132 05d0 0300A0E1 		mov	r0, r3
+ 3133 05d4 FEFFFFEB 		bl	uart0_putchar
+ 239:../kernel/kernel_entry.c ****             uart0_puts( ") Ticks: " );
+ 3134              		.loc 1 239 0 discriminator 1
+ 3135 05d8 38009FE5 		ldr	r0, .L25+16
+ 3136 05dc FEFFFFEB 		bl	uart0_puts
+ 240:../kernel/kernel_entry.c ****             uart0_putint( ticks );
+ 3137              		.loc 1 240 0 discriminator 1
+ 3138 05e0 10301BE5 		ldr	r3, [fp, #-16]
+ 3139 05e4 0300A0E1 		mov	r0, r3
+ 3140 05e8 FEFFFFEB 		bl	uart0_putint
+ 241:../kernel/kernel_entry.c ****             uart0_puts( "\n" );
+ 3141              		.loc 1 241 0 discriminator 1
+ 3142 05ec 28009FE5 		ldr	r0, .L25+20
+ 3143 05f0 FEFFFFEB 		bl	uart0_puts
+ 242:../kernel/kernel_entry.c ****         OSSemPost( uart0Sem );
+ 3144              		.loc 1 242 0 discriminator 1
+ 3145 05f4 0C309FE5 		ldr	r3, .L25
+ 3146 05f8 003093E5 		ldr	r3, [r3, #0]
+ 3147 05fc 0300A0E1 		mov	r0, r3
+ 3148 0600 FEFFFFEB 		bl	OSSemPost
+ 243:../kernel/kernel_entry.c ****     }
+ 3149              		.loc 1 243 0 discriminator 1
+ 3150 0604 E2FFFFEA 		b	.L24
+ 3151              	.L26:
+ 3152              		.align	2
+ 3153              	.L25:
+ 3154 0608 00000000 		.word	uart0Sem
+ 3155 060c 4C000000 		.word	.LC3
+ 3156 0610 54000000 		.word	.LC4
+ 3157 0614 60000000 		.word	.LC5
+ 3158 0618 78000000 		.word	.LC8
+ 3159 061c 74000000 		.word	.LC7
+ 3160              		.cfi_endproc
+ 3161              	.LFE5:
+ 3163              		.section	.rodata
+ 3164 0082 0000     		.align	2
+ 3165              	.LC9:
+ 3166 0084 29205465 		.ascii	") Tecla pulsada: \000"
+ 3166      636C6120 
+ 3166      70756C73 
+ 3166      6164613A 
+ 3166      2000
+ 3167              		.text
+ 3168              		.align	2
+ 3169              		.global	Task5
+ 3171              	Task5:
+ 3172              	.LFB6:
+ 244:../kernel/kernel_entry.c **** }
+ 245:../kernel/kernel_entry.c **** 
+ 246:../kernel/kernel_entry.c **** void Task5( void *id )
+ 247:../kernel/kernel_entry.c **** {
+ 3173              		.loc 1 247 0
+ 3174              		.cfi_startproc
+ 3175              		@ Function supports interworking.
+ 3176              		@ args = 0, pretend = 0, frame = 16
+ 3177              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3178 0620 0DC0A0E1 		mov	ip, sp
+ 3179              	.LCFI12:
+ 3180              		.cfi_def_cfa_register 12
+ 3181 0624 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3182 0628 04B04CE2 		sub	fp, ip, #4
+ 3183              		.cfi_offset 14, -8
+ 3184              		.cfi_offset 13, -12
+ 3185              		.cfi_offset 11, -16
+ 3186              	.LCFI13:
+ 3187              		.cfi_def_cfa 11, 4
+ 3188 062c 10D04DE2 		sub	sp, sp, #16
+ 3189 0630 18000BE5 		str	r0, [fp, #-24]
+ 248:../kernel/kernel_entry.c ****     INT8U err;
+ 249:../kernel/kernel_entry.c ****     uint8 scancode;
+ 250:../kernel/kernel_entry.c **** 
+ 251:../kernel/kernel_entry.c ****     OSSemPend( uart0Sem, 0, &err );    /* Muestra un mensaje inicial en la UART0 (protegida por un 
+ 3190              		.loc 1 251 0
+ 3191 0634 D0309FE5 		ldr	r3, .L29
+ 3192 0638 002093E5 		ldr	r2, [r3, #0]
+ 3193 063c 0E304BE2 		sub	r3, fp, #14
+ 3194 0640 0200A0E1 		mov	r0, r2
+ 3195 0644 0010A0E3 		mov	r1, #0
+ 3196 0648 0320A0E1 		mov	r2, r3
+ 3197 064c FEFFFFEB 		bl	OSSemPend
+ 252:../kernel/kernel_entry.c ****         uart0_puts( "  Task" );
+ 3198              		.loc 1 252 0
+ 3199 0650 B8009FE5 		ldr	r0, .L29+4
+ 3200 0654 FEFFFFEB 		bl	uart0_puts
+ 253:../kernel/kernel_entry.c ****         uart0_putchar( *(char *)id );
+ 3201              		.loc 1 253 0
+ 3202 0658 18301BE5 		ldr	r3, [fp, #-24]
+ 3203 065c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3204 0660 0300A0E1 		mov	r0, r3
+ 3205 0664 FEFFFFEB 		bl	uart0_putchar
+ 254:../kernel/kernel_entry.c ****         uart0_puts( " iniciada.\n" );
+ 3206              		.loc 1 254 0
+ 3207 0668 A4009FE5 		ldr	r0, .L29+8
+ 3208 066c FEFFFFEB 		bl	uart0_puts
+ 255:../kernel/kernel_entry.c ****     OSSemPost( uart0Sem );
+ 3209              		.loc 1 255 0
+ 3210 0670 94309FE5 		ldr	r3, .L29
+ 3211 0674 003093E5 		ldr	r3, [r3, #0]
+ 3212 0678 0300A0E1 		mov	r0, r3
+ 3213 067c FEFFFFEB 		bl	OSSemPost
+ 3214              	.L28:
+ 256:../kernel/kernel_entry.c **** 
+ 257:../kernel/kernel_entry.c ****     while( 1 )                         /* Cada vez que reciba un scancode lo muestra por la UART0 *
+ 258:../kernel/kernel_entry.c ****     {
+ 259:../kernel/kernel_entry.c ****         scancode = *((uint8 *) OSMboxPend( keypadMbox, 0, &err ));
+ 3215              		.loc 1 259 0 discriminator 1
+ 3216 0680 90309FE5 		ldr	r3, .L29+12
+ 3217 0684 002093E5 		ldr	r2, [r3, #0]
+ 3218 0688 0E304BE2 		sub	r3, fp, #14
+ 3219 068c 0200A0E1 		mov	r0, r2
+ 3220 0690 0010A0E3 		mov	r1, #0
+ 3221 0694 0320A0E1 		mov	r2, r3
+ 3222 0698 FEFFFFEB 		bl	OSMboxPend
+ 3223 069c 0030A0E1 		mov	r3, r0
+ 3224 06a0 0030D3E5 		ldrb	r3, [r3, #0]
+ 3225 06a4 0D304BE5 		strb	r3, [fp, #-13]
+ 260:../kernel/kernel_entry.c ****         OSSemPend( uart0Sem, 0, &err );
+ 3226              		.loc 1 260 0 discriminator 1
+ 3227 06a8 5C309FE5 		ldr	r3, .L29
+ 3228 06ac 002093E5 		ldr	r2, [r3, #0]
+ 3229 06b0 0E304BE2 		sub	r3, fp, #14
+ 3230 06b4 0200A0E1 		mov	r0, r2
+ 3231 06b8 0010A0E3 		mov	r1, #0
+ 3232 06bc 0320A0E1 		mov	r2, r3
+ 3233 06c0 FEFFFFEB 		bl	OSSemPend
+ 261:../kernel/kernel_entry.c ****             uart0_puts( "  (Task" );
+ 3234              		.loc 1 261 0 discriminator 1
+ 3235 06c4 50009FE5 		ldr	r0, .L29+16
+ 3236 06c8 FEFFFFEB 		bl	uart0_puts
+ 262:../kernel/kernel_entry.c ****             uart0_putchar( *(char *)id );
+ 3237              		.loc 1 262 0 discriminator 1
+ 3238 06cc 18301BE5 		ldr	r3, [fp, #-24]
+ 3239 06d0 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3240 06d4 0300A0E1 		mov	r0, r3
+ 3241 06d8 FEFFFFEB 		bl	uart0_putchar
+ 263:../kernel/kernel_entry.c ****             uart0_puts( ") Tecla pulsada: " );
+ 3242              		.loc 1 263 0 discriminator 1
+ 3243 06dc 3C009FE5 		ldr	r0, .L29+20
+ 3244 06e0 FEFFFFEB 		bl	uart0_puts
+ 264:../kernel/kernel_entry.c ****             uart0_puthex( scancode );
+ 3245              		.loc 1 264 0 discriminator 1
+ 3246 06e4 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 3247 06e8 0300A0E1 		mov	r0, r3
+ 3248 06ec FEFFFFEB 		bl	uart0_puthex
+ 265:../kernel/kernel_entry.c ****             uart0_puts( "\n" );
+ 3249              		.loc 1 265 0 discriminator 1
+ 3250 06f0 2C009FE5 		ldr	r0, .L29+24
+ 3251 06f4 FEFFFFEB 		bl	uart0_puts
+ 266:../kernel/kernel_entry.c ****         OSSemPost( uart0Sem );
+ 3252              		.loc 1 266 0 discriminator 1
+ 3253 06f8 0C309FE5 		ldr	r3, .L29
+ 3254 06fc 003093E5 		ldr	r3, [r3, #0]
+ 3255 0700 0300A0E1 		mov	r0, r3
+ 3256 0704 FEFFFFEB 		bl	OSSemPost
+ 267:../kernel/kernel_entry.c ****     }
+ 3257              		.loc 1 267 0 discriminator 1
+ 3258 0708 DCFFFFEA 		b	.L28
+ 3259              	.L30:
+ 3260              		.align	2
+ 3261              	.L29:
+ 3262 070c 00000000 		.word	uart0Sem
+ 3263 0710 4C000000 		.word	.LC3
+ 3264 0714 54000000 		.word	.LC4
+ 3265 0718 00000000 		.word	keypadMbox
+ 3266 071c 60000000 		.word	.LC5
+ 3267 0720 84000000 		.word	.LC9
+ 3268 0724 74000000 		.word	.LC7
+ 3269              		.cfi_endproc
+ 3270              	.LFE6:
+ 3272              		.align	2
+ 3273              		.global	Task6
+ 3275              	Task6:
+ 3276              	.LFB7:
+ 268:../kernel/kernel_entry.c **** }
+ 269:../kernel/kernel_entry.c **** 
+ 270:../kernel/kernel_entry.c **** void Task6( void *id )
+ 271:../kernel/kernel_entry.c **** {
+ 3277              		.loc 1 271 0
+ 3278              		.cfi_startproc
+ 3279              		@ Function supports interworking.
+ 3280              		@ args = 0, pretend = 0, frame = 16
+ 3281              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3282 0728 0DC0A0E1 		mov	ip, sp
+ 3283              	.LCFI14:
+ 3284              		.cfi_def_cfa_register 12
+ 3285 072c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3286 0730 04B04CE2 		sub	fp, ip, #4
+ 3287              		.cfi_offset 14, -8
+ 3288              		.cfi_offset 13, -12
+ 3289              		.cfi_offset 11, -16
+ 3290              	.LCFI15:
+ 3291              		.cfi_def_cfa 11, 4
+ 3292 0734 10D04DE2 		sub	sp, sp, #16
+ 3293 0738 18000BE5 		str	r0, [fp, #-24]
+ 272:../kernel/kernel_entry.c ****     INT8U err;
+ 273:../kernel/kernel_entry.c ****     uint8 scancode;
+ 274:../kernel/kernel_entry.c **** 
+ 275:../kernel/kernel_entry.c ****     OSSemPend( uart0Sem, 0, &err );    /* Muestra un mensaje inicial en la UART0 (protegida por un 
+ 3294              		.loc 1 275 0
+ 3295 073c 7C309FE5 		ldr	r3, .L33
+ 3296 0740 002093E5 		ldr	r2, [r3, #0]
+ 3297 0744 0E304BE2 		sub	r3, fp, #14
+ 3298 0748 0200A0E1 		mov	r0, r2
+ 3299 074c 0010A0E3 		mov	r1, #0
+ 3300 0750 0320A0E1 		mov	r2, r3
+ 3301 0754 FEFFFFEB 		bl	OSSemPend
+ 276:../kernel/kernel_entry.c ****         uart0_puts( "  Task" );
+ 3302              		.loc 1 276 0
+ 3303 0758 64009FE5 		ldr	r0, .L33+4
+ 3304 075c FEFFFFEB 		bl	uart0_puts
+ 277:../kernel/kernel_entry.c ****         uart0_putchar( *(char *)id );
+ 3305              		.loc 1 277 0
+ 3306 0760 18301BE5 		ldr	r3, [fp, #-24]
+ 3307 0764 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3308 0768 0300A0E1 		mov	r0, r3
+ 3309 076c FEFFFFEB 		bl	uart0_putchar
+ 278:../kernel/kernel_entry.c ****         uart0_puts( " iniciada.\n" );
+ 3310              		.loc 1 278 0
+ 3311 0770 50009FE5 		ldr	r0, .L33+8
+ 3312 0774 FEFFFFEB 		bl	uart0_puts
+ 279:../kernel/kernel_entry.c ****     OSSemPost( uart0Sem );
+ 3313              		.loc 1 279 0
+ 3314 0778 40309FE5 		ldr	r3, .L33
+ 3315 077c 003093E5 		ldr	r3, [r3, #0]
+ 3316 0780 0300A0E1 		mov	r0, r3
+ 3317 0784 FEFFFFEB 		bl	OSSemPost
+ 3318              	.L32:
+ 280:../kernel/kernel_entry.c **** 
+ 281:../kernel/kernel_entry.c ****     while( 1 )                         /* Cada vez que reciba un scancode lo muestra por los 7 segm
+ 282:../kernel/kernel_entry.c ****     {
+ 283:../kernel/kernel_entry.c ****         scancode = *((uint8 *) OSMboxPend( keypadMbox, 0, &err ));
+ 3319              		.loc 1 283 0 discriminator 1
+ 3320 0788 3C309FE5 		ldr	r3, .L33+12
+ 3321 078c 002093E5 		ldr	r2, [r3, #0]
+ 3322 0790 0E304BE2 		sub	r3, fp, #14
+ 3323 0794 0200A0E1 		mov	r0, r2
+ 3324 0798 0010A0E3 		mov	r1, #0
+ 3325 079c 0320A0E1 		mov	r2, r3
+ 3326 07a0 FEFFFFEB 		bl	OSMboxPend
+ 3327 07a4 0030A0E1 		mov	r3, r0
+ 3328 07a8 0030D3E5 		ldrb	r3, [r3, #0]
+ 3329 07ac 0D304BE5 		strb	r3, [fp, #-13]
+ 284:../kernel/kernel_entry.c ****         D8Led_digit(scancode);
+ 3330              		.loc 1 284 0 discriminator 1
+ 3331 07b0 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 3332 07b4 0300A0E1 		mov	r0, r3
+ 3333 07b8 FEFFFFEB 		bl	D8Led_digit
+ 285:../kernel/kernel_entry.c ****     }
+ 3334              		.loc 1 285 0 discriminator 1
+ 3335 07bc F1FFFFEA 		b	.L32
+ 3336              	.L34:
+ 3337              		.align	2
+ 3338              	.L33:
+ 3339 07c0 00000000 		.word	uart0Sem
+ 3340 07c4 4C000000 		.word	.LC3
+ 3341 07c8 54000000 		.word	.LC4
+ 3342 07cc 00000000 		.word	keypadMbox
+ 3343              		.cfi_endproc
+ 3344              	.LFE7:
+ 3346              		.section	.rodata
+ 3347 0096 0000     		.align	2
+ 3348              	.LC10:
+ 3349 0098 29205365 		.ascii	") Se ha pulsado alg\372n pushbutton...\012\000"
+ 3349      20686120 
+ 3349      70756C73 
+ 3349      61646F20 
+ 3349      616C67FA 
+ 3350 00bd 000000   		.text
+ 3351              		.align	2
+ 3352              		.global	Task7
+ 3354              	Task7:
+ 3355              	.LFB8:
+ 286:../kernel/kernel_entry.c **** }
+ 287:../kernel/kernel_entry.c **** 
+ 288:../kernel/kernel_entry.c **** void Task7( void *id )
+ 289:../kernel/kernel_entry.c **** {
+ 3356              		.loc 1 289 0
+ 3357              		.cfi_startproc
+ 3358              		@ Function supports interworking.
+ 3359              		@ args = 0, pretend = 0, frame = 16
+ 3360              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3361 07d0 0DC0A0E1 		mov	ip, sp
+ 3362              	.LCFI16:
+ 3363              		.cfi_def_cfa_register 12
+ 3364 07d4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3365 07d8 04B04CE2 		sub	fp, ip, #4
+ 3366              		.cfi_offset 14, -8
+ 3367              		.cfi_offset 13, -12
+ 3368              		.cfi_offset 11, -16
+ 3369              	.LCFI17:
+ 3370              		.cfi_def_cfa 11, 4
+ 3371 07dc 10D04DE2 		sub	sp, sp, #16
+ 3372 07e0 18000BE5 		str	r0, [fp, #-24]
+ 290:../kernel/kernel_entry.c ****     INT8U err;
+ 291:../kernel/kernel_entry.c **** 
+ 292:../kernel/kernel_entry.c ****     OSSemPend( uart0Sem, 0, &err );    /* Muestra un mensaje inicial en la UART0 (protegida por un 
+ 3373              		.loc 1 292 0
+ 3374 07e4 B0309FE5 		ldr	r3, .L37
+ 3375 07e8 002093E5 		ldr	r2, [r3, #0]
+ 3376 07ec 0D304BE2 		sub	r3, fp, #13
+ 3377 07f0 0200A0E1 		mov	r0, r2
+ 3378 07f4 0010A0E3 		mov	r1, #0
+ 3379 07f8 0320A0E1 		mov	r2, r3
+ 3380 07fc FEFFFFEB 		bl	OSSemPend
+ 293:../kernel/kernel_entry.c ****         uart0_puts( "  Task" );
+ 3381              		.loc 1 293 0
+ 3382 0800 98009FE5 		ldr	r0, .L37+4
+ 3383 0804 FEFFFFEB 		bl	uart0_puts
+ 294:../kernel/kernel_entry.c ****         uart0_putchar( *(char *)id );
+ 3384              		.loc 1 294 0
+ 3385 0808 18301BE5 		ldr	r3, [fp, #-24]
+ 3386 080c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3387 0810 0300A0E1 		mov	r0, r3
+ 3388 0814 FEFFFFEB 		bl	uart0_putchar
+ 295:../kernel/kernel_entry.c ****         uart0_puts( " iniciada.\n" );
+ 3389              		.loc 1 295 0
+ 3390 0818 84009FE5 		ldr	r0, .L37+8
+ 3391 081c FEFFFFEB 		bl	uart0_puts
+ 296:../kernel/kernel_entry.c ****     OSSemPost( uart0Sem );
+ 3392              		.loc 1 296 0
+ 3393 0820 74309FE5 		ldr	r3, .L37
+ 3394 0824 003093E5 		ldr	r3, [r3, #0]
+ 3395 0828 0300A0E1 		mov	r0, r3
+ 3396 082c FEFFFFEB 		bl	OSSemPost
+ 3397              	.L36:
+ 297:../kernel/kernel_entry.c **** 
+ 298:../kernel/kernel_entry.c ****     while( 1 )                         /* Cada vez que se presione un pulsador lo avisa por la UART
+ 299:../kernel/kernel_entry.c ****     {
+ 300:../kernel/kernel_entry.c ****         OSSemPend( flagPb, 0, &err );
+ 3398              		.loc 1 300 0 discriminator 1
+ 3399 0830 70309FE5 		ldr	r3, .L37+12
+ 3400 0834 002093E5 		ldr	r2, [r3, #0]
+ 3401 0838 0D304BE2 		sub	r3, fp, #13
+ 3402 083c 0200A0E1 		mov	r0, r2
+ 3403 0840 0010A0E3 		mov	r1, #0
+ 3404 0844 0320A0E1 		mov	r2, r3
+ 3405 0848 FEFFFFEB 		bl	OSSemPend
+ 301:../kernel/kernel_entry.c ****         OSSemPend( uart0Sem, 0, &err );
+ 3406              		.loc 1 301 0 discriminator 1
+ 3407 084c 48309FE5 		ldr	r3, .L37
+ 3408 0850 002093E5 		ldr	r2, [r3, #0]
+ 3409 0854 0D304BE2 		sub	r3, fp, #13
+ 3410 0858 0200A0E1 		mov	r0, r2
+ 3411 085c 0010A0E3 		mov	r1, #0
+ 3412 0860 0320A0E1 		mov	r2, r3
+ 3413 0864 FEFFFFEB 		bl	OSSemPend
+ 302:../kernel/kernel_entry.c ****             uart0_puts( "  (Task" );
+ 3414              		.loc 1 302 0 discriminator 1
+ 3415 0868 3C009FE5 		ldr	r0, .L37+16
+ 3416 086c FEFFFFEB 		bl	uart0_puts
+ 303:../kernel/kernel_entry.c ****             uart0_putchar( *(char *)id );
+ 3417              		.loc 1 303 0 discriminator 1
+ 3418 0870 18301BE5 		ldr	r3, [fp, #-24]
+ 3419 0874 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 3420 0878 0300A0E1 		mov	r0, r3
+ 3421 087c FEFFFFEB 		bl	uart0_putchar
+ 304:../kernel/kernel_entry.c ****             uart0_puts( ") Se ha pulsado algún pushbutton...\n" );
+ 3422              		.loc 1 304 0 discriminator 1
+ 3423 0880 28009FE5 		ldr	r0, .L37+20
+ 3424 0884 FEFFFFEB 		bl	uart0_puts
+ 305:../kernel/kernel_entry.c ****         OSSemPost( uart0Sem );
+ 3425              		.loc 1 305 0 discriminator 1
+ 3426 0888 0C309FE5 		ldr	r3, .L37
+ 3427 088c 003093E5 		ldr	r3, [r3, #0]
+ 3428 0890 0300A0E1 		mov	r0, r3
+ 3429 0894 FEFFFFEB 		bl	OSSemPost
+ 306:../kernel/kernel_entry.c ****     }
+ 3430              		.loc 1 306 0 discriminator 1
+ 3431 0898 E4FFFFEA 		b	.L36
+ 3432              	.L38:
+ 3433              		.align	2
+ 3434              	.L37:
+ 3435 089c 00000000 		.word	uart0Sem
+ 3436 08a0 4C000000 		.word	.LC3
+ 3437 08a4 54000000 		.word	.LC4
+ 3438 08a8 00000000 		.word	flagPb
+ 3439 08ac 60000000 		.word	.LC5
+ 3440 08b0 98000000 		.word	.LC10
+ 3441              		.cfi_endproc
+ 3442              	.LFE8:
+ 3444              		.align	2
+ 3445              		.global	isr_pb
+ 3447              	isr_pb:
+ 3448              	.LFB9:
+ 307:../kernel/kernel_entry.c **** }
+ 308:../kernel/kernel_entry.c **** 
+ 309:../kernel/kernel_entry.c **** /*******************************************************************/
+ 310:../kernel/kernel_entry.c **** 
+ 311:../kernel/kernel_entry.c **** void isr_pb( void )
+ 312:../kernel/kernel_entry.c **** {
+ 3449              		.loc 1 312 0
+ 3450              		.cfi_startproc
+ 3451              		@ Function supports interworking.
+ 3452              		@ args = 0, pretend = 0, frame = 0
+ 3453              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3454 08b4 0DC0A0E1 		mov	ip, sp
+ 3455              	.LCFI18:
+ 3456              		.cfi_def_cfa_register 12
+ 3457 08b8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3458 08bc 04B04CE2 		sub	fp, ip, #4
+ 3459              		.cfi_offset 14, -8
+ 3460              		.cfi_offset 13, -12
+ 3461              		.cfi_offset 11, -16
+ 3462              	.LCFI19:
+ 3463              		.cfi_def_cfa 11, 4
+ 313:../kernel/kernel_entry.c ****     OSSemPost( flagPb );
+ 3464              		.loc 1 313 0
+ 3465 08c0 28309FE5 		ldr	r3, .L40
+ 3466 08c4 003093E5 		ldr	r3, [r3, #0]
+ 3467 08c8 0300A0E1 		mov	r0, r3
+ 3468 08cc FEFFFFEB 		bl	OSSemPost
+ 314:../kernel/kernel_entry.c ****     rEXTINTPND = (1 << 2) | (1 << 3);
+ 3469              		.loc 1 314 0
+ 3470 08d0 1C309FE5 		ldr	r3, .L40+4
+ 3471 08d4 0C20A0E3 		mov	r2, #12
+ 3472 08d8 002083E5 		str	r2, [r3, #0]
+ 315:../kernel/kernel_entry.c **** 	ic_cleanflag(INT_EINT4567);
+ 3473              		.loc 1 315 0
+ 3474 08dc 1500A0E3 		mov	r0, #21
+ 3475 08e0 FEFFFFEB 		bl	ic_cleanflag
+ 316:../kernel/kernel_entry.c **** }
+ 3476              		.loc 1 316 0
+ 3477 08e4 0CD04BE2 		sub	sp, fp, #12
+ 3478 08e8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3479 08ec 1EFF2FE1 		bx	lr
+ 3480              	.L41:
+ 3481              		.align	2
+ 3482              	.L40:
+ 3483 08f0 00000000 		.word	flagPb
+ 3484 08f4 5400D201 		.word	30539860
+ 3485              		.cfi_endproc
+ 3486              	.LFE9:
+ 3488              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 kernel_entry.c
+                            *COM*:0000a000 Task1Stk
+                            *COM*:0000a000 Task2Stk
+                            *COM*:0000a000 Task3Stk
+                            *COM*:0000a000 Task4Stk
+                            *COM*:0000a000 Task5Stk
+                            *COM*:0000a000 Task6Stk
+                            *COM*:0000a000 Task7Stk
+                            *COM*:0000a000 TaskStartStk
+                            *COM*:00000004 uart0Sem
+                            *COM*:00000004 keypadMbox
+                            *COM*:00000004 flagPb
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2477   .rodata:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2487   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2490   .text:00000000 kernel_entry
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2560   .text:000000a4 $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2575   .text:000000c8 TaskStart
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2572   .text:000000c8 $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2740   .text:0000026c $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2773   .text:000002b8 Task1
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2842   .text:00000340 Task2
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2950   .text:0000041c Task3
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3068   .text:00000534 Task4
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3171   .text:00000620 Task5
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3275   .text:00000728 Task6
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3354   .text:000007d0 Task7
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2770   .text:000002b8 $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2833   .text:00000334 $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2839   .text:00000340 $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2929   .text:0000040c $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:2947   .text:0000041c $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3051   .text:0000051c $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3065   .text:00000534 $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3154   .text:00000608 $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3168   .text:00000620 $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3262   .text:0000070c $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3272   .text:00000728 $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3339   .text:000007c0 $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3351   .text:000007d0 $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3435   .text:0000089c $d
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3444   .text:000008b4 $a
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3447   .text:000008b4 isr_pb
+C:\Users\Pedro\AppData\Local\Temp\ccY47OW1.s:3483   .text:000008f0 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+uart0_puts
+OSVersion
+uart0_putint
+OSInit
+OSSemCreate
+OSMboxCreate
+OSTaskCreate
+OSStart
+tmr_set_mode
+tmr_set_prescaler
+tmr_set_divider
+tmr_set_count
+tmr_update
+tmr_start
+ic_cleanflag
+ic_enable
+Delay
+OSTaskDel
+OSTickISR
+OS_CPU_isr_pb
+OSSemPend
+uart0_putchar
+OSSemPost
+led1_on
+led2_off
+OSTimeDly
+led1_switch
+led2_switch
+kb_scan
+OSMboxPostOpt
+rtc_gettime
+OSTimeGet
+OSMboxPend
+uart0_puthex
+D8Led_digit

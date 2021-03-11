@@ -1,0 +1,306 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"non_expropiative.c"
+  21              	.Ltext0:
+  22              		.file 1 "../multitasking/non_expropiative.c"
+ 1926              		.align	2
+ 1927              	.LC0:
+ 1928 0000 0A0A2045 		.ascii	"\012\012 Ejecutando kernel de planificaci\363n no e"
+ 1928      6A656375 
+ 1928      74616E64 
+ 1928      6F206B65 
+ 1928      726E656C 
+ 1929 002a 7870726F 		.ascii	"xpropiativa\012\000"
+ 1929      70696174 
+ 1929      6976610A 
+ 1929      00
+ 1930 0037 00       		.align	2
+ 1931              	.LC1:
+ 1932 0038 202D2D2D 		.ascii	" --------------------------------------------------"
+ 1932      2D2D2D2D 
+ 1932      2D2D2D2D 
+ 1932      2D2D2D2D 
+ 1932      2D2D2D2D 
+ 1933 006b 0A0A00   		.ascii	"\012\012\000"
+ 1934 006e 0000     		.text
+ 1935              		.align	2
+ 1936              		.global	non_expropiative_kernel
+ 1938              	non_expropiative_kernel:
+ 1939              	.LFB0:
+   1:../multitasking/non_expropiative.c **** /*-------------------------------------------------------------------
+   2:../multitasking/non_expropiative.c **** **
+   3:../multitasking/non_expropiative.c **** **  Fichero:
+   4:../multitasking/non_expropiative.c **** **    lab13.c  12/1/2021
+   5:../multitasking/non_expropiative.c **** **
+   6:../multitasking/non_expropiative.c **** **    (c) J.M. Mendias
+   7:../multitasking/non_expropiative.c **** **    Programación de Sistemas y Dispositivos
+   8:../multitasking/non_expropiative.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../multitasking/non_expropiative.c **** **
+  10:../multitasking/non_expropiative.c **** **  Propósito:
+  11:../multitasking/non_expropiative.c **** **    Ejemplo de una aplicación bajo un kernel de planificación
+  12:../multitasking/non_expropiative.c **** **    no expropiativa de tareas cooperativas multiestado
+  13:../multitasking/non_expropiative.c **** **
+  14:../multitasking/non_expropiative.c **** **  Notas de diseño:
+  15:../multitasking/non_expropiative.c **** **
+  16:../multitasking/non_expropiative.c **** **-----------------------------------------------------------------*/
+  17:../multitasking/non_expropiative.c **** 
+  18:../multitasking/non_expropiative.c **** #include "kernelcoop.h"
+  19:../multitasking/non_expropiative.c **** 
+  20:../multitasking/non_expropiative.c **** #include "../44b.h"
+  21:../multitasking/non_expropiative.c **** #include "../common_types.h"
+  22:../multitasking/non_expropiative.c **** #include "../leds.h"
+  23:../multitasking/non_expropiative.c **** #include "../D8Led.h"
+  24:../multitasking/non_expropiative.c **** #include "../uart.h"
+  25:../multitasking/non_expropiative.c **** #include "../button.h"
+  26:../multitasking/non_expropiative.c **** #include "../keyboard.h"
+  27:../multitasking/non_expropiative.c **** #include "../intcontroller.h"
+  28:../multitasking/non_expropiative.c **** #include "../timer.h"
+  29:../multitasking/non_expropiative.c **** #include "../utils.h"
+  30:../multitasking/non_expropiative.c **** #include "../rtc.h"
+  31:../multitasking/non_expropiative.c **** #include "non_expropiative.h"
+  32:../multitasking/non_expropiative.c **** 
+  33:../multitasking/non_expropiative.c **** /* Declaración de recursos */
+  34:../multitasking/non_expropiative.c **** 
+  35:../multitasking/non_expropiative.c **** uint8 scancode;
+  36:../multitasking/non_expropiative.c **** boolean flagTask5;
+  37:../multitasking/non_expropiative.c **** boolean flagTask6;
+  38:../multitasking/non_expropiative.c **** 
+  39:../multitasking/non_expropiative.c **** volatile boolean flagPb;
+  40:../multitasking/non_expropiative.c **** 
+  41:../multitasking/non_expropiative.c **** /* Declaración de tareas */
+  42:../multitasking/non_expropiative.c **** 
+  43:../multitasking/non_expropiative.c **** void Task1( void );
+  44:../multitasking/non_expropiative.c **** void Task2( void );
+  45:../multitasking/non_expropiative.c **** void Task3( void );
+  46:../multitasking/non_expropiative.c **** void Task4( void );
+  47:../multitasking/non_expropiative.c **** void Task5( void );
+  48:../multitasking/non_expropiative.c **** void Task6( void );
+  49:../multitasking/non_expropiative.c **** void Task7( void );
+  50:../multitasking/non_expropiative.c **** 
+  51:../multitasking/non_expropiative.c **** /* Declaración de RTI */
+  52:../multitasking/non_expropiative.c **** 
+  53:../multitasking/non_expropiative.c **** void isr_pb( void ) __attribute__ ((interrupt ("IRQ")));
+  54:../multitasking/non_expropiative.c **** 
+  55:../multitasking/non_expropiative.c **** /*******************************************************************/
+  56:../multitasking/non_expropiative.c **** 
+  57:../multitasking/non_expropiative.c **** void non_expropiative_kernel( void )
+  58:../multitasking/non_expropiative.c **** {
+ 1940              		.loc 1 58 0
+ 1941              		.cfi_startproc
+ 1942              		@ Function supports interworking.
+ 1943              		@ args = 0, pretend = 0, frame = 0
+ 1944              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1945 0000 0DC0A0E1 		mov	ip, sp
+ 1946              	.LCFI0:
+ 1947              		.cfi_def_cfa_register 12
+ 1948 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1949 0008 04B04CE2 		sub	fp, ip, #4
+ 1950              		.cfi_offset 14, -8
+ 1951              		.cfi_offset 13, -12
+ 1952              		.cfi_offset 11, -16
+ 1953              	.LCFI1:
+ 1954              		.cfi_def_cfa 11, 4
+  59:../multitasking/non_expropiative.c **** 	/*
+  60:../multitasking/non_expropiative.c ****     timers_init();
+  61:../multitasking/non_expropiative.c ****     uart0_init();
+  62:../multitasking/non_expropiative.c ****     leds_init();
+  63:../multitasking/non_expropiative.c ****     segs_init();
+  64:../multitasking/non_expropiative.c ****     rtc_init();
+  65:../multitasking/non_expropiative.c ****     pbs_init();
+  66:../multitasking/non_expropiative.c ****     keypad_init();*/
+  67:../multitasking/non_expropiative.c **** 
+  68:../multitasking/non_expropiative.c ****     uart0_puts( "\n\n Ejecutando kernel de planificación no expropiativa\n" );
+ 1955              		.loc 1 68 0
+ 1956 000c FC009FE5 		ldr	r0, .L3
+ 1957 0010 FEFFFFEB 		bl	uart0_puts
+  69:../multitasking/non_expropiative.c ****     uart0_puts( " --------------------------------------------------\n\n" ) ;
+ 1958              		.loc 1 69 0
+ 1959 0014 F8009FE5 		ldr	r0, .L3+4
+ 1960 0018 FEFFFFEB 		bl	uart0_puts
+  70:../multitasking/non_expropiative.c **** 
+  71:../multitasking/non_expropiative.c ****     flagTask5  = FALSE;               /* Inicializa flags */
+ 1961              		.loc 1 71 0
+ 1962 001c F4309FE5 		ldr	r3, .L3+8
+ 1963 0020 0020A0E3 		mov	r2, #0
+ 1964 0024 0020C3E5 		strb	r2, [r3, #0]
+  72:../multitasking/non_expropiative.c ****     flagTask6  = FALSE;
+ 1965              		.loc 1 72 0
+ 1966 0028 EC309FE5 		ldr	r3, .L3+12
+ 1967 002c 0020A0E3 		mov	r2, #0
+ 1968 0030 0020C3E5 		strb	r2, [r3, #0]
+  73:../multitasking/non_expropiative.c ****     flagPb     = FALSE;
+ 1969              		.loc 1 73 0
+ 1970 0034 E4309FE5 		ldr	r3, .L3+16
+ 1971 0038 0020A0E3 		mov	r2, #0
+ 1972 003c 0020C3E5 		strb	r2, [r3, #0]
+  74:../multitasking/non_expropiative.c **** 
+  75:../multitasking/non_expropiative.c ****     scheduler_init();                 /* Inicializa el kernel */
+ 1973              		.loc 1 75 0
+ 1974 0040 FEFFFFEB 		bl	scheduler_init
+  76:../multitasking/non_expropiative.c **** 
+  77:../multitasking/non_expropiative.c ****     create_task( Task2, 5 );          /* Crea las tareas de la aplicación... */
+ 1975              		.loc 1 77 0
+ 1976 0044 D8009FE5 		ldr	r0, .L3+20
+ 1977 0048 0510A0E3 		mov	r1, #5
+ 1978 004c FEFFFFEB 		bl	create_task
+  78:../multitasking/non_expropiative.c ****     create_task( Task7, 5 );          /* ... el kernel asigna la prioridad según orden de creación:
+ 1979              		.loc 1 78 0
+ 1980 0050 D0009FE5 		ldr	r0, .L3+24
+ 1981 0054 0510A0E3 		mov	r1, #5
+ 1982 0058 FEFFFFEB 		bl	create_task
+  79:../multitasking/non_expropiative.c ****     create_task( Task5, 10 );         /* ... las tareas más frecuentes tienen mayor prioridad (crit
+ 1983              		.loc 1 79 0
+ 1984 005c C8009FE5 		ldr	r0, .L3+28
+ 1985 0060 0A10A0E3 		mov	r1, #10
+ 1986 0064 FEFFFFEB 		bl	create_task
+  80:../multitasking/non_expropiative.c ****     create_task( Task6, 10 );
+ 1987              		.loc 1 80 0
+ 1988 0068 C0009FE5 		ldr	r0, .L3+32
+ 1989 006c 0A10A0E3 		mov	r1, #10
+ 1990 0070 FEFFFFEB 		bl	create_task
+  81:../multitasking/non_expropiative.c ****     create_task( Task1, 50 );
+ 1991              		.loc 1 81 0
+ 1992 0074 B8009FE5 		ldr	r0, .L3+36
+ 1993 0078 3210A0E3 		mov	r1, #50
+ 1994 007c FEFFFFEB 		bl	create_task
+  82:../multitasking/non_expropiative.c ****     create_task( Task3, 100 );
+ 1995              		.loc 1 82 0
+ 1996 0080 B0009FE5 		ldr	r0, .L3+40
+ 1997 0084 6410A0E3 		mov	r1, #100
+ 1998 0088 FEFFFFEB 		bl	create_task
+  83:../multitasking/non_expropiative.c ****     create_task( Task4, 1000 );
+ 1999              		.loc 1 83 0
+ 2000 008c A8009FE5 		ldr	r0, .L3+44
+ 2001 0090 FA1FA0E3 		mov	r1, #1000
+ 2002 0094 FEFFFFEB 		bl	create_task
+  84:../multitasking/non_expropiative.c **** 
+  85:../multitasking/non_expropiative.c ****     pISR_EINT4567 = (unsigned) isr_pb;
+ 2003              		.loc 1 85 0
+ 2004 0098 A0309FE5 		ldr	r3, .L3+48
+ 2005 009c A0209FE5 		ldr	r2, .L3+52
+ 2006 00a0 002083E5 		str	r2, [r3, #0]
+  86:../multitasking/non_expropiative.c ****    	ic_enable(INT_EINT4567);
+ 2007              		.loc 1 86 0
+ 2008 00a4 1500A0E3 		mov	r0, #21
+ 2009 00a8 FEFFFFEB 		bl	ic_enable
+  87:../multitasking/non_expropiative.c **** 
+  88:../multitasking/non_expropiative.c ****     //10ms
+  89:../multitasking/non_expropiative.c ****     tmr_set_mode(TIMER0, RELOAD);
+ 2010              		.loc 1 89 0
+ 2011 00ac 0000A0E3 		mov	r0, #0
+ 2012 00b0 0110A0E3 		mov	r1, #1
+ 2013 00b4 FEFFFFEB 		bl	tmr_set_mode
+  90:../multitasking/non_expropiative.c **** 	tmr_set_prescaler(TIMER0, 1);
+ 2014              		.loc 1 90 0
+ 2015 00b8 0000A0E3 		mov	r0, #0
+ 2016 00bc 0110A0E3 		mov	r1, #1
+ 2017 00c0 FEFFFFEB 		bl	tmr_set_prescaler
+  91:../multitasking/non_expropiative.c **** 	tmr_set_divider(TIMER0, D1_8);
+ 2018              		.loc 1 91 0
+ 2019 00c4 0000A0E3 		mov	r0, #0
+ 2020 00c8 0210A0E3 		mov	r1, #2
+ 2021 00cc FEFFFFEB 		bl	tmr_set_divider
+  92:../multitasking/non_expropiative.c **** 	tmr_set_count(TIMER0, 40000, 1);
+ 2022              		.loc 1 92 0
+ 2023 00d0 0000A0E3 		mov	r0, #0
+ 2024 00d4 6C109FE5 		ldr	r1, .L3+56
+ 2025 00d8 0120A0E3 		mov	r2, #1
+ 2026 00dc FEFFFFEB 		bl	tmr_set_count
+  93:../multitasking/non_expropiative.c **** 
+  94:../multitasking/non_expropiative.c ****    	tmr_update(TIMER0);
+ 2027              		.loc 1 94 0
+ 2028 00e0 0000A0E3 		mov	r0, #0
+ 2029 00e4 FEFFFFEB 		bl	tmr_update
+  95:../multitasking/non_expropiative.c **** 
+  96:../multitasking/non_expropiative.c ****    	pISR_TIMER0 =(unsigned)scheduler;
+ 2030              		.loc 1 96 0
+ 2031 00e8 5C309FE5 		ldr	r3, .L3+60
+ 2032 00ec 5C209FE5 		ldr	r2, .L3+64
+ 2033 00f0 002083E5 		str	r2, [r3, #0]
+  97:../multitasking/non_expropiative.c ****    	tmr_start(TIMER0);
+ 2034              		.loc 1 97 0
+ 2035 00f4 0000A0E3 		mov	r0, #0
+ 2036 00f8 FEFFFFEB 		bl	tmr_start
+  98:../multitasking/non_expropiative.c **** 
+  99:../multitasking/non_expropiative.c ****    	ic_enable(INT_TIMER0);
+ 2037              		.loc 1 99 0
+ 2038 00fc 0D00A0E3 		mov	r0, #13
+ 2039 0100 FEFFFFEB 		bl	ic_enable
+ 2040              	.L2:
+ 100:../multitasking/non_expropiative.c **** 
+ 101:../multitasking/non_expropiative.c ****     while( 1 )
+ 102:../multitasking/non_expropiative.c ****     {
+ 103:../multitasking/non_expropiative.c ****         sleep();                /* Entra en estado IDLE, sale por interrupción */
+ 2041              		.loc 1 103 0 discriminator 1
+ 2042 0104 FEFFFFEB 		bl	sleep
+ 104:../multitasking/non_expropiative.c ****         dispacher();            /* Las tareas preparadas se ejecutan en esta hebra (background) en 
+ 2043              		.loc 1 104 0 discriminator 1
+ 2044 0108 FEFFFFEB 		bl	dispacher
+ 105:../multitasking/non_expropiative.c ****     }
+ 2045              		.loc 1 105 0 discriminator 1
+ 2046 010c FCFFFFEA 		b	.L2
+ 2047              	.L4:
+ 2048              		.align	2
+ 2049              	.L3:
+ 2050 0110 00000000 		.word	.LC0
+ 2051 0114 38000000 		.word	.LC1
+ 2052 0118 00000000 		.word	flagTask5
+ 2053 011c 00000000 		.word	flagTask6
+ 2054 0120 00000000 		.word	flagPb
+ 2055 0124 00000000 		.word	Task2
+ 2056 0128 00000000 		.word	Task7
+ 2057 012c 00000000 		.word	Task5
+ 2058 0130 00000000 		.word	Task6
+ 2059 0134 00000000 		.word	Task1
+ 2060 0138 00000000 		.word	Task3
+ 2061 013c 00000000 		.word	Task4
+ 2062 0140 74FF7F0C 		.word	209715060
+ 2063 0144 00000000 		.word	isr_pb
+ 2064 0148 409C0000 		.word	40000
+ 2065 014c 54FF7F0C 		.word	209715028
+ 2066 0150 00000000 		.word	scheduler
+ 2067              		.cfi_endproc
+ 2068              	.LFE0:
+ 2070              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 non_expropiative.c
+                            *COM*:00000001 scancode
+                            *COM*:00000001 flagTask5
+                            *COM*:00000001 flagTask6
+                            *COM*:00000001 flagPb
+C:\Users\Pedro\AppData\Local\Temp\ccjehCvV.s:1926   .rodata:00000000 $d
+C:\Users\Pedro\AppData\Local\Temp\ccjehCvV.s:1935   .text:00000000 $a
+C:\Users\Pedro\AppData\Local\Temp\ccjehCvV.s:1938   .text:00000000 non_expropiative_kernel
+C:\Users\Pedro\AppData\Local\Temp\ccjehCvV.s:2050   .text:00000110 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+uart0_puts
+scheduler_init
+create_task
+ic_enable
+tmr_set_mode
+tmr_set_prescaler
+tmr_set_divider
+tmr_set_count
+tmr_update
+tmr_start
+sleep
+dispacher
+Task2
+Task7
+Task5
+Task6
+Task1
+Task3
+Task4
+isr_pb
+scheduler

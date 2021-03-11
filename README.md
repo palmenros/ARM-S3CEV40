@@ -13,3 +13,4 @@ Projects using ARM-S3CEV40 Embest Prototyping Board with an ARM7TDMI processor.
 - `prac9a`: Analog to Digital Converter (polling and interrupt), touch screen (calibration, polling, interrupt).
 - `prac10a`: Mutex implementation, sleep to low power (wake up from interrupts), three multitasking systems (foreground-background, function queue and cyclic executive).
 - `prac11a`: Non-expropiative real time micro-kernel.
+- `prac12a`: Multitasking under RTOS uC/OS-II port. 

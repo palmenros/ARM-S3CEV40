@@ -1,0 +1,1538 @@
+Archive member included because of file (symbol)
+
+c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_udivsi3.o)
+                              ./kernel/os_core/os_core.o (__aeabi_uidiv)
+c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+                              ./ts.o (__aeabi_idiv)
+c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+                              c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_udivsi3.o) (__aeabi_idiv0)
+
+Allocating common symbols
+Common symbol       size              file
+
+Task3Stk            0xa000            ./kernel/kernel_entry.o
+Task7Stk            0xa000            ./kernel/kernel_entry.o
+OSLockNesting       0x1               ./kernel/os_core/os_core.o
+Task4Stk            0xa000            ./kernel/kernel_entry.o
+OSRunning           0x1               ./kernel/os_core/os_core.o
+OSIdleCtr           0x4               ./kernel/os_core/os_core.o
+OSPrioHighRdy       0x1               ./kernel/os_core/os_core.o
+OSFlagTbl           0xdc              ./kernel/os_core/os_core.o
+OSPrioCur           0x1               ./kernel/os_core/os_core.o
+OSTCBList           0x4               ./kernel/os_core/os_core.o
+OSMemTbl            0x104             ./kernel/os_core/os_core.o
+OSTickStepState     0x1               ./kernel/os_core/os_core.o
+OSTaskStatStk       0x800             ./kernel/os_core/os_core.o
+scancode            0x1               ./multitasking/cyclic.o
+OSCtxSwCtr          0x4               ./kernel/os_core/os_core.o
+flagTask5           0x1               ./multitasking/cyclic.o
+OSIdleCtrMax        0x4               ./kernel/os_core/os_core.o
+OSTCBFreeList       0x4               ./kernel/os_core/os_core.o
+flagTask6           0x1               ./multitasking/cyclic.o
+flagReadKeypad      0x1               ./multitasking/foreback.o
+fifo                0x808             ./multitasking/queue.o
+keypadMbox          0x4               ./kernel/kernel_entry.o
+OSCPUUsage          0x1               ./kernel/os_core/os_core.o
+flagPb              0x4               ./kernel/kernel_entry.o
+Task2Stk            0xa000            ./kernel/kernel_entry.o
+flagToggleLeds      0x1               ./multitasking/foreback.o
+OSTaskCtr           0x1               ./kernel/os_core/os_core.o
+buffer              0x9c400           ./tests/test_sound_effects.o
+uart0Sem            0x4               ./kernel/kernel_entry.o
+OSMemFreeList       0x4               ./kernel/os_core/os_core.o
+Task6Stk            0xa000            ./kernel/kernel_entry.o
+OSQTbl              0x60              ./kernel/os_core/os_core.o
+OSTCBHighRdy        0x4               ./kernel/os_core/os_core.o
+OSQFreeList         0x4               ./kernel/os_core/os_core.o
+OSRdyGrp            0x1               ./kernel/os_core/os_core.o
+Task1Stk            0xa000            ./kernel/kernel_entry.o
+OSRdyTbl            0x8               ./kernel/os_core/os_core.o
+flagWriteTicks      0x1               ./multitasking/foreback.o
+flagWriteRTC        0x1               ./multitasking/foreback.o
+OSEventFreeList     0x4               ./kernel/os_core/os_core.o
+delay_buffer        0x1f406           ./tests/test_sound_effects.o
+flagTimer           0x1               ./multitasking/cyclic.o
+OSIntNesting        0x1               ./kernel/os_core/os_core.o
+TaskStartStk        0xa000            ./kernel/kernel_entry.o
+OSTCBCur            0x4               ./kernel/os_core/os_core.o
+Task5Stk            0xa000            ./kernel/kernel_entry.o
+OSTime              0x4               ./kernel/os_core/os_core.o
+OSTaskIdleStk       0x800             ./kernel/os_core/os_core.o
+OSEventTbl          0x1e0             ./kernel/os_core/os_core.o
+OSTCBTbl            0x8f0             ./kernel/os_core/os_core.o
+OSFlagFreeList      0x4               ./kernel/os_core/os_core.o
+OSStatRdy           0x1               ./kernel/os_core/os_core.o
+OSTCBPrioTbl        0x100             ./kernel/os_core/os_core.o
+OSIdleCtrRun        0x4               ./kernel/os_core/os_core.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD ./tests/test_EEPROM.o
+LOAD ./tests/test_WAV.o
+LOAD ./tests/test_sound_effects.o
+LOAD ./multitasking/cyclic.o
+LOAD ./multitasking/foreback.o
+LOAD ./multitasking/kernelcoop.o
+LOAD ./multitasking/non_expropiative.o
+LOAD ./multitasking/queue.o
+LOAD ./kernel/os_port/os_cpu_a.o
+LOAD ./kernel/os_port/os_cpu_c.o
+LOAD ./kernel/os_port/os_cpu_isr_wrapper.o
+LOAD ./kernel/os_port/s3c44b0x.o
+LOAD ./kernel/os_port/s3cev40.o
+LOAD ./kernel/os_core/os_core.o
+LOAD ./kernel/os_core/os_dbg_r.o
+LOAD ./kernel/os_core/os_flag.o
+LOAD ./kernel/os_core/os_mbox.o
+LOAD ./kernel/os_core/os_mem.o
+LOAD ./kernel/os_core/os_mutex.o
+LOAD ./kernel/os_core/os_q.o
+LOAD ./kernel/os_core/os_sem.o
+LOAD ./kernel/os_core/os_task.o
+LOAD ./kernel/os_core/os_time.o
+LOAD ./kernel/os_core/ucos_ii.o
+LOAD ./kernel/isr-wrappers.o
+LOAD ./kernel/kernel_entry.o
+LOAD ./D8Led.o
+LOAD ./L3.o
+LOAD ./adc.o
+LOAD ./at24c04.o
+LOAD ./button.o
+LOAD ./dma.o
+LOAD ./font8x16.o
+LOAD ./gpio.o
+LOAD ./iic.o
+LOAD ./iis.o
+LOAD ./init.o
+LOAD ./intcontroller.o
+LOAD ./keyboard.o
+LOAD ./lcd.o
+LOAD ./leds.o
+LOAD ./main.o
+LOAD ./rtc.o
+LOAD ./timer.o
+LOAD ./ts.o
+LOAD ./uart.o
+LOAD ./uda1341ts.o
+LOAD ./utils.o
+START GROUP
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libc.a
+END GROUP
+                0x0c100000                . = 0xc100000
+
+.data           0x0c100000     0x2358
+ *(.data*)
+ .data          0x0c100000        0x0 ./tests/test_EEPROM.o
+ .data          0x0c100000        0x0 ./tests/test_WAV.o
+ .data          0x0c100000       0xd8 ./tests/test_sound_effects.o
+                0x0c100000                triangle
+                0x0c100048                square
+                0x0c100090                sine
+ .data          0x0c1000d8        0x0 ./multitasking/cyclic.o
+ .data          0x0c1000d8        0x0 ./multitasking/foreback.o
+ .data          0x0c1000d8        0x0 ./multitasking/kernelcoop.o
+ .data          0x0c1000d8        0x0 ./multitasking/non_expropiative.o
+ .data          0x0c1000d8        0x8 ./multitasking/queue.o
+ .data          0x0c1000e0        0x0 ./kernel/os_port/os_cpu_a.o
+ .data          0x0c1000e0        0x0 ./kernel/os_port/os_cpu_c.o
+ .data          0x0c1000e0        0x0 ./kernel/os_port/os_cpu_isr_wrapper.o
+ .data          0x0c1000e0        0x0 ./kernel/os_port/s3c44b0x.o
+ .data          0x0c1000e0        0x0 ./kernel/os_port/s3cev40.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_core.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_dbg_r.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_flag.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_mbox.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_mem.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_mutex.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_q.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_sem.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_task.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/os_time.o
+ .data          0x0c1000e0        0x0 ./kernel/os_core/ucos_ii.o
+ .data          0x0c1000e0        0x0 ./kernel/isr-wrappers.o
+ .data          0x0c1000e0        0x0 ./kernel/kernel_entry.o
+ .data          0x0c1000e0       0x60 ./D8Led.o
+ .data          0x0c100140        0x0 ./L3.o
+ .data          0x0c100140        0x0 ./adc.o
+ .data          0x0c100140        0x0 ./at24c04.o
+ .data          0x0c100140        0x0 ./button.o
+ .data          0x0c100140        0x0 ./dma.o
+ .data          0x0c100140        0x0 ./font8x16.o
+ .data          0x0c100140        0x0 ./gpio.o
+ .data          0x0c100140        0x0 ./iic.o
+ .data          0x0c100140        0x0 ./iis.o
+ .data          0x0c100140        0x0 ./init.o
+ .data          0x0c100140        0x0 ./intcontroller.o
+ .data          0x0c100140        0x4 ./keyboard.o
+ .data          0x0c100144        0x0 ./lcd.o
+ .data          0x0c100144        0x0 ./leds.o
+ .data          0x0c100144        0x0 ./main.o
+ .data          0x0c100144        0x0 ./rtc.o
+ .data          0x0c100144        0x0 ./timer.o
+ .data          0x0c100144        0x0 ./ts.o
+ .data          0x0c100144        0x0 ./uart.o
+ .data          0x0c100144        0x0 ./uda1341ts.o
+ .data          0x0c100144        0x4 ./utils.o
+ .data          0x0c100148        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_udivsi3.o)
+ .data          0x0c100148        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+ .data          0x0c100148        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+ *(.rodata*)
+ .rodata        0x0c100148      0x29c ./tests/test_EEPROM.o
+ .rodata        0x0c1003e4      0x39c ./tests/test_WAV.o
+ .rodata        0x0c100780      0x344 ./tests/test_sound_effects.o
+ .rodata        0x0c100ac4      0x380 ./multitasking/cyclic.o
+                0x0c100ac4                pjobs
+ .rodata        0x0c100e44       0x68 ./multitasking/foreback.o
+ .rodata        0x0c100eac       0x70 ./multitasking/non_expropiative.o
+ .rodata        0x0c100f1c       0x6c ./multitasking/queue.o
+ .rodata        0x0c100f88      0x108 ./kernel/os_core/os_core.o
+                0x0c100f88                OSMapTbl
+                0x0c100f90                OSUnMapTbl
+ .rodata        0x0c101090       0x60 ./kernel/os_core/os_dbg_r.o
+                0x0c101090                OSDebugEn
+                0x0c101094                OSEndiannessTest
+                0x0c101098                OSEventEn
+                0x0c10109a                OSEventMax
+                0x0c10109c                OSEventNameSize
+                0x0c10109e                OSEventSize
+                0x0c1010a0                OSEventTblSize
+                0x0c1010a2                OSFlagEn
+                0x0c1010a4                OSFlagGrpSize
+                0x0c1010a6                OSFlagNodeSize
+                0x0c1010a8                OSFlagWidth
+                0x0c1010aa                OSFlagMax
+                0x0c1010ac                OSFlagNameSize
+                0x0c1010ae                OSLowestPrio
+                0x0c1010b0                OSMboxEn
+                0x0c1010b2                OSMemEn
+                0x0c1010b4                OSMemMax
+                0x0c1010b6                OSMemNameSize
+                0x0c1010b8                OSMemSize
+                0x0c1010ba                OSMemTblSize
+                0x0c1010bc                OSMutexEn
+                0x0c1010be                OSPtrSize
+                0x0c1010c0                OSQEn
+                0x0c1010c2                OSQMax
+                0x0c1010c4                OSQSize
+                0x0c1010c6                OSRdyTblSize
+                0x0c1010c8                OSSemEn
+                0x0c1010ca                OSStkWidth
+                0x0c1010cc                OSTaskCreateEn
+                0x0c1010ce                OSTaskCreateExtEn
+                0x0c1010d0                OSTaskDelEn
+                0x0c1010d2                OSTaskIdleStkSize
+                0x0c1010d4                OSTaskProfileEn
+                0x0c1010d6                OSTaskMax
+                0x0c1010d8                OSTaskNameSize
+                0x0c1010da                OSTaskStatEn
+                0x0c1010dc                OSTaskStatStkSize
+                0x0c1010de                OSTaskStatStkChkEn
+                0x0c1010e0                OSTaskSwHookEn
+                0x0c1010e2                OSTCBPrioTblMax
+                0x0c1010e4                OSTCBSize
+                0x0c1010e6                OSTicksPerSec
+                0x0c1010e8                OSTimeTickHookEn
+                0x0c1010ea                OSVersionNbr
+                0x0c1010ec                OSDataSize
+ .rodata        0x0c1010f0       0xc0 ./kernel/kernel_entry.o
+ .rodata        0x0c1011b0     0x1000 ./font8x16.o
+                0x0c1011b0                font
+ .rodata        0x0c1021b0       0x50 ./keyboard.o
+ .rodata        0x0c102200       0x80 ./main.o
+ .rodata        0x0c102280       0xd8 ./ts.o
+                0x0c102358                Image_ZI_Base = .
+
+.bss            0x0c102358   0x11755c
+ *(.bss*)
+ .bss           0x0c102358        0x0 ./tests/test_EEPROM.o
+ .bss           0x0c102358        0x0 ./tests/test_WAV.o
+ .bss           0x0c102358        0x0 ./tests/test_sound_effects.o
+ .bss           0x0c102358        0x0 ./multitasking/cyclic.o
+ .bss           0x0c102358        0x0 ./multitasking/foreback.o
+ .bss           0x0c102358       0xa0 ./multitasking/kernelcoop.o
+ .bss           0x0c1023f8        0x0 ./multitasking/non_expropiative.o
+ .bss           0x0c1023f8        0x0 ./multitasking/queue.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_port/os_cpu_a.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_port/os_cpu_c.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_port/os_cpu_isr_wrapper.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_port/s3c44b0x.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_port/s3cev40.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_core.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_dbg_r.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_flag.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_mbox.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_mem.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_mutex.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_q.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_sem.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_task.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/os_time.o
+ .bss           0x0c1023f8        0x0 ./kernel/os_core/ucos_ii.o
+ .bss           0x0c1023f8        0x0 ./kernel/isr-wrappers.o
+ .bss           0x0c1023f8        0x0 ./kernel/kernel_entry.o
+ .bss           0x0c1023f8        0x0 ./D8Led.o
+ .bss           0x0c1023f8        0x0 ./L3.o
+ .bss           0x0c1023f8        0x1 ./adc.o
+ .bss           0x0c1023f9        0x0 ./at24c04.o
+ .bss           0x0c1023f9        0x0 ./button.o
+ .bss           0x0c1023f9        0x0 ./dma.o
+ .bss           0x0c1023f9        0x0 ./font8x16.o
+ .bss           0x0c1023f9        0x0 ./gpio.o
+ .bss           0x0c1023f9        0x0 ./iic.o
+ .bss           0x0c1023f9        0x1 ./iis.o
+ .bss           0x0c1023fa        0x0 ./init.o
+ .bss           0x0c1023fa        0x0 ./intcontroller.o
+ .bss           0x0c1023fa        0x0 ./keyboard.o
+ *fill*         0x0c1023fa        0x2 00
+ .bss           0x0c1023fc     0x9604 ./lcd.o
+ .bss           0x0c10ba00        0x4 ./leds.o
+ .bss           0x0c10ba04       0x14 ./main.o
+ .bss           0x0c10ba18        0x0 ./rtc.o
+ .bss           0x0c10ba18        0x0 ./timer.o
+ .bss           0x0c10ba18        0xa ./ts.o
+ .bss           0x0c10ba22        0x0 ./uart.o
+ .bss           0x0c10ba22        0x2 ./uda1341ts.o
+ .bss           0x0c10ba24        0x0 ./utils.o
+ .bss           0x0c10ba24        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_udivsi3.o)
+ .bss           0x0c10ba24        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+ .bss           0x0c10ba24        0x0 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+ *(COMMON)
+ COMMON         0x0c10ba24    0xbb806 ./tests/test_sound_effects.o
+                0x0c10ba24                buffer
+                0x0c1a7e24                delay_buffer
+ COMMON         0x0c1c722a        0x4 ./multitasking/cyclic.o
+                0x0c1c722a                scancode
+                0x0c1c722b                flagTask5
+                0x0c1c722c                flagTask6
+                0x0c1c722d                flagTimer
+ COMMON         0x0c1c722e        0x4 ./multitasking/foreback.o
+                0x0c1c722e                flagReadKeypad
+                0x0c1c722f                flagToggleLeds
+                0x0c1c7230                flagWriteTicks
+                0x0c1c7231                flagWriteRTC
+ *fill*         0x0c1c7232        0x2 00
+ COMMON         0x0c1c7234      0x808 ./multitasking/queue.o
+                0x0c1c7234                fifo
+ COMMON         0x0c1c7a3c     0x1e6c ./kernel/os_core/os_core.o
+                0x0c1c7a3c                OSLockNesting
+                0x0c1c7a3d                OSRunning
+                0x0c1c7a40                OSIdleCtr
+                0x0c1c7a44                OSPrioHighRdy
+                0x0c1c7a48                OSFlagTbl
+                0x0c1c7b24                OSPrioCur
+                0x0c1c7b28                OSTCBList
+                0x0c1c7b2c                OSMemTbl
+                0x0c1c7c30                OSTickStepState
+                0x0c1c7c34                OSTaskStatStk
+                0x0c1c8434                OSCtxSwCtr
+                0x0c1c8438                OSIdleCtrMax
+                0x0c1c843c                OSTCBFreeList
+                0x0c1c8440                OSCPUUsage
+                0x0c1c8441                OSTaskCtr
+                0x0c1c8444                OSMemFreeList
+                0x0c1c8448                OSQTbl
+                0x0c1c84a8                OSTCBHighRdy
+                0x0c1c84ac                OSQFreeList
+                0x0c1c84b0                OSRdyGrp
+                0x0c1c84b4                OSRdyTbl
+                0x0c1c84bc                OSEventFreeList
+                0x0c1c84c0                OSIntNesting
+                0x0c1c84c4                OSTCBCur
+                0x0c1c84c8                OSTime
+                0x0c1c84cc                OSTaskIdleStk
+                0x0c1c8ccc                OSEventTbl
+                0x0c1c8eac                OSTCBTbl
+                0x0c1c979c                OSFlagFreeList
+                0x0c1c97a0                OSStatRdy
+                0x0c1c97a4                OSTCBPrioTbl
+                0x0c1c98a4                OSIdleCtrRun
+ COMMON         0x0c1c98a8    0x5000c ./kernel/kernel_entry.o
+                0x0c1c98a8                Task3Stk
+                0x0c1d38a8                Task7Stk
+                0x0c1dd8a8                Task4Stk
+                0x0c1e78a8                keypadMbox
+                0x0c1e78ac                flagPb
+                0x0c1e78b0                Task2Stk
+                0x0c1f18b0                uart0Sem
+                0x0c1f18b4                Task6Stk
+                0x0c1fb8b4                Task1Stk
+                0x0c2058b4                TaskStartStk
+                0x0c20f8b4                Task5Stk
+                0x0c2198b4                Image_ZI_Limit = .
+
+.text           0x0c2198b4    0x11888
+ *(.text*)
+ .text          0x0c2198b4      0x52c ./tests/test_EEPROM.o
+                0x0c2198b4                test_EEPROM
+ .text          0x0c219de0      0x658 ./tests/test_WAV.o
+                0x0c219de0                test_WAV
+ .text          0x0c21a438      0xf38 ./tests/test_sound_effects.o
+                0x0c21a438                test_sound_effects
+                0x0c21b120                audiodelay_init
+                0x0c21b1dc                audiodelay_put
+                0x0c21b2a4                audiodelay_get
+ .text          0x0c21b370      0x248 ./multitasking/cyclic.o
+                0x0c21b370                cyclic
+                0x0c21b4e0                JobA
+                0x0c21b500                JobB
+                0x0c21b528                JobC
+                0x0c21b554                JobD
+                0x0c21b584                JobE
+ .text          0x0c21b5b8      0x234 ./multitasking/foreback.o
+                0x0c21b5b8                foreback
+ .text          0x0c21b7ec      0x380 ./multitasking/kernelcoop.o
+                0x0c21b7ec                delete_task
+                0x0c21b880                create_task
+                0x0c21b964                scheduler_init
+                0x0c21b9ac                scheduler
+                0x0c21bad0                dispacher
+ .text          0x0c21bb6c      0x154 ./multitasking/non_expropiative.o
+                0x0c21bb6c                non_expropiative_kernel
+ .text          0x0c21bcc0      0x484 ./multitasking/queue.o
+                0x0c21bcc0                queue
+                0x0c21bdb8                isr_tick
+                0x0c21bf00                fifo_init
+                0x0c21bf40                fifo_enqueue
+                0x0c21bffc                fifo_dequeue
+                0x0c21c0bc                fifo_is_empty
+                0x0c21c0fc                fifo_is_full
+ .text          0x0c21c144      0x110 ./kernel/os_port/os_cpu_a.o
+                0x0c21c144                OSStartHighRdy
+                0x0c21c16c                OSCtxSw
+                0x0c21c188                OSIntCtxSw
+                0x0c21c1bc                OSTickISR
+ .text          0x0c21c254      0x29c ./kernel/os_port/os_cpu_c.o
+                0x0c21c254                OSInitHookBegin
+                0x0c21c26c                OSInitHookEnd
+                0x0c21c284                OSTaskCreateHook
+                0x0c21c2a4                OSTaskDelHook
+                0x0c21c2c4                OSTaskIdleHook
+                0x0c21c2e0                OSTaskStatHook
+                0x0c21c2f8                OSTaskStkInit
+                0x0c21c4a0                OSTaskSwHook
+                0x0c21c4b8                OSTCBInitHook
+                0x0c21c4d8                OSTimeTickHook
+ .text          0x0c21c4f0        0x0 ./kernel/os_port/os_cpu_isr_wrapper.o
+ .text          0x0c21c4f0        0x0 ./kernel/os_port/s3c44b0x.o
+ .text          0x0c21c4f0        0x0 ./kernel/os_port/s3cev40.o
+ .text          0x0c21c4f0     0x1a58 ./kernel/os_core/os_core.o
+                0x0c21c4f0                OSEventNameGet
+                0x0c21c5e0                OSEventNameSet
+                0x0c21c6ec                OSInit
+                0x0c21c734                OSIntEnter
+                0x0c21c78c                OSIntExit
+                0x0c21c8e8                OSSchedLock
+                0x0c21c958                OSSchedUnlock
+                0x0c21ca14                OSStart
+                0x0c21caf0                OSStatInit
+                0x0c21cb7c                OSTimeTick
+                0x0c21cd98                OSVersion
+                0x0c21cdb8                OS_Dummy
+                0x0c21cdd0                OS_EventTaskRdy
+                0x0c21cfdc                OS_EventTaskWait
+                0x0c21d134                OS_EventTO
+                0x0c21d248                OS_EventWaitListInit
+                0x0c21d75c                OS_MemClr
+                0x0c21d7b8                OS_MemCopy
+                0x0c21d828                OS_Sched
+                0x0c21d948                OS_StrCopy
+                0x0c21d9d0                OS_StrLen
+                0x0c21da2c                OS_TaskIdle
+                0x0c21da78                OS_TaskStat
+                0x0c21dba8                OS_TaskStatStkChk
+                0x0c21dc68                OS_TCBInit
+ .text          0x0c21df48      0x238 ./kernel/os_core/os_dbg_r.o
+                0x0c21df48                OSDebugInit
+ .text          0x0c21e180     0x16cc ./kernel/os_core/os_flag.o
+                0x0c21e180                OSFlagAccept
+                0x0c21e4a4                OSFlagCreate
+                0x0c21e5a8                OSFlagDel
+                0x0c21e7e8                OSFlagNameGet
+                0x0c21e8d4                OSFlagNameSet
+                0x0c21e9dc                OSFlagPend
+                0x0c21ef48                OSFlagPendGetFlagsRdy
+                0x0c21ef98                OSFlagPost
+                0x0c21f358                OSFlagQuery
+                0x0c21f5ac                OS_FlagInit
+                0x0c21f798                OS_FlagUnlink
+ .text          0x0c21f84c      0x95c ./kernel/os_core/os_mbox.o
+                0x0c21f84c                OSMboxAccept
+                0x0c21f8d0                OSMboxCreate
+                0x0c21f9b4                OSMboxDel
+                0x0c21fbe8                OSMboxPend
+                0x0c21fdcc                OSMboxPost
+                0x0c21feb0                OSMboxPostOpt
+                0x0c21ffd8                OSMboxQuery
+ .text          0x0c2201a8      0x6ac ./kernel/os_core/os_mem.o
+                0x0c2201a8                OSMemCreate
+                0x0c220368                OSMemGet
+                0x0c220434                OSMemNameGet
+                0x0c2204f4                OSMemNameSet
+                0x0c2205d0                OSMemPut
+                0x0c220694                OSMemQuery
+                0x0c22076c                OS_MemInit
+ .text          0x0c220854     0x1044 ./kernel/os_core/os_mutex.o
+                0x0c220854                OSMutexAccept
+                0x0c220998                OSMutexCreate
+                0x0c220b3c                OSMutexDel
+                0x0c220dc4                OSMutexPend
+                0x0c221300                OSMutexPost
+                0x0c221660                OSMutexQuery
+ .text          0x0c221898      0xf64 ./kernel/os_core/os_q.o
+                0x0c221898                OSQAccept
+                0x0c2219c0                OSQCreate
+                0x0c221b78                OSQDel
+                0x0c221e00                OSQFlush
+                0x0c221ea4                OSQPend
+                0x0c2220e0                OSQPost
+                0x0c222218                OSQPostFront
+                0x0c222358                OSQPostOpt
+                0x0c222534                OSQQuery
+                0x0c222754                OS_QInit
+ .text          0x0c2227fc      0x8d8 ./kernel/os_core/os_sem.o
+                0x0c2227fc                OSSemAccept
+                0x0c22289c                OSSemCreate
+                0x0c222984                OSSemDel
+                0x0c222bb8                OSSemPend
+                0x0c222d58                OSSemPost
+                0x0c222e3c                OSSemQuery
+                0x0c22300c                OSSemSet
+ .text          0x0c2230d4     0x146c ./kernel/os_core/os_task.o
+                0x0c2230d4                OSTaskChangePrio
+                0x0c223498                OSTaskCreate
+                0x0c2235f4                OSTaskCreateExt
+                0x0c223764                OSTaskDel
+                0x0c223b40                OSTaskDelReq
+                0x0c223c50                OSTaskNameGet
+                0x0c223d94                OSTaskNameSet
+                0x0c223eec                OSTaskResume
+                0x0c224060                OSTaskStkChk
+                0x0c2241f4                OSTaskSuspend
+                0x0c2243d0                OSTaskQuery
+                0x0c2244bc                OS_TaskStkClr
+ .text          0x0c224540      0x4d0 ./kernel/os_core/os_time.o
+                0x0c224540                OSTimeDly
+                0x0c224644                OSTimeDlyHMSM
+                0x0c2247e8                OSTimeDlyResume
+                0x0c22497c                OSTimeGet
+                0x0c2249c8                OSTimeSet
+ .text          0x0c224a10        0x0 ./kernel/os_core/ucos_ii.o
+ .text          0x0c224a10       0x78 ./kernel/isr-wrappers.o
+                0x0c224a10                OS_CPU_isr_pb
+ .text          0x0c224a88      0x8f8 ./kernel/kernel_entry.o
+                0x0c224a88                kernel_entry
+                0x0c224b50                TaskStart
+                0x0c224d40                Task1
+                0x0c224dc8                Task2
+                0x0c224ea4                Task3
+                0x0c224fbc                Task4
+                0x0c2250a8                Task5
+                0x0c2251b0                Task6
+                0x0c225258                Task7
+                0x0c22533c                isr_pb
+ .text          0x0c225380      0x100 ./D8Led.o
+                0x0c225380                D8Led_init
+                0x0c2253a4                D8Led_off
+                0x0c2253c8                D8Led_segment
+                0x0c225424                D8Led_digit
+ .text          0x0c225480      0x2b0 ./L3.o
+                0x0c225480                L3_init
+                0x0c225520                L3_putByte
+ .text          0x0c225730      0x28c ./adc.o
+                0x0c225730                isr_ADC_dummy
+                0x0c225758                adc_init
+                0x0c225784                adc_on
+                0x0c2257c8                adc_off
+                0x0c225804                adc_status
+                0x0c22582c                adc_getSample
+                0x0c225950                adc_open
+                0x0c225988                adc_close
+ .text          0x0c2259bc      0x3d4 ./at24c04.o
+                0x0c2259bc                at24c04_clear
+                0x0c225a98                at24c04_bytewrite
+                0x0c225b24                at24c04_byteread
+                0x0c225be4                at24c04_load
+                0x0c225c9c                at24c04_store
+ .text          0x0c225d90       0x7c ./button.o
+                0x0c225d90                read_button
+ .text          0x0c225e0c       0xfc ./dma.o
+                0x0c225e0c                isr_BDMA0_dummy
+                0x0c225e34                bdma0_init
+                0x0c225e94                bdma0_open
+                0x0c225ed4                bdma0_close
+ .text          0x0c225f08        0x0 ./font8x16.o
+ .text          0x0c225f08      0x898 ./gpio.o
+                0x0c225f08                portB_conf
+                0x0c225fd0                portB_write
+                0x0c22608c                portG_conf
+                0x0c226244                portG_eint_trig
+                0x0c226514                portG_write
+                0x0c226614                portG_read
+                0x0c2266d8                portG_conf_pup
+ .text          0x0c2267a0      0x230 ./iic.o
+                0x0c2267a0                iic_init
+                0x0c2267e8                iic_start
+                0x0c22686c                iic_putByte
+                0x0c2268d0                iic_getByte
+                0x0c226970                iic_stop
+ .text          0x0c2269d0      0x694 ./iis.o
+                0x0c2269d0                iis_init
+                0x0c226ae8                iis_putSample
+                0x0c226b50                iis_getSample
+                0x0c226bd4                iis_play
+                0x0c226d84                iis_rec
+                0x0c226ec8                iis_pause
+                0x0c226ef8                iis_continue
+                0x0c226f28                iis_status
+                0x0c226f5c                iis_playWawFile
+ .text          0x0c227064      0x100 ./init.o
+                0x0c227064                start
+ .text          0x0c227164      0x3b8 ./intcontroller.o
+                0x0c227164                ic_init
+                0x0c2271a8                ic_conf_irq
+                0x0c227264                ic_conf_fiq
+                0x0c2272e8                ic_conf_line
+                0x0c2273a8                ic_enable
+                0x0c227410                ic_disable
+                0x0c227474                ic_cleanflag
+ .text          0x0c22751c      0x1a4 ./keyboard.o
+                0x0c22751c                kb_scan
+ .text          0x0c2276c0      0xa28 ./lcd.o
+                0x0c2276c0                lcd_init
+                0x0c227844                lcd_on
+                0x0c227880                lcd_off
+                0x0c2278bc                lcd_status
+                0x0c2278e4                lcd_clear
+                0x0c227940                lcd_clear_color
+                0x0c2279c8                lcd_putpixel
+                0x0c227ab4                lcd_getpixel
+                0x0c227b64                lcd_draw_hline
+                0x0c227c14                lcd_draw_vline
+                0x0c227cc4                lcd_draw_box
+                0x0c227d98                lcd_putchar
+                0x0c227eec                lcd_puts
+                0x0c227f8c                lcd_putWallpaper
+ .text          0x0c2280e8      0x300 ./leds.o
+                0x0c2280e8                leds_init
+                0x0c22812c                led1_on
+                0x0c22816c                led1_off
+                0x0c2281ac                led2_on
+                0x0c2281ec                led2_off
+                0x0c22822c                led1_switch
+                0x0c22826c                led2_switch
+                0x0c2282ac                leds_switch
+                0x0c2282ec                leds_display
+                0x0c228380                led1_status
+                0x0c2283b4                led2_status
+ .text          0x0c2283e8      0x540 ./main.o
+                0x0c2283e8                timer_ISR
+                0x0c228418                button_ISR
+                0x0c2284b8                keyboard_ISR
+                0x0c228534                setup
+                0x0c22860c                read_date
+                0x0c22870c                rtc_ISR
+                0x0c228750                rtc_alarm_ISR
+                0x0c228784                clock_setup
+                0x0c2288d0                startup
+                0x0c2288ec                loop
+                0x0c22890c                main
+ .text          0x0c228928      0xdf4 ./rtc.o
+                0x0c228928                isr_TICK_dummy
+                0x0c228950                isr_ALARM_dummy
+                0x0c228978                rtc_init
+                0x0c228a4c                rtc_puttime
+                0x0c228e20                rtc_gettime
+                0x0c229260                rtc_set_alarm
+                0x0c229624                rtc_clear_alarm
+                0x0c229668                rtc_open
+                0x0c2296d8                rtc_close
+ .text          0x0c22971c      0x6b4 ./timer.o
+                0x0c22971c                tmr_set_prescaler
+                0x0c2297f8                tmr_set_divider
+                0x0c229934                tmr_set_count
+                0x0c229a68                tmr_update
+                0x0c229b20                tmr_set_mode
+                0x0c229c2c                tmr_start
+                0x0c229cb4                tmr_stop
+                0x0c229d40                tmr_isrunning
+ .text          0x0c229dd0      0x72c ./ts.o
+                0x0c229dd0                isr_TS_dummy
+                0x0c229df8                ts_init
+                0x0c229e8c                ts_on
+                0x0c229eb8                ts_off
+                0x0c229ee4                ts_status
+                0x0c229f0c                ts_pressed
+                0x0c22a174                ts_getpos
+                0x0c22a488                ts_open
+                0x0c22a4c8                ts_close
+ .text          0x0c22a4fc      0x5f4 ./uart.o
+                0x0c22a4fc                uart0_init
+                0x0c22a560                uart0_putchar
+                0x0c22a5b0                uart0_getchar
+                0x0c22a5f8                uart0_puts
+                0x0c22a648                uart0_putint
+                0x0c22a748                uart0_puthex
+                0x0c22a800                uart0_gets
+                0x0c22a86c                uart0_getint
+                0x0c22a944                uart0_gethex
+                0x0c22aa48                uart0_put_rtc_time
+ .text          0x0c22aaf0      0x284 ./uda1341ts.o
+                0x0c22aaf0                uda1341ts_init
+                0x0c22ab6c                uda1341ts_mute
+                0x0c22abc8                uda1341ts_on
+                0x0c22ac38                uda1341ts_off
+                0x0c22acb8                uda1341ts_status
+                0x0c22acec                uda1341ts_setvol
+                0x0c22ad4c                uda1341ts_getvol
+ .text          0x0c22ad74      0x168 ./utils.o
+                0x0c22ad74                Delay
+                0x0c22aeac                sleep
+ .text          0x0c22aedc      0x114 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_udivsi3.o)
+                0x0c22aedc                __aeabi_uidiv
+                0x0c22aedc                __udivsi3
+                0x0c22afd0                __aeabi_uidivmod
+ .text          0x0c22aff0      0x148 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+                0x0c22aff0                __divsi3
+                0x0c22aff0                __aeabi_idiv
+                0x0c22b118                __aeabi_idivmod
+ .text          0x0c22b138        0x4 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+                0x0c22b138                __aeabi_idiv0
+                0x0c22b138                __aeabi_ldiv0
+                0x0c22b13c                PROVIDE (end, .)
+START GROUP
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libg.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libc.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libm.a
+LOAD c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2/../../../../arm-none-eabi/lib\libnosys.a
+END GROUP
+OUTPUT(prac2a.elf elf32-littlearm)
+
+.glue_7         0x0c22b13c        0x0
+ .glue_7        0x00000000        0x0 linker stubs
+
+.glue_7t        0x0c22b13c        0x0
+ .glue_7t       0x00000000        0x0 linker stubs
+
+.vfp11_veneer   0x0c22b13c        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x0c22b13c        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.debug_abbrev   0x00000000     0x2912
+ .debug_abbrev  0x00000000       0x7e ./tests/test_EEPROM.o
+ .debug_abbrev  0x0000007e       0x84 ./tests/test_WAV.o
+ .debug_abbrev  0x00000102      0x151 ./tests/test_sound_effects.o
+ .debug_abbrev  0x00000253       0xde ./multitasking/cyclic.o
+ .debug_abbrev  0x00000331       0x8f ./multitasking/foreback.o
+ .debug_abbrev  0x000003c0       0xfb ./multitasking/kernelcoop.o
+ .debug_abbrev  0x000004bb       0x8f ./multitasking/non_expropiative.o
+ .debug_abbrev  0x0000054a      0x169 ./multitasking/queue.o
+ .debug_abbrev  0x000006b3       0x14 ./kernel/os_port/os_cpu_a.o
+ .debug_abbrev  0x000006c7      0x117 ./kernel/os_port/os_cpu_c.o
+ .debug_abbrev  0x000007de      0x220 ./kernel/os_core/os_core.o
+ .debug_abbrev  0x000009fe      0x114 ./kernel/os_core/os_dbg_r.o
+ .debug_abbrev  0x00000b12      0x193 ./kernel/os_core/os_flag.o
+ .debug_abbrev  0x00000ca5      0x15f ./kernel/os_core/os_mbox.o
+ .debug_abbrev  0x00000e04      0x160 ./kernel/os_core/os_mem.o
+ .debug_abbrev  0x00000f64      0x17d ./kernel/os_core/os_mutex.o
+ .debug_abbrev  0x000010e1      0x176 ./kernel/os_core/os_q.o
+ .debug_abbrev  0x00001257      0x167 ./kernel/os_core/os_sem.o
+ .debug_abbrev  0x000013be      0x17e ./kernel/os_core/os_task.o
+ .debug_abbrev  0x0000153c      0x119 ./kernel/os_core/os_time.o
+ .debug_abbrev  0x00001655       0xc5 ./kernel/os_core/ucos_ii.o
+ .debug_abbrev  0x0000171a       0x14 ./kernel/isr-wrappers.o
+ .debug_abbrev  0x0000172e      0x1ad ./kernel/kernel_entry.o
+ .debug_abbrev  0x000018db       0x88 ./D8Led.o
+ .debug_abbrev  0x00001963       0xb0 ./L3.o
+ .debug_abbrev  0x00001a13       0xea ./adc.o
+ .debug_abbrev  0x00001afd       0xbc ./at24c04.o
+ .debug_abbrev  0x00001bb9       0x82 ./button.o
+ .debug_abbrev  0x00001c3b       0x98 ./dma.o
+ .debug_abbrev  0x00001cd3       0x63 ./font8x16.o
+ .debug_abbrev  0x00001d36       0xb7 ./gpio.o
+ .debug_abbrev  0x00001ded       0xc9 ./iic.o
+ .debug_abbrev  0x00001eb6       0xf9 ./iis.o
+ .debug_abbrev  0x00001faf       0x14 ./init.o
+ .debug_abbrev  0x00001fc3       0xdd ./intcontroller.o
+ .debug_abbrev  0x000020a0       0x85 ./keyboard.o
+ .debug_abbrev  0x00002125      0x102 ./lcd.o
+ .debug_abbrev  0x00002227       0xc1 ./leds.o
+ .debug_abbrev  0x000022e8      0x14c ./main.o
+ .debug_abbrev  0x00002434       0xdf ./rtc.o
+ .debug_abbrev  0x00002513       0xa5 ./timer.o
+ .debug_abbrev  0x000025b8       0xe6 ./ts.o
+ .debug_abbrev  0x0000269e      0x120 ./uart.o
+ .debug_abbrev  0x000027be       0xda ./uda1341ts.o
+ .debug_abbrev  0x00002898       0x7a ./utils.o
+
+.debug_info     0x00000000     0xb163
+ .debug_info    0x00000000       0xfc ./tests/test_EEPROM.o
+ .debug_info    0x000000fc       0xce ./tests/test_WAV.o
+ .debug_info    0x000001ca      0x350 ./tests/test_sound_effects.o
+ .debug_info    0x0000051a      0x316 ./multitasking/cyclic.o
+ .debug_info    0x00000830      0x2ad ./multitasking/foreback.o
+ .debug_info    0x00000add      0x27f ./multitasking/kernelcoop.o
+ .debug_info    0x00000d5c      0x231 ./multitasking/non_expropiative.o
+ .debug_info    0x00000f8d      0x388 ./multitasking/queue.o
+ .debug_info    0x00001315       0x69 ./kernel/os_port/os_cpu_a.o
+ .debug_info    0x0000137e      0x513 ./kernel/os_port/os_cpu_c.o
+ .debug_info    0x00001891     0x10e3 ./kernel/os_core/os_core.o
+ .debug_info    0x00002974      0xed1 ./kernel/os_core/os_dbg_r.o
+ .debug_info    0x00003845      0x9e9 ./kernel/os_core/os_flag.o
+ .debug_info    0x0000422e      0x665 ./kernel/os_core/os_mbox.o
+ .debug_info    0x00004893      0x446 ./kernel/os_core/os_mem.o
+ .debug_info    0x00004cd9      0x73e ./kernel/os_core/os_mutex.o
+ .debug_info    0x00005417      0x8a8 ./kernel/os_core/os_q.o
+ .debug_info    0x00005cbf      0x63f ./kernel/os_core/os_sem.o
+ .debug_info    0x000062fe      0xa53 ./kernel/os_core/os_task.o
+ .debug_info    0x00006d51      0x58a ./kernel/os_core/os_time.o
+ .debug_info    0x000072db      0x80c ./kernel/os_core/ucos_ii.o
+ .debug_info    0x00007ae7       0x65 ./kernel/isr-wrappers.o
+ .debug_info    0x00007b4c      0x6df ./kernel/kernel_entry.o
+ .debug_info    0x0000822b       0xf4 ./D8Led.o
+ .debug_info    0x0000831f      0x199 ./L3.o
+ .debug_info    0x000084b8      0x277 ./adc.o
+ .debug_info    0x0000872f      0x22e ./at24c04.o
+ .debug_info    0x0000895d       0xb1 ./button.o
+ .debug_info    0x00008a0e      0x199 ./dma.o
+ .debug_info    0x00008ba7       0x95 ./font8x16.o
+ .debug_info    0x00008c3c      0x291 ./gpio.o
+ .debug_info    0x00008ecd      0x16c ./iic.o
+ .debug_info    0x00009039      0x38a ./iis.o
+ .debug_info    0x000093c3       0x54 ./init.o
+ .debug_info    0x00009417      0x29e ./intcontroller.o
+ .debug_info    0x000096b5       0xeb ./keyboard.o
+ .debug_info    0x000097a0      0x50f ./lcd.o
+ .debug_info    0x00009caf      0x1bf ./leds.o
+ .debug_info    0x00009e6e      0x3bf ./main.o
+ .debug_info    0x0000a22d      0x2de ./rtc.o
+ .debug_info    0x0000a50b      0x324 ./timer.o
+ .debug_info    0x0000a82f      0x3aa ./ts.o
+ .debug_info    0x0000abd9      0x337 ./uart.o
+ .debug_info    0x0000af10      0x1ba ./uda1341ts.o
+ .debug_info    0x0000b0ca       0x99 ./utils.o
+
+.debug_line     0x00000000     0x3b26
+ .debug_line    0x00000000      0x16a ./tests/test_EEPROM.o
+ .debug_line    0x0000016a      0x19b ./tests/test_WAV.o
+ .debug_line    0x00000305      0x24c ./tests/test_sound_effects.o
+ .debug_line    0x00000551      0x14a ./multitasking/cyclic.o
+ .debug_line    0x0000069b      0x129 ./multitasking/foreback.o
+ .debug_line    0x000007c4       0xec ./multitasking/kernelcoop.o
+ .debug_line    0x000008b0      0x139 ./multitasking/non_expropiative.o
+ .debug_line    0x000009e9      0x144 ./multitasking/queue.o
+ .debug_line    0x00000b2d       0x8f ./kernel/os_port/os_cpu_a.o
+ .debug_line    0x00000bbc      0x16f ./kernel/os_port/os_cpu_c.o
+ .debug_line    0x00000d2b      0x382 ./kernel/os_core/os_core.o
+ .debug_line    0x000010ad      0x112 ./kernel/os_core/os_dbg_r.o
+ .debug_line    0x000011bf      0x2e9 ./kernel/os_core/os_flag.o
+ .debug_line    0x000014a8      0x1bf ./kernel/os_core/os_mbox.o
+ .debug_line    0x00001667      0x1af ./kernel/os_core/os_mem.o
+ .debug_line    0x00001816      0x1fe ./kernel/os_core/os_mutex.o
+ .debug_line    0x00001a14      0x23e ./kernel/os_core/os_q.o
+ .debug_line    0x00001c52      0x1a6 ./kernel/os_core/os_sem.o
+ .debug_line    0x00001df8      0x27e ./kernel/os_core/os_task.o
+ .debug_line    0x00002076      0x143 ./kernel/os_core/os_time.o
+ .debug_line    0x000021b9       0xd3 ./kernel/os_core/ucos_ii.o
+ .debug_line    0x0000228c       0x4b ./kernel/isr-wrappers.o
+ .debug_line    0x000022d7      0x309 ./kernel/kernel_entry.o
+ .debug_line    0x000025e0       0x70 ./D8Led.o
+ .debug_line    0x00002650       0xc4 ./L3.o
+ .debug_line    0x00002714       0xc9 ./adc.o
+ .debug_line    0x000027dd       0xfe ./at24c04.o
+ .debug_line    0x000028db       0x9e ./button.o
+ .debug_line    0x00002979       0x8b ./dma.o
+ .debug_line    0x00002a04       0x43 ./font8x16.o
+ .debug_line    0x00002a47      0x10b ./gpio.o
+ .debug_line    0x00002b52       0xa2 ./iic.o
+ .debug_line    0x00002bf4      0x142 ./iis.o
+ .debug_line    0x00002d36       0x6c ./init.o
+ .debug_line    0x00002da2       0xad ./intcontroller.o
+ .debug_line    0x00002e4f       0x7d ./keyboard.o
+ .debug_line    0x00002ecc      0x18d ./lcd.o
+ .debug_line    0x00003059       0xa3 ./leds.o
+ .debug_line    0x000030fc      0x4aa ./main.o
+ .debug_line    0x000035a6       0xfd ./rtc.o
+ .debug_line    0x000036a3       0xeb ./timer.o
+ .debug_line    0x0000378e      0x167 ./ts.o
+ .debug_line    0x000038f5      0x11e ./uart.o
+ .debug_line    0x00003a13       0xa4 ./uda1341ts.o
+ .debug_line    0x00003ab7       0x6f ./utils.o
+
+.debug_macinfo  0x00000000    0xc1a24
+ .debug_macinfo
+                0x00000000     0x4e68 ./tests/test_EEPROM.o
+ .debug_macinfo
+                0x00004e68     0x5639 ./tests/test_WAV.o
+ .debug_macinfo
+                0x0000a4a1     0x53ac ./tests/test_sound_effects.o
+ .debug_macinfo
+                0x0000f84d     0x53db ./multitasking/cyclic.o
+ .debug_macinfo
+                0x00014c28     0x538b ./multitasking/foreback.o
+ .debug_macinfo
+                0x00019fb3     0x4e50 ./multitasking/kernelcoop.o
+ .debug_macinfo
+                0x0001ee03     0x53a8 ./multitasking/non_expropiative.o
+ .debug_macinfo
+                0x000241ab     0x539b ./multitasking/queue.o
+ .debug_macinfo
+                0x00029546     0x385a ./kernel/os_port/os_cpu_c.o
+ .debug_macinfo
+                0x0002cda0     0x3848 ./kernel/os_core/os_core.o
+ .debug_macinfo
+                0x000305e8     0x3840 ./kernel/os_core/os_dbg_r.o
+ .debug_macinfo
+                0x00033e28     0x3840 ./kernel/os_core/os_flag.o
+ .debug_macinfo
+                0x00037668     0x3840 ./kernel/os_core/os_mbox.o
+ .debug_macinfo
+                0x0003aea8     0x3840 ./kernel/os_core/os_mem.o
+ .debug_macinfo
+                0x0003e6e8     0x389a ./kernel/os_core/os_mutex.o
+ .debug_macinfo
+                0x00041f82     0x3840 ./kernel/os_core/os_q.o
+ .debug_macinfo
+                0x000457c2     0x3840 ./kernel/os_core/os_sem.o
+ .debug_macinfo
+                0x00049002     0x3840 ./kernel/os_core/os_task.o
+ .debug_macinfo
+                0x0004c842     0x3840 ./kernel/os_core/os_time.o
+ .debug_macinfo
+                0x00050082     0x385a ./kernel/os_core/ucos_ii.o
+ .debug_macinfo
+                0x000538dc     0x63fd ./kernel/kernel_entry.o
+ .debug_macinfo
+                0x00059cd9     0x50af ./D8Led.o
+ .debug_macinfo
+                0x0005ed88     0x4e58 ./L3.o
+ .debug_macinfo
+                0x00063be0     0x52da ./adc.o
+ .debug_macinfo
+                0x00068eba     0x4e7e ./at24c04.o
+ .debug_macinfo
+                0x0006dd38     0x52de ./button.o
+ .debug_macinfo
+                0x00073016     0x4e32 ./dma.o
+ .debug_macinfo
+                0x00077e48     0x2325 ./font8x16.o
+ .debug_macinfo
+                0x0007a16d     0x4bd6 ./gpio.o
+ .debug_macinfo
+                0x0007ed43     0x52a9 ./iic.o
+ .debug_macinfo
+                0x00083fec     0x4e43 ./iis.o
+ .debug_macinfo
+                0x00088e2f     0x4bf8 ./intcontroller.o
+ .debug_macinfo
+                0x0008da27     0x4bf0 ./keyboard.o
+ .debug_macinfo
+                0x00092617     0x4e90 ./lcd.o
+ .debug_macinfo
+                0x000974a7     0x4e42 ./leds.o
+ .debug_macinfo
+                0x0009c2e9     0x8047 ./main.o
+ .debug_macinfo
+                0x000a4330     0x4e32 ./rtc.o
+ .debug_macinfo
+                0x000a9162     0x4bd7 ./timer.o
+ .debug_macinfo
+                0x000add39     0x543e ./ts.o
+ .debug_macinfo
+                0x000b3177     0x4e13 ./uart.o
+ .debug_macinfo
+                0x000b7f8a     0x4ec3 ./uda1341ts.o
+ .debug_macinfo
+                0x000bce4d     0x4bd7 ./utils.o
+
+.debug_loc      0x00000000     0x30a4
+ .debug_loc     0x00000000       0x2c ./tests/test_EEPROM.o
+ .debug_loc     0x0000002c       0x2c ./tests/test_WAV.o
+ .debug_loc     0x00000058       0xb0 ./tests/test_sound_effects.o
+ .debug_loc     0x00000108      0x108 ./multitasking/cyclic.o
+ .debug_loc     0x00000210       0x2c ./multitasking/foreback.o
+ .debug_loc     0x0000023c       0xdc ./multitasking/kernelcoop.o
+ .debug_loc     0x00000318       0x2c ./multitasking/non_expropiative.o
+ .debug_loc     0x00000344      0x134 ./multitasking/queue.o
+ .debug_loc     0x00000478      0x1b8 ./kernel/os_port/os_cpu_c.o
+ .debug_loc     0x00000630      0x554 ./kernel/os_core/os_core.o
+ .debug_loc     0x00000b84       0x2c ./kernel/os_core/os_dbg_r.o
+ .debug_loc     0x00000bb0      0x23c ./kernel/os_core/os_flag.o
+ .debug_loc     0x00000dec      0x134 ./kernel/os_core/os_mbox.o
+ .debug_loc     0x00000f20      0x134 ./kernel/os_core/os_mem.o
+ .debug_loc     0x00001054      0x108 ./kernel/os_core/os_mutex.o
+ .debug_loc     0x0000115c      0x1b8 ./kernel/os_core/os_q.o
+ .debug_loc     0x00001314      0x134 ./kernel/os_core/os_sem.o
+ .debug_loc     0x00001448      0x210 ./kernel/os_core/os_task.o
+ .debug_loc     0x00001658       0xdc ./kernel/os_core/os_time.o
+ .debug_loc     0x00001734      0x1b8 ./kernel/kernel_entry.o
+ .debug_loc     0x000018ec       0xb0 ./D8Led.o
+ .debug_loc     0x0000199c       0x58 ./L3.o
+ .debug_loc     0x000019f4      0x160 ./adc.o
+ .debug_loc     0x00001b54       0xdc ./at24c04.o
+ .debug_loc     0x00001c30       0x2c ./button.o
+ .debug_loc     0x00001c5c       0xb0 ./dma.o
+ .debug_loc     0x00001d0c      0x134 ./gpio.o
+ .debug_loc     0x00001e40       0xdc ./iic.o
+ .debug_loc     0x00001f1c      0x1b8 ./iis.o
+ .debug_loc     0x000020d4      0x134 ./intcontroller.o
+ .debug_loc     0x00002208       0x2c ./keyboard.o
+ .debug_loc     0x00002234      0x268 ./lcd.o
+ .debug_loc     0x0000249c      0x1e4 ./leds.o
+ .debug_loc     0x00002680      0x1e4 ./main.o
+ .debug_loc     0x00002864      0x18c ./rtc.o
+ .debug_loc     0x000029f0      0x160 ./timer.o
+ .debug_loc     0x00002b50      0x210 ./ts.o
+ .debug_loc     0x00002d60      0x1b8 ./uart.o
+ .debug_loc     0x00002f18      0x134 ./uda1341ts.o
+ .debug_loc     0x0000304c       0x58 ./utils.o
+
+.debug_pubnames
+                0x00000000     0x1c55
+ .debug_pubnames
+                0x00000000       0x22 ./tests/test_EEPROM.o
+ .debug_pubnames
+                0x00000022       0x1f ./tests/test_WAV.o
+ .debug_pubnames
+                0x00000041       0xa0 ./tests/test_sound_effects.o
+ .debug_pubnames
+                0x000000e1       0x96 ./multitasking/cyclic.o
+ .debug_pubnames
+                0x00000177       0x9d ./multitasking/foreback.o
+ .debug_pubnames
+                0x00000214       0x61 ./multitasking/kernelcoop.o
+ .debug_pubnames
+                0x00000275       0x62 ./multitasking/non_expropiative.o
+ .debug_pubnames
+                0x000002d7       0x92 ./multitasking/queue.o
+ .debug_pubnames
+                0x00000369       0xcd ./kernel/os_port/os_cpu_c.o
+ .debug_pubnames
+                0x00000436      0x3b2 ./kernel/os_core/os_core.o
+ .debug_pubnames
+                0x000007e8      0x30b ./kernel/os_core/os_dbg_r.o
+ .debug_pubnames
+                0x00000af3       0xd0 ./kernel/os_core/os_flag.o
+ .debug_pubnames
+                0x00000bc3       0x82 ./kernel/os_core/os_mbox.o
+ .debug_pubnames
+                0x00000c45       0x7c ./kernel/os_core/os_mem.o
+ .debug_pubnames
+                0x00000cc1       0x76 ./kernel/os_core/os_mutex.o
+ .debug_pubnames
+                0x00000d37       0x98 ./kernel/os_core/os_q.o
+ .debug_pubnames
+                0x00000dcf       0x77 ./kernel/os_core/os_sem.o
+ .debug_pubnames
+                0x00000e46       0xe5 ./kernel/os_core/os_task.o
+ .debug_pubnames
+                0x00000f2b       0x62 ./kernel/os_core/os_time.o
+ .debug_pubnames
+                0x00000f8d      0x204 ./kernel/os_core/ucos_ii.o
+ .debug_pubnames
+                0x00001191      0x115 ./kernel/kernel_entry.o
+ .debug_pubnames
+                0x000012a6       0x51 ./D8Led.o
+ .debug_pubnames
+                0x000012f7       0x2d ./L3.o
+ .debug_pubnames
+                0x00001324       0x84 ./adc.o
+ .debug_pubnames
+                0x000013a8       0x72 ./at24c04.o
+ .debug_pubnames
+                0x0000141a       0x22 ./button.o
+ .debug_pubnames
+                0x0000143c       0x54 ./dma.o
+ .debug_pubnames
+                0x00001490       0x1b ./font8x16.o
+ .debug_pubnames
+                0x000014ab       0x86 ./gpio.o
+ .debug_pubnames
+                0x00001531       0x5a ./iic.o
+ .debug_pubnames
+                0x0000158b       0x9e ./iis.o
+ .debug_pubnames
+                0x00001629       0x7d ./intcontroller.o
+ .debug_pubnames
+                0x000016a6       0x1e ./keyboard.o
+ .debug_pubnames
+                0x000016c4       0xf2 ./lcd.o
+ .debug_pubnames
+                0x000017b6       0xb3 ./leds.o
+ .debug_pubnames
+                0x00001869       0xa4 ./main.o
+ .debug_pubnames
+                0x0000190d       0xa7 ./rtc.o
+ .debug_pubnames
+                0x000019b4       0x9b ./timer.o
+ .debug_pubnames
+                0x00001a4f       0x88 ./ts.o
+ .debug_pubnames
+                0x00001ad7       0xbe ./uart.o
+ .debug_pubnames
+                0x00001b95       0x9a ./uda1341ts.o
+ .debug_pubnames
+                0x00001c2f       0x26 ./utils.o
+
+.debug_pubtypes
+                0x00000000     0x13d2
+ .debug_pubtypes
+                0x00000000       0x32 ./tests/test_EEPROM.o
+ .debug_pubtypes
+                0x00000032       0x41 ./tests/test_WAV.o
+ .debug_pubtypes
+                0x00000073       0x64 ./tests/test_sound_effects.o
+ .debug_pubtypes
+                0x000000d7       0x65 ./multitasking/cyclic.o
+ .debug_pubtypes
+                0x0000013c       0x5c ./multitasking/foreback.o
+ .debug_pubtypes
+                0x00000198       0x41 ./multitasking/kernelcoop.o
+ .debug_pubtypes
+                0x000001d9       0x5c ./multitasking/non_expropiative.o
+ .debug_pubtypes
+                0x00000235       0x84 ./multitasking/queue.o
+ .debug_pubtypes
+                0x000002b9       0xd4 ./kernel/os_port/os_cpu_c.o
+ .debug_pubtypes
+                0x0000038d      0x14f ./kernel/os_core/os_core.o
+ .debug_pubtypes
+                0x000004dc      0x12f ./kernel/os_core/os_dbg_r.o
+ .debug_pubtypes
+                0x0000060b       0xf4 ./kernel/os_core/os_flag.o
+ .debug_pubtypes
+                0x000006ff       0xf6 ./kernel/os_core/os_mbox.o
+ .debug_pubtypes
+                0x000007f5       0x88 ./kernel/os_core/os_mem.o
+ .debug_pubtypes
+                0x0000087d       0xf8 ./kernel/os_core/os_mutex.o
+ .debug_pubtypes
+                0x00000975      0x102 ./kernel/os_core/os_q.o
+ .debug_pubtypes
+                0x00000a77       0xf4 ./kernel/os_core/os_sem.o
+ .debug_pubtypes
+                0x00000b6b       0xf4 ./kernel/os_core/os_task.o
+ .debug_pubtypes
+                0x00000c5f       0xd4 ./kernel/os_core/os_time.o
+ .debug_pubtypes
+                0x00000d33      0x12f ./kernel/os_core/ucos_ii.o
+ .debug_pubtypes
+                0x00000e62       0xba ./kernel/kernel_entry.o
+ .debug_pubtypes
+                0x00000f1c       0x12 ./D8Led.o
+ .debug_pubtypes
+                0x00000f2e       0x41 ./L3.o
+ .debug_pubtypes
+                0x00000f6f       0x51 ./adc.o
+ .debug_pubtypes
+                0x00000fc0       0x44 ./at24c04.o
+ .debug_pubtypes
+                0x00001004       0x1e ./button.o
+ .debug_pubtypes
+                0x00001022       0x2c ./dma.o
+ .debug_pubtypes
+                0x0000104e       0x1c ./font8x16.o
+ .debug_pubtypes
+                0x0000106a       0x43 ./gpio.o
+ .debug_pubtypes
+                0x000010ad       0x44 ./iic.o
+ .debug_pubtypes
+                0x000010f1       0x4d ./iis.o
+ .debug_pubtypes
+                0x0000113e       0x43 ./intcontroller.o
+ .debug_pubtypes
+                0x00001181       0x12 ./keyboard.o
+ .debug_pubtypes
+                0x00001193       0x32 ./lcd.o
+ .debug_pubtypes
+                0x000011c5       0x35 ./leds.o
+ .debug_pubtypes
+                0x000011fa       0x76 ./main.o
+ .debug_pubtypes
+                0x00001270       0x45 ./rtc.o
+ .debug_pubtypes
+                0x000012b5       0x39 ./timer.o
+ .debug_pubtypes
+                0x000012ee       0x54 ./ts.o
+ .debug_pubtypes
+                0x00001342       0x40 ./uart.o
+ .debug_pubtypes
+                0x00001382       0x3e ./uda1341ts.o
+ .debug_pubtypes
+                0x000013c0       0x12 ./utils.o
+
+.debug_aranges  0x00000000      0x560
+ .debug_aranges
+                0x00000000       0x20 ./tests/test_EEPROM.o
+ .debug_aranges
+                0x00000020       0x20 ./tests/test_WAV.o
+ .debug_aranges
+                0x00000040       0x20 ./tests/test_sound_effects.o
+ .debug_aranges
+                0x00000060       0x20 ./multitasking/cyclic.o
+ .debug_aranges
+                0x00000080       0x20 ./multitasking/foreback.o
+ .debug_aranges
+                0x000000a0       0x20 ./multitasking/kernelcoop.o
+ .debug_aranges
+                0x000000c0       0x20 ./multitasking/non_expropiative.o
+ .debug_aranges
+                0x000000e0       0x20 ./multitasking/queue.o
+ .debug_aranges
+                0x00000100       0x20 ./kernel/os_port/os_cpu_a.o
+ .debug_aranges
+                0x00000120       0x20 ./kernel/os_port/os_cpu_c.o
+ .debug_aranges
+                0x00000140       0x20 ./kernel/os_core/os_core.o
+ .debug_aranges
+                0x00000160       0x20 ./kernel/os_core/os_dbg_r.o
+ .debug_aranges
+                0x00000180       0x20 ./kernel/os_core/os_flag.o
+ .debug_aranges
+                0x000001a0       0x20 ./kernel/os_core/os_mbox.o
+ .debug_aranges
+                0x000001c0       0x20 ./kernel/os_core/os_mem.o
+ .debug_aranges
+                0x000001e0       0x20 ./kernel/os_core/os_mutex.o
+ .debug_aranges
+                0x00000200       0x20 ./kernel/os_core/os_q.o
+ .debug_aranges
+                0x00000220       0x20 ./kernel/os_core/os_sem.o
+ .debug_aranges
+                0x00000240       0x20 ./kernel/os_core/os_task.o
+ .debug_aranges
+                0x00000260       0x20 ./kernel/os_core/os_time.o
+ .debug_aranges
+                0x00000280       0x20 ./kernel/isr-wrappers.o
+ .debug_aranges
+                0x000002a0       0x20 ./kernel/kernel_entry.o
+ .debug_aranges
+                0x000002c0       0x20 ./D8Led.o
+ .debug_aranges
+                0x000002e0       0x20 ./L3.o
+ .debug_aranges
+                0x00000300       0x20 ./adc.o
+ .debug_aranges
+                0x00000320       0x20 ./at24c04.o
+ .debug_aranges
+                0x00000340       0x20 ./button.o
+ .debug_aranges
+                0x00000360       0x20 ./dma.o
+ .debug_aranges
+                0x00000380       0x20 ./gpio.o
+ .debug_aranges
+                0x000003a0       0x20 ./iic.o
+ .debug_aranges
+                0x000003c0       0x20 ./iis.o
+ .debug_aranges
+                0x000003e0       0x20 ./init.o
+ .debug_aranges
+                0x00000400       0x20 ./intcontroller.o
+ .debug_aranges
+                0x00000420       0x20 ./keyboard.o
+ .debug_aranges
+                0x00000440       0x20 ./lcd.o
+ .debug_aranges
+                0x00000460       0x20 ./leds.o
+ .debug_aranges
+                0x00000480       0x20 ./main.o
+ .debug_aranges
+                0x000004a0       0x20 ./rtc.o
+ .debug_aranges
+                0x000004c0       0x20 ./timer.o
+ .debug_aranges
+                0x000004e0       0x20 ./ts.o
+ .debug_aranges
+                0x00000500       0x20 ./uart.o
+ .debug_aranges
+                0x00000520       0x20 ./uda1341ts.o
+ .debug_aranges
+                0x00000540       0x20 ./utils.o
+
+.debug_str      0x00000000     0x1fe1
+ .debug_str     0x00000000       0xc4 ./tests/test_EEPROM.o
+                                 0xe9 (size before relaxing)
+ .debug_str     0x000000c4       0x44 ./tests/test_WAV.o
+                                 0xeb (size before relaxing)
+ .debug_str     0x00000108       0xb6 ./tests/test_sound_effects.o
+                                0x18b (size before relaxing)
+ .debug_str     0x000001be      0x1d6 ./multitasking/cyclic.o
+                                0x2a9 (size before relaxing)
+ .debug_str     0x00000394       0x5e ./multitasking/foreback.o
+                                0x2b9 (size before relaxing)
+ .debug_str     0x000003f2       0x7c ./multitasking/kernelcoop.o
+                                0x23e (size before relaxing)
+ .debug_str     0x0000046e       0x3b ./multitasking/non_expropiative.o
+                                0x296 (size before relaxing)
+ .debug_str     0x000004a9       0x9e ./multitasking/queue.o
+                                0x306 (size before relaxing)
+ .debug_str     0x00000547      0x311 ./kernel/os_port/os_cpu_c.o
+                                0x3cd (size before relaxing)
+ .debug_str     0x00000858      0x489 ./kernel/os_core/os_core.o
+                                0x7b3 (size before relaxing)
+ .debug_str     0x00000ce1      0x25c ./kernel/os_core/os_dbg_r.o
+                                0x7a5 (size before relaxing)
+ .debug_str     0x00000f3d      0x13f ./kernel/os_core/os_flag.o
+                                0x4e1 (size before relaxing)
+ .debug_str     0x0000107c       0x9c ./kernel/os_core/os_mbox.o
+                                0x3f2 (size before relaxing)
+ .debug_str     0x00001118       0xde ./kernel/os_core/os_mem.o
+                                0x215 (size before relaxing)
+ .debug_str     0x000011f6       0xb7 ./kernel/os_core/os_mutex.o
+                                0x447 (size before relaxing)
+ .debug_str     0x000012ad       0x9c ./kernel/os_core/os_q.o
+                                0x457 (size before relaxing)
+ .debug_str     0x00001349       0x8d ./kernel/os_core/os_sem.o
+                                0x3e3 (size before relaxing)
+ .debug_str     0x000013d6      0x106 ./kernel/os_core/os_task.o
+                                0x4f5 (size before relaxing)
+ .debug_str     0x000014dc       0x7a ./kernel/os_core/os_time.o
+                                0x3c1 (size before relaxing)
+ .debug_str     0x00001556       0x1c ./kernel/os_core/ucos_ii.o
+                                0x565 (size before relaxing)
+ .debug_str     0x00001572       0xd4 ./kernel/kernel_entry.o
+                                0x3c5 (size before relaxing)
+ .debug_str     0x00001646       0x50 ./D8Led.o
+                                 0x8a (size before relaxing)
+ .debug_str     0x00001696       0x71 ./L3.o
+                                0x117 (size before relaxing)
+ .debug_str     0x00001707       0xbe ./adc.o
+                                0x27f (size before relaxing)
+ .debug_str     0x000017c5       0xa0 ./at24c04.o
+                                0x15a (size before relaxing)
+ .debug_str     0x00001865       0x28 ./button.o
+                                 0xc3 (size before relaxing)
+ .debug_str     0x0000188d       0x44 ./dma.o
+                                0x1f1 (size before relaxing)
+ .debug_str     0x000018d1       0x13 ./font8x16.o
+                                 0xaf (size before relaxing)
+ .debug_str     0x000018e4       0x98 ./gpio.o
+                                0x106 (size before relaxing)
+ .debug_str     0x0000197c       0x3d ./iic.o
+                                0x121 (size before relaxing)
+ .debug_str     0x000019b9       0xa1 ./iis.o
+                                0x296 (size before relaxing)
+ .debug_str     0x00001a5a       0x68 ./intcontroller.o
+                                0x1ef (size before relaxing)
+ .debug_str     0x00001ac2       0x2a ./keyboard.o
+                                 0x82 (size before relaxing)
+ .debug_str     0x00001aec      0x105 ./lcd.o
+                                0x1cf (size before relaxing)
+ .debug_str     0x00001bf1       0x8b ./leds.o
+                                0x167 (size before relaxing)
+ .debug_str     0x00001c7c       0x6f ./main.o
+                                0x2f4 (size before relaxing)
+ .debug_str     0x00001ceb       0x85 ./rtc.o
+                                0x269 (size before relaxing)
+ .debug_str     0x00001d70       0x89 ./timer.o
+                                0x143 (size before relaxing)
+ .debug_str     0x00001df9       0x78 ./ts.o
+                                0x2d0 (size before relaxing)
+ .debug_str     0x00001e71       0x97 ./uart.o
+                                0x16d (size before relaxing)
+ .debug_str     0x00001f08       0xac ./uda1341ts.o
+                                0x172 (size before relaxing)
+ .debug_str     0x00001fb4       0x2d ./utils.o
+                                 0x5f (size before relaxing)
+
+.comment        0x00000000       0x2a
+ .comment       0x00000000       0x2a ./tests/test_EEPROM.o
+                                 0x2b (size before relaxing)
+ .comment       0x00000000       0x2b ./tests/test_WAV.o
+ .comment       0x00000000       0x2b ./tests/test_sound_effects.o
+ .comment       0x00000000       0x2b ./multitasking/cyclic.o
+ .comment       0x00000000       0x2b ./multitasking/foreback.o
+ .comment       0x00000000       0x2b ./multitasking/kernelcoop.o
+ .comment       0x00000000       0x2b ./multitasking/non_expropiative.o
+ .comment       0x00000000       0x2b ./multitasking/queue.o
+ .comment       0x00000000       0x2b ./kernel/os_port/os_cpu_c.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_core.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_dbg_r.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_flag.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_mbox.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_mem.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_mutex.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_q.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_sem.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_task.o
+ .comment       0x00000000       0x2b ./kernel/os_core/os_time.o
+ .comment       0x00000000       0x2b ./kernel/os_core/ucos_ii.o
+ .comment       0x00000000       0x2b ./kernel/kernel_entry.o
+ .comment       0x00000000       0x2b ./D8Led.o
+ .comment       0x00000000       0x2b ./L3.o
+ .comment       0x00000000       0x2b ./adc.o
+ .comment       0x00000000       0x2b ./at24c04.o
+ .comment       0x00000000       0x2b ./button.o
+ .comment       0x00000000       0x2b ./dma.o
+ .comment       0x00000000       0x2b ./font8x16.o
+ .comment       0x00000000       0x2b ./gpio.o
+ .comment       0x00000000       0x2b ./iic.o
+ .comment       0x00000000       0x2b ./iis.o
+ .comment       0x00000000       0x2b ./intcontroller.o
+ .comment       0x00000000       0x2b ./keyboard.o
+ .comment       0x00000000       0x2b ./lcd.o
+ .comment       0x00000000       0x2b ./leds.o
+ .comment       0x00000000       0x2b ./main.o
+ .comment       0x00000000       0x2b ./rtc.o
+ .comment       0x00000000       0x2b ./timer.o
+ .comment       0x00000000       0x2b ./ts.o
+ .comment       0x00000000       0x2b ./uart.o
+ .comment       0x00000000       0x2b ./uda1341ts.o
+ .comment       0x00000000       0x2b ./utils.o
+
+.ARM.attributes
+                0x00000000       0x30
+ .ARM.attributes
+                0x00000000       0x32 ./tests/test_EEPROM.o
+ .ARM.attributes
+                0x00000032       0x32 ./tests/test_WAV.o
+ .ARM.attributes
+                0x00000064       0x32 ./tests/test_sound_effects.o
+ .ARM.attributes
+                0x00000096       0x32 ./multitasking/cyclic.o
+ .ARM.attributes
+                0x000000c8       0x32 ./multitasking/foreback.o
+ .ARM.attributes
+                0x000000fa       0x32 ./multitasking/kernelcoop.o
+ .ARM.attributes
+                0x0000012c       0x32 ./multitasking/non_expropiative.o
+ .ARM.attributes
+                0x0000015e       0x32 ./multitasking/queue.o
+ .ARM.attributes
+                0x00000190       0x22 ./kernel/os_port/os_cpu_a.o
+ .ARM.attributes
+                0x000001b2       0x32 ./kernel/os_port/os_cpu_c.o
+ .ARM.attributes
+                0x000001e4       0x22 ./kernel/os_port/os_cpu_isr_wrapper.o
+ .ARM.attributes
+                0x00000206       0x22 ./kernel/os_port/s3c44b0x.o
+ .ARM.attributes
+                0x00000228       0x22 ./kernel/os_port/s3cev40.o
+ .ARM.attributes
+                0x0000024a       0x32 ./kernel/os_core/os_core.o
+ .ARM.attributes
+                0x0000027c       0x32 ./kernel/os_core/os_dbg_r.o
+ .ARM.attributes
+                0x000002ae       0x32 ./kernel/os_core/os_flag.o
+ .ARM.attributes
+                0x000002e0       0x32 ./kernel/os_core/os_mbox.o
+ .ARM.attributes
+                0x00000312       0x32 ./kernel/os_core/os_mem.o
+ .ARM.attributes
+                0x00000344       0x32 ./kernel/os_core/os_mutex.o
+ .ARM.attributes
+                0x00000376       0x32 ./kernel/os_core/os_q.o
+ .ARM.attributes
+                0x000003a8       0x32 ./kernel/os_core/os_sem.o
+ .ARM.attributes
+                0x000003da       0x32 ./kernel/os_core/os_task.o
+ .ARM.attributes
+                0x0000040c       0x32 ./kernel/os_core/os_time.o
+ .ARM.attributes
+                0x0000043e       0x32 ./kernel/os_core/ucos_ii.o
+ .ARM.attributes
+                0x00000470       0x22 ./kernel/isr-wrappers.o
+ .ARM.attributes
+                0x00000492       0x32 ./kernel/kernel_entry.o
+ .ARM.attributes
+                0x000004c4       0x32 ./D8Led.o
+ .ARM.attributes
+                0x000004f6       0x32 ./L3.o
+ .ARM.attributes
+                0x00000528       0x32 ./adc.o
+ .ARM.attributes
+                0x0000055a       0x32 ./at24c04.o
+ .ARM.attributes
+                0x0000058c       0x32 ./button.o
+ .ARM.attributes
+                0x000005be       0x32 ./dma.o
+ .ARM.attributes
+                0x000005f0       0x32 ./font8x16.o
+ .ARM.attributes
+                0x00000622       0x32 ./gpio.o
+ .ARM.attributes
+                0x00000654       0x32 ./iic.o
+ .ARM.attributes
+                0x00000686       0x32 ./iis.o
+ .ARM.attributes
+                0x000006b8       0x22 ./init.o
+ .ARM.attributes
+                0x000006da       0x32 ./intcontroller.o
+ .ARM.attributes
+                0x0000070c       0x32 ./keyboard.o
+ .ARM.attributes
+                0x0000073e       0x32 ./lcd.o
+ .ARM.attributes
+                0x00000770       0x32 ./leds.o
+ .ARM.attributes
+                0x000007a2       0x32 ./main.o
+ .ARM.attributes
+                0x000007d4       0x32 ./rtc.o
+ .ARM.attributes
+                0x00000806       0x32 ./timer.o
+ .ARM.attributes
+                0x00000838       0x32 ./ts.o
+ .ARM.attributes
+                0x0000086a       0x32 ./uart.o
+ .ARM.attributes
+                0x0000089c       0x32 ./uda1341ts.o
+ .ARM.attributes
+                0x000008ce       0x32 ./utils.o
+ .ARM.attributes
+                0x00000900       0x1a c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x0000091a       0x1a c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x00000934       0x18 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x00000000     0x26c0
+ .debug_frame   0x00000000       0x30 ./tests/test_EEPROM.o
+ .debug_frame   0x00000030       0x30 ./tests/test_WAV.o
+ .debug_frame   0x00000060       0x90 ./tests/test_sound_effects.o
+ .debug_frame   0x000000f0       0xd0 ./multitasking/cyclic.o
+ .debug_frame   0x000001c0       0x30 ./multitasking/foreback.o
+ .debug_frame   0x000001f0       0xbc ./multitasking/kernelcoop.o
+ .debug_frame   0x000002ac       0x30 ./multitasking/non_expropiative.o
+ .debug_frame   0x000002dc       0xfc ./multitasking/queue.o
+ .debug_frame   0x000003d8      0x150 ./kernel/os_port/os_cpu_c.o
+ .debug_frame   0x00000528      0x3f0 ./kernel/os_core/os_core.o
+ .debug_frame   0x00000918       0x30 ./kernel/os_core/os_dbg_r.o
+ .debug_frame   0x00000948      0x1b0 ./kernel/os_core/os_flag.o
+ .debug_frame   0x00000af8       0xf0 ./kernel/os_core/os_mbox.o
+ .debug_frame   0x00000be8       0xf0 ./kernel/os_core/os_mem.o
+ .debug_frame   0x00000cd8       0xd0 ./kernel/os_core/os_mutex.o
+ .debug_frame   0x00000da8      0x150 ./kernel/os_core/os_q.o
+ .debug_frame   0x00000ef8       0xf0 ./kernel/os_core/os_sem.o
+ .debug_frame   0x00000fe8      0x190 ./kernel/os_core/os_task.o
+ .debug_frame   0x00001178       0xb0 ./kernel/os_core/os_time.o
+ .debug_frame   0x00001228      0x150 ./kernel/kernel_entry.o
+ .debug_frame   0x00001378       0x90 ./D8Led.o
+ .debug_frame   0x00001408       0x50 ./L3.o
+ .debug_frame   0x00001458      0x11c ./adc.o
+ .debug_frame   0x00001574       0xb0 ./at24c04.o
+ .debug_frame   0x00001624       0x30 ./button.o
+ .debug_frame   0x00001654       0x9c ./dma.o
+ .debug_frame   0x000016f0       0xf0 ./gpio.o
+ .debug_frame   0x000017e0       0xb0 ./iic.o
+ .debug_frame   0x00001890      0x15c ./iis.o
+ .debug_frame   0x000019ec       0xf0 ./intcontroller.o
+ .debug_frame   0x00001adc       0x34 ./keyboard.o
+ .debug_frame   0x00001b10      0x1d0 ./lcd.o
+ .debug_frame   0x00001ce0      0x170 ./leds.o
+ .debug_frame   0x00001e50      0x1ac ./main.o
+ .debug_frame   0x00001ffc      0x148 ./rtc.o
+ .debug_frame   0x00002144      0x110 ./timer.o
+ .debug_frame   0x00002254      0x19c ./ts.o
+ .debug_frame   0x000023f0      0x150 ./uart.o
+ .debug_frame   0x00002540       0xf0 ./uda1341ts.o
+ .debug_frame   0x00002630       0x50 ./utils.o
+ .debug_frame   0x00002680       0x20 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_udivsi3.o)
+ .debug_frame   0x000026a0       0x20 c:/eclipsearm/sourcery-g++-lite-arm-2011.03/bin/../lib/gcc/arm-none-eabi/4.5.2\libgcc.a(_divsi3.o)
